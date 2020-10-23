@@ -2,13 +2,13 @@
  * GPGPU ping-pong buffers, state.
  *
  * @todo In-place updates of complex resources and meta info.
- * @todo Use transform feedback instead of data textures where supported (WebGL2)?
+ * @todo Use transform feedback instead of data textures, if supported (WebGL2)?
  * @todo Consider class/object/data/function structure further.
  * @todo Consider splitting these concerns into dedicated approaches.
  */
 
-import { range, map, reduce } from '../util/array';
-import { getGPGPUGroupsMap, getGPGPUSamplesMap } from './maps';
+import { range, map, reduce } from '@epok.tech/array-utils';
+import { mapGroups, mapSamples } from './maps';
 
 /**
  * The required and optional WebGL extensions for this GPGPU state.
@@ -26,33 +26,33 @@ export const optionalExtensions = ['webgl_draw_buffers'];
 // export const optionalExtensions = [];
 
 /**
- * Set up the GPGPU resources and meta information for the state of a number of data
- * items.
+ * Set up the GPGPU resources and meta information for the state of a number of
+ * data items.
  *
  * @todo Transform feedback.
  * @todo Validation.
  * @todo Reorder the given `values` into the most efficient `groups`?
  *
- * @see [getGPGPUGroupsMap]{@link ./maps.js#getGPGPUGroupsMap}
- * @see [getGPGPUSamplesMap]{@link ./maps.js#getGPGPUSamplesMap}
+ * @see [mapGroups]{@link ./maps.js#mapGroups}
+ * @see [mapSamples]{@link ./maps.js#mapSamples}
  * @see [getGPGPUStep]{@link ./step.js#getGPGPUStep}
- * @see [macroGPGPUPass]{@link ./macros.js#macroGPGPUPass}
+ * @see [macroPass]{@link ./macros.js#macroPass}
  *
  * @export
  * @param {object} api The API to set up WebGL resources.
  * @param {object} [state={}] The state parameters.
- * @param {number} [state.radius] The length of the sides of the data textures to
- *     allocate. If given, supersedes `state.width`, `state.height`, and `state.scale`.
- * @param {number} [state.width] The width of the data textures to allocate. If given,
- *     supersedes `state.scale`, if `state.radius` isn't given.
- * @param {number} [state.height] The height of the data textures to allocate. If given,
- *     supersedes `state.scale`, if `state.radius` isn't given.
- * @param {number} [state.scale=10] The length of the sides of the data textures to
- *     allocate. Given as the power by which to raise 2, ensuring a power-of-two square
- *     texture. Used if `state.width`, `state.height`, or `state.radius` aren't given.
+ * @param {number} [state.radius] The length of the sides of the data textures
+ *     to allocate. If given, supersedes `width`/`height`/`scale` of `state`.
+ * @param {number} [state.width] The width of the data textures to allocate.
+ *     If given, supersedes `state.scale`.
+ * @param {number} [state.height] The height of the data textures to allocate.
+ *     If given, supersedes `state.scale`.
+ * @param {number} [state.scale=10] The length of the sides of the data textures
+ *     to allocate. Given as the power by which to raise 2, ensuring a square
+ *     power-of-two texture.
  * @param {number} [state.steps=2] How many steps of state to track (should be > 1).
  * @param {array.<number>} [state.values=[4]] How values of each data item may be
- *     grouped into textures across passes - see `getGPGPUGroupsMap` and `out.groups`.
+ *     grouped into textures across passes - see `mapGroups` and `out.groups`.
  * @param {number} [state.texturesMax=api.maxDrawbuffers] The maximum number of
  *     textures to use per draw pass. Extra passes will be used above this limit.
  * @param {number} [state.channelsMin=4] The minimum allowable number of channels for
@@ -61,9 +61,9 @@ export const optionalExtensions = ['webgl_draw_buffers'];
  *     textures. Extra textures created as needed above this limit.
  * @param {string} [state.type='float'] The data type of the textures.
  * @param {array.<array.<(null|number|array.<number>)>>} [state.derives] Any values
- *     which derive their state from other values - see `getGPGPUSamplesMap`.
+ *     which derive their state from other values - see `mapSamples`.
  * @param {(string|function|falsey)} [state.macros] How GLSL preprocessor macro
- *     definitions and prefixes may be generated later - see `macroGPGPUPass`.
+ *     definitions and prefixes may be generated later - see `macroPass`.
  * @param {object} [out=state] The state object to set up. Modifies the given `state`
  *     object by default; new object if not given.
  *
@@ -75,11 +75,11 @@ export const optionalExtensions = ['webgl_draw_buffers'];
  * @returns {(string|function|falsey)} `out.macros` The given `state.macros`.
  * @returns {object.<array.<number>, array.<array.<number>>, array.<array.<number>>>}
  *     `out.groups` How `state.values` are grouped into textures and passes per step -
- *     see `getGPGPUGroupsMap`.
+ *     see `mapGroups`.
  * @returns {array.<array.<array.<number>>>} `[out.groups.samples]` If any
- *     `state.derives` were given, the samples are set up - see `getGPGPUSamplesMap`.
+ *     `state.derives` were given, the samples are set up - see `mapSamples`.
  * @returns {array.<array.<array.<number>>>} `[out.groups.reads]` If any
- *     `state.derives` were given, the reads are set up - see `getGPGPUSamplesMap`.
+ *     `state.derives` were given, the reads are set up - see `mapSamples`.
  * @returns {object.<number>} `out.size` Info about the sizes of the resources created.
  * @returns {array.<array.<object.<texture, array.<number>, number,...>>>}
  *     `out.textures` Textures per step, as arrays of objects of `textures`, and
@@ -89,13 +89,13 @@ export const optionalExtensions = ['webgl_draw_buffers'];
  *     with textures from `out.textures`, and meta info - see `out.groups.passes`.
  * @returns {array.<framebuffer.<array.<texture>>>} `out.steps` Hierarchy of steps
  *     of state, as an array of `framebuffers` from `out.passes`, with arrays of
- *     `textures` from `out.textures`, and meta info - see `getGPGPUGroupsMap`.
+ *     `textures` from `out.textures`, and meta info - see `mapGroups`.
  *     State data may be drawn into the framebuffers accordingly - see `getGPGPUStep`.
  *
  * @returns {number} `out.step` The currently active state step.
  * @returns {number} `out.pass` The currently active framebuffer pass.
  */
-export function getGPGPUState(api, state = {}, out = state) {
+export function getState(api, state = {}, out = state) {
     const { texture, framebuffer, limits } = api;
     const { maxDrawbuffers = 1 } = (limits || api);
 
@@ -125,9 +125,8 @@ export function getGPGPUState(api, state = {}, out = state) {
     out.texturesMax = texturesMax;
     out.macros = macros;
 
-
-    // How the resources will be created for each pass, according to given `values`.
-    const groups = out.groups = getGPGPUGroupsMap(values, texturesMax, channelsMax);
+    // How resources will be set up per-pass, according to given `state.values`.
+    const groups = out.groups = mapGroups(values, texturesMax, channelsMax);
 
     // Passing `state.scale` ensures a power-of-two square texture size.
     const textureSetup = {
@@ -167,7 +166,7 @@ export function getGPGPUState(api, state = {}, out = state) {
     };
 
     const addPass = (step) => (pass, index) => {
-        // All framebuffer color attachments must have the same number of channels.
+        // All framebuffer color attachments need the same number of channels.
         const passSetup = {
             type: 'float',
             channels: reduce((max, b) =>
@@ -201,15 +200,16 @@ export function getGPGPUState(api, state = {}, out = state) {
     };
 
     // Set up resources we'll need to store data per-texture-per-pass-per-step.
-    out.steps = map((v, step) => map(addPass(step), groups.passes), range(steps), 0);
+    out.steps = map((v, step) => map(addPass(step), groups.passes),
+        range(steps), 0);
 
     // Tracking currently active state/pass.
     out.step = out.pass = -1;
 
     // If `derives` given, set it up.
-    ((out.derives = derives) && getGPGPUSamplesMap(derives, groups));
+    ((out.derives = derives) && mapSamples(derives, groups));
 
     return out;
 }
 
-export default getGPGPUState;
+export default getState;

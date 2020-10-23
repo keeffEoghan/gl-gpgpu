@@ -1,18 +1,18 @@
 /**
- * GPGPU ping-pong buffers, input and output mappings for the GPGPU step/draw shaders.
+ * GPGPU ping-pong, input and output mappings for the GPGPU step/draw shaders.
  *
- * These maps show shaders how to take advantage of a system's supported features,
- * how to pack/unpack their data with framebuffers/textures, perform only as many
- * texture samples as needed to retrieve any past values they must derive from, etc.
- * Shaders may declare any values they output, any values they derive from, any
- * groupings of dependent/independent values - without handling how these concerns map
- * to the particular system they're on.
- * System limits/features/extensions are accounted for, to produce the most efficient
- * mappings available with the least I/O when it comes to drawing (draw passes, texture
- * samples, etc).
+ * These maps show shaders how to make use of a system's supported features, how
+ * to pack/unpack their data with framebuffers/textures, perform only the needed
+ * texture samples to retrieve any past values they must derive from, etc.
+ * Shaders may declare values they output, values they derive from, groupings of
+ * dependent/independent values - without handling how these concerns map to the
+ * particular system resources they're using.
+ * System limits/features/extensions are accounted for, to produce the most
+ * efficient mappings available with the least I/O when it comes to drawing
+ * (draw passes, texture samples, etc).
  */
 
-import { map, reduce, each } from 'array-utils';
+import { map, reduce, each } from '@epok.tech/array-utils';
 
 /**
  * Groups the `values` of GPGPU data items across draw passes and data textures.
@@ -20,43 +20,43 @@ import { map, reduce, each } from 'array-utils';
  * passes/textures used:
  *
  * @example
- *     getGPGPUGroupsMap([2, 4, 1], 1, 4) => {
+ *     mapGroups([2, 4, 1], 1, 4) => {
  *             values: [2, 4, 1],
  *             textures: [[0], [1], [2]], // length === 3
  *             passes: [[0], [1], [2]] // length === 3
  *         };
  *
- *     getGPGPUGroupsMap([4, 2, 1], 1, 4) => {
+ *     mapGroups([4, 2, 1], 1, 4) => {
  *             values: [4, 2, 1],
  *             textures: [[0], [1, 2]], // length === 2
  *             passes: [[0], [1]] // length === 2
  *         };
  *
- *     getGPGPUGroupsMap([4, 2, 1], 4, 4) => {
+ *     mapGroups([4, 2, 1], 4, 4) => {
  *             values: [4, 2, 1],
  *             textures: [[0], [1, 2]], // length === 2
  *             passes: [[0, 1]] // length === 1
  *         };
  *
- *     getGPGPUGroupsMap([2, 4, 1], 4, 4) => {
+ *     mapGroups([2, 4, 1], 4, 4) => {
  *             values: [2, 4, 1],
  *             textures: [[0], [1], [2]], // length === 3
  *             passes: [[0, 1, 2]] // length === 1
  *         };
  *
- *     getGPGPUGroupsMap([2, 4, 1], 2, 4) => {
+ *     mapGroups([2, 4, 1], 2, 4) => {
  *             values: [2, 4, 1],
  *             textures: [[0], [1], [2]], // length === 3
  *             passes: [[0, 1], [2]] // length === 2
  *         };
  *
- *     getGPGPUGroupsMap([2, 4, 1, 2], 2, 4) => {
+ *     mapGroups([2, 4, 1, 2], 2, 4) => {
  *             values: [2, 4, 1, 2],
  *             textures: [[0], [1], [2, 3]], // length === 3
  *             passes: [[0, 1], [2]] // length === 2
  *         };
  *
- *     getGPGPUGroupsMap([2, 4, 1, 4], 2, 4) => {
+ *     mapGroups([2, 4, 1, 4], 2, 4) => {
  *             values: [2, 4, 1, 4],
  *             textures: [[0], [1], [2], [3]], // length === 4
  *             passes: [[0, 1], [2, 3]] // length === 2
@@ -88,8 +88,8 @@ import { map, reduce, each } from 'array-utils';
  *     values are indexes into `values`.
  *
  * @returns {array.<number>} `out.values` The `values`, as given.
- * @returns {number} `out.values` The `texturesMax`, as given.
- * @returns {number} `out.values` The `channelsMax`, as given.
+ * @returns {number} `out.texturesMax` The `texturesMax`, as given.
+ * @returns {number} `out.channelsMax` The `channelsMax`, as given.
  *
  * @returns {array.<number>} `out.valueToTexture` A reverse map from each index of
  *     `values` to the index of the data texture which contains it; for convenience.
@@ -98,16 +98,17 @@ import { map, reduce, each } from 'array-utils';
  * @returns {array.<number>} `out.textureToPass` A reverse map from each index of
  *     `out.textures` to the index of the pass which contains it; for convenience.
  */
-export function getGPGPUGroupsMap(values, texturesMax = 1, channelsMax = 4) {
+export function mapGroups(values, texturesMax = 1, channelsMax = 4) {
     // The maximum number of channels writeable in a single draw pass.
     let sum = 0;
 
     return reduce((out, value, index) => {
             if(value > channelsMax) {
-                console.warn(`\`gl-gpgpu\`: none of the given \`values\` `+
+                console.warn('`gl-gpgpu`: none of the given `values` '+
                     `(${value}) should exceed the total number of channels `+
-                    `available in a texture (${channelsMax}).`, values);
-                
+                    `available in a texture (${channelsMax}).`,
+                    values);
+
                 return out;
             }
 
@@ -153,35 +154,38 @@ export function getGPGPUGroupsMap(values, texturesMax = 1, channelsMax = 4) {
 }
 
 /**
- * Gives the mappings for a minimal set of texture samples that need to be taken in
- * order to derive the next state of values.
- * 
+ * Gives the mappings for a minimal set of texture samples that need to be taken
+ * to derive the next state of values.
+ *
  * @example
- *     const groups = getGPGPUGroupsMap([2, 4, 1, 2], 2, 4) => {
- *             values: [2, 4, 1, 2],
- *             textures: [[0], [1], [2, 3]], // length === 3
- *             passes: [[0, 1], [2]] // length === 2
- *         };
+ *     const groups = mapGroups([2, 4, 1, 2], 2, 4);// =
+ *     {
+ *         values: [2, 4, 1, 2],
+ *         textures: [[0], [1], [2, 3]], // length === 3
+ *         passes: [[0, 1], [2]] // length === 2
+ *     };
  *
  *     // Entries per-value of derived step/value indexes, with entries including:
  *     // empty, single, multiple, and defined step samples.
  *     const derives = [[1, 0], , [3, [1, 0]], [2]];
- *     getGPGPUSamplesMap(derives, groups) => {
- *             // Per-pass, minimum values' texture samples.
- *             samples: [
- *                 // Per-value - step/texture index pairs into `groups.textures`.
- *                 [[0, 1], [0, 0]],
- *                 [[0, 2], [1, 0]]
- *             ],
- *             // Per-pass, value indexes to texture samples.
- *             reads: [
- *                 // Per-value - indexes into `out.samples`.
- *                 [[0, 1], , , ],
- *                 [, , [0, 1], [0]]
- *             ]
- *         };
  *
- * @see getGPGPUGroupsMap
+ *     mapSamples(derives, groups);// =
+ *     {
+ *         // Per-pass, minimum texture samples for values.
+ *         samples: [
+ *             // Per-value - step/texture index pairs into `groups.textures`.
+ *             [[0, 1], [0, 0]],
+ *             [[0, 2], [1, 0]]
+ *         ],
+ *         // Per-pass, value indexes to texture samples.
+ *         reads: [
+ *             // Per-value - indexes into `out.samples`.
+ *             [[0, 1], , , ],
+ *             [, , [0, 1], [0]]
+ *         ]
+ *     };
+ *
+ * @see mapGroups
  *
  * @todo Consider packing sample index pairs into a single number (float with texture
  *     and step either side of the decimal, or int of `texture+(step*textures.length)`).
@@ -198,7 +202,7 @@ export function getGPGPUGroupsMap(values, texturesMax = 1, channelsMax = 4) {
  *
  * @param {object.<array.<array>, array.<array>, array.<number>, array.<number>>}
  *     groups The groups for the given `derives`; with `passes`, `textures`,
- *     `values`, and `valueToTexture` properties - see `getGPGPUGroupsMap`.
+ *     `values`, and `valueToTexture` properties - see `mapGroups`.
  * @param {object} [out=groups] The object to store the result in.
  *
  * @returns {object.<array.<array.<array.<number>>>, array.<array.<array.<number>>>>}
@@ -211,7 +215,7 @@ export function getGPGPUGroupsMap(values, texturesMax = 1, channelsMax = 4) {
  *     index of `derives` to the index of the step and texture its derives are
  *     stored at in `out.samples`.
  */
-export function getGPGPUSamplesMap(derives, groups, out = groups) {
+export function mapSamples(derives, groups, out = groups) {
     const { passes, textures, values, valueToTexture } = groups;
     const reads = out.reads = [];
 
@@ -219,7 +223,12 @@ export function getGPGPUSamplesMap(derives, groups, out = groups) {
         const sample = ((Array.isArray(derive))?
                 [derive[0], valueToTexture[derive[1]]]
             :   [0, valueToTexture[derive]]);
-        
+
+        if(!sample.every(Number.isInteger)) {
+            return console.warn('`mapSamples`: invalid map for sample',
+                derives, groups, pass, value, derive, sample);
+        }
+
         const [step, texture] = sample;
         let i = set.findIndex(([s, t]) => (s === step) && (t === texture));
 
@@ -239,12 +248,13 @@ export function getGPGPUSamplesMap(derives, groups, out = groups) {
         return set;
     }
 
-    const samples = out.samples = map((pass, p) =>
-            reduce((set, texture) => reduce(getAddSamples(p), textures[texture], set),
+    out.samples = map((pass, p) =>
+            reduce((set, texture) =>
+                    reduce(getAddSamples(p), textures[texture], set),
                 pass, []),
         passes, []);
 
     return out;
 }
 
-export default getGPGPUGroupsMap;
+export default mapGroups;

@@ -2,7 +2,7 @@
  * GPGPU ping-pong buffers, update step.
  */
 
-import { each, wrapGet } from 'array-utils';
+import { each, wrapGet } from '@epok.tech/array-utils';
 import { positions as defaultPositions } from '@epok.tech/gl-screen-triangle';
 
 import defaultVert from '@epok.tech/gl-screen-triangle/index.vert.glsl';
@@ -77,7 +77,7 @@ export function getGPGPUStep(api, state, out = {}) {
     const cache = {
         props: null
     };
-    
+
     out.doStep = (props) => {
         props.step++;
 

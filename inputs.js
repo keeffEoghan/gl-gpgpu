@@ -1,4 +1,4 @@
-import { map, range, each, wrapGet } from 'array-utils';
+import { map, range, each, wrapGet } from '@epok.tech/array-utils';
 
 /**
  * Common uniform inputs for GPGPU `step` and `draw`.

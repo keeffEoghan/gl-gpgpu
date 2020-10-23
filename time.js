@@ -19,26 +19,27 @@ export function getTiming(api, state, out = {}) {
     const {
             timing = defaultTiming,
             // The initial time - `-1` for frame-time, or the current time for
-            // real-time or constant-step. Should be reset if `out.timing` is changed.
+            // real-time or constant-step. Should be reset if `out.timing` is
+            // changed.
             time = ((timing === 'tick')? 0 : now())
         } = state;
-    
+
 
     out.timing = timing;
     out.time = time;
 
-    out.stepTime = (api, state, out = {}) => {
+    out.update = (api, state) => {
         const { timing = defaultTiming, time: t0 } = state;
 
-        // Step the timer - add the constant-step, or update to the current tick/time.
-        const t1 = state.time = ((isNaN(timing))?
+        // Step the timer - add constant-step, or update to current tick/time.
+        state.time = ((isNaN(timing))?
                 // Can be a number value or a function.
                 ((isNaN(api[timing]))? api[timing]() : api[timing])
             :   t0+timing);
 
-        state.dt = t1-t0;
+        state.dt = state.time-t0;
 
-        return out;
+        return state;
     };
 
     return out;
