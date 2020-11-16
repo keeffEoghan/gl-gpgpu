@@ -4,12 +4,12 @@
  * The modules here may be used as given in this file, or piecemeal, or overridden.
  */
 
-import { macroPass } from './macros';
-import { mapGroups, mapSamples } from './maps';
+import regl from 'regl';
 
-const props = {
-    ...mapSamples([[1, 0], , [2, [1, 0]]], mapGroups([4, 2, 3, 1], 2, 4)),
-    steps: [, , ], pass: 0
-};
+import { mapGroups } from './maps';
+import { getState, extensions, optionalExtensions } from './state';
 
-console.log(macroPass(props));
+const state = { maps: mapGroups([4, 2, 3], 2, 4), steps: 1 };
+
+console.log(JSON.stringify(state, null, 4));
+console.log(getState(regl({ extensions, optionalExtensions }), state));
