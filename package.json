@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "@epok.tech/array-utils": "^0.0.4",
+    "@epok.tech/gl-screen-triangle": "^1.1.3",
+    "@epok.tech/is-type": "^0.0.1",
     "@thi.ng/vectors": "^4.7.0",
     "regl": "^2.0.1"
   },

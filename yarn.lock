@@ -878,6 +878,16 @@
   resolved "https://registry.yarnpkg.com/@epok.tech/array-utils/-/array-utils-0.0.4.tgz#d3befa46e7d80a047ba61a5d5a835f836b29efa6"
   integrity sha512-W626F/vcVZ2nMroDxB748nbWUjWik3lj3w7UtYoMANdclxILzsaNS0iqXzWvL/M/xO28b1CNCRiGaDFGr7y12Q==
 
+"@epok.tech/gl-screen-triangle@^1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@epok.tech/gl-screen-triangle/-/gl-screen-triangle-1.1.3.tgz#5ea2d83531360ae2ee8ad11ca6e33cfd7d209dcb"
+  integrity sha512-tZGR5OKByjCMfYiFFmQwHDgek6dOaALoMUh/jK5o7hSRnqFCNlp29ev+/+XAzBe0GLe2yXz0gpyXRq9SxEMF7Q==
+
+"@epok.tech/is-type@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@epok.tech/is-type/-/is-type-0.0.1.tgz#ea9fb93902b452c87fffdbf016ef247bf2603964"
+  integrity sha512-JpaWp8jXX0WXAAzc3NQfkEsyTPy+F2WJFMJgsldTh58u9jbykgRfHg2p5n404YFNtNGNUX7vUK3s8QWOev1djw==
+
 "@iarna/toml@^2.2.0":
   version "2.2.5"
   resolved "https://registry.yarnpkg.com/@iarna/toml/-/toml-2.2.5.tgz#b32366c89b43c6f8cefbdefac778b9c828e3ba8c"

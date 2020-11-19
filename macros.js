@@ -28,7 +28,7 @@ export const cache = {};
  *
  * @param {string} type The GLSL list data-type.
  * @param {string} name The name of the GLSL list variable.
- * @param {array.<(number|array.<number>)>} a The list of GLSL values.
+ * @param {array<number,array<number>>} a The list of GLSL values.
  * @param {string} [qualify=''] A GLSL qualifier, if needed.
  *
  * @returns {string} The GLSL 3 array declaration string.
@@ -59,7 +59,7 @@ export const getGLSL3List = (type, name, a, qualify = '') =>
  *
  * @param {string} type The GLSL list data-type.
  * @param {string} name The name of the GLSL list variable.
- * @param {array.<(number|array.<number>)>} a The list of GLSL values.
+ * @param {array<number,array<number>>} a The list of GLSL values.
  * @param {string} [qualify=''] A GLSL qualifier, if needed.
  *
  * @returns {string} The GLSL 1 array declaration string.
@@ -91,7 +91,7 @@ export const getGLSL1ListArray = (type, name, a, qualify = '') =>
  *
  * @param {string} type The GLSL list data-type.
  * @param {string} name The name of the GLSL list variable.
- * @param {array.<(number|array.<number>)>} a The list of GLSL values.
+ * @param {array<number,array<number>>} a The list of GLSL values.
  * @param {string} [qualify=''] A GLSL qualifier, if needed.
  *
  * @returns {string} The GLSL 1 array-like declaration string.
@@ -143,7 +143,7 @@ export const getGLSL1ListLike = (type, name, a, qualify = '') =>
  * @export
  * @param {string} type The GLSL list data-type.
  * @param {string} name The name of the GLSL list variable.
- * @param {array.<(number|array.<number>)>} a The list of GLSL values.
+ * @param {array<number,array<number>>} a The list of GLSL values.
  * @param {number} [qualify=''] A GLSL qualifier, if needed (e.g: `const`).
  * @param {number} [glsl] The GLSL version to target, if specified.
  *
@@ -159,7 +159,7 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1) =>
  *
  * @param {object} props The properties used for macro generation.
  * @param {string} [key] The ID for which macros should be generated.
- * @param {(string|function|object|falsey)} [macros=props.macros] Whether and
+ * @param {string|function|object|false} [macros=props.macros] Whether and
  *     how GLSL preprocessor macro definitions and prefixes should be generated:
  *     - If this is defined and falsey, no macros are generated.
  *     - If this is a function, it's called with the given `props`, `key`,
@@ -169,7 +169,7 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1) =>
  *     - Otherwise, returns `false` to indicate macros haven't been generated
  *         and should be generated elsewhere.
  *
- * @returns {(string|*|false)} Either the result of the generated macros, or
+ * @returns {string|*|false} Either the result of the generated macros, or
  *     `false` if macros should be generated elsewhere.
  */
 export const checkMacros = (props, key, macros = props.macros) =>
@@ -190,6 +190,7 @@ export const checkMacros = (props, key, macros = props.macros) =>
  *
  * @see checkMacros
  * @see getGLSLList
+ * @see [mapGroups]{@link ./maps.js#mapGroups}
  * @see [mapSamples]{@link ./maps.js#mapSamples}
  * @see [getState]{@link ./state.js#getState}
  *
@@ -225,17 +226,16 @@ export const checkMacros = (props, key, macros = props.macros) =>
  *         '((i == 1)? GPGPUReads_0_1 \\\n'+
  *         ': GPGPUReads_0_0)\n';
  *
- * @param {object.<number, array.<array.<array>>, array.<array.<array>>>} state
- *     The properties used to generate the preprocessor macros:
- * @param {(string|function|object|falsey)} [state.macros=macrosDef] How
+ * @param {object} state Properties used to generate the macros. See `getState`.
+ * @param {string|function|object|false} [state.macros=macrosDef] How
  *     macros should be generated. See `checkMacros`.
- * @param {number} state.pass The index of the currently active pass.
- * @param {array.<array.<array.<number>>>} state.maps.samples The minimal set of
+ * @param {number} state.passNow The index of the currently active pass.
+ * @param {object} state.maps  How `values` are grouped
+ *     per-texture-per-pass-per-step. See `mapGroups`.
+ * @param {array<array<array<number>>>} [state.maps.samples] The minimal set of
  *     texture samples to use. See `mapSamples`.
- * @param {array.<array.<array.<number>>>} state.maps.reads The mappings from
+ * @param {array<array<array<number>>>} [state.maps.reads] The mappings from
  *     values to the corresponding `state.samples`. See `mapSamples`.
- * @param {number} state.maps.textures.length How many textures to read from.
- *     See `mapGroups`.
  * @param {string} [qualify='const'] Any GLSL qualifier (e.g: `const`) for the
  *     generated variables. See `getGLSLList`.
  * @param {number} [glsl=1] The GLSL language version. See `getGLSLList`.
@@ -252,15 +252,15 @@ export function macroSamples(state, qualify = 'const', glsl = 1, loop = true) {
     if(created !== false) { return created; }
 
     const {
-            macros: m = macrosDef, pass,
-            maps: { samples, reads, textures: { length: texturesL } }
+            macros: m = macrosDef, passNow: p,
+            maps: { samples, reads }
         } = state;
 
-    const passSamples = (samples && samples[pass]);
-    const passReads = (reads && reads[pass]);
+    const passSamples = (samples && samples[p]);
+    const passReads = (reads && reads[p]);
 
     const c = key+':'+JSON.stringify({
-        m, pass, passSamples, passReads, texturesL, qualify, glsl
+        m, p, passSamples, passReads, qualify, glsl
     });
 
     return (cache[c] || (cache[c] =
@@ -297,7 +297,7 @@ export function macroSamples(state, qualify = 'const', glsl = 1, loop = true) {
  *
  * @example
  *     macroValues({
- *         maps: mapGroups([4, 2, 1], 1, 4), pass: 0, steps: Array(2)
+ *         maps: mapGroups([4, 2, 1], 1, 4), steps: Array(2)
  *     }); // =>
  *     '#define GPGPUTexture_0 0\n'+ // Value 0's texture.
  *     '#define GPGPUChannels_0 rgba\n'+ // Value 0's channels.
@@ -314,20 +314,17 @@ export function macroSamples(state, qualify = 'const', glsl = 1, loop = true) {
  *     '#define GPGPUSteps 2\n';
  *
  * @export
- * @param {object.<array.<number>, array.<array.<number>>>} state Properties
- *     used to generate the macros. See `getState`.
- * @param {(string|function|object|falsey)} [state.macros=macrosDef] How macros
+ * @param {object} state Properties used to generate the macros. See `getState`.
+ * @param {string|function|object|falsey} [state.macros=macrosDef] How macros
  *     should be generated. See `checkMacros`.
- * @param {object.<(number|array.<(number|array.<number>)>)>} state.maps How
- *     values are grouped per-texture-per-pass-per-step.
- * @param {array.<number>} state.maps.values How values of each data item may be
- *     grouped into textures. See `getState`.
- * @param {array.<array.<number>>} state.maps.textures The groupings of values
+ * @param {object} state.maps How values are grouped
+ *     per-texture-per-pass-per-step.
+ * @param {array<number>} state.maps.values How values of each data item are
+ *     grouped into textures. See `mapGroups`.
+ * @param {array<array<number>>} state.maps.textures The groupings of values
  *     into textures. See `mapGroups`.
- * @param {number} state.maps.passes.length The number of passes to be drawn
- *     per step. See `getState`.
- * @param {number} state.steps.length The number of states to be drawn across
- *     frames. See `getState`.
+ * @param {array} state.maps.passes The passes drawn per-step. See `mapGroups`.
+ * @param {array} state.steps The states drawn across frames. See `getState`.
  *
  * @returns {string} The GLSL preprocessor macros defining the mappings from
  *     values to textures/channels.
@@ -368,7 +365,7 @@ export function macroValues(state) {
  * @see [getState]{@link ./state.js#getState}
  *
  * @example
- *     const state = { maps: mapGroups([4, 2, 1], 1, 4), pass: 0 };
+ *     const state = { maps: mapGroups([4, 2, 1], 1, 4), passNow: 0 };
  *
  *     macroOutput(state); // =>
  *     '#define GPGPUPass 0\n'+
@@ -377,7 +374,7 @@ export function macroValues(state) {
  *     '#define GPGPUAttach_0 0\n'+
  *     '#define GPGPUOutput_0 gl_FragData[GPGPUAttach_0].rgba\n';
  *
- *     ++state.pass;
+ *     ++state.passNow;
  *
  *     macroOutput(state); // =>
  *     '#define GPGPUPass 1\n'+
@@ -392,16 +389,16 @@ export function macroValues(state) {
  *
  * @export
  * @param {object} state Properties for generating the macros. See `getState`:
- * @param {(string|function|object|falsey)} [state.macros=macrosDef] How macros
+ * @param {string|function|object|falsey} [state.macros=macrosDef] How macros
  *     should be generated. See `checkMacros`.
- * @param {number} state.pass The index of the currently active pass.
- * @param {object.<(number|array.<(number|array.<number>)>)>} state.maps How
- *     values are grouped per-texture-per-pass-per-step.
- * @param {array.<number>} state.maps.values How values of each data item may be
- *     grouped into textures across passes. See `getState`.
- * @param {array.<array.<number>>} state.maps.textures The groupings of values
+ * @param {number} state.passNow The index of the currently active pass.
+ * @param {object} state.maps How values are grouped
+ *     per-texture-per-pass-per-step. See `mapGroups`.
+ * @param {array<number>} state.maps.values How values of each data item may be
+ *     grouped into textures across passes. See `mapGroups`.
+ * @param {array<array<number>>} state.maps.textures The groupings of values
  *     into textures. See `mapGroups`.
- * @param {array.<array.<number>>} state.maps.passes The groupings of textures
+ * @param {array<array<number>>} state.maps.passes The groupings of textures
  *     into passes. See `mapGroups`.
  *
  * @returns {string} The GLSL preprocessor macros defining the bound outputs.
@@ -413,7 +410,8 @@ export function macroOutput(state) {
     if(created !== false) { return created; }
 
     const {
-            macros: m = macrosDef, pass: p, maps: { values, textures, passes }
+            macros: m = macrosDef, passNow: p,
+            maps: { values, textures, passes }
         } = state;
 
     const pass = passes[p];

@@ -9,7 +9,7 @@ import regl from 'regl';
 import { mapGroups } from './maps';
 import { getState, extensions, optionalExtensions } from './state';
 
-const state = { maps: mapGroups([4, 2, 3], 2, 4), steps: 1 };
+const state = { maps: mapGroups([4, 2, 3], 4, 4), steps: 2 };
 
 console.log(JSON.stringify(state, null, 4));
 console.log(getState(regl({ extensions, optionalExtensions }), state));

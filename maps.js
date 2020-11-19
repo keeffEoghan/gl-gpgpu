@@ -81,7 +81,7 @@ import { map, reduce, each } from '@epok.tech/array-utils';
  *     };
  *
  * @export
- * @param {array.<number>} values An array where each number is how many value
+ * @param {array<number>} values An array where each number is how many value
  *     channels are grouped into one data texture in one draw pass; each
  *     separate number may be drawn across one or more data textures/passes.
  *     Each value denotes the number of dependent channels to be drawn together;
@@ -93,30 +93,36 @@ import { map, reduce, each } from '@epok.tech/array-utils';
  *     texture reads to retrieve previous states.
  * @param {number} [texturesMax=1] Maximum textures to be used per draw pass.
  * @param {number} [channelsMax=4] Maximum channels any of the `values`.
+ * @param {object} [out={}] Any object to store the result in.
  *
- * @returns {object.<(number|array.<(number|array.<number>)>)>} `out` How
- *     `values` are grouped per-texture-per-pass-per-step, meta information, and
- *     given parameters.
- *
- * @returns {array.<array.<number>>} `out.passes` Textures grouped into passes;
+ * @returns {object} `out` The given `out` object; how `values` are grouped
+ *     per-texture-per-pass-per-step, meta information, and given parameters.
+ * @returns {array<array<number>>} `out.passes` Textures grouped into passes;
  *     arrays corresponding to framebuffers in separate draw passes; whose
  *     values are indexes into `out.textures`.
- * @returns {array.<array.<number>>} `out.textures` Values grouped into
+ * @returns {array<array<number>>} `out.textures` Values grouped into
  *     textures; arrays corresponding to framebuffer attachments, into which
  *     `values` are drawn; whose values are indexes into `out.values`.
- *
- * @returns {array.<number>} `out.values` The `values`, as given.
+ * @returns {array<number>} `out.values` The `values`, as given.
  * @returns {number} `out.texturesMax` The max textures per pass, as given.
  * @returns {number} `out.channelsMax` The max channels per texture, as given.
- *
- * @returns {array.<number>} `out.valueToTexture` Inverse map from each index of
+ * @returns {array<number>} `out.valueToTexture` Inverse map from each index of
  *     `out.values` to the index of the the data texture containing it.
- * @returns {array.<number>} `out.valueToPass` Inverse map from each index of
+ * @returns {array<number>} `out.valueToPass` Inverse map from each index of
  *     `out.values` to the index of the the pass containing it.
- * @returns {array.<number>} `out.textureToPass` Inverse map from each index of
+ * @returns {array<number>} `out.textureToPass` Inverse map from each index of
  *     `out.textures` to the index of the the pass containing it.
  */
-export function mapGroups(values, texturesMax = 1, channelsMax = 4) {
+export function mapGroups(values, texturesMax = 1, channelsMax = 4, out = {}) {
+    out.values = values;
+    out.texturesMax = texturesMax;
+    out.channelsMax = channelsMax;
+    out.passes = [[]];
+    out.textures = [[]];
+    out.valueToTexture = [];
+    out.valueToPass = [];
+    out.textureToPass = [];
+
     // Counts the number of channels written in a single draw pass.
     let channels = 0;
 
@@ -159,17 +165,7 @@ export function mapGroups(values, texturesMax = 1, channelsMax = 4) {
 
             return out;
         },
-        values,
-        {
-            passes: [[]],
-            textures: [[]],
-            values,
-            texturesMax,
-            channelsMax,
-            valueToTexture: [],
-            valueToPass: [],
-            textureToPass: []
-        });
+        values, out);
 }
 
 /**
@@ -203,7 +199,7 @@ export function mapGroups(values, texturesMax = 1, channelsMax = 4) {
  * @see mapGroups
  *
  * @export
- * @param {array.<(null|array.<(number|array.<number>)>)>} derives How values
+ * @param {array<null,array<number,array<number>>>} derives How values
  *     are derived. For each value index, a list of indexes of any past values
  *     it derives its from - a value not derived from past values may have an
  *     empty/null entry; a value derives from past values where its entry has:
@@ -212,20 +208,19 @@ export function mapGroups(values, texturesMax = 1, channelsMax = 4) {
  *         number: 0-and-up states ago, negatives go old-to-new) at the given
  *         value index (second number).
  *
- * @param {object.<(number|array.<(number|array.<number>)>)>} maps The maps
+ * @param {object<number,array<number,array<number>>>} maps The maps
  *     for the given `derives`. See `mapGroups`.
  * @param {object} [out=maps] The object to store the result in; `maps` if
  *     not given.
  *
- * @returns {object.<array.<array.<(null|array.<number>)>>>} `out` The given
- *     `out` object, with the resulting maps added.
- * @returns {array.<array.<array.<number>>>} `out.samples` Map of the minimum
+ * @returns {object} `out` The given `out` object, with resulting maps added.
+ * @returns {array<array<array<number>>>} `out.samples` Map of the minimum
  *     set of indexes into `maps.textures` that need to be sampled per-pass,
  *     to get all `derives` needed for each value of `maps.values` of each
  *     pass of `maps.passes`.
- * @returns {array.<array.<(null|array.<number>)>>} `out.reads` Sparse map from
+ * @returns {array<array<null,array<number>>>} `out.reads` Sparse map from
  *     each value of `derives` to its step and texture indexes in `out.samples`.
- * @returns {array.<(null|array.<(number|array.<number>)>)>} `out.derives` How
+ * @returns {array<null,array<number,array<number>>>} `out.derives` How
  *     values are derived, as given.
  */
 export function mapSamples(derives, maps, out = maps) {
