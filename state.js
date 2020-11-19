@@ -6,7 +6,9 @@
  * @todo Consider class/object/data/function structure further.
  */
 
-import { range, map, reduce } from '@epok.tech/array-utils';
+import range from '@epok.tech/array-utils/range';
+import map from '@epok.tech/array-utils/map';
+import reduce from '@epok.tech/array-utils/reduce';
 
 import { mapGroups } from './maps';
 

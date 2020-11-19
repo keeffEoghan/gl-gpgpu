@@ -1,5 +1,5 @@
 /**
- * GPGPU ping-pong, input and output mappings for the GPGPU step/draw shaders.
+ * GPGPU ping-pong, input and output mappings for GPGPU step/draw shaders.
  *
  * These maps show shaders how to make use of a system's supported features, how
  * to pack/unpack their data with framebuffers/textures, perform only the needed
@@ -12,7 +12,9 @@
  * (draw passes, texture samples, etc).
  */
 
-import { map, reduce, each } from '@epok.tech/array-utils';
+import map from '@epok.tech/array-utils/map';
+import reduce from '@epok.tech/array-utils/reduce';
+import each from '@epok.tech/array-utils/each';
 
 /**
  * Groups the `values` of GPGPU data items across draw passes and data textures.

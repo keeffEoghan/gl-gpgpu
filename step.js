@@ -2,9 +2,10 @@
  * GPGPU ping-pong buffers, update step.
  */
 
-import { each, wrapGet } from '@epok.tech/array-utils';
+import each from '@epok.tech/array-utils/each';
+import wrap from '@epok.tech/array-utils/wrap-index';
 import { positions as positionsDef } from '@epok.tech/gl-screen-triangle';
-// @ts-ignore
+
 import vertDef from '@epok.tech/gl-screen-triangle/index.vert.glsl';
 
 import { macroPass } from './macros';
@@ -111,12 +112,8 @@ export function getStep(api, state, cacheGLSL = true, out = {}) {
         count: (c, { step: { count: n = count } }) => n,
         depth: { enable: false },
         framebuffer: (c, { steps, stepNow, passNow }) =>
-            wrapGet(stepNow, steps)[passNow]
+            wrap.get(stepNow, steps)[passNow]
     });
-
-    const cache = {
-        props: null
-    };
 
     out.run = (props) => {
         const { step: { pass, onPass, onStep }, maps: { passes } } = props;

@@ -3,8 +3,10 @@
  */
 
 import { setC2 } from '@thi.ng/vectors/setc';
-import { map, range, each, wrapGet } from '@epok.tech/array-utils';
-
+import map from '@epok.tech/array-utils/map';
+import range from '@epok.tech/array-utils/range';
+import each from '@epok.tech/array-utils/each';
+import wrap from '@epok.tech/array-utils/wrap-index';
 import isNumber from '@epok.tech/is-type/number';
 
 /**
@@ -52,7 +54,7 @@ export function getUniforms(state, bound = 1, out = {}) {
         // Hook to pull a given texture from the latest `props`.
         out[`states[${(past*texturesL)+texture}]`] =
             (c, { stepNow, textures }) =>
-                wrapGet(stepNow+past+bound, textures)[texture].texture;
+                wrap.get(stepNow+past+bound, textures)[texture].texture;
 
     for(let past = stepsL-1-bound; past >= 0; --past) {
         each((v, texture) => addTexture(past, texture), textureMap);

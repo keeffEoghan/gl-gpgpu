@@ -9,7 +9,7 @@
  * @todo Consider doing something better with indentation.
  */
 
-import { reduce } from '@epok.tech/array-utils';
+import reduce from '@epok.tech/array-utils/reduce';
 
 export const rgba = 'rgba';
 export const macrosDef = 'GPGPU';
