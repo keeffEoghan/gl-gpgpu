@@ -1,7 +1,7 @@
 {
   "name": "gl-gpgpu",
   "version": "0.0.0",
-  "description": "GPGPU current/past state stepping, mappings for shaders/resources/inputs/outputs over minimal passes/resources - BYORenderer.",
+  "description": "GPGPU current/past state-stepping - map minimal passes of shaders, GL resources, inputs, outputs - BYORenderer.",
   "main": "index.js",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
   "author": "Eoghan O'Keeffe <epok.tech@gmail.com> (https://epok.tech)",
@@ -17,7 +17,7 @@
     "docs": "rm -rf docs/ && parcel build ./index.html -d ./docs/ --public-url ./"
   },
   "dependencies": {
-    "@epok.tech/array-utils": "^0.0.6",
+    "@epok.tech/fn-lists": "^0.0.7",
     "@epok.tech/gl-screen-triangle": "^1.1.3",
     "@epok.tech/is-type": "^0.0.1",
     "@thi.ng/vectors": "^4.7.0",

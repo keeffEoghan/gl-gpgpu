@@ -1,13 +1,15 @@
 /**
- * GPGPU ping-pong buffers, inputs (uniforms, indexes, etc).
+ * GPGPU inputs (uniforms, indexes, etc).
  */
 
 import { setC2 } from '@thi.ng/vectors/setc';
-import map from '@epok.tech/array-utils/map';
-import range from '@epok.tech/array-utils/range';
-import each from '@epok.tech/array-utils/each';
-import wrap from '@epok.tech/array-utils/wrap-index';
+import map from '@epok.tech/fn-lists/map';
+import range from '@epok.tech/fn-lists/range';
+import each from '@epok.tech/fn-lists/each';
+import wrap from '@epok.tech/fn-lists/wrap-index';
 import isNumber from '@epok.tech/is-type/number';
+
+import { boundDef } from './const';
 
 /**
  * Common uniform inputs for GPGPU `step` and `draw`.
@@ -24,7 +26,7 @@ import isNumber from '@epok.tech/is-type/number';
  *     per-texture-per-pass-per-step. See `mapGroups`.
  * @param {array<array<number>>} state.maps.textures How values are grouped into
  *     textures. See `mapGroups`.
- * @param {number} [bound=1] The number of steps to be bound as outputs,
+ * @param {number} [bound=boundDef] The number of steps to be bound as outputs,
  *     unavailable as inputs.
  * @param {object} [out={}] The object to contain the uniforms.
  *
@@ -33,7 +35,7 @@ import isNumber from '@epok.tech/is-type/number';
  *     or global properties, and a `props` object of local properties (such as
  *     the given `state`).
  */
-export function getUniforms(state, bound = 1, out = {}) {
+export function getUniforms(state, bound = boundDef, out = {}) {
     const cache = { viewShape: range(2) };
 
     out.stepNow = (c, { stepNow: s }) => s;

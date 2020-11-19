@@ -1,9 +1,9 @@
 /**
- * GPGPU ping-pong buffers, update step.
+ * GPGPU update step.
  */
 
-import each from '@epok.tech/array-utils/each';
-import wrap from '@epok.tech/array-utils/wrap-index';
+import each from '@epok.tech/fn-lists/each';
+import wrap from '@epok.tech/fn-lists/wrap-index';
 import { positions as positionsDef } from '@epok.tech/gl-screen-triangle';
 
 import vertDef from '@epok.tech/gl-screen-triangle/index.vert.glsl';

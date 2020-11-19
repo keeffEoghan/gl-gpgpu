@@ -1,15 +1,29 @@
 /**
- * GPGPU ping-pong buffers drawn in line segments of current/past positions.
+ * GPGPU current/past state-stepping - map minimal passes of shaders,
+ * GL resources, inputs, outputs - BYORenderer.
+ *
  * Rendering approach/engine specific, decoupled from the physics code.
- * The modules here may be used as given in this file, or piecemeal, or overridden.
+ * The modules and many hooks may be used as given, or piecemeal, or overridden.
  */
 
-import regl from 'regl';
+import { mapGroups, mapSamples } from './maps';
+import { getState } from './state';
+import { getUniforms, countDrawIndexes, getDrawIndexes } from './inputs';
+import { getStep } from './step';
 
-import { mapGroups } from './maps';
-import { getState, extensions, optionalExtensions } from './state';
+export function gpgpu(api, state, out = state) {
+    const {
+            values, derives, channelsMax, texturesMax, bound, cacheGLSL,
+            maps = mapGroups(values, channelsMax, texturesMax),
+            uniforms = {}
+        } = state;
 
-const state = { maps: mapGroups([4, 2, 3], 4, 4), steps: 2 };
+    out.maps = ((derives)? mapSamples(maps) : maps);
+    getState(api, state, out);
+    out.uniforms = getUniforms(state, bound, uniforms);
+    getStep(api, state, cacheGLSL, out);
 
-console.log(JSON.stringify(state, null, 4));
-console.log(getState(regl({ extensions, optionalExtensions }), state));
+    return out;
+}
+
+export default gpgpu;

@@ -1,5 +1,5 @@
 /**
- * GLSL preprocessor macros for states of the GPGPU state.
+ * GPGPU GLSL preprocessor macros for each part of the state.
  *
  * Careful defining these, as each set of different macros will result in new
  * shaders and compilations, missing the cache here and in the rendering system.
@@ -9,7 +9,7 @@
  * @todo Consider doing something better with indentation.
  */
 
-import reduce from '@epok.tech/array-utils/reduce';
+import reduce from '@epok.tech/fn-lists/reduce';
 
 export const rgba = 'rgba';
 export const macrosDef = 'GPGPU';

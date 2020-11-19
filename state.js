@@ -1,36 +1,21 @@
 /**
- * GPGPU ping-pong buffers, state.
+ * GPGPU state and GL resources.
  *
  * @todo In-place updates of complex resources and meta info.
  * @todo Use transform feedback instead of data textures, if supported (WebGL2)?
  * @todo Consider class/object/data/function structure further.
  */
 
-import range from '@epok.tech/array-utils/range';
-import map from '@epok.tech/array-utils/map';
-import reduce from '@epok.tech/array-utils/reduce';
+import range from '@epok.tech/fn-lists/range';
+import map from '@epok.tech/fn-lists/map';
+import reduce from '@epok.tech/fn-lists/reduce';
 
 import { mapGroups } from './maps';
 
-/**
- * The required and optional GL extensions for a GPGPU state.
- *
- * @todo
- * For drawing into floating-point buffers:
- * `oes_texture_float` and `oes_texture_half_float` are required dependencies of
- * `webgl_color_buffer_float` and `ext_color_buffer_half_float`, respectively.
- *
- * @todo Can these be optional? Fallbacks? `ext_color_buffer_half_float`?
- * @export
- */
-export const extensions = ['oes_texture_float', 'webgl_color_buffer_float'];
-export const optionalExtensions = ['webgl_draw_buffers'];
-// export const optionalExtensions = [];
-
-export const valuesDef = [4];
-export const channelsMinDef = 4;
-export const channelsMaxDef = 4;
-export const texturesMaxDef = 1;
+import {
+        extensions, optionalExtensions, scaleDef, stepsDef,
+        valuesDef, channelsMinDef, channelsMaxDef, texturesMaxDef
+    } from './const';
 
 /**
  * Set up the GPGPU resources and meta information for a state of a number data.
@@ -193,9 +178,9 @@ export const texturesMaxDef = 1;
  *     If given, supersedes `state.scale`.
  * @param {number} [state.height] The height of the data textures to allocate.
  *     If given, supersedes `state.scale`.
- * @param {number} [state.scale=10] The length of the sides of the data textures
+ * @param {number} [state.scale=scaleDef] The length of the data textures sides
  *     to allocate; gives a square power-of-two texture raising 2 to this power.
- * @param {number} [state.steps=2] How many steps of state to track (1 or more).
+ * @param {number} [state.steps=stepsDef] How many steps of state to track (1+).
  * @param {object} [state.maps] How `state.values` are grouped
  *     per-texture-per-pass-per-step. Set up here if not given. See `mapGroups`.
  * @param {array<number>} [state.maps.values=valuesDef] How values of each
@@ -242,11 +227,12 @@ export function getState(api, state, out = state) {
     const { maxDrawbuffers = texturesMaxDef } = limits;
 
     const {
-            radius, width, height, scale = 10, type = 'float', steps = 2,
+            radius, width, height, scale = scaleDef,
+            type = 'float', steps = stepsDef,
             // Tracking currently active state/pass.
             stepNow = -1, passNow = -1,
             // How resources will be set up per-pass, with given `state.values`.
-            maps = mapGroups(valuesDef, maxDrawbuffers, channelsMaxDef)
+            maps = mapGroups(valuesDef, channelsMaxDef, maxDrawbuffers)
         } = state;
 
     out.maps = maps;
@@ -254,10 +240,7 @@ export function getState(api, state, out = state) {
     out.passNow = passNow;
 
     const {
-            // The allowable range of channels for framebuffer attachments.
-            // Default avoids `RGB32F` framebuffer attachments, which errors on
-            // Firefox: https://bugzilla.mozilla.org/show_bug.cgi?id=1448632
-            channelsMin = (state.channelsMin || channelsMinDef),
+            channelsMin = channelsMinDef,
             values = valuesDef, textures: textureMap
         } = maps;
 

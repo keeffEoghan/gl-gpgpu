@@ -1,5 +1,5 @@
 /**
- * GPGPU ping-pong, input and output mappings for GPGPU step/draw shaders.
+ * GPGPU mappings for step/draw shaders input/output.
  *
  * These maps show shaders how to make use of a system's supported features, how
  * to pack/unpack their data with framebuffers/textures, perform only the needed
@@ -12,9 +12,11 @@
  * (draw passes, texture samples, etc).
  */
 
-import map from '@epok.tech/array-utils/map';
-import reduce from '@epok.tech/array-utils/reduce';
-import each from '@epok.tech/array-utils/each';
+import map from '@epok.tech/fn-lists/map';
+import reduce from '@epok.tech/fn-lists/reduce';
+import each from '@epok.tech/fn-lists/each';
+
+import { valuesDef, channelsMaxDef, texturesMaxDef } from './const';
 
 /**
  * Groups the `values` of GPGPU data items across draw passes and data textures.
@@ -83,9 +85,9 @@ import each from '@epok.tech/array-utils/each';
  *     };
  *
  * @export
- * @param {array<number>} values An array where each number is how many value
- *     channels are grouped into one data texture in one draw pass; each
- *     separate number may be drawn across one or more data textures/passes.
+ * @param {array<number>} [values=valuesDef] An array where each number is how
+ *     many value channels are grouped into one data texture in one draw pass;
+ *     each separate number is drawn across one or more data textures/passes.
  *     Each value denotes the number of dependent channels to be drawn together;
  *     separate values denote channels that aren't co-dependent, and may be
  *     drawn in or separate passes, depending on device support.
@@ -93,8 +95,9 @@ import each from '@epok.tech/array-utils/each';
  *     passes/textures used. Where the next state depends on previous states,
  *     these should ideally be an entry of `channels` or less, for fewest
  *     texture reads to retrieve previous states.
- * @param {number} [texturesMax=1] Maximum textures to be used per draw pass.
- * @param {number} [channelsMax=4] Maximum channels any of the `values`.
+ * @param {number} [texturesMax=texturesMaxDef] Maximum textures to be bound per
+ *     draw pass.
+ * @param {number} [channelsMax=channelsMaxDef] Maximum channels per `values`.
  * @param {object} [out={}] Any object to store the result in.
  *
  * @returns {object} `out` The given `out` object; how `values` are grouped
@@ -115,7 +118,8 @@ import each from '@epok.tech/array-utils/each';
  * @returns {array<number>} `out.textureToPass` Inverse map from each index of
  *     `out.textures` to the index of the the pass containing it.
  */
-export function mapGroups(values, texturesMax = 1, channelsMax = 4, out = {}) {
+export function mapGroups(values,
+        channelsMax = channelsMaxDef, texturesMax = texturesMaxDef, out = {}) {
     out.values = values;
     out.texturesMax = texturesMax;
     out.channelsMax = channelsMax;

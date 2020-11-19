@@ -873,10 +873,10 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
-"@epok.tech/array-utils@^0.0.6":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@epok.tech/array-utils/-/array-utils-0.0.6.tgz#421b84bcf223a53eca6f6fc61ecff53291766c3e"
-  integrity sha512-ofRYjlOkJ/hY9xid8TCOhyLLZRp5sJL+zJEgBsdWJ47KaPCMVPsnzY0u4lsKrFI712VPdsNeeeYlHM9xyeWP1g==
+"@epok.tech/fn-lists@^0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@epok.tech/fn-lists/-/fn-lists-0.0.7.tgz#8d551edde446d3f35175dd2e481c3e30ed441365"
+  integrity sha512-Wc+23ibqBCn+cp3dzkWSWq/t6QULkPUwvplKewWVnGZci7W9wA5AmLckZdxi4lDQT4tLuWKxMvWnqYrDLOlg9w==
 
 "@epok.tech/gl-screen-triangle@^1.1.3":
   version "1.1.3"
