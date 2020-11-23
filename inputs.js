@@ -1,5 +1,5 @@
 /**
- * GPGPU inputs (uniforms, indexes, etc).
+ * GPGPU inputs (uniforms, attributes, indexes, etc).
  */
 
 import { setC2 } from '@thi.ng/vectors/setc';
@@ -9,7 +9,7 @@ import each from '@epok.tech/fn-lists/each';
 import wrap from '@epok.tech/fn-lists/wrap-index';
 import isNumber from '@epok.tech/is-type/number';
 
-import { boundDef } from './const';
+import { boundDef, preDef } from './const';
 
 /**
  * Common uniform inputs for GPGPU `step` and `draw`.
@@ -22,12 +22,13 @@ import { boundDef } from './const';
  * @export
  * @param {object} state The GPGPU state to use. See `getState` and `mapGroups`.
  * @param {array} state.steps The steps of state. See `getState`.
- * @param {object} state.maps How values are grouped
- *     per-texture-per-pass-per-step. See `mapGroups`.
+ * @param {object} state.maps How values are grouped per-texture per-pass
+ *     per-step. See `mapGroups`.
  * @param {array<array<number>>} state.maps.textures How values are grouped into
  *     textures. See `mapGroups`.
- * @param {number} [bound=boundDef] The number of steps to be bound as outputs,
+ * @param {number} [state.bound=boundDef] How many steps are bound as outputs,
  *     unavailable as inputs.
+ * @param {string} [state.pre=preDef] The namespace prefix; `preDef` by default.
  * @param {object} [out={}] The object to contain the uniforms.
  *
  * @returns {object<function>} `out` The uniform hooks for the given `state`.
@@ -35,29 +36,34 @@ import { boundDef } from './const';
  *     or global properties, and a `props` object of local properties (such as
  *     the given `state`).
  */
-export function getUniforms(state, bound = boundDef, out = {}) {
+export function getUniforms(state, out = {}) {
+    const {
+            steps: { length: stepsL }, maps: { textures: textureMap },
+            bound = boundDef, pre: n = preDef
+        } = state;
+
+    const texturesL = textureMap.length;
     const cache = { viewShape: range(2) };
 
-    out.stepNow = (c, { stepNow: s }) => s;
-    out.steps = (c, { steps: { length: l } }) => l;
-    out.stepsPast = (c, { steps: { length: s } }) => s-bound;
-    out.passNow = (c, { passNow: p }) => p;
-    out.passes = (c, { passes: { length: l } }) => l;
-    out.dataShape = (c, { size: { shape: s } }) => s;
-    out.viewShape = ({ viewportWidth: w, viewportHeight: h }) =>
+    out[n+'stepNow'] = (_, { stepNow: s }) => s;
+    // out[n+'steps'] = (_, { steps: { length: l } }) => l;
+    // out[n+'stepsPast'] = (_, { steps: { length: s }, bound: b = bound }) => s-b;
+    // out[n+'passNow'] = (_, { passNow: p }) => p;
+    // out[n+'passes'] = (_, { passes: { length: l } }) => l;
+    out[n+'dataShape'] = (_, { size: { shape: s } }) => s;
+    out[n+'viewShape'] = ({ viewportWidth: w, viewportHeight: h }) =>
         setC2(cache.viewShape, w, h);
 
     // Set up the past steps, as the number of steps into the past from the
     // currently bound step ([1...(steps-1)]).
-    const { steps: { length: stepsL }, maps: { textures: textureMap } } = state;
-    const texturesL = textureMap.length;
 
     const addTexture = (past, texture) =>
         // Hook to pull a given texture from the latest `props`.
-        out[`states[${(past*texturesL)+texture}]`] =
-            (c, { stepNow, textures }) =>
-                wrap.get(stepNow+past+bound, textures)[texture].texture;
+        out[`${n}states[${(past*texturesL)+texture}]`] =
+            (_, { stepNow: s, bound: b = bound, textures }) =>
+                wrap.get(s+b+past, textures)[texture].texture;
 
+    // Flatten all input textures, as uniforms are stored in flat arrays.
     for(let past = stepsL-1-bound; past >= 0; --past) {
         each((v, texture) => addTexture(past, texture), textureMap);
     }

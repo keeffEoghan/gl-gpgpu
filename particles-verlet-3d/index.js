@@ -1,51 +1,77 @@
-import { getGPGPUSetup, getGPGPUSamples } from '../setup.js';
-import { getGPGPUUniforms } from '../inputs.js';
-import { map } from '../../util/array';
+/**
+ * Test implementation of 3D particle Verlet-integration simulation.
+ */
+import getRegl from 'regl';
+import { count, vertices } from '@epok.tech/gl-screen-triangle';
+
+import testVert from '@epok.tech/gl-screen-triangle/index.vert.glsl';
+import testFrag from '@epok.tech/gl-screen-triangle/index.frag.glsl';
+
+import { gpgpu, extensions, optionalExtensions } from '../';
 
 import stepFrag from './step.frag.glsl';
 
-const valuesMap = [
-    {
-        // position
-        values: 3,
-        derives: [0, [1, 0], 2, 1]
-    },
-    {
-        // life
-        values: 1,
-        derives: [1]
-    },
-    {
-        // acceleration
-        values: 3,
-        derives: [2, 1]
-    }
-];
-
-const values = map(({ values: v }) => v, valuesMap);
-const derives = map(({ derives: d }) => d, valuesMap);
-
-export const getSetup = () => ({
-    stepFrag,
-    // 1 active state + 2 past states needed for verlet.
-    steps: 1+2,
-    values: [...values],
-    derives: [...derives]
+const regl = getRegl({
+    extensions: extensions(), optionalExtensions: optionalExtensions()
 });
 
-export function getParticlesVerlet3DSetup(regl, s, o) {
-    const out = getGPGPUSetup(regl, Object.assign(getSetup(), s), o);
+// How many values/channels each property independently tracks.
+const valuesMap = { position: 3, life: 1, acceleration: 3 };
+const valuesKeys = Object.keys(valuesMap);
+const derivesMap = {
+    position: [
+        // Position, 1 step past.
+        valuesKeys.indexOf('position'),
+        // Position, 2 steps past.
+        [1, valuesKeys.indexOf('position')],
+        valuesKeys.indexOf('acceleration'),
+        valuesKeys.indexOf('life')
+    ],
+    life: [valuesKeys.indexOf('life')],
+    acceleration: [
+        valuesKeys.indexOf('acceleration'), valuesKeys.indexOf('life')
+    ]
+};
 
-    const extra = out.particlesVerlet3D = { lifetime: [0.5, 1] };
-    // const extra = out.particlesVerlet3D = { lifetime: [100, 256] };
+const values = Object.values(valuesMap);
+const derives = Object.values(derivesMap);
 
-    const stepUniforms = out.stepUniforms = getGPGPUUniforms(regl, out);
-    const drawUniforms = out.drawUniforms = getGPGPUUniforms(regl, out);
+const state = gpgpu(regl, {
+    macros: {
+        pass: true, values: true, output: true, samples: true, tap: true
+    },
+    maps: { values: [...values], derives: [...derives] },
+    step: { frag: stepFrag, verts: [], frags: [] },
+    // step: { frag: stepFrag },
+    // 1 active state + 2 past states needed for Verlet integration.
+    steps: 1+2
+});
 
-    stepUniforms.lifetime = drawUniforms.lifetime =
-        (c, { particlesVerlet3D: { lifetime: l } }) => l;
+console.log(self.state = state);
+console.log(state.step.frags[0]);
 
-    return out;
-}
+// const clear = { color: [0, 0, 0, 255], depth: 1 };
 
-export default getParticlesVerlet3DSetup;
+setTimeout(() => {
+// regl.frame(() => {
+    // regl.clear(clear);
+    state.step.run();
+// });
+}, 2000);
+
+// export function getParticlesVerlet3DSetup(regl, s, o) {
+//     const out = getSetup(regl, state, o);
+
+//     const extra = out.particlesVerlet3D = { lifetime: [0.5, 1] };
+//     // const extra = out.particlesVerlet3D = { lifetime: [100, 256] };
+
+//     const stepUniforms = out.stepUniforms = getUniforms(regl, out);
+//     const drawUniforms = out.drawUniforms = getUniforms(regl, out);
+
+//     stepUniforms.lifetime = drawUniforms.lifetime =
+//         (c, { particlesVerlet3D: { lifetime: l } }) => l;
+
+//     return out;
+// }
+
+// export default getParticlesVerlet3DSetup;

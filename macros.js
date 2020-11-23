@@ -10,10 +10,33 @@
  */
 
 import reduce from '@epok.tech/fn-lists/reduce';
+import { type } from '@epok.tech/is-type/type';
+
+import { preDef, boundDef } from './const';
 
 export const rgba = 'rgba';
-export const macrosDef = 'GPGPU';
 export const cache = {};
+
+// Keys for each part of the macro handling process available to hooks.
+export const hooks = {
+    // The full set of macros.
+    macroPass: 'pass',
+    // Each part of the set of macros.
+    macroValues: 'values', macroOutput: 'output',
+    macroSamples: 'samples', macroSamplesTap: 'tap'
+};
+
+/**
+ * Gives the prefix to use, to avoid namespace collisions.
+ *
+ * @param {object} state The state to check.
+ * @param {string} [state.macros] The macros prefix; supersedes `state.pre`.
+ * @param {string} [state.pre=preDef] The namespace prefix; `preDef` by default.
+ *
+ * @returns {string} The prefix string to use.
+ */
+export const getPre = ({ macros, pre = preDef }) =>
+    ((type(macros) === 'String')? macros : pre);
 
 /**
  * Generates an array declaration, as a GLSL 3 syntax string.
@@ -22,23 +45,23 @@ export const cache = {};
  * @export
  * @example
  *     getGLSL3List('int', 'list', [1, 2, 3], 'const'); // =>
- *     'const int list[3] = int[3](int(1), int(2), int(3));\\\n'+
+ *     'const int list[3] = int[3](int(1), int(2), int(3)); '+
  *     'const int list_l = 3;\n'+
  *     '#define list_i(i) list[i]\n';
  *
- * @param {string} type The GLSL list data-type.
+ * @param {string} dataType The GLSL list data-type.
  * @param {string} name The name of the GLSL list variable.
  * @param {array<number,array<number>>} a The list of GLSL values.
  * @param {string} [qualify=''] A GLSL qualifier, if needed.
  *
  * @returns {string} The GLSL 3 array declaration string.
  */
-export const getGLSL3List = (type, name, a, qualify = '') =>
-    `${(qualify && qualify+' ')+type} ${name}[${a.length}] = ${
-        type}[${a.length}](${reduce((s, v, i) =>
-                `${s+type}(${((Array.isArray(v))? v.join(', ') : v)})${
+export const getGLSL3List = (dataType, name, a, qualify = '') =>
+    `${(qualify && qualify+' ')+dataType} ${name}[${a.length}] = ${
+        dataType}[${a.length}](${reduce((s, v, i) =>
+                `${s+dataType}(${((Array.isArray(v))? v.join(', ') : v)})${
                     ((i < a.length-1)? ', ' : '')}`,
-            a, '')});\\\n`+
+            a, '')}); `+
     `const int ${name}_l = ${a.length};\n`+
     `#define ${name}_i(i) ${name}[i]\n`;
 
@@ -50,25 +73,25 @@ export const getGLSL3List = (type, name, a, qualify = '') =>
  * @example
  *     getGLSL1ListArray('vec3', 'list', [[1, 0, 0], [0, 2, 0], [0, 0, 3]]);
  *     // =>
- *     'vec3 list[3];\\\n'+
- *     'list[0] = vec3(1, 0, 0);\\\n'+
- *     'list[1] = vec3(0, 2, 0);\\\n'+
- *     'list[2] = vec3(0, 0, 3);\\\n'+
+ *     'vec3 list[3]; '+
+ *     'list[0] = vec3(1, 0, 0); '+
+ *     'list[1] = vec3(0, 2, 0); '+
+ *     'list[2] = vec3(0, 0, 3); '+
  *     'const int list_l = 3;\n'+
  *     '#define list_i(i) list[i]\n';
  *
- * @param {string} type The GLSL list data-type.
+ * @param {string} dataType The GLSL list data-type.
  * @param {string} name The name of the GLSL list variable.
  * @param {array<number,array<number>>} a The list of GLSL values.
  * @param {string} [qualify=''] A GLSL qualifier, if needed.
  *
  * @returns {string} The GLSL 1 array declaration string.
  */
-export const getGLSL1ListArray = (type, name, a, qualify = '') =>
-    `${(qualify && qualify+' ')+type} ${name}[${a.length}];\\\n${
+export const getGLSL1ListArray = (dataType, name, a, qualify = '') =>
+    `${(qualify && qualify+' ')+dataType} ${name}[${a.length}];${
     reduce((s, v, i) =>
             `${s+name}[${i}] = ${
-                type}(${((Array.isArray(v))? v.join(', ') : v)});\\\n`,
+                dataType}(${((Array.isArray(v))? v.join(', ') : v)}); `,
         a, '')
     }const int ${name}_l = ${a.length};\n`+
     `#define ${name}_i(i) ${name}[i]\n`;
@@ -80,34 +103,29 @@ export const getGLSL1ListArray = (type, name, a, qualify = '') =>
  * @export
  * @example
  *     getGLSL1ListLike('float', 'list', [1, 2, 3], 'const'); // =>
- *     'const int list_0 = float(1);\\\n'+
- *     'const int list_1 = float(2);\\\n'+
- *     'const int list_2 = float(3);\\\n'+
+ *     'const int list_0 = float(1); '+
+ *     'const int list_1 = float(2); '+
+ *     'const int list_2 = float(3); '+
  *     'const int list_l = 3;\n'+
- *     '#define list_i(i) \\\n'+
- *         '((i == 2)? list_2\\\n'+
- *         ': ((i == 1)? list_1\\\n'+
- *         ': list_0))\n';
+ *     '#define list_i(i) ((i == 2)? list_2 : ((i == 1)? list_1 : list_0))\n';
  *
- * @param {string} type The GLSL list data-type.
+ * @param {string} dataType The GLSL list data-type.
  * @param {string} name The name of the GLSL list variable.
  * @param {array<number,array<number>>} a The list of GLSL values.
  * @param {string} [qualify=''] A GLSL qualifier, if needed.
  *
  * @returns {string} The GLSL 1 array-like declaration string.
  */
-export const getGLSL1ListLike = (type, name, a, qualify = '') =>
+export const getGLSL1ListLike = (dataType, name, a, qualify = '') =>
     reduce((s, v, i) =>
-            `${s+(qualify && qualify+' ')+type} ${name}_${i} = ${
-                type}(${((Array.isArray(v))? v.join(', ') : v)});\\\n`,
+            `${s+(qualify && qualify+' ')+dataType} ${name}_${i} = ${
+                dataType}(${((Array.isArray(v))? v.join(', ') : v)}); `,
         a, '')+
     `const int ${name}_l = ${a.length};\n`+
-    // `#define ${name}_i(i) ${name}_##i\\\n`;
-    `#define ${name}_i(i) \\\n${
-        reduce((s, v, i) =>
-            ((i)? `((i == ${i})? ${name}_${i} \\\n: ${s})` : `${name}_${i}`),
-        a, '')
-    }\n`;
+    // `#define ${name}_i(i) ${name}_##i`;
+    `#define ${name}_i(i) ${reduce((s, v, i) =>
+            ((i)? `((i == ${i})? ${name}_${i} : ${s})` : `${name}_${i}`),
+        a, '')}\n`;
 
 /**
  * Creates a GLSL definition of an array, and initialises it with the given
@@ -121,27 +139,25 @@ export const getGLSL1ListLike = (type, name, a, qualify = '') =>
  *
  * @example
  *     getGLSLList('int', 'test', [0, 1]); // =>
- *     'int test[2];\\\n'+
- *     'test[0] = int(0);\\\n'+
- *     'test[1] = int(1);\\\n'+
+ *     'int test[2]; '+
+ *     'test[0] = int(0); '+
+ *     'test[1] = int(1); '+
  *     'const int test_l = 2;\n'+
  *     '#define test_i(i) test[i]\n';
  *
  *     getGLSLList('ivec2', 'vectors', [[0, 1], [0, 0]], 'const', 3); // =>
- *     'const ivec2 vectors[2] = ivec2[2](ivec2(0, 1), ivec2(0, 0));\\\n'+
+ *     'const ivec2 vectors[2] = ivec2[2](ivec2(0, 1), ivec2(0, 0)); '+
  *     'const int vectors_l = 2;\n'+
  *     '#define vectors_i(i) vectors[i]\n';
  *
  *     getGLSLList('int', 'listLike', [0, 1], 'const', 1); // =>
- *     'const int listLike_0 = int(0);\\\n'+
- *     'const int listLike_1 = int(1);\\\n'+
+ *     'const int listLike_0 = int(0); '+
+ *     'const int listLike_1 = int(1); '+
  *     'const int listLike_l = 2;\n'+
- *     '#define listLike_i(i) \\\n'+
- *         '((i == 1)? listLike_1\\\n'+
- *         ': listLike_0)\n';
+ *     '#define listLike_i(i) ((i == 1)? listLike_1 : listLike_0)\n';
  *
  * @export
- * @param {string} type The GLSL list data-type.
+ * @param {string} dataType The GLSL list data-type.
  * @param {string} name The name of the GLSL list variable.
  * @param {array<number,array<number>>} a The list of GLSL values.
  * @param {number} [qualify=''] A GLSL qualifier, if needed (e.g: `const`).
@@ -149,141 +165,53 @@ export const getGLSL1ListLike = (type, name, a, qualify = '') =>
  *
  * @returns {string} The GLSL (1 or 3) array or array-like declaration string.
  */
-export const getGLSLList = (type, name, a, qualify = '', glsl = 1) =>
+export const getGLSLList = (dataType, name, a, qualify = '', glsl = 1) =>
     ((glsl >= 3)? getGLSL3List
     : ((qualify.trim() === 'const')? getGLSL1ListLike
-    :   getGLSL1ListArray))(type, name, a, qualify);
+    :   getGLSL1ListArray))(dataType, name, a, qualify);
 
 /**
- * Whether macros should be created; or the result of creating them elsewhere.
- *
- * @param {object} props The properties used for macro generation.
- * @param {string} [key] The ID for which macros should be generated.
- * @param {string|function|object|false} [macros=props.macros] Whether and
- *     how GLSL preprocessor macro definitions and prefixes should be generated:
- *     - If this is defined and falsey, no macros are generated.
- *     - If this is a function, it's called with the given `props`, `key`,
- *         and `macros`.
- *     - If this is an object map, any value at the given `key` is handled
- *         recursively as above with the given `props`, `key`, `macros`.
- *     - Otherwise, returns `false` to indicate macros haven't been generated
- *         and should be generated elsewhere.
- *
- * @returns {string|*|false} Either the result of the generated macros, or
- *     `false` if macros should be generated elsewhere.
- */
-export const checkMacros = (props, key, macros = props.macros) =>
-    ((macros === undefined)? false
-    : ((!macros)? ''
-    : ((typeof macros === 'function')? macros(props, key, macros)
-    : ((typeof macros === 'object' && (key in macros))?
-        checkMacros(props, key, macros[key])
-    :   false))));
-
-/**
- * Defines the texture samples/reads per-pass, as GLSL preprocessor macros.
- * The macros define the mapping between the values and the minimum texture
- * samples for the data they derive from. They're set up as function-like macros
- * that may be called from the shader to initialise the mappings arrays with a
- * given name.
- * Caches the result if `macros` generation is enabled, to help reuse shaders.
- *
- * @see checkMacros
- * @see getGLSLList
- * @see [mapGroups]{@link ./maps.js#mapGroups}
- * @see [mapSamples]{@link ./maps.js#mapSamples}
- * @see [getState]{@link ./state.js#getState}
+ * Whether macros should be handled in this module; or the result of handling
+ * them by a given named hook.
+ * Allows macros of the given key to be handled by external named hooks, to
+ * replace any part of the functionality in this module.
  *
  * @example
- *     macroSamples({
- *         maps: mapSamples([[1, 0], , [3, [1, 0]]],
- *             mapGroups([4, 2, 1], 1, 4)),
- *         pass: 0
- *     }); // =>
- *     '#define GPGPUUseSamples \\\n'+
- *         'const ivec2 GPGPUSamples_0 = ivec2(0, 1);\\\n'+
- *         'const ivec2 GPGPUSamples_1 = ivec2(0, 0);\\\n'+
- *         'const int GPGPUSamples_l = 2;\n'+
- *     '#define GPGPUSamples_i(i) \\\n'+
- *         '((i == 1)? GPGPUSamples_1 \\\n'+
- *         ': GPGPUSamples_0)\n'+
- *     '\n'+
- *     '#define GPGPUTapSamples(out, states, uv) \\\n'+
- *         'vec4 out[GPGPUSamples_l];\\\n'+
- *         'for(int GPGPU_s = 0; GPGPU_s < GPGPUSamples_l; ++GPGPU_s) {'+
- *         '\\\n'+
- *             'vec2 GPGPU_d = GPGPUSamples_i(GPGPU_s);\\\n'+
- *             'int GPGPU_t = (GPGPU_d[0]*GPGPUSamples_l)+GPGPU_d[1];\\\n'+
- *             '\\\n'+
- *             'out[GPGPU_s] = texture2D(states[GPGPU_t], uv);\\\n'+
- *         '}\n'+
- *     '\n'+
- *     '#define GPGPUUseReads_0 \\\n'+
- *         'const int GPGPUReads_0_0 = int(0);\\\n'+
- *         'const int GPGPUReads_0_1 = int(1);\\\n'+
- *         'const int GPGPUReads_0_l = 2;\n'+
- *     '#define GPGPUReads_0_i(i) \\\n'+
- *         '((i == 1)? GPGPUReads_0_1 \\\n'+
- *         ': GPGPUReads_0_0)\n';
+ *     // Macros to be handled in part of this module.
+ *     hasMacros({}) === false;
+ *     // Macros to be handled in part of this module (with a name prefix `m`).
+ *     hasMacros({ macros: 'm' }) === false;
+ *     // No/empty macros created.
+ *     hasMacros({ macros: false }) === '';
+ *     // Macros for 'a' handled by external static hook, not this module.
+ *     hasMacros({ macros: { a: '//A\n', b: () => '//B\n' } }, 'a') === '//A\n';
+ *     // Macros for 'b' handled by external function hook, not this module.
+ *     hasMacros({ macros: { a: '//A\n', b: () => '//B\n' } }, 'b') === '//B\n';
  *
- * @param {object} state Properties used to generate the macros. See `getState`.
- * @param {string|function|object|false} [state.macros=macrosDef] How
- *     macros should be generated. See `checkMacros`.
- * @param {number} state.passNow The index of the currently active pass.
- * @param {object} state.maps  How `values` are grouped
- *     per-texture-per-pass-per-step. See `mapGroups`.
- * @param {array<array<array<number>>>} [state.maps.samples] The minimal set of
- *     texture samples to use. See `mapSamples`.
- * @param {array<array<array<number>>>} [state.maps.reads] The mappings from
- *     values to the corresponding `state.samples`. See `mapSamples`.
- * @param {string} [qualify='const'] Any GLSL qualifier (e.g: `const`) for the
- *     generated variables. See `getGLSLList`.
- * @param {number} [glsl=1] The GLSL language version. See `getGLSLList`.
- * @param {boolean} [loop=true] Whether to generate GLSL preprocessor macros for
- *     some of the lookup logic.
+ * @param {object} props The properties handling macros.
+ * @param {string} [key] The name for which macros should be handled.
+ * @param {string|function|object|false} [macros=props.macros] Whether and
+ *     how GLSL preprocessor macros should be handled:
+ *     - If it's defined and falsey, no macros are handled in this module.
+ *     - If it's a function, it's passed the given `props`, `key`, `macros`.
+ *     - If it's an object, any value at the given `key` is entered recursively,
+ *         with the given `props`, `key`, and `macros[key]`.
+ *     - Otherwise, returns `false` to indicate macros should be handled here.
  *
- * @returns {string} The GLSL preprocessor macros defining the mappings for
- *     samples and reads, for each value.
+ * @returns {string|*|false} Either the result of the macros handled elsewhere,
+ *     or `false` if macros should be handled here.
  */
-export function macroSamples(state, qualify = 'const', glsl = 1, loop = true) {
-    const key = 'samples';
-    const created = checkMacros(state);
+export function hasMacros(props, key, macros = props.macros) {
+    if(macros === undefined) { return false; }
+    if(!macros) { return ''; }
 
-    if(created !== false) { return created; }
+    const t = type(macros);
 
-    const {
-            macros: m = macrosDef, passNow: p,
-            maps: { samples, reads }
-        } = state;
-
-    const passSamples = (samples && samples[p]);
-    const passReads = (reads && reads[p]);
-
-    const c = key+':'+JSON.stringify({
-        m, p, passSamples, passReads, qualify, glsl
-    });
-
-    return (cache[c] || (cache[c] =
-        ((!passSamples)? ''
-        :   `#define ${m}UseSamples \\\n${
-                getGLSLList('ivec2', `${m}Samples`, passSamples, qualify, glsl)
-            }\n`+
-            // The texture-sampling logic.
-            ((!loop)? ''
-            :   `#define ${m}TapSamples(out, states, uv) \\\n`+
-                `vec4 out[${m}Samples_l];\\\n`+
-                `for(int ${m}_s = 0; ${m}_s < ${m}Samples_l; ++${m}_s) {\\\n`+
-                    `vec2 ${m}_d = ${m}Samples_i(${m}_s);\\\n`+
-                    `int ${m}_t = (${m}_d[0]*${m}Samples_l)+${m}_d[1];\\\n`+
-                    '\\\n'+
-                    `out[${m}_s] = texture2D(states[${m}_t], uv);\\\n`+
-                '}\n'))+
-        ((!passReads)? ''
-        :   reduce((s, valueReads, v) =>
-                `${s}\n#define ${m}UseReads_${v} \\\n${
-                    getGLSLList('int', `${m}Reads_${v}`, valueReads, qualify,
-                        glsl)}`,
-                passReads, ''))));
+    return ((t === 'Function')? macros(props, key, macros)
+        : ((t === 'String')? macros
+        : (((macros instanceof Object) && (key in macros))?
+            hasMacros(props, key, macros[key])
+        :   false)));
 }
 
 /**
@@ -291,68 +219,76 @@ export function macroSamples(state, qualify = 'const', glsl = 1, loop = true) {
  * These macros define mappings from values to their textures and channels.
  * Caches the result if `macros` generation is enabled, to help reuse shaders.
  *
- * @see checkMacros
+ * @see hasMacros
+ * @see getPre
  * @see [mapGroups]{@link ./maps.js#mapGroups}
  * @see [getState]{@link ./state.js#getState}
  *
  * @example
  *     macroValues({
- *         maps: mapGroups([4, 2, 1], 1, 4), steps: Array(2)
+ *         steps: Array(2),
+ *         maps: mapGroups({ values: [4, 2, 1], texturesMax: 1 })
  *     }); // =>
- *     '#define GPGPUTexture_0 0\n'+ // Value 0's texture.
- *     '#define GPGPUChannels_0 rgba\n'+ // Value 0's channels.
+ *     '#define texture_0 0\n'+ // Value 0's texture.
+ *     '#define channels_0 rgba\n'+ // Value 0's channels.
  *     '\n'+
- *     '#define GPGPUTexture_1 1\n'+ // Value 1's texture.
- *     '#define GPGPUChannels_1 rg\n'+ // Value 1's channels.
+ *     '#define texture_1 1\n'+ // Value 1's texture.
+ *     '#define channels_1 rg\n'+ // Value 1's channels.
  *     '\n'+
- *     '#define GPGPUTexture_2 1\n'+ // Value 2's texture.
- *     '#define GPGPUChannels_2 b\n'+ // Value 2's channels.
+ *     '#define texture_2 1\n'+ // Value 2's texture.
+ *     '#define channels_2 b\n'+ // Value 2's channels.
  *     '\n'+
- *     // Metadata for the active pass, step, etc.
- *     '#define GPGPUTextures 2\n'+
- *     '#define GPGPUPasses 2\n'+
- *     '#define GPGPUSteps 2\n';
+ *     // General metadata.
+ *     '#define textures 2\n'+
+ *     '#define passes 2\n'+
+ *     '#define stepsPast 1\n'+
+ *     '#define steps 2\n';
  *
  * @export
  * @param {object} state Properties used to generate the macros. See `getState`.
- * @param {string|function|object|falsey} [state.macros=macrosDef] How macros
- *     should be generated. See `checkMacros`.
- * @param {object} state.maps How values are grouped
- *     per-texture-per-pass-per-step.
+ * @param {string|function|object|falsey} [state.macros] How macros are handled
+ *     or prefixed. See `hasMacros` and `getPre`.
+ * @param {string} [state.pre] How macros are prefixed. See `getPre`.
+ * @param {object} state.maps How values are grouped per-texture per-pass
+ *     per-step.
  * @param {array<number>} state.maps.values How values of each data item are
  *     grouped into textures. See `mapGroups`.
  * @param {array<array<number>>} state.maps.textures The groupings of values
  *     into textures. See `mapGroups`.
  * @param {array} state.maps.passes The passes drawn per-step. See `mapGroups`.
  * @param {array} state.steps The states drawn across frames. See `getState`.
+ * @param {number} [state.bound=boundDef] How many steps are bound as outputs,
+ *     unavailable as inputs..
  *
  * @returns {string} The GLSL preprocessor macros defining the mappings from
  *     values to textures/channels.
  */
 export function macroValues(state) {
-    const key = 'values';
-    const created = checkMacros(state, key);
+    const key = hooks.macroValues;
+    const hook = hasMacros(state, key);
 
-    if(created !== false) { return created; }
+    if(hook !== false) { return hook; }
 
     const {
-            macros: m = macrosDef,
             maps: { values, textures, passes: { length: passesL } },
-            steps: { length: stepsL }
+            steps: { length: stepsL }, bound = boundDef
         } = state;
 
-    const c = key+':'+JSON.stringify({ m, values, textures, stepsL, passesL });
+    const n = getPre(state);
+    const c = key+':'+
+        JSON.stringify({ n, bound, values, textures, stepsL, passesL });
 
     return (cache[c] || (cache[c] =
-        reduce((s, texture, t, _, n = 0) => reduce((s, v) => s+
-                    `#define ${m}Texture_${v} ${t}\n`+
-                    `#define ${m}Channels_${v} ${
-                        rgba.slice(n, (n += values[v]))}\n\n`,
+        reduce((s, texture, t, _, i = 0) => reduce((s, v) => s+
+                    `#define ${n}texture_${v} ${t}\n`+
+                    `#define ${n}channels_${v} ${
+                        rgba.slice(i, (i += values[v]))}\n\n`,
                 texture, s),
             textures, '')+
-        `#define ${m}Textures ${textures.length}\n`+
-        `#define ${m}Passes ${passesL}\n`+
-        `#define ${m}Steps ${stepsL}\n`));
+        `#define ${n}textures ${textures.length}\n`+
+        `#define ${n}passes ${passesL}\n`+
+        `#define ${n}stepsPast ${stepsL-bound}\n`+
+        `#define ${n}steps ${stepsL}\n`));
 }
 
 /**
@@ -360,40 +296,44 @@ export function macroValues(state) {
  * These macros define mappings from values to their outputs, if bound.
  * Caches the result if `macros` generation is enabled, to help reuse shaders.
  *
- * @see checkMacros
+ * @see hasMacros
+ * @see getPre
  * @see [mapGroups]{@link ./maps.js#mapGroups}
  * @see [getState]{@link ./state.js#getState}
  *
  * @example
- *     const state = { maps: mapGroups([4, 2, 1], 1, 4), passNow: 0 };
+ *     const state = {
+ *         passNow: 0, maps: mapGroups({ values: [4, 2, 1], texturesMax: 1 })
+ *     };
  *
  *     macroOutput(state); // =>
- *     '#define GPGPUPass 0\n'+
+ *     '#define passNow 0\n'+
  *     '\n'+
- *     '#define GPGPUBound_0 0\n'+
- *     '#define GPGPUAttach_0 0\n'+
- *     '#define GPGPUOutput_0 gl_FragData[GPGPUAttach_0].rgba\n';
+ *     '#define bound_0 0\n'+
+ *     '#define attach_0 0\n'+
+ *     '#define output_0 gl_FragData[attach_0].rgba\n';
  *
  *     ++state.passNow;
  *
  *     macroOutput(state); // =>
- *     '#define GPGPUPass 1\n'+
+ *     '#define passNow 1\n'+
  *     '\n'+
- *     '#define GPGPUBound_1 1\n'+
- *     '#define GPGPUAttach_1 0\n'+
- *     '#define GPGPUOutput_1 gl_FragData[GPGPUAttach_1].rg\n'+
+ *     '#define bound_1 1\n'+
+ *     '#define attach_1 0\n'+
+ *     '#define output_1 gl_FragData[attach_1].rg\n'+
  *     '\n'+
- *     '#define GPGPUBound_2 1\n'+
- *     '#define GPGPUAttach_2 0\n'+
- *     '#define GPGPUOutput_2 gl_FragData[GPGPUAttach_2].b\n';
+ *     '#define bound_2 1\n'+
+ *     '#define attach_2 0\n'+
+ *     '#define output_2 gl_FragData[attach_2].b\n';
  *
  * @export
  * @param {object} state Properties for generating the macros. See `getState`:
- * @param {string|function|object|falsey} [state.macros=macrosDef] How macros
- *     should be generated. See `checkMacros`.
+ * @param {string|function|object|falsey} [state.macros] How macros are handled
+ *     or prefixed. See `hasMacros` and `getPre`.
+ * @param {string} [state.pre] How macros are prefixed. See `getPre`.
  * @param {number} state.passNow The index of the currently active pass.
- * @param {object} state.maps How values are grouped
- *     per-texture-per-pass-per-step. See `mapGroups`.
+ * @param {object} state.maps How values are grouped per-texture per-pass
+ *     per-step. See `mapGroups`.
  * @param {array<number>} state.maps.values How values of each data item may be
  *     grouped into textures across passes. See `mapGroups`.
  * @param {array<array<number>>} state.maps.textures The groupings of values
@@ -404,29 +344,126 @@ export function macroValues(state) {
  * @returns {string} The GLSL preprocessor macros defining the bound outputs.
  */
 export function macroOutput(state) {
-    const key = 'output';
-    const created = checkMacros(state, key);
+    const key = hooks.macroOutput;
+    const hook = hasMacros(state, key);
 
-    if(created !== false) { return created; }
+    if(hook !== false) { return hook; }
 
-    const {
-            macros: m = macrosDef, passNow: p,
-            maps: { values, textures, passes }
-        } = state;
-
+    const { passNow: p, maps: { values, textures, passes } } = state;
+    const n = getPre(state);
     const pass = passes[p];
-    const c = key+':'+JSON.stringify({ m, p, values, textures, passes });
+    const c = key+':'+JSON.stringify({ n, p, values, textures, passes });
 
     return (cache[c] || (cache[c] =
-        `#define ${m}Pass ${p}\n`+
-        reduce((s, texture, bound, _, n = 0) => reduce((s, v) => `${s}\n`+
-                    `#define ${m}Bound_${v} ${texture}\n`+
-                    `#define ${m}Attach_${v} ${bound}\n`+
-                    `#define ${m}Output_${v} gl_FragData[${m}Attach_${v}].${
-                        rgba.slice(n, (n += values[v]))
+        `#define ${n}passNow ${p}\n`+
+        reduce((s, texture, bound, _, i = 0) => reduce((s, v) => `${s}\n`+
+                    `#define ${n}bound_${v} ${texture}\n`+
+                    `#define ${n}attach_${v} ${bound}\n`+
+                    `#define ${n}output_${v} gl_FragData[${n}attach_${v}].${
+                        rgba.slice(i, (i += values[v]))
                     }\n`,
                 textures[texture], s),
             pass, '')));
+}
+
+/**
+ * Defines the texture samples/reads per-pass, as GLSL preprocessor macros.
+ * The macros define the mapping between the values and the minimum texture
+ * samples for the data they derive from. They're set up as function-like macros
+ * that may be called from the shader to initialise the mappings arrays with a
+ * given name.
+ * Caches the result if `macros` generation is enabled, to help reuse shaders.
+ *
+ * @see hasMacros
+ * @see getPre
+ * @see getGLSLList
+ * @see [mapGroups]{@link ./maps.js#mapGroups}
+ * @see [mapSamples]{@link ./maps.js#mapSamples}
+ * @see [getState]{@link ./state.js#getState}
+ *
+ * @example
+ *     macroSamples({
+ *         passNow: 0,
+ *         maps: mapSamples(mapGroups({
+ *             values: [4, 2, 1], channelsMax: 4, texturesMax: 1,
+ *             derives: [[1, 0], , [3, [1, 0]]]
+ *         }))
+ *     }); // =>
+ *     '#define useSamples '+
+ *         'const ivec2 samples_0 = ivec2(0, 1); '+
+ *         'const ivec2 samples_1 = ivec2(0, 0); '+
+ *         'const int samples_l = 2;\n'+
+ *     '#define samples_i(i) ((i == 1)? samples_1 : samples_0)\n'+
+ *     '\n'+
+ *     '#define tapSamples(states, uv, textures, out) '+
+ *         'for(int s = 0; s < samples_l; ++s) { '+
+ *             'vec2 d = samples_i(s); '+
+ *             // 'int t = (d[0]*samples_l)+d[1]; '+
+ *             'int t = (d[0]*textures)+d[1]; '+
+ *             'out[s] = texture2D(states[t], uv); '+
+ *         '}\n'+
+ *     '\n'+
+ *     '#define useReads_0 '+
+ *         'const int reads_0_0 = int(0); '+
+ *         'const int reads_0_1 = int(1); '+
+ *         'const int reads_0_l = 2;\n'+
+ *     '#define reads_0_i(i) ((i == 1)? reads_0_1 : reads_0_0)\n';
+ *
+ * @param {object} state Properties used to generate the macros. See `getState`.
+ * @param {string|function|object|falsey} [state.macros] How macros are handled
+ *     or prefixed. See `hasMacros` and `getPre`.
+ * @param {string} [state.pre] How macros are prefixed. See `getPre`.
+ * @param {number} state.passNow The index of the currently active pass.
+ * @param {object} state.maps  How `values` are grouped per-texture per-pass
+ *     per-step. See `mapGroups`.
+ * @param {array<array<array<number>>>} [state.maps.samples] The minimal set of
+ *     texture samples to use. See `mapSamples`.
+ * @param {array<array<array<number>>>} [state.maps.reads] The mappings from
+ *     values to the corresponding `state.samples`. See `mapSamples`.
+ * @param {number} [state.glsl=1] The GLSL language version. See `getGLSLList`.
+ *
+ * @returns {string} The GLSL preprocessor macros defining the mappings for
+ *     samples and reads, for each value.
+ */
+export function macroSamples(state) {
+    const key = hooks.macroSamples;
+    const hook = hasMacros(state, key);
+
+    if(hook !== false) { return hook; }
+
+    const { passNow: p, maps: { samples, reads }, glsl } = state;
+    const n = getPre(state);
+    const passSamples = (samples && samples[p]);
+    const passReads = (reads && reads[p]);
+    // Whether to generate GLSL preprocessor macros for the lookup logic.
+    const tap = hasMacros(state, hooks.macroSamplesTap);
+
+    const c = key+':'+
+        JSON.stringify({ n, p, passSamples, passReads, glsl, tap });
+
+    return (cache[c] || (cache[c] =
+        ((!passSamples)? ''
+        :   `#define ${n}useSamples ${
+                getGLSLList('ivec2', `${n}samples`, passSamples, 'const', glsl)
+            }\n`+
+            // The texture-sampling logic.
+            // @todo `Index expression must be constant`
+            ((tap !== false)? tap
+            :   `#define ${n}tapSamples(states, uv, textures, out) `+
+                `for(int ${n}s = 0; ${n}s < ${n}samples_l; ++${n}s) { `+
+                    `ivec2 ${n}d = ${n}samples_i(${n}s); `+
+                    // 2D-to-1D indexing, as textures are in a flat array.
+                    // @todo This line doesn't make sense... outdated.
+                    // `int ${n}t = (${n}d[0]*${n}samples_l)+${n}d[1]; `+
+                    `int ${n}t = (${n}d[0]*textures)+${n}d[1]; `+
+                    `out[${n}s] = texture2D(states[${n}t], uv); `+
+                '}\n'))+
+        ((!passReads)? ''
+        :   reduce((s, reads, v) =>
+                    `${s}\n#define ${n}useReads_${v} ${
+                        getGLSLList('int', `${n}reads_${v}`, reads, 'const',
+                            glsl)}`,
+                passReads, ''))));
 }
 
 /**
@@ -436,7 +473,7 @@ export function macroOutput(state) {
  * channels, bound outputs, and other macros useful for a draw pass.
  * Caches the result if `macros` generation is enabled, to help reuse shaders.
  *
- * @see checkMacros
+ * @see hasMacros
  * @see macroValues
  * @see macroOutput
  * @see macroSamples
@@ -445,133 +482,123 @@ export function macroOutput(state) {
  *
  * @example
  *     const state = {
- *         maps: mapSamples([[1, 0], [2, [1, 0]]], mapGroups([4, 2, 3], 1, 4)),
- *         steps: Array(2), pass: 0
+ *         steps: Array(2), passNow: 0, pre: '',
+ *         maps: mapSamples(mapGroups({
+ *             values: [4, 2, 3], channelsMax: 4, texturesMax: 1,
+ *             derives: [[1, 0], [2, [1, 0]]]
+ *         }))
  *     };
  *
  *     macroPass(state); // =>
- *     '#define GPGPUTexture_0 0\n'+
- *     '#define GPGPUChannels_0 rgba\n'+
+ *     '#define texture_0 0\n'+
+ *     '#define channels_0 rgba\n'+
  *     '\n'+
- *     '#define GPGPUTexture_1 1\n'+
- *     '#define GPGPUChannels_1 rg\n'+
+ *     '#define texture_1 1\n'+
+ *     '#define channels_1 rg\n'+
  *     '\n'+
- *     '#define GPGPUTexture_2 2\n'+
- *     '#define GPGPUChannels_2 rgb\n'+
+ *     '#define texture_2 2\n'+
+ *     '#define channels_2 rgb\n'+
  *     '\n'+
- *     '#define GPGPUTextures 3\n'+
- *     '#define GPGPUPasses 3\n'+
- *     '#define GPGPUSteps 2\n'+
+ *     '#define textures 3\n'+
+ *     '#define passes 3\n'+
+ *     '#define steps 2\n'+
  *     '\n'+
- *     '#define GPGPUPass 0\n'+
+ *     '#define passNow 0\n'+
  *     '\n'+
- *     '#define GPGPUBound_0 0\n'+
- *     '#define GPGPUAttach_0 0\n'+
- *     '#define GPGPUOutput_0 gl_FragData[GPGPUAttach_0].rgba\n'+
+ *     '#define bound_0 0\n'+
+ *     '#define attach_0 0\n'+
+ *     '#define output_0 gl_FragData[attach_0].rgba\n'+
  *     '\n'+
- *     '#define GPGPUUseSamples \\\n'+
- *         'const ivec2 GPGPUSamples_0 = ivec2(0, 1);\\\n'+
- *         'const ivec2 GPGPUSamples_1 = ivec2(0, 0);\\\n'+
- *         'const int GPGPUSamples_l = 2;\n'+
- *     '#define GPGPUSamples_i(i) \\\n'+
- *         '((i == 1)? GPGPUSamples_1 \\\n'+
- *         ': GPGPUSamples_0)\n'+
+ *     '#define useSamples '+
+ *         'const ivec2 samples_0 = ivec2(0, 1); '+
+ *         'const ivec2 samples_1 = ivec2(0, 0); '+
+ *         'const int samples_l = 2;\n'+
+ *     '#define samples_i(i) ((i == 1)? samples_1 : samples_0)\n'+
  *     '\n'+
- *     '#define GPGPUTapSamples(out, states, uv) \\\n'+
- *         'vec4 out[GPGPUSamples_l];\\\n'+
- *         'for(int GPGPU_s = 0; GPGPU_s < GPGPUSamples_l; ++GPGPU_s) {\\\n'+
- *             'vec2 GPGPU_d = GPGPUSamples_i(GPGPU_s);\\\n'+
- *             'int GPGPU_t = (GPGPU_d[0]*GPGPUSamples_l)+GPGPU_d[1];\\\n'+
- *             '\\\n'+
- *             'out[GPGPU_s] = texture2D(states[GPGPU_t], uv);\\\n'+
+ *     '#define tapSamples(out, states, uv) '+
+ *         'for(int s = 0; s < samples_l; ++s) {'+
+ *             'vec2 d = samples_i(s); '+
+ *             'int t = (d[0]*samples_l)+d[1]; '+
+ *             'out[s] = texture2D(states[t], uv); '+
  *         '}\n'+
  *     '\n'+
- *     '#define GPGPUUseReads_0 \\\n'+
- *         'const int GPGPUReads_0_0 = int(0);\\\n'+
- *         'const int GPGPUReads_0_1 = int(1);\\\n'+
- *         'const int GPGPUReads_0_l = 2;\n'+
- *     '#define GPGPUReads_0_i(i) \\\n'+
- *         '((i == 1)? GPGPUReads_0_1 \\\n'+
- *         ': GPGPUReads_0_0)\n';
+ *     '#define useReads_0 '+
+ *         'const int reads_0_0 = int(0); '+
+ *         'const int reads_0_1 = int(1); '+
+ *         'const int reads_0_l = 2;\n'+
+ *     '#define reads_0_i(i) ((i == 1)? reads_0_1 : reads_0_0)\n';
  *
- *     ++state.pass;
- *     state.macros = 'draw';
+ *     ++state.passNow;
+ *     state.macros = 'draw_';
  *     state.steps.push(null);
- *     Object.assign(state.maps,
- *         mapSamples([[1, 0], , [2, [1, 0]]], mapGroups([4, 2, 3, 1], 2, 4)));
+ *     Object.assign(state.maps, mapSamples(mapGroups({
+ *         values: [4, 2, 3, 1], channelsMax: 4, texturesMax: 2,
+ *         derives: [[1, 0], , [2, [1, 0]]]
+ *     })));
  *
  *     macroPass(state); // =>
- *     '#define drawTexture_0 0\n'+
- *     '#define drawChannels_0 rgba\n'+
+ *     '#define draw_texture_0 0\n'+
+ *     '#define draw_channels_0 rgba\n'+
  *     '\n'+
- *     '#define drawTexture_1 1\n'+
- *     '#define drawChannels_1 rg\n'+
+ *     '#define draw_texture_1 1\n'+
+ *     '#define draw_channels_1 rg\n'+
  *     '\n'+
- *     '#define drawTexture_2 2\n'+
- *     '#define drawChannels_2 rgb\n'+
+ *     '#define draw_texture_2 2\n'+
+ *     '#define draw_channels_2 rgb\n'+
  *     '\n'+
- *     '#define drawTexture_3 2\n'+
- *     '#define drawChannels_3 a\n'+
+ *     '#define draw_texture_3 2\n'+
+ *     '#define draw_channels_3 a\n'+
  *     '\n'+
- *     '#define drawTextures 3\n'+
- *     '#define drawPasses 2\n'+
- *     '#define drawSteps 3\n'+
+ *     '#define draw_textures 3\n'+
+ *     '#define draw_passes 2\n'+
+ *     '#define draw_steps 3\n'+
  *     '\n'+
- *     '#define drawPass 1\n'+
+ *     '#define draw_passNow 1\n'+
  *     '\n'+
- *     '#define drawBound_2 2\n'+
- *     '#define drawAttach_2 0\n'+
- *     '#define drawOutput_2 gl_FragData[drawAttach_2].rgb\n'+
+ *     '#define draw_bound_2 2\n'+
+ *     '#define draw_attach_2 0\n'+
+ *     '#define draw_output_2 gl_FragData[draw_attach_2].rgb\n'+
  *     '\n'+
- *     '#define drawBound_3 2\n'+
- *     '#define drawAttach_3 0\n'+
- *     '#define drawOutput_3 gl_FragData[drawAttach_3].a\n'+
+ *     '#define draw_bound_3 2\n'+
+ *     '#define draw_attach_3 0\n'+
+ *     '#define draw_output_3 gl_FragData[draw_attach_3].a\n'+
  *     '\n'+
- *     '#define drawUseSamples \\\n'+
- *         'const ivec2 drawSamples_0 = ivec2(0, 2);\\\n'+
- *         'const ivec2 drawSamples_1 = ivec2(1, 0);\\\n'+
- *         'const int drawSamples_l = 2;\n'+
- *     '#define drawSamples_i(i) \\\n'+
- *         '((i == 1)? drawSamples_1 \\\n'+
- *         ': drawSamples_0)\n'+
+ *     '#define draw_useSamples '+
+ *         'const ivec2 draw_samples_0 = ivec2(0, 2); '+
+ *         'const ivec2 draw_samples_1 = ivec2(1, 0); '+
+ *         'const int draw_samples_l = 2;\n'+
+ *     '#define draw_samples_i(i) '+
+ *         '((i == 1)? draw_samples_1 : draw_samples_0)\n'+
  *     '\n'+
- *     '#define drawTapSamples(out, states, uv) \\\n'+
- *         'vec4 out[drawSamples_l];\\\n'+
- *         'for(int draw_s = 0; draw_s < drawSamples_l; ++draw_s) {\\\n'+
- *             'vec2 draw_d = drawSamples_i(draw_s);\\\n'+
- *             'int draw_t = (draw_d[0]*drawSamples_l)+draw_d[1];\\\n'+
- *             '\\\n'+
- *             'out[draw_s] = texture2D(states[draw_t], uv);\\\n'+
+ *     '#define draw_tapSamples(out, states, uv) '+
+ *         'for(int draw_s = 0; draw_s < draw_samples_l; ++draw_s) {'+
+ *             'vec2 draw_d = draw_samples_i(draw_s); '+
+ *             'int draw_t = (draw_d[0]*draw_samples_l)+draw_d[1]; '+
+ *             'out[draw_s] = texture2D(states[draw_t], uv); '+
  *         '}\n'+
  *     '\n'+
- *     '#define drawUseReads_2 \\\n'+
- *         'const int drawReads_2_0 = int(0);\\\n'+
- *         'const int drawReads_2_1 = int(1);\\\n'+
- *         'const int drawReads_2_l = 2;\n'+
- *     '#define drawReads_2_i(i) \\\n'+
- *         '((i == 1)? drawReads_2_1 \\\n'+
- *         ': drawReads_2_0)\n';
+ *     '#define draw_useReads_2 '+
+ *         'const int draw_reads_2_0 = int(0); '+
+ *         'const int draw_reads_2_1 = int(1); '+
+ *         'const int draw_reads_2_l = 2;\n'+
+ *     '#define draw_reads_2_i(i) '+
+ *         '((i == 1)? draw_reads_2_1 : draw_reads_2_0)\n';
  *
  * @export
  * @param {object} state Properties for generating the macros. See `getState`
  *     and `mapGroups`.
- * @param {string} [qualify='const'] Any GLSL qualifier (e.g: `const`) for the
- *     generated variables. See `getGLSLList`.
- * @param {number} [glsl=1] The GLSL language version. See `getGLSLList`.
- * @param {boolean} [loop=true] Whether to generate GLSL preprocessor macros for
- *     some of the lookup logic.
  *
  * @returns {string} The GLSL preprocessor macros defining the mappings for
- *     values, textures, channels, bound outputs of the active pass, etc.
+ *     values, textures, channels, bound outputs of the active pass, etc. See
+ *     `macroValues`, `macroOutput`, and `macroSamples`.
  */
-export function macroPass(state, qualify, glsl, loop) {
-    const key = 'pass';
-    const created = checkMacros(state, key);
+export function macroPass(state) {
+    const key = hooks.macroPass;
+    const hook = hasMacros(state, key);
 
-    if(created !== false) { return created; }
-
-    return macroValues(state)+'\n'+macroOutput(state)+'\n'+
-        macroSamples(state, qualify, glsl, loop);
+    return ((hook !== false)? hook
+        :   macroValues(state)+'\n'+macroOutput(state)+'\n'+
+                macroSamples(state)+'\n');
 }
 
 export default macroPass;

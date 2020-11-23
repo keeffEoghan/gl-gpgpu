@@ -10,11 +10,8 @@ import range from '@epok.tech/fn-lists/range';
 import map from '@epok.tech/fn-lists/map';
 import reduce from '@epok.tech/fn-lists/reduce';
 
-import { mapGroups } from './maps';
-
 import {
-        extensions, optionalExtensions, scaleDef, stepsDef,
-        valuesDef, channelsMinDef, channelsMaxDef, texturesMaxDef
+        scaleDef, stepsDef, valuesDef, channelsMinDef, typeDef
     } from './const';
 
 /**
@@ -25,7 +22,9 @@ import {
  * @todo Reorder the given `values` into the most efficient `maps`?
  *
  * @example
- *     const state = { maps: mapGroups([4, 2, 3], 4, 4), steps: 2 };
+ *     const state = {
+ *         steps: 2, maps: mapGroups({ values: [4, 2, 3], texturesMax: 4 })
+ *     };
  *
  *     getState(api, state); // =>
  *     {
@@ -83,8 +82,10 @@ import {
  *         ]
  *     };
  *
- *     Object.assign(state,
- *         { maps: mapGroups([4, 2, 3], 1, 4), type: 'uint8', stepNow: 2 });
+ *     Object.assign(state, {
+ *         type: 'uint8', stepNow: 2,
+ *         maps: mapGroups({ values: [4, 2, 3], texturesMax: 1 })
+ *     });
  *
  *     getState(api, state); // =>
  *     {
@@ -165,13 +166,10 @@ import {
  * @see [macroPass]{@link ./macros.js#macroPass}
  *
  * @export
- * @param {object} api The API to set up GL resources.
+ * @param {object} api The API for GL resources.
  * @param {function} api.texture A function to create a GL texture.
  * @param {function} api.framebuffer A function to create a GL framebuffer.
- * @param {object} [api.limits=api] A map of GL resource limits.
- * @param {number} [api.limits.maxDrawbuffers=texturesMaxDef] The maximum number
- *     of GL textures a framebuffer can bind in a single draw call.
- * @param {object} state The state parameters.
+ * @param {object} [state={}] The state parameters.
  * @param {number} [state.radius] The length of the sides of the data textures
  *     to allocate. If given, supersedes the `state` `width`/`height`/`scale`.
  * @param {number} [state.width] The width of the data textures to allocate.
@@ -180,31 +178,27 @@ import {
  *     If given, supersedes `state.scale`.
  * @param {number} [state.scale=scaleDef] The length of the data textures sides
  *     to allocate; gives a square power-of-two texture raising 2 to this power.
- * @param {number} [state.steps=stepsDef] How many steps of state to track (1+).
- * @param {object} [state.maps] How `state.values` are grouped
- *     per-texture-per-pass-per-step. Set up here if not given. See `mapGroups`.
- * @param {array<number>} [state.maps.values=valuesDef] How values of each
- *     data item may be grouped into textures across passes. See `mapGroups`.
+ * @param {number} [state.steps=stepsDef] How many steps of state to track.
+ * @param {object} [state.maps] How `state.maps.values` are grouped per-texture
+ *     per-pass per-step. See `mapGroups`.
+ * @param {array<number>} [state.maps.values=valuesDef()] How values of each
+ *     data item may be grouped into textures across passes. Set up here if not
+ *     given. See `mapGroups`.
  * @param {number} [state.maps.channelsMin=channelsMinDef] The minimum allowed
  *     channels for framebuffer attachments. Sets up unused channels as needed
  *     to reach this limit.
- * @param {number} [state.maps.channelsMax=channelsMaxDef] The maximum allowed
- *     channels for textures. Sets up more textures as needed above this limit.
- * @param {number} [state.maps.texturesMax=api.limits.maxDrawbuffers] The
- *     maximum number of textures to use per draw pass. Uses more passes above
- *     this limit.
  * @param {number} [state.maps.textures] How values are grouped into textures.
- *     Set up if not given. See `mapGroups`.
- * @param {string} [state.type='float'] The data type of the textures.
- * @param {number} [out.stepNow=-1] The currently active state step, if any.
- * @param {number} [out.passNow=-1] The currently active draw pass, if any.
+ *     See `mapGroups`.
+ * @param {string} [state.type=typeDef] The data type of the textures.
+ * @param {number} [state.stepNow=-1] The currently active state step, if any.
+ * @param {number} [state.passNow=-1] The currently active draw pass, if any.
  * @param {object} [out=state] The state object to set up. Modifies the given
- *     `state` object by default; or a new object if not given.
+ *     `state` object by default.
  *
  * @returns {object} `out` The state object, set up with the data resources and
  *     meta information, for step/draw later:
- * @returns {object<number,array<number,array<number>>>} `out.maps` Any
- *     given `state.maps`, or a newly set-up one. See `mapGroups`.
+ * @returns {object<number,array<number,array<number>>>} `out.maps` Any given
+ *     `state.maps`. See `mapGroups`.
  * @returns {array<array<object<api.texture,number,array<number>>>>}
  *     `out.textures` Textures per step, as arrays of objects of `api.texture`,
  *     and meta info. See `out.maps.textures`.
@@ -221,18 +215,13 @@ import {
  * @returns {number} `out.stepNow` The currently active state step, as given.
  * @returns {number} `out.passNow` The currently active draw pass, as given.
  */
-export function getState(api, state, out = state) {
+export function getState(api, state = {}, out = state) {
     // See usage here for what the API must implement.
-    const { texture, framebuffer, limits = api } = api;
-    const { maxDrawbuffers = texturesMaxDef } = limits;
+    const { texture, framebuffer } = api;
 
     const {
-            radius, width, height, scale = scaleDef,
-            type = 'float', steps = stepsDef,
-            // Tracking currently active state/pass.
-            stepNow = -1, passNow = -1,
-            // How resources will be set up per-pass, with given `state.values`.
-            maps = mapGroups(valuesDef, channelsMaxDef, maxDrawbuffers)
+            radius, width, height, scale = scaleDef, type = typeDef,
+            steps = stepsDef, stepNow = -1, passNow = -1, maps
         } = state;
 
     out.maps = maps;
@@ -240,13 +229,12 @@ export function getState(api, state, out = state) {
     out.passNow = passNow;
 
     const {
-            channelsMin = channelsMinDef,
-            values = valuesDef, textures: textureMap
+            values = valuesDef(),
+            channelsMin = channelsMinDef, textures: texturesMap
         } = maps;
 
     maps.channelsMin = channelsMin;
     maps.values = values;
-    maps.textures = textureMap;
 
     const textureProps = {
         type,
@@ -268,7 +256,7 @@ export function getState(api, state, out = state) {
     const addTexture = (step, pass, textureProps) => (index) =>
         ((textures[step] || (textures[step] = []))[index] = {
             // Meta info.
-            step, pass, index, count: size.textures++, map: textureMap[index],
+            step, pass, index, count: size.textures++, map: texturesMap[index],
             // Resources.
             texture: texture(textureProps)
         })
@@ -280,7 +268,7 @@ export function getState(api, state, out = state) {
             ...textureProps,
             channels: reduce((max, t) =>
                     reduce((max, v) => Math.max(max, values[v]),
-                        textureMap[t], max),
+                        texturesMap[t], max),
                 pass, channelsMin)
         };
 
@@ -303,7 +291,7 @@ export function getState(api, state, out = state) {
         return f;
     };
 
-    // Set up resources we'll need to store data per-texture-per-pass-per-step.
+    // Set up resources we'll need to store data per-texture per-pass per-step.
     out.steps = map((v, step) => map(addPass(step), maps.passes),
         range(steps), 0);
 

@@ -24,7 +24,7 @@ import { valuesDef, channelsMaxDef, texturesMaxDef } from './const';
  * passes/textures used:
  *
  * @example
- *     mapGroups([2, 4, 1], 1, 4); // =>
+ *     mapGroups({ values: [2, 4, 1], channelsMax: 4, texturesMax: 1 }); // =>
  *     {
  *         values: [2, 4, 1],
  *         textures: [[0], [1], [2]], // length === 3
@@ -36,7 +36,7 @@ import { valuesDef, channelsMaxDef, texturesMaxDef } from './const';
  *         textureToPass: [0, 1, 2]
  *     };
  *
- *     mapGroups([4, 2, 1], 1, 4); // =>
+ *     mapGroups({ values: [4, 2, 1], texturesMax: 1 }); // =>
  *     {
  *         values: [4, 2, 1],
  *         textures: [[0], [1, 2]], // length === 2
@@ -48,7 +48,7 @@ import { valuesDef, channelsMaxDef, texturesMaxDef } from './const';
  *         textureToPass: [0, 1]
  *     };
  *
- *     mapGroups([4, 2, 1], 4, 4); // =>
+ *     mapGroups({ values: [4, 2, 1], texturesMax: 4 }); // =>
  *     {
  *         values: [4, 2, 1],
  *         textures: [[0], [1, 2]], // length === 2
@@ -60,7 +60,7 @@ import { valuesDef, channelsMaxDef, texturesMaxDef } from './const';
  *         textureToPass: [0, 0]
  *     };
  *
- *     mapGroups([2, 4, 1], 4, 4); // =>
+ *     mapGroups({ values: [2, 4, 1], texturesMax: 4 }); // =>
  *     {
  *         values: [2, 4, 1],
  *         textures: [[0], [1], [2]], // length === 3
@@ -72,7 +72,7 @@ import { valuesDef, channelsMaxDef, texturesMaxDef } from './const';
  *         textureToPass: [0, 0, 0]
  *     };
  *
- *     mapGroups([2, 4, 1, 2], 2, 4); // =>
+ *     mapGroups({ values: [2, 4, 1, 2], texturesMax: 2 }); // =>
  *     {
  *         values: [2, 4, 1, 2],
  *         textures: [[0], [1], [2, 3]], // length === 3
@@ -85,23 +85,24 @@ import { valuesDef, channelsMaxDef, texturesMaxDef } from './const';
  *     };
  *
  * @export
- * @param {array<number>} [values=valuesDef] An array where each number is how
- *     many value channels are grouped into one data texture in one draw pass;
- *     each separate number is drawn across one or more data textures/passes.
- *     Each value denotes the number of dependent channels to be drawn together;
- *     separate values denote channels that aren't co-dependent, and may be
- *     drawn in or separate passes, depending on device support.
- *     The given order is (currently) maintained and may affect the number of
- *     passes/textures used. Where the next state depends on previous states,
- *     these should ideally be an entry of `channels` or less, for fewest
- *     texture reads to retrieve previous states.
- * @param {number} [texturesMax=texturesMaxDef] Maximum textures to be bound per
- *     draw pass.
- * @param {number} [channelsMax=channelsMaxDef] Maximum channels per `values`.
- * @param {object} [out={}] Any object to store the result in.
+ * @param {object} [maps={}] The maps. A new object if not given.
+ * @param {array<number>} [maps.values=valuesDef()] An array where each number
+ *     denotes how many value channels are grouped into one data texture in one
+ *     draw pass; each separate number may be drawn across one or more data
+ *     textures/passes. Each value denotes the number of dependent channels to
+ *     be drawn together; separate values denote channels that aren't dependent,
+ *     and may be drawn in the same or a separate pass, depending on device
+ *     support. The given order is (currently) maintained, and may affect the
+ *     number of passes/textures used. Where the next state depends on previous
+ *     states, these should ideally be an entry of `channels` or less, for
+ *     fewest texture reads to retrieve previous states.
+ * @param {number} [maps.channelsMax=channelsMaxDef] Maximum channels per texture.
+ * @param {number} [maps.texturesMax=texturesMaxDef] Maximum textures bound per pass.
+ * @param {object} [out=maps] An object to contain the results; modifies `maps`
+ *     if not given.
  *
  * @returns {object} `out` The given `out` object; how `values` are grouped
- *     per-texture-per-pass-per-step, meta information, and given parameters.
+ *     per-texture per-pass per-step, meta information, and given parameters.
  * @returns {array<array<number>>} `out.passes` Textures grouped into passes;
  *     arrays corresponding to framebuffers in separate draw passes; whose
  *     values are indexes into `out.textures`.
@@ -112,14 +113,18 @@ import { valuesDef, channelsMaxDef, texturesMaxDef } from './const';
  * @returns {number} `out.texturesMax` The max textures per pass, as given.
  * @returns {number} `out.channelsMax` The max channels per texture, as given.
  * @returns {array<number>} `out.valueToTexture` Inverse map from each index of
- *     `out.values` to the index of the the data texture containing it.
+ *     `out.values` to the index of the data texture containing it.
  * @returns {array<number>} `out.valueToPass` Inverse map from each index of
- *     `out.values` to the index of the the pass containing it.
+ *     `out.values` to the index of the pass containing it.
  * @returns {array<number>} `out.textureToPass` Inverse map from each index of
- *     `out.textures` to the index of the the pass containing it.
+ *     `out.textures` to the index of the pass containing it.
  */
-export function mapGroups(values,
-        channelsMax = channelsMaxDef, texturesMax = texturesMaxDef, out = {}) {
+export function mapGroups(maps = {}, out = maps) {
+    const {
+            values = valuesDef(),
+            channelsMax = channelsMaxDef, texturesMax = texturesMaxDef
+        } = maps;
+
     out.values = values;
     out.texturesMax = texturesMax;
     out.channelsMax = channelsMax;
@@ -179,15 +184,16 @@ export function mapGroups(values,
  * a past state of values they depend upon.
  *
  * @example
- *     const maps = mapGroups([2, 4, 1, 2], 2, 4);
+ *     const maps = mapGroups({
+ *         values: [2, 4, 1, 2], channelsMax: 4, texturesMax: 2,
+ *         // Entries per-value of derived step/value indexes, entries include:
+ *         // empty, single, multiple, and defined step samples.
+ *         derives: [[1, 0], , [3, [1, 0]], [2]]
+ *     });
  *
- *     // Entries per-value of derived step/value indexes, entries include:
- *     // empty, single, multiple, and defined step samples.
- *     const derives = [[1, 0], , [3, [-1, 0]], [2]];
- *
- *     mapSamples(derives, maps); // =>
+ *     mapSamples(maps); // =>
  *     {
- *         ...maps, derives,
+ *         ...maps,
  *         // Per-pass, minimum texture samples for values.
  *         samples: [
  *             // Per-value - step/texture index pairs into `maps.textures`.
@@ -205,41 +211,51 @@ export function mapGroups(values,
  * @see mapGroups
  *
  * @export
- * @param {array<null,array<number,array<number>>>} derives How values
+ * @param {object} maps How values are grouped per-texture per-pass per-step.
+ *     See `mapGroups`.
+ * @param {array<null,array<number,array<number>>>} [maps.derives] How values
  *     are derived. For each value index, a list of indexes of any past values
  *     it derives its from - a value not derived from past values may have an
  *     empty/null entry; a value derives from past values where its entry has:
- *     - Numbers, deriving from the most recent state at the given value index.
- *     - Lists of numbers, deriving from the given past state index (first
- *         number: 0-and-up states ago, negatives go old-to-new) at the given
- *         value index (second number).
+ *     - Numbers; deriving from the most recent state at the given value index.
+ *     - Lists of numbers; deriving from the given past state index (1st number
+ *         denotes how many states ago), at the given value index (2nd number).
+ *     If not given, no samples are mapped and `out` is returned unchanged.
+ * @param {array<array<number>>} maps.passes Textures grouped into passes. See
+ *     `mapGroups`.
+ * @param {array<array<number>>} maps.textures Values grouped into textures. See
+ *     `mapGroups`.
+ * @param {array<number>} maps.valueToTexture Inverse map from each value index
+ *     to the data texture index containing it.
+ * @param {object} [out=maps] The object to store the result in; `maps` if not
+ *     given.
  *
- * @param {object<number,array<number,array<number>>>} maps The maps
- *     for the given `derives`. See `mapGroups`.
- * @param {object} [out=maps] The object to store the result in; `maps` if
- *     not given.
- *
- * @returns {object} `out` The given `out` object, with resulting maps added.
- * @returns {array<array<array<number>>>} `out.samples` Map of the minimum
+ * @returns {object} `out` The given `out` object, with resulting maps added if
+ *     `maps.derives` were provided.
+ * @returns {array<array<array<number>>>} `[out.samples]` Map of the minimum
  *     set of indexes into `maps.textures` that need to be sampled per-pass,
  *     to get all `derives` needed for each value of `maps.values` of each
  *     pass of `maps.passes`.
- * @returns {array<array<null,array<number>>>} `out.reads` Sparse map from
+ * @returns {array<array<null,array<number>>>} `[out.reads]` Sparse map from
  *     each value of `derives` to its step and texture indexes in `out.samples`.
- * @returns {array<null,array<number,array<number>>>} `out.derives` How
+ * @returns {array<null,array<number,array<number>>>} `[out.derives]` How
  *     values are derived, as given.
  */
-export function mapSamples(derives, maps, out = maps) {
-    const { passes, textures, valueToTexture } = maps;
+export function mapSamples(maps, out = maps) {
+    const { derives, passes, textures, valueToTexture } = maps;
+
+    if(!derives) { return out; }
+
+    out.derives = derives;
+
     const reads = out.reads = [];
 
     const getAddSample = (set, pass, value) => (derive, d) => {
-        const sample = ((Array.isArray(derive))?
-                [derive[0], valueToTexture[derive[1]]]
-            :   [0, valueToTexture[derive]]);
+        const sample = ((Number.isInteger(derive))? [0, valueToTexture[derive]]
+            :   [derive[0], valueToTexture[derive[1]]]);
 
         if(!sample.every(Number.isInteger)) {
-            return console.warn('`mapSamples`: invalid map for sample',
+            return console.error('`mapSamples`: invalid map for sample',
                 derives, maps, pass, value, derive, sample);
         }
 
@@ -266,8 +282,6 @@ export function mapSamples(derives, maps, out = maps) {
                 reduce(getAddSamples(p), textures[texture], set),
             pass, []),
         passes, []);
-
-    out.derives = derives;
 
     return out;
 }

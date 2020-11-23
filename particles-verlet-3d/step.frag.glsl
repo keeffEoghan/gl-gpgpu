@@ -1,156 +1,150 @@
 /**
  * The update step for a GPGPU particle simulation.
- * Requires setup with preprocessor macros - see `macroGPGPUStepPass`.
+ * Requires setup with preprocessor macros - see `macroPass`.
  *
- * @see [getGPGPUStep]{@link ../step.js#getGPGPUStep}
- * @see [macroGPGPUStepPass]{@link ../macros.js#macroGPGPUStepPass}
+ * @see [getStep]{@link ../step.js#getStep}
+ * @see [macroPass]{@link ../macros.js#macroPass}
  */
 
-#define texturePos GPGPUTexture_0
-#define textureLife GPGPUTexture_1
-#define textureAcc GPGPUTexture_2
+precision highp float;
 
-#define channelsPos GPGPUChannels_0
-#define channelsLife GPGPUChannels_1
-#define channelsAcc GPGPUChannels_2
+// Setting up the macros and aliases.
 
-#ifdef GPGPUOutput_0
-    #define outputPos GPGPUOutput_0
-    GPGPUUseReads_0
-    #define readsPosPos1 GPGPUReads_0_0
-    #define readsPosPos0 GPGPUReads_0_1
-    #define readsPosAcc1 GPGPUReads_0_2
-    #define readsPosLife1 GPGPUReads_0_3
-#endif
-#ifdef GPGPUOutput_1
-    #define outputLife GPGPUOutput_1
-    GPGPUUseReads_1
-    #define readsLifeLife1 GPGPUReads_1_0
-#endif
-#ifdef GPGPUOutput_2
-    #define outputAcc GPGPUOutput_2
-    GPGPUUseReads_2
-    #define readsAccAcc1 GPGPUReads_2_0
-    #define readsAccLife1 GPGPUReads_2_1
-#endif
+#define posTexture texture_0
+#define lifeTexture texture_1
+#define accTexture texture_2
 
-GPGPUUseSamples
-#define samples GPGPUSamples
+#define posChannels channels_0
+#define lifeChannels channels_1
+#define accChannels channels_2
+
+useSamples
+
+#ifdef output_0
+    #define posOutput output_0
+    useReads_0
+    #define posReadPos1 reads_0_i(0)
+    #define posReadPos0 reads_0_i(1)
+    #define posReadAcc reads_0_i(2)
+    #define posReadLife reads_0_i(3)
+#endif
+#ifdef output_1
+    #define lifeOutput output_1
+    useReads_1
+    #define lifeReadLife reads_1_i(0)
+#endif
+#ifdef output_2
+    #define accOutput output_2
+    useReads_2
+    #define accReadAcc reads_2_i(0)
+    #define accReadLife reads_2_i(1)
+#endif
 
 #ifdef GL_EXT_draw_buffers
     #extension GL_EXT_draw_buffers : require
 #endif
 
-precision highp float;
+// The main shader.
 
-uniform sampler2D states[GPGPUStepsPast*GPGPUTextures];
+uniform sampler2D states[stepsPast*textures];
 uniform float dt;
-uniform float stepTime;
+uniform float time;
 uniform vec2 lifetime;
 
 varying vec2 uv;
 
 const vec3 g = vec3(0, -0.00098, 0);
-const vec3 spawnPos = vec3(0);
-const vec3 spawnAcc = vec3(0.5, 0.5, 0);
+const vec3 posSpawn = vec3(0);
+const vec3 accSpawn = vec3(0.5, 0.5, 0);
 const vec4 ndcRange = vec4(-1, -1, 1, 1);
 const vec4 stRange = vec4(0, 0, 1, 1);
 
 #pragma glslify: map = require('glsl-map');
 
-#ifdef outputPos
-    #pragma glslify: verlet = require('../../physics/verlet');
+#ifdef posOutput
+    #pragma glslify: verlet = require('@epok.tech/glsl-verlet');
 #endif
 
-#ifdef outputLife
+#ifdef lifeOutput
     #pragma glslify: random = require('glsl-random');
 #endif
 
 void main() {
     // Sample textures.
+    vec4 data[samples_l];
+    tapSamples(states, uv, textures, data)
 
-    vec2 st = map(uv, ndcRange.xy, ndcRange.zw, stRange.xy, stRange.zw);
-
-    GPGPUTapSamples(sampled, states, st)
-    // GPGPUTapSamples(sampled, states, uv)
-
-    // Get values.
-
-    #ifdef outputPos
-        vec3 pos0 = sampled[readsPosPos0].channelsPos;
-        vec3 pos1 = sampled[readsPosPos1].channelsPos;
+    // Read values.
+    #ifdef posOutput
+        vec3 pos0 = data[posReadPos0].posChannels;
+        vec3 pos1 = data[posReadPos1].posChannels;
     #endif
 
-    #if defined(outputLife) || defined(outputPos) || defined(outputAcc)
-        #if defined(outputPos)
-            #define readSampleLife readsPosLife1
-        #elif defined(outputLife)
-            #define readSampleLife readsLifeLife1
-        #elif defined(outputAcc)
-            #define readSampleLife readsAccLife1
+    #if defined(lifeOutput) || defined(posOutput) || defined(accOutput)
+        #if defined(posOutput)
+            #define readLife posReadLife
+        #elif defined(lifeOutput)
+            #define readLife lifeReadLife
+        #elif defined(accOutput)
+            #define readLife accReadLife
         #endif
 
-        float life1 = sampled[readSampleLife].channelsLife;
+        float life = data[readLife].lifeChannels;
     #endif
 
-    #if defined(outputPos) || defined(outputAcc)
-        #if defined(outputPos)
-            #define readSampleAcc readsPosAcc1
-        #elif defined(outputAcc)
-            #define readSampleAcc readsAccAcc1
+    #if defined(posOutput) || defined(accOutput)
+        #if defined(posOutput)
+            #define readAcc posReadAcc
+        #elif defined(accOutput)
+            #define readAcc accReadAcc
         #endif
 
-        vec3 acc1 = sampled[readSampleAcc].channelsAcc;
+        vec3 acc = data[readAcc].accChannels;
     #endif
 
     // Update values.
-
-    #if defined(outputLife) || defined(outputPos) || defined(outputAcc)
-        // float life = max(0.0, life1-dt);
-        // float life = life1-dt;
-        float life = life1-(dt*0.001);
+    #if defined(lifeOutput) || defined(posOutput) || defined(accOutput)
+        // life = max(0.0, life-dt);
+        life = life-dt;
+        // life = life-(dt*0.001);
         // float alive = 1.0-step(life, 0.0);
-        float alive = ((life > 0.0)? 1.0 : 0.0);
+        // float alive = ((life > 0.0)? 1.0 : 0.0);
+        float alive = float(life > 0.0);
     #endif
-    #ifdef outputLife
-        float spawnedLife = min(lifetime[0], lifetime[1])+
-            abs((lifetime[0]-lifetime[1])*random(st*stepTime));
+    #ifdef lifeOutput
+        // float spawnedLife = min(lifetime[0], lifetime[1])+
+        //     abs((lifetime[0]-lifetime[1])*random(uv*time));
 
-        life = mix(spawnedLife, life, alive);
+        // life = mix(spawnedLife, life, alive);
+        life = mix(map(random(uv*time), 0.0, 1.0, lifetime[0], lifetime[1]),
+            life, alive);
     #endif
-    #ifdef outputPos
-        vec3 pos = mix(spawnPos, verlet(acc1, pos0, pos1, dt), alive);
+    #ifdef posOutput
+        vec3 pos = mix(posSpawn, verlet(acc, pos0, pos1, dt), alive);
     #endif
-    #ifdef outputAcc
-        vec3 spawnedAcc = spawnAcc+
-            vec3(vec2(sin(stepTime), cos(stepTime))*1.0, 0);
+    #ifdef accOutput
+        vec3 accSpawned = accSpawn+vec3(vec2(sin(time), cos(time))*1.0, 0);
 
-        vec3 acc = mix(spawnedAcc, acc1+(g*dt), alive);
+        acc = mix(accSpawned, acc+(g*dt), alive);
     #endif
 
     // Output values.
-
-    #ifdef outputPos
-        // outputPos = pos;
-        // outputPos = vec3(1, 0, 0);
-        outputPos = vec3(uv, 0);
+    #ifdef posOutput
+        posOutput = pos;
+        // posOutput = vec3(1, 0, 0);
+        // posOutput = vec3(uv, 0);
     #endif
-    #ifdef outputLife
-        outputLife = life;
-        outputPos.r = life;
-        // outputPos.r = alive;
+    #ifdef lifeOutput
+        lifeOutput = life;
     #endif
-    #ifdef outputAcc
-        // outputAcc = acc;
-        // outputAcc = vec3(0, 1, 0);
-        outputAcc = vec3(0, st);
+    #ifdef accOutput
+        accOutput = acc;
+        // accOutput = vec3(0, 1, 0);
     #endif
 
     // gl_FragData[0] = vec4(1, 0, 0, 1);
     // gl_FragData[1] = vec4(0, 1, 0, 1);
     // gl_FragData[0] = vec4(uv, 0, 1);
-    // gl_FragData[1] = vec4(0, st, 1);
     // gl_FragData[0].rgb = vec3(uv, 0);
-    // gl_FragData[1].rgb = vec3(0, st);
     // gl_FragData[0].a = gl_FragData[1].a = 1.0;
 }
