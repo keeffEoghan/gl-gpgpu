@@ -2,6 +2,7 @@
  * Test implementation of 3D particle Verlet-integration simulation.
  */
 import getRegl from 'regl';
+import timer from '@epok.tech/fn-time';
 import { count, vertices } from '@epok.tech/gl-screen-triangle';
 
 import testVert from '@epok.tech/gl-screen-triangle/index.vert.glsl';
@@ -41,23 +42,32 @@ const state = gpgpu(regl, {
         pass: true, values: true, output: true, samples: true, tap: true
     },
     maps: { values: [...values], derives: [...derives] },
-    step: { frag: stepFrag, verts: [], frags: [] },
+    step: {
+        frag: stepFrag, verts: [], frags: [],
+        uniforms: {
+            dt: regl.prop('step.timer.dt'),
+            time: regl.prop('step.timer.time'),
+            lifetime: [5e3, 1e4]
+        }
+    },
     // step: { frag: stepFrag },
     // 1 active state + 2 past states needed for Verlet integration.
     steps: 1+2
 });
 
+state.step.timer = { step: '-', time: regl.now() };
+timer(state.step.timer, state.step.timer.time);
+
 console.log(self.state = state);
 console.log(state.step.frags[0]);
 
-// const clear = { color: [0, 0, 0, 255], depth: 1 };
+const clear = { color: [0, 0, 0, 255], depth: 1 };
 
-setTimeout(() => {
-// regl.frame(() => {
+regl.frame(() => {
     // regl.clear(clear);
+    timer(state.step.timer, regl.now());
     state.step.run();
-// });
-}, 2000);
+});
 
 // export function getParticlesVerlet3DSetup(regl, s, o) {
 //     const out = getSetup(regl, state, o);

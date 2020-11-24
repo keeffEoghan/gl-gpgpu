@@ -6,6 +6,10 @@
  * @see [macroPass]{@link ../macros.js#macroPass}
  */
 
+#ifdef GL_EXT_draw_buffers
+    #extension GL_EXT_draw_buffers : require
+#endif
+
 precision highp float;
 
 // Setting up the macros and aliases.
@@ -40,10 +44,6 @@ useSamples
     #define accReadLife reads_2_i(1)
 #endif
 
-#ifdef GL_EXT_draw_buffers
-    #extension GL_EXT_draw_buffers : require
-#endif
-
 // The main shader.
 
 uniform sampler2D states[stepsPast*textures];
@@ -70,9 +70,11 @@ const vec4 stRange = vec4(0, 0, 1, 1);
 #endif
 
 void main() {
+    // gl_FragColor = vec4(1);
+    // return;
+
     // Sample textures.
-    vec4 data[samples_l];
-    tapSamples(states, uv, textures, data)
+    tapSamples(states, uv, textures)
 
     // Read values.
     #ifdef posOutput
@@ -142,6 +144,7 @@ void main() {
         // accOutput = vec3(0, 1, 0);
     #endif
 
+    // gl_FragColor = vec4(1, 0, 0, 1);
     // gl_FragData[0] = vec4(1, 0, 0, 1);
     // gl_FragData[1] = vec4(0, 1, 0, 1);
     // gl_FragData[0] = vec4(uv, 0, 1);

@@ -10,6 +10,7 @@
  */
 
 import reduce from '@epok.tech/fn-lists/reduce';
+import map from '@epok.tech/fn-lists/map';
 import { type } from '@epok.tech/is-type/type';
 
 import { preDef, boundDef } from './const';
@@ -45,24 +46,25 @@ export const getPre = ({ macros, pre = preDef }) =>
  * @export
  * @example
  *     getGLSL3List('int', 'list', [1, 2, 3], 'const'); // =>
- *     'const int list[3] = int[3](int(1), int(2), int(3)); '+
- *     'const int list_l = 3;\n'+
+ *     'const int list_l = 3; '+
+ *     'const int list[list_l] = int[list_l](int(1), int(2), int(3));\n'+
  *     '#define list_i(i) list[i]\n';
  *
- * @param {string} dataType The GLSL list data-type.
+ * @param {string} type The GLSL list data-type.
  * @param {string} name The name of the GLSL list variable.
  * @param {array<number,array<number>>} a The list of GLSL values.
  * @param {string} [qualify=''] A GLSL qualifier, if needed.
+ * @param {string} [init=type] A data-type initialiser, `type` by default.
  *
  * @returns {string} The GLSL 3 array declaration string.
  */
-export const getGLSL3List = (dataType, name, a, qualify = '') =>
-    `${(qualify && qualify+' ')+dataType} ${name}[${a.length}] = ${
-        dataType}[${a.length}](${reduce((s, v, i) =>
-                `${s+dataType}(${((Array.isArray(v))? v.join(', ') : v)})${
+export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
+    `const int ${name}_l = ${a.length}; `+
+    `${(qualify && qualify+' ')+type} ${name}[${name}_l] = ${
+        init}[${name}_l](${reduce((s, v, i) =>
+                `${s+type}(${((Array.isArray(v))? v.join(', ') : v)})${
                     ((i < a.length-1)? ', ' : '')}`,
-            a, '')}); `+
-    `const int ${name}_l = ${a.length};\n`+
+            a, '')});\n`+
     `#define ${name}_i(i) ${name}[i]\n`;
 
 /**
@@ -73,27 +75,28 @@ export const getGLSL3List = (dataType, name, a, qualify = '') =>
  * @example
  *     getGLSL1ListArray('vec3', 'list', [[1, 0, 0], [0, 2, 0], [0, 0, 3]]);
  *     // =>
- *     'vec3 list[3]; '+
+ *     'const int list_l = 3; '+
+ *     'vec3 list[list_l]; '+
  *     'list[0] = vec3(1, 0, 0); '+
  *     'list[1] = vec3(0, 2, 0); '+
- *     'list[2] = vec3(0, 0, 3); '+
- *     'const int list_l = 3;\n'+
+ *     'list[2] = vec3(0, 0, 3);\n'+
  *     '#define list_i(i) list[i]\n';
  *
- * @param {string} dataType The GLSL list data-type.
+ * @param {string} type The GLSL list data-type.
  * @param {string} name The name of the GLSL list variable.
  * @param {array<number,array<number>>} a The list of GLSL values.
  * @param {string} [qualify=''] A GLSL qualifier, if needed.
+ * @param {string} [init=type] A data-type initialiser, `type` by default.
  *
  * @returns {string} The GLSL 1 array declaration string.
  */
-export const getGLSL1ListArray = (dataType, name, a, qualify = '') =>
-    `${(qualify && qualify+' ')+dataType} ${name}[${a.length}];${
+export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
+    `const int ${name}_l = ${a.length}; ${
+    (qualify && qualify+' ')+type} ${name}[${name}_l]; ${
     reduce((s, v, i) =>
-            `${s+name}[${i}] = ${
-                dataType}(${((Array.isArray(v))? v.join(', ') : v)}); `,
-        a, '')
-    }const int ${name}_l = ${a.length};\n`+
+            `${s} ${name}[${i}] = ${
+                init}(${((Array.isArray(v))? v.join(', ') : v)});`,
+        a, '')}\n`+
     `#define ${name}_i(i) ${name}[i]\n`;
 
 /**
@@ -103,25 +106,26 @@ export const getGLSL1ListArray = (dataType, name, a, qualify = '') =>
  * @export
  * @example
  *     getGLSL1ListLike('float', 'list', [1, 2, 3], 'const'); // =>
+ *     'const int list_l = 3; '+
  *     'const int list_0 = float(1); '+
  *     'const int list_1 = float(2); '+
- *     'const int list_2 = float(3); '+
- *     'const int list_l = 3;\n'+
+ *     'const int list_2 = float(3);\n'+
  *     '#define list_i(i) ((i == 2)? list_2 : ((i == 1)? list_1 : list_0))\n';
  *
- * @param {string} dataType The GLSL list data-type.
+ * @param {string} type The GLSL list data-type.
  * @param {string} name The name of the GLSL list variable.
  * @param {array<number,array<number>>} a The list of GLSL values.
  * @param {string} [qualify=''] A GLSL qualifier, if needed.
+ * @param {string} [init=type] A data-type initialiser, `type` by default.
  *
  * @returns {string} The GLSL 1 array-like declaration string.
  */
-export const getGLSL1ListLike = (dataType, name, a, qualify = '') =>
+export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
+    `const int ${name}_l = ${a.length}; ${
     reduce((s, v, i) =>
-            `${s+(qualify && qualify+' ')+dataType} ${name}_${i} = ${
-                dataType}(${((Array.isArray(v))? v.join(', ') : v)}); `,
-        a, '')+
-    `const int ${name}_l = ${a.length};\n`+
+            `${s} ${(qualify && qualify+' ')+type} ${name}_${i} = ${
+                init}(${((Array.isArray(v))? v.join(', ') : v)});`,
+        a, '')}\n`+
     // `#define ${name}_i(i) ${name}_##i`;
     `#define ${name}_i(i) ${reduce((s, v, i) =>
             ((i)? `((i == ${i})? ${name}_${i} : ${s})` : `${name}_${i}`),
@@ -139,36 +143,37 @@ export const getGLSL1ListLike = (dataType, name, a, qualify = '') =>
  *
  * @example
  *     getGLSLList('int', 'test', [0, 1]); // =>
- *     'int test[2]; '+
+ *     'const int test_l = 2; '+
+ *     'int test[test_l]; '+
  *     'test[0] = int(0); '+
- *     'test[1] = int(1); '+
- *     'const int test_l = 2;\n'+
+ *     'test[1] = int(1);\n'+
  *     '#define test_i(i) test[i]\n';
  *
- *     getGLSLList('ivec2', 'vectors', [[0, 1], [0, 0]], 'const', 3); // =>
- *     'const ivec2 vectors[2] = ivec2[2](ivec2(0, 1), ivec2(0, 0)); '+
- *     'const int vectors_l = 2;\n'+
- *     '#define vectors_i(i) vectors[i]\n';
+ *     getGLSLList('ivec2', 'vecs', [[0, 1], [0, 0]], 'const', 3); // =>
+ *     'const int vecs_l = 2; '+
+ *     'const ivec2 vecs[vecs_l] = ivec2[vecs_l](ivec2(0, 1), ivec2(0, 0));\n'+
+ *     '#define vecs_i(i) vecs[i]\n';
  *
  *     getGLSLList('int', 'listLike', [0, 1], 'const', 1); // =>
+ *     'const int listLike_l = 2; '+
  *     'const int listLike_0 = int(0); '+
- *     'const int listLike_1 = int(1); '+
- *     'const int listLike_l = 2;\n'+
+ *     'const int listLike_1 = int(1);\n'+
  *     '#define listLike_i(i) ((i == 1)? listLike_1 : listLike_0)\n';
  *
  * @export
- * @param {string} dataType The GLSL list data-type.
+ * @param {string} type The GLSL list data-type.
  * @param {string} name The name of the GLSL list variable.
  * @param {array<number,array<number>>} a The list of GLSL values.
  * @param {number} [qualify=''] A GLSL qualifier, if needed (e.g: `const`).
- * @param {number} [glsl] The GLSL version to target, if specified.
+ * @param {number} [glsl=1] The GLSL version to target, if specified.
+ * @param {string} [init] A data-type initialiser.
  *
  * @returns {string} The GLSL (1 or 3) array or array-like declaration string.
  */
-export const getGLSLList = (dataType, name, a, qualify = '', glsl = 1) =>
+export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
     ((glsl >= 3)? getGLSL3List
     : ((qualify.trim() === 'const')? getGLSL1ListLike
-    :   getGLSL1ListArray))(dataType, name, a, qualify);
+    :   getGLSL1ListArray))(type, name, a, qualify, init);
 
 /**
  * Whether macros should be handled in this module; or the result of handling
@@ -390,23 +395,22 @@ export function macroOutput(state) {
  *         }))
  *     }); // =>
  *     '#define useSamples '+
+ *         'const int samples_l = 2; '+
  *         'const ivec2 samples_0 = ivec2(0, 1); '+
- *         'const ivec2 samples_1 = ivec2(0, 0); '+
- *         'const int samples_l = 2;\n'+
+ *         'const ivec2 samples_1 = ivec2(0, 0);\n'+
  *     '#define samples_i(i) ((i == 1)? samples_1 : samples_0)\n'+
  *     '\n'+
- *     '#define tapSamples(states, uv, textures, out) '+
- *         'for(int s = 0; s < samples_l; ++s) { '+
- *             'vec2 d = samples_i(s); '+
- *             // 'int t = (d[0]*samples_l)+d[1]; '+
- *             'int t = (d[0]*textures)+d[1]; '+
- *             'out[s] = texture2D(states[t], uv); '+
- *         '}\n'+
+ *     '#define tapSamples(states, uv, textures) '+
+ *         'const int data_l = 2; '+
+ *         'vec4 data[data_l]; '+
+ *         'data[0] = texture2D(states[(0*textures)+1], uv); '+
+ *         'data[1] = texture2D(states[(0*textures)+0], uv);\n'+
+ *         '#define data_i(i) data[i]\n'+
  *     '\n'+
  *     '#define useReads_0 '+
+ *         'const int reads_0_l = 2; '+
  *         'const int reads_0_0 = int(0); '+
- *         'const int reads_0_1 = int(1); '+
- *         'const int reads_0_l = 2;\n'+
+ *         'const int reads_0_1 = int(1);\n'+
  *     '#define reads_0_i(i) ((i == 1)? reads_0_1 : reads_0_0)\n';
  *
  * @param {object} state Properties used to generate the macros. See `getState`.
@@ -449,15 +453,12 @@ export function macroSamples(state) {
             // The texture-sampling logic.
             // @todo `Index expression must be constant`
             ((tap !== false)? tap
-            :   `#define ${n}tapSamples(states, uv, textures, out) `+
-                `for(int ${n}s = 0; ${n}s < ${n}samples_l; ++${n}s) { `+
-                    `ivec2 ${n}d = ${n}samples_i(${n}s); `+
-                    // 2D-to-1D indexing, as textures are in a flat array.
-                    // @todo This line doesn't make sense... outdated.
-                    // `int ${n}t = (${n}d[0]*${n}samples_l)+${n}d[1]; `+
-                    `int ${n}t = (${n}d[0]*textures)+${n}d[1]; `+
-                    `out[${n}s] = texture2D(states[${n}t], uv); `+
-                '}\n'))+
+            :   `#define ${n}tapSamples(states, uv, textures) ${
+                    getGLSLList('vec4', `${n}data`,
+                        // 2D-to-1D indexing, as textures a flat array.
+                        map(([s, t]) => [`states[(${s}*textures)+${t}]`, 'uv'],
+                            passSamples),
+                        '', glsl, 'texture2D')}\n`))+
         ((!passReads)? ''
         :   reduce((s, reads, v) =>
                     `${s}\n#define ${n}useReads_${v} ${
@@ -510,22 +511,22 @@ export function macroSamples(state) {
  *     '#define output_0 gl_FragData[attach_0].rgba\n'+
  *     '\n'+
  *     '#define useSamples '+
+ *         'const int samples_l = 2; '+
  *         'const ivec2 samples_0 = ivec2(0, 1); '+
- *         'const ivec2 samples_1 = ivec2(0, 0); '+
- *         'const int samples_l = 2;\n'+
+ *         'const ivec2 samples_1 = ivec2(0, 0);\n'+
  *     '#define samples_i(i) ((i == 1)? samples_1 : samples_0)\n'+
  *     '\n'+
- *     '#define tapSamples(out, states, uv) '+
- *         'for(int s = 0; s < samples_l; ++s) {'+
- *             'vec2 d = samples_i(s); '+
- *             'int t = (d[0]*samples_l)+d[1]; '+
- *             'out[s] = texture2D(states[t], uv); '+
- *         '}\n'+
+ *     '#define tapSamples(states, uv, textures) '+
+ *         'const int data_l = 2; '+
+ *         'vec4 data[data_l]; '+
+ *         'data[0] = texture2D(states[(0*textures)+1], uv); '+
+ *         'data[1] = texture2D(states[(0*textures)+0], uv);\n'+
+ *         '#define data_i(i) data[i]\n'+
  *     '\n'+
  *     '#define useReads_0 '+
+ *         'const int reads_0_l = 2; '+
  *         'const int reads_0_0 = int(0); '+
- *         'const int reads_0_1 = int(1); '+
- *         'const int reads_0_l = 2;\n'+
+ *         'const int reads_0_1 = int(1);\n'+
  *     '#define reads_0_i(i) ((i == 1)? reads_0_1 : reads_0_0)\n';
  *
  *     ++state.passNow;
@@ -570,17 +571,17 @@ export function macroSamples(state) {
  *     '#define draw_samples_i(i) '+
  *         '((i == 1)? draw_samples_1 : draw_samples_0)\n'+
  *     '\n'+
- *     '#define draw_tapSamples(out, states, uv) '+
- *         'for(int draw_s = 0; draw_s < draw_samples_l; ++draw_s) {'+
- *             'vec2 draw_d = draw_samples_i(draw_s); '+
- *             'int draw_t = (draw_d[0]*draw_samples_l)+draw_d[1]; '+
- *             'out[draw_s] = texture2D(states[draw_t], uv); '+
- *         '}\n'+
+ *     '#define draw_tapSamples(states, uv, textures) '+
+ *         'const int data_l = 2; '+
+ *         'vec4 data[data_l]; '+
+ *         'data[0] = texture2D(states[(0*textures)+2], uv); '+
+ *         'data[1] = texture2D(states[(1*textures)+0], uv);\n'+
+ *         '#define data_i(i) data[i]\n'+
  *     '\n'+
  *     '#define draw_useReads_2 '+
+ *         'const int draw_reads_2_l = 2; '+
  *         'const int draw_reads_2_0 = int(0); '+
- *         'const int draw_reads_2_1 = int(1); '+
- *         'const int draw_reads_2_l = 2;\n'+
+ *         'const int draw_reads_2_1 = int(1);\n'+
  *     '#define draw_reads_2_i(i) '+
  *         '((i == 1)? draw_reads_2_1 : draw_reads_2_0)\n';
  *

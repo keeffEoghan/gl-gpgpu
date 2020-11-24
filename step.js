@@ -38,7 +38,7 @@ const scale = { vec2: 0.5 };
  *     simple flat screen shader if not given.
  * @param {string} state.step.frag The step fragment shader GLSL.
  * @param {object} [state.step.uniforms=getUniforms(state)] The step uniforms;
- *     set up if not given. See `getUniforms`.
+ *     modifies any given. See `getUniforms`.
  * @param {array|api.buffer} [state.step.positions=positionsDef()] The step
  *     position attributes; 3 points of a large flat triangle if not given.
  * @param {number} [state.step.count=state.step.positions.length*scale.vec2] The
@@ -57,7 +57,7 @@ const scale = { vec2: 0.5 };
  *     GLSL, if `state.step.verts` was given.
  * @returns {array.string} `[out.frags]` Any cached pre-processed fragment
  *     shaders GLSL, if `state.step.verts` was enabled.
- * @returns {object} `out.uniforms` The given/new `state.uniforms`.
+ * @returns {object} `out.uniforms` The given `state.uniforms`.
  * @returns {number} `out.count` The given/new `state.count`.
  * @returns {api.buffer} `out.positions` The given/new `state.positions`; passed
  *     through `api.buffer`.
@@ -70,13 +70,13 @@ export function getStep(api, state, out = {}) {
     const { maps: { passes }, pre: n = preDef, step = out } = state;
     let { positions = positionsDef() } = step;
     const {
-            vert = vertDef, frag, verts, frags,
-            uniforms = getUniforms(state), count = positions.length*scale.vec2
+            vert = vertDef, frag, verts, frags, uniforms,
+            count = positions.length*scale.vec2
         } = step;
 
     out.vert = vert;
     out.frag = frag;
-    out.uniforms = uniforms;
+    out.uniforms = getUniforms(state, uniforms);
     out.count = count;
     positions = out.positions = buffer(positions);
 
@@ -116,7 +116,7 @@ export function getStep(api, state, out = {}) {
             [n+'position']: (_, { step: { positions: p = positions } }) => p
         },
         uniforms,
-        count: (_, { step: { count: c = count } }) => c,
+        count,
         depth: { enable: false },
         framebuffer: (_, { steps: a, stepNow: s, passNow: p }) =>
             wrap.get(s, a)[p]
