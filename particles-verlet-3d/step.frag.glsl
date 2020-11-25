@@ -70,9 +70,6 @@ const vec4 stRange = vec4(0, 0, 1, 1);
 #endif
 
 void main() {
-    // gl_FragColor = vec4(1);
-    // return;
-
     // Sample textures.
     tapSamples(states, uv, textures)
 
@@ -145,7 +142,7 @@ void main() {
     #endif
 
     // gl_FragColor = vec4(1, 0, 0, 1);
-    // gl_FragData[0] = vec4(1, 0, 0, 1);
+    // gl_FragData[0] = vec4(1, life, 0, 1);
     // gl_FragData[1] = vec4(0, 1, 0, 1);
     // gl_FragData[0] = vec4(uv, 0, 1);
     // gl_FragData[0].rgb = vec3(uv, 0);

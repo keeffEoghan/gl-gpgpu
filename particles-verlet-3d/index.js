@@ -5,12 +5,16 @@ import getRegl from 'regl';
 import timer from '@epok.tech/fn-time';
 import { count, vertices } from '@epok.tech/gl-screen-triangle';
 
-import testVert from '@epok.tech/gl-screen-triangle/index.vert.glsl';
-import testFrag from '@epok.tech/gl-screen-triangle/index.frag.glsl';
-
 import { gpgpu, extensions, optionalExtensions } from '../';
+import { macroValues } from '../macros';
+import { countDrawIndexes, getDrawIndexes } from '../inputs';
+
+import stepVert from '@epok.tech/gl-screen-triangle/uv-texture.vert.glsl';
 
 import stepFrag from './step.frag.glsl';
+
+import drawVert from './draw.frag.glsl';
+import drawFrag from './draw.frag.glsl';
 
 const regl = getRegl({
     extensions: extensions(), optionalExtensions: optionalExtensions()
@@ -43,7 +47,8 @@ const state = gpgpu(regl, {
     },
     maps: { values: [...values], derives: [...derives] },
     step: {
-        frag: stepFrag, verts: [], frags: [],
+        vert: stepVert, frag: stepFrag,
+        verts: [], frags: [],
         uniforms: {
             dt: regl.prop('step.timer.dt'),
             time: regl.prop('step.timer.time'),
@@ -59,14 +64,40 @@ state.step.timer = { step: '-', time: regl.now() };
 timer(state.step.timer, state.step.timer.time);
 
 console.log(self.state = state);
-console.log(state.step.frags[0]);
 
-const clear = { color: [0, 0, 0, 255], depth: 1 };
+/**
+ * Draw pairs of vertexes for lines between each particle's current and past
+ * positions using `gl.LINES`.
+ * @see `gl.LINES` at https://webglfundamentals.org/webgl/lessons/webgl-points-lines-triangles.html
+ *
+ * If fewer than 2 states are given, lines can't be drawn, so uses `gl.POINTS`.
+ */
+const drawCount = countDrawIndexes(state.size)*
+    Math.max(1, (state.steps.length-1)*2);
+
+const drawIndexes = getDrawIndexes(drawCount);
+
+const draw = regl({
+    vert: macroValues(state)+'\n'+drawVert,
+    frag: macroValues(state)+'\n'+drawFrag,
+    attributes: { index: drawIndexes },
+    uniforms: {
+        states: state.step.uniforms.states,
+        dataShape: state.step.uniforms.dataShape,
+        pointSize: 1,
+        lifetime: state.step.uniforms.lifetime
+    },
+    count: drawCount,
+    primitive: ((state.steps.length > 1)? 'lines' : 'points')
+});
+
+const clear = { color: [0, 0, 0, 255] };
 
 regl.frame(() => {
     // regl.clear(clear);
     timer(state.step.timer, regl.now());
     state.step.run();
+    draw(state);
 });
 
 // export function getParticlesVerlet3DSetup(regl, s, o) {

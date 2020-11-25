@@ -20,8 +20,10 @@ import { valuesDef, channelsMaxDef, texturesMaxDef } from './const';
 
 /**
  * Groups the `values` of GPGPU data items across draw passes and data textures.
- * The `values` are grouped in the given order, which may affect the number of
- * passes/textures used:
+ *
+ * @todo The `values` are grouped in the given order, which may affect the
+ * number of passes/textures used; sort/zip the values first to pack them into
+ * buckets of `channelsMax` tightly before mapping.
  *
  * @example
  *     mapGroups({ values: [2, 4, 1], channelsMax: 4, texturesMax: 1 }); // =>

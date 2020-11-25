@@ -5,7 +5,7 @@
 import { positions } from '@epok.tech/gl-screen-triangle';
 
 export { default as vertDef }
-    from '@epok.tech/gl-screen-triangle/uv-texture.vert.glsl';
+    from '@epok.tech/gl-screen-triangle/index.vert.glsl';
 
 /**
  * The required and optional GL extensions for a GPGPU state.
@@ -41,4 +41,4 @@ export const scaleDef = 10;
 export const stepsDef = 2;
 export const typeDef = 'float';
 export const valuesDef = () => [channelsMaxDef];
-export const positionsDef = () => [positions];
+export const positionsDef = () => [...positions];

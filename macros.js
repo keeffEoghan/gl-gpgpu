@@ -263,7 +263,10 @@ export function hasMacros(props, key, macros = props.macros) {
  * @param {array} state.maps.passes The passes drawn per-step. See `mapGroups`.
  * @param {array} state.steps The states drawn across frames. See `getState`.
  * @param {number} [state.bound=boundDef] How many steps are bound as outputs,
- *     unavailable as inputs..
+ *     unavailable as inputs.
+ * @param {object} [state.size] Any size information about the GL resources.
+ * @param {number} [state.size.count] The number of data entries per texture
+ *     (the texture's area), if given. See `getState`.
  *
  * @returns {string} The GLSL preprocessor macros defining the mappings from
  *     values to textures/channels.
@@ -279,9 +282,10 @@ export function macroValues(state) {
             steps: { length: stepsL }, bound = boundDef
         } = state;
 
+    const count = (state.size && state.size.count);
     const n = getPre(state);
     const c = key+':'+
-        JSON.stringify({ n, bound, values, textures, stepsL, passesL });
+        JSON.stringify({ n, bound, values, textures, stepsL, passesL, count });
 
     return (cache[c] || (cache[c] =
         reduce((s, texture, t, _, i = 0) => reduce((s, v) => s+
@@ -290,6 +294,7 @@ export function macroValues(state) {
                         rgba.slice(i, (i += values[v]))}\n\n`,
                 texture, s),
             textures, '')+
+        ((count)? `#define count ${count}\n` : '')+
         `#define ${n}textures ${textures.length}\n`+
         `#define ${n}passes ${passesL}\n`+
         `#define ${n}stepsPast ${stepsL-bound}\n`+
@@ -483,7 +488,7 @@ export function macroSamples(state) {
  *
  * @example
  *     const state = {
- *         steps: Array(2), passNow: 0, pre: '',
+ *         steps: Array(2), passNow: 0,
  *         maps: mapSamples(mapGroups({
  *             values: [4, 2, 3], channelsMax: 4, texturesMax: 1,
  *             derives: [[1, 0], [2, [1, 0]]]
