@@ -7,13 +7,13 @@ import { count, vertices } from '@epok.tech/gl-screen-triangle';
 
 import { gpgpu, extensions, optionalExtensions } from '../';
 import { macroValues } from '../macros';
-import { countDrawIndexes, getDrawIndexes } from '../inputs';
+import { getUniforms, countDrawIndexes, getDrawIndexes } from '../inputs';
 
 import stepVert from '@epok.tech/gl-screen-triangle/uv-texture.vert.glsl';
 
 import stepFrag from './step.frag.glsl';
 
-import drawVert from './draw.frag.glsl';
+import drawVert from './draw.vert.glsl';
 import drawFrag from './draw.frag.glsl';
 
 const regl = getRegl({
@@ -42,9 +42,7 @@ const values = Object.values(valuesMap);
 const derives = Object.values(derivesMap);
 
 const state = gpgpu(regl, {
-    macros: {
-        pass: true, values: true, output: true, samples: true, tap: true
-    },
+    scale: 6,
     maps: { values: [...values], derives: [...derives] },
     step: {
         vert: stepVert, frag: stepFrag,
@@ -55,7 +53,6 @@ const state = gpgpu(regl, {
             lifetime: [5e3, 1e4]
         }
     },
-    // step: { frag: stepFrag },
     // 1 active state + 2 past states needed for Verlet integration.
     steps: 1+2
 });
@@ -77,28 +74,30 @@ const drawCount = countDrawIndexes(state.size)*
 
 const drawIndexes = getDrawIndexes(drawCount);
 
-const draw = regl({
+const drawCommand = {
     vert: macroValues(state)+'\n'+drawVert,
-    frag: macroValues(state)+'\n'+drawFrag,
+    frag: drawFrag,
     attributes: { index: drawIndexes },
-    uniforms: {
-        states: state.step.uniforms.states,
-        dataShape: state.step.uniforms.dataShape,
-        pointSize: 1,
-        lifetime: state.step.uniforms.lifetime
-    },
+    uniforms: getUniforms({ ...state, bound: 0 },
+        { ...state.step.uniforms, pointSize: 1 }),
     count: drawCount,
     primitive: ((state.steps.length > 1)? 'lines' : 'points')
-});
+};
 
-const clear = { color: [0, 0, 0, 255] };
+console.log(self.drawCommand = drawCommand);
 
+const draw = regl(drawCommand);
+
+// const clear = { color: [0, 0, 0, 255] };
+
+// setTimeout(() => {
 regl.frame(() => {
     // regl.clear(clear);
     timer(state.step.timer, regl.now());
     state.step.run();
     draw(state);
 });
+// }, 1000);
 
 // export function getParticlesVerlet3DSetup(regl, s, o) {
 //     const out = getSetup(regl, state, o);

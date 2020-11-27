@@ -18,6 +18,76 @@ import each from '@epok.tech/fn-lists/each';
 
 import { valuesDef, channelsMaxDef, texturesMaxDef } from './const';
 
+export const cache = { packed: [] };
+
+export const validValue = (value, channelsMax = channelsMaxDef) =>
+    ((1 > value || value > channelsMax) &&
+        !!console.error(`\`gl-gpgpu\`: the given value (${value}) exceeds the `+
+            `range of channels available (1 to ${channelsMax}).`,
+            value, channelsMax));
+
+/**
+ * Minimise resource usage, order `values` to pack into blocks of `channelsMax`.
+ *
+ * @see mapGroups
+ *
+ * @param {array<number>} values Each entry is how many co-dependent channels
+ *     are grouped into one texture in one pass, separate entries may be in one
+ *     or more textures/passes. See `mapGroups`.
+ * @param {number} [channelsMax=channelsMaxDef] The maximum number of channels
+ *     per texture. See `mapGroups`.
+ * @param {array} [out=[]] An array to store the result; a new array by default.
+ *
+ * @returns {array<number>} `out` The indexes of the given `values`, reordered
+ *     to pack into the fewest buckets of `channelsMax` size or less; stored in
+ *     the given `out` array.
+ */
+export function packValues(values, channelsMax = channelsMaxDef, out = []) {
+    out.length = values.length;
+    map((_, i) => i, values, out);
+
+    // Counts the number of empty channels in the current group.
+    let channels = channelsMax;
+    // How many values have already been packed.
+    let packed = 0;
+    // Tracks the value that best fits the free channels (fills it tightest).
+    let fitIndex = 0;
+    let fitSize = Infinity;
+
+    for(let i = 0; packed < values.length;) {
+        const v = packed+i;
+        const value = values[out[v]];
+
+        if(!validValue(value, channelsMax)) { return out; }
+
+        // Check how value fits the channels - valid is >= 0, perfect is 0.
+        const fit = channels-value;
+
+        if((fit >= 0) && (fit < fitSize)) {
+            fitSize = fit;
+            fitIndex = v;
+        }
+
+        if((fitSize === 0) || (v >= values.length-1)) {
+            // Got a perfect fit or the search ended - swap in best fit value.
+            const pack = out[fitIndex];
+
+            out[fitIndex] = out[packed];
+            out[packed] = pack;
+
+            // Reduce the free channels by the best value, reset if needed.
+            (((channels -= values[pack]) > 0) || (channels = channelsMax));
+            // Start the search again over the remaining unpacked entries.
+            fitIndex = ++packed;
+            fitSize = Infinity;
+            i = 0;
+        }
+        else { ++i; }
+    }
+
+    return out;
+}
+
 /**
  * Groups the `values` of GPGPU data items across draw passes and data textures.
  *
@@ -136,18 +206,15 @@ export function mapGroups(maps = {}, out = maps) {
     out.valueToPass = [];
     out.textureToPass = [];
 
+    // Pack `values` into blocks of `channelsMax` to minimise resources.
+    const packed = packValues(values, channelsMax, cache.packed);
     // Counts the number of channels written in a single draw pass.
     let channels = 0;
 
-    return reduce((out, value, index) => {
-            if(value > channelsMax) {
-                console.warn('`gl-gpgpu`: none of the given `values` '+
-                    `(${value}) should exceed the total number of channels `+
-                    `available in a texture (${channelsMax}).`,
-                    values);
+    return reduce((out, index) => {
+            const value = values[index];
 
-                return out;
-            }
+            if(!validValue(value, channelsMax)) { return out; }
 
             const {
                     textures, passes, valueToTexture, valueToPass, textureToPass
@@ -178,7 +245,7 @@ export function mapGroups(maps = {}, out = maps) {
 
             return out;
         },
-        values, out);
+        packed, out);
 }
 
 /**

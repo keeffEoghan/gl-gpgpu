@@ -1,9 +1,9 @@
 /**
  * Drawing a GPGPU particle simulation.
- * Requires setup with preprocessor macros - see `macroPass`.
+ * Requires setup with preprocessor macros. See `macroPass` and `macroValues`.
  *
- * @see [macroValues]{@link ../macros.js#macroValues}
  * @see [macroPass]{@link ../macros.js#macroPass}
+ * @see [macroValues]{@link ../macros.js#macroValues}
  */
 
 #define posTexture texture_0
@@ -23,8 +23,7 @@ uniform vec2 dataShape;
 uniform float pointSize;
 uniform vec2 lifetime;
 
-varying float stepIndex;
-varying float life;
+varying vec4 color;
 
 void main() {
     #if steps < 2
@@ -46,8 +45,8 @@ void main() {
          *     2 points of entry indexes:
          *     [0, 1]
          */
-        int stepIndex = 0;
-        int entryIndex = index;
+        float stepIndex = 0.0;
+        float entryIndex = index;
     #else
         /**
          * Every pair of indexes is a line-segment connecting each state to its past
@@ -85,24 +84,26 @@ void main() {
          *
          * @see `gl.LINES` at https://webglfundamentals.org/webgl/lessons/webgl-points-lines-triangles.html
          */
-        int stepIndex = ceil(mod(i*0.5, steps-1));
-        int entryIndex = floor(index/(steps-1));
+        float stepIndex = ceil(mod(index*0.5, float(steps-1)));
+        float entryIndex = floor(index/float(steps-1));
     #endif
 
     // Turn the 1D index into a 2D texture UV - adding a half-pixel offset to
     // ensure sampling from the pixel's center and avoid errors.
     vec2 uv = vec2(mod(entryIndex+0.5, dataShape.x)/dataShape.x,
-        (floor(i/dataShape.x)+0.5)/dataShape.y);
+        (floor(entryIndex/dataShape.x)+0.5)/dataShape.y);
 
     // Step back a full state's worth of textures per step index.
-    int stateIndex = stepIndex*textures;
+    int stateIndex = int(stepIndex)*textures;
 
     // Sample the desired state values.
     // @todo Make use of the `reads` logic to take the minimum possible samples.
+
     vec3 pos = texture2D(states[stateIndex+posTexture], uv).posChannels;
     float life = texture2D(states[stateIndex+lifeTexture], uv).lifeChannels;
 
+    color = vec4(stepIndex/float(steps), entryIndex/float(count), life, life);
+
     gl_Position = vec4(pos, 1.0);
-    // gl_PointSize = pointSize*life/lifetime[1];
-    gl_PointSize = pointSize;
+    gl_PointSize = pointSize*(life/lifetime[1]);
 }

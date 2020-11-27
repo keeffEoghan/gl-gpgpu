@@ -46,10 +46,6 @@ export function getUniforms(state, out = {}) {
     const cache = { viewShape: range(2) };
 
     out[n+'stepNow'] = (_, { stepNow: s }) => s;
-    // out[n+'steps'] = (_, { steps: { length: l } }) => l;
-    // out[n+'stepsPast'] = (_, { steps: { length: s }, bound: b = bound }) => s-b;
-    // out[n+'passNow'] = (_, { passNow: p }) => p;
-    // out[n+'passes'] = (_, { passes: { length: l } }) => l;
     out[n+'dataShape'] = (_, { size: { shape: s } }) => s;
     out[n+'viewShape'] = ({ viewportWidth: w, viewportHeight: h }) =>
         setC2(cache.viewShape, w, h);
