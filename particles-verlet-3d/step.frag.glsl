@@ -35,7 +35,8 @@ useSamples
 #ifdef output_1
     #define lifeOutput output_1
     useReads_1
-    #define lifeReadLife reads_1_i(0)
+    #define lifeReadLife1 reads_1_i(0)
+    #define lifeReadLife0 reads_1_i(1)
 #endif
 #ifdef output_2
     #define accOutput output_2
@@ -50,12 +51,13 @@ uniform sampler2D states[stepsPast*textures];
 uniform float dt;
 uniform float time;
 uniform vec2 lifetime;
+uniform float force;
+uniform float useVerlet;
 
 varying vec2 uv;
 
 const vec3 g = vec3(0, -0.00098, 0);
 const vec3 posSpawn = vec3(0);
-const vec3 accSpawn = vec3(0.5, 0.5, 0);
 const vec4 ndcRange = vec4(-1, -1, 1, 1);
 const vec4 stRange = vec4(0, 0, 1, 1);
 
@@ -68,6 +70,9 @@ const vec4 stRange = vec4(0, 0, 1, 1);
 #ifdef lifeOutput
     #pragma glslify: random = require('glsl-random');
 #endif
+
+#pragma glslify: eq = require('glsl-conditionals/when_eq');
+#pragma glslify: le = require('glsl-conditionals/when_le');
 
 void main() {
     // Sample textures.
@@ -83,12 +88,17 @@ void main() {
         #if defined(posOutput)
             #define readLife posReadLife
         #elif defined(lifeOutput)
-            #define readLife lifeReadLife
+            #define readLife lifeReadLife1
         #elif defined(accOutput)
             #define readLife accReadLife
         #endif
 
         float life = data[readLife].lifeChannels;
+        float spawn = le(life, 0.0);
+    #endif
+
+    #if defined(lifeOutput)
+        float life0 = data[lifeReadLife0].lifeChannels;
     #endif
 
     #if defined(posOutput) || defined(accOutput)
@@ -101,50 +111,25 @@ void main() {
         vec3 acc = data[readAcc].accChannels;
     #endif
 
-    // Update values.
-    #if defined(lifeOutput) || defined(posOutput) || defined(accOutput)
-        // life = max(0.0, life-dt);
-        life = life-dt;
-        // life = life-(dt*0.001);
-        // float alive = 1.0-step(life, 0.0);
-        // float alive = ((life > 0.0)? 1.0 : 0.0);
-        float alive = float(life > 0.0);
+    // Output updated values.
+    #ifdef posOutput
+        // Use either Euler or Verlet integration.
+        posOutput = mix(mix(pos1+(acc*dt*force), posSpawn, spawn),
+            mix(verlet(acc, pos0, pos1, dt), posSpawn, spawn),
+            useVerlet);
     #endif
     #ifdef lifeOutput
-        // float spawnedLife = min(lifetime[0], lifetime[1])+
-        //     abs((lifetime[0]-lifetime[1])*random(uv*time));
+        // Only spawn life once the oldest step reaches the end of its lifetime.
+        // (Past and current life are both 0)
+        float spawnLife = le(life0, 0.0);
 
-        // life = mix(spawnedLife, life, alive);
-        life = mix(map(random(uv*time), 0.0, 1.0, lifetime[0], lifetime[1]),
-            life, alive);
-    #endif
-    #ifdef posOutput
-        vec3 pos = mix(posSpawn, verlet(acc, pos0, pos1, dt), alive);
+        lifeOutput = mix(max(0.0, life-dt),
+            map(random(uv*time), 0.0, 1.0, lifetime[0], lifetime[1]),
+            spawnLife*eq(spawn, spawnLife));
     #endif
     #ifdef accOutput
-        vec3 accSpawned = accSpawn+vec3(vec2(sin(time), cos(time))*1.0, 0);
-
-        acc = mix(accSpawned, acc+(g*dt), alive);
+        accOutput = mix(acc+(g*dt*force),
+            vec3(vec2(cos(time), -sin(time)), 0)*force,
+            spawn);
     #endif
-
-    // Output values.
-    #ifdef posOutput
-        posOutput = pos;
-        // posOutput = vec3(1, 0, 0);
-        // posOutput = vec3(uv, 0);
-    #endif
-    #ifdef lifeOutput
-        lifeOutput = life;
-    #endif
-    #ifdef accOutput
-        accOutput = acc;
-        // accOutput = vec3(0, 1, 0);
-    #endif
-
-    // gl_FragColor = vec4(1, 0, 0, 1);
-    // gl_FragData[0] = vec4(1, life, 0, 1);
-    // gl_FragData[1] = vec4(0, 1, 0, 1);
-    // gl_FragData[0] = vec4(uv, 0, 1);
-    // gl_FragData[0].rgb = vec3(uv, 0);
-    // gl_FragData[0].a = gl_FragData[1].a = 1.0;
 }

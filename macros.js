@@ -461,9 +461,10 @@ export function macroSamples(state) {
             :   `#define ${n}tapSamples(states, uv, textures) ${
                     getGLSLList('vec4', `${n}data`,
                         // 2D-to-1D indexing, as textures a flat array.
-                        map(([s, t]) => [`states[(${s}*textures)+${t}]`, 'uv'],
+                        map(([s, t]) =>
+                                `texture2D(states[(${s}*textures)+${t}], uv)`,
                             passSamples),
-                        '', glsl, 'texture2D')}\n`))+
+                        '', glsl)}\n`))+
         ((!passReads)? ''
         :   reduce((s, reads, v) =>
                     `${s}\n#define ${n}useReads_${v} ${

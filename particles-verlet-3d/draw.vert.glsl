@@ -18,17 +18,20 @@ precision highp float;
 
 attribute float index;
 
-uniform sampler2D states[steps*textures];
+uniform sampler2D states[stepsPast*textures];
+// uniform sampler2D states[steps*textures];
 uniform vec2 dataShape;
+uniform vec2 viewShape;
 uniform float pointSize;
 uniform vec2 lifetime;
 
-varying vec4 color;
+varying vec3 color;
 
 void main() {
-    #if steps < 2
+    #if stepsPast < 2
+    // #if steps < 2
         /**
-         * If fewer than 2 states are given, uses `gl.POINTS`.
+         * If fewer than 2 steps are given, uses `gl.POINTS`.
          *
          * @example
          *     1 entry, 1 step, 1 index:
@@ -84,26 +87,28 @@ void main() {
          *
          * @see `gl.LINES` at https://webglfundamentals.org/webgl/lessons/webgl-points-lines-triangles.html
          */
-        float stepIndex = ceil(mod(index*0.5, float(steps-1)));
-        float entryIndex = floor(index/float(steps-1));
+        float stepIndex = ceil(mod(index, float(stepsPast)));
+        float entryIndex = floor(index/float(stepsPast));
+        // float stepIndex = ceil(mod(index, float(steps)));
+        // float entryIndex = floor(index/float(steps));
     #endif
+
+    // Step back a full state's worth of textures per step index.
+    int stateIndex = int(stepIndex)*textures;
 
     // Turn the 1D index into a 2D texture UV - adding a half-pixel offset to
     // ensure sampling from the pixel's center and avoid errors.
     vec2 uv = vec2(mod(entryIndex+0.5, dataShape.x)/dataShape.x,
         (floor(entryIndex/dataShape.x)+0.5)/dataShape.y);
 
-    // Step back a full state's worth of textures per step index.
-    int stateIndex = int(stepIndex)*textures;
-
     // Sample the desired state values.
     // @todo Make use of the `reads` logic to take the minimum possible samples.
-
     vec3 pos = texture2D(states[stateIndex+posTexture], uv).posChannels;
     float life = texture2D(states[stateIndex+lifeTexture], uv).lifeChannels;
 
-    color = vec4(stepIndex/float(steps), entryIndex/float(count), life, life);
+    color = vec3(stepIndex/float(stepsPast), entryIndex/float(count), 1)*life;
+    // color = vec3(stepIndex/float(steps), entryIndex/float(count), 1)*life;
 
-    gl_Position = vec4(pos, 1.0);
+    gl_Position = vec4(pos/max(viewShape.x, viewShape.y), 1);
     gl_PointSize = pointSize*(life/lifetime[1]);
 }

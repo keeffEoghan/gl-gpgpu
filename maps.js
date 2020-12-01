@@ -21,7 +21,7 @@ import { valuesDef, channelsMaxDef, texturesMaxDef } from './const';
 export const cache = { packed: [] };
 
 export const validValue = (value, channelsMax = channelsMaxDef) =>
-    ((1 > value || value > channelsMax) &&
+    (((1 <= value) && (value <= channelsMax)) ||
         !!console.error(`\`gl-gpgpu\`: the given value (${value}) exceeds the `+
             `range of channels available (1 to ${channelsMax}).`,
             value, channelsMax));
@@ -68,7 +68,8 @@ export function packValues(values, channelsMax = channelsMaxDef, out = []) {
             fitIndex = v;
         }
 
-        if((fitSize === 0) || (v >= values.length-1)) {
+        if((fitSize !== 0) && (v < values.length-1)) { ++i; }
+        else {
             // Got a perfect fit or the search ended - swap in best fit value.
             const pack = out[fitIndex];
 
@@ -82,7 +83,6 @@ export function packValues(values, channelsMax = channelsMaxDef, out = []) {
             fitSize = Infinity;
             i = 0;
         }
-        else { ++i; }
     }
 
     return out;
@@ -325,7 +325,7 @@ export function mapSamples(maps, out = maps) {
 
         if(!sample.every(Number.isInteger)) {
             return console.error('`mapSamples`: invalid map for sample',
-                derives, maps, pass, value, derive, sample);
+                derives, maps, pass, value, derive, d, sample);
         }
 
         const [step, texture] = sample;
