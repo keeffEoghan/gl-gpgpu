@@ -895,8 +895,10 @@
   resolved "https://registry.yarnpkg.com/@epok.tech/gl-screen-triangle/-/gl-screen-triangle-1.1.3.tgz#5ea2d83531360ae2ee8ad11ca6e33cfd7d209dcb"
   integrity sha512-tZGR5OKByjCMfYiFFmQwHDgek6dOaALoMUh/jK5o7hSRnqFCNlp29ev+/+XAzBe0GLe2yXz0gpyXRq9SxEMF7Q==
 
-"@epok.tech/glsl-verlet@../glsl-verlet":
+"@epok.tech/glsl-verlet@^0.0.1":
   version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@epok.tech/glsl-verlet/-/glsl-verlet-0.0.1.tgz#3793178162a0e03c1cbb8427fadbb79e55b9eed4"
+  integrity sha512-Eb+NZmNrET8RAOwbeu8hsL0Oin4SrS639PUAMqz+dLespjo0Mfs0+1AuiqWmTNJ68oDkwUn8zTDW1FyNZK89mQ==
 
 "@epok.tech/is-type@^0.0.2":
   version "0.0.2"
