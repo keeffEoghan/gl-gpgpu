@@ -19,17 +19,15 @@ precision highp float;
 attribute float index;
 
 uniform sampler2D states[stepsPast*textures];
-// uniform sampler2D states[steps*textures];
 uniform vec2 dataShape;
 uniform vec2 viewShape;
 uniform float pointSize;
 uniform vec2 lifetime;
 
-varying vec3 color;
+varying vec4 color;
 
 void main() {
     #if stepsPast < 2
-    // #if steps < 2
         /**
          * If fewer than 2 steps are given, uses `gl.POINTS`.
          *
@@ -89,8 +87,6 @@ void main() {
          */
         float stepIndex = ceil(mod(index, float(stepsPast)));
         float entryIndex = floor(index/float(stepsPast));
-        // float stepIndex = ceil(mod(index, float(steps)));
-        // float entryIndex = floor(index/float(steps));
     #endif
 
     // Step back a full state's worth of textures per step index.
@@ -105,10 +101,10 @@ void main() {
     // @todo Make use of the `reads` logic to take the minimum possible samples.
     vec3 pos = texture2D(states[stateIndex+posTexture], uv).posChannels;
     float life = texture2D(states[stateIndex+lifeTexture], uv).lifeChannels;
+    float l = pow(life/lifetime[1], 0.1);
 
-    color = vec3(stepIndex/float(stepsPast), entryIndex/float(count), 1)*life;
-    // color = vec3(stepIndex/float(steps), entryIndex/float(count), 1)*life;
+    color = vec4(stepIndex/float(stepsPast), entryIndex/float(count), 1, 1)*l;
 
     gl_Position = vec4(pos/max(viewShape.x, viewShape.y), 1);
-    gl_PointSize = pointSize*(life/lifetime[1]);
+    gl_PointSize = pointSize*l;
 }

@@ -28,15 +28,14 @@ const valuesMap = { position: 3, life: 1, acceleration: 3 };
 const valuesKeys = Object.keys(valuesMap);
 const derivesMap = {
     position: [
-        // Position, 1 step past.
-        valuesKeys.indexOf('position'),
         // Position, 2 steps past.
         [1, valuesKeys.indexOf('position')],
+        // Position, 1 step past.
+        valuesKeys.indexOf('position'),
         valuesKeys.indexOf('acceleration'),
         valuesKeys.indexOf('life')
     ],
-    life: [valuesKeys.indexOf('life'), [1, valuesKeys.indexOf('life')]],
-    // life: [valuesKeys.indexOf('life')],
+    life: [[1, valuesKeys.indexOf('life')], valuesKeys.indexOf('life')],
     acceleration: [
         valuesKeys.indexOf('acceleration'), valuesKeys.indexOf('life')
     ]
@@ -47,7 +46,7 @@ const derives = Object.values(derivesMap);
 
 const state = gpgpu(regl, {
     useVerlet: true,
-    scale: 10,
+    scale: 9,
     maps: { values: [...values], derives: [...derives] },
     step: {
         vert: stepVert, frag: stepFrag,
@@ -55,7 +54,7 @@ const state = gpgpu(regl, {
         uniforms: {
             dt: regl.prop('step.timer.dt'),
             time: regl.prop('step.timer.time'),
-            lifetime: [1e3, 2e3],
+            lifetime: [1e3, 4e3],
             force: (_, { useVerlet: v }) => ((v)? 1e-3 : 1),
             useVerlet: (_, { useVerlet: v }) => +v
         }
@@ -65,7 +64,8 @@ const state = gpgpu(regl, {
     steps: 1+2
 });
 
-state.step.timer = { step: '-', time: regl.now()*1e3 };
+// state.step.timer = { step: '-', time: regl.now()*1e3 };
+state.step.timer = { step: '+', time: 0 };
 timer(state.step.timer, state.step.timer.time);
 
 console.log(self.state = state);
@@ -78,30 +78,34 @@ console.log(self.state = state);
  * If fewer than 2 states are given, lines can't be drawn, so uses `gl.POINTS`.
  */
 const drawCount = countDrawIndexes(state.size)*
-    Math.max(1, (state.steps.length-state.bound-1)*2);
+    // Math.max(1, (state.steps.length-state.bound-1)*2);
+    Math.max(1, (state.steps.length-1)*2);
 
 const drawIndexes = getDrawIndexes(drawCount);
+const drawState = { ...state };
 
 const drawCommand = {
-    vert: macroValues(state)+'\n'+drawVert,
+    vert: macroValues(drawState)+'\n'+drawVert,
     frag: drawFrag,
     attributes: { index: drawIndexes },
-    // uniforms: getUniforms({ ...state, bound: 0 },
-    uniforms: getUniforms(state,
-        { ...state.step.uniforms, pointSize: 5 }),
+    uniforms: getUniforms(drawState,
+        { ...drawState.step.uniforms, pointSize: 5 }),
     lineWidth: 1,
     count: drawCount,
-    primitive: ((state.steps.length > 2)? 'lines' : 'points')
+    primitive: ((drawState.steps.length > 2)? 'lines' : 'points')
+    // primitive: 'points'
 };
 
-console.log(self.drawCommand = drawCommand);
+console.log((self.drawCommand = drawCommand), drawCount);
 
 const draw = regl(drawCommand);
 
 regl.frame(() => {
-    timer(state.step.timer, regl.now()*1e3);
+    // timer(state.step.timer, regl.now()*1e3);
+    timer(state.step.timer);
     state.step.run();
-    draw(state);
+    drawState.stepNow = state.stepNow;
+    draw(drawState);
 });
 
 self.addEventListener('click',

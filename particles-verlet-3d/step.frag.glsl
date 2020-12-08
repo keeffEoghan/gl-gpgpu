@@ -27,16 +27,16 @@ useSamples
 #ifdef output_0
     #define posOutput output_0
     useReads_0
-    #define posReadPos1 reads_0_i(0)
-    #define posReadPos0 reads_0_i(1)
+    #define posReadPos0 reads_0_i(0)
+    #define posReadPos1 reads_0_i(1)
     #define posReadAcc reads_0_i(2)
     #define posReadLife reads_0_i(3)
 #endif
 #ifdef output_1
     #define lifeOutput output_1
     useReads_1
-    #define lifeReadLife1 reads_1_i(0)
-    #define lifeReadLife0 reads_1_i(1)
+    #define lifeReadLife0 reads_1_i(0)
+    #define lifeReadLife1 reads_1_i(1)
 #endif
 #ifdef output_2
     #define accOutput output_2
@@ -114,9 +114,10 @@ void main() {
     // Output updated values.
     #ifdef posOutput
         // Use either Euler or Verlet integration.
-        posOutput = mix(mix(pos1+(acc*dt*force), posSpawn, spawn),
-            mix(verlet(acc, pos0, pos1, dt), posSpawn, spawn),
+        vec3 pos = mix(pos1+(acc*dt*force), verlet(acc, pos0, pos1, dt),
             useVerlet);
+
+        posOutput = mix(pos, posSpawn, spawn);
     #endif
     #ifdef lifeOutput
         // Only spawn life once the oldest step reaches the end of its lifetime.
@@ -128,8 +129,11 @@ void main() {
             spawnLife*eq(spawn, spawnLife));
     #endif
     #ifdef accOutput
+        float r = random(uv*time);
+
         accOutput = mix(acc+(g*dt*force),
-            vec3(vec2(cos(time), -sin(time)), 0)*force,
+            vec3(vec2(cos(time+r), -sin(time+r)), tan(time+r))*random(uv-time)*
+                force,
             spawn);
     #endif
 }

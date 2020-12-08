@@ -17,7 +17,7 @@
     "docs": "rm -rf docs/ && parcel build ./particles-verlet-3d/index.html -d ./docs/ --public-url ./"
   },
   "dependencies": {
-    "@epok.tech/fn-lists": "^0.0.7",
+    "@epok.tech/fn-lists": "^0.0.8",
     "@epok.tech/is-type": "^0.0.2",
     "@thi.ng/vectors": "^4.7.0"
   },

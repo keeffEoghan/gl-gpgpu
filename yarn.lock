@@ -880,10 +880,10 @@
   dependencies:
     commander "^2.15.1"
 
-"@epok.tech/fn-lists@^0.0.7":
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/@epok.tech/fn-lists/-/fn-lists-0.0.7.tgz#8d551edde446d3f35175dd2e481c3e30ed441365"
-  integrity sha512-Wc+23ibqBCn+cp3dzkWSWq/t6QULkPUwvplKewWVnGZci7W9wA5AmLckZdxi4lDQT4tLuWKxMvWnqYrDLOlg9w==
+"@epok.tech/fn-lists@^0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@epok.tech/fn-lists/-/fn-lists-0.0.8.tgz#b381d106e126d9dffbb50967b3ef71c13446f979"
+  integrity sha512-ku4/1K2+aBg6/vdCdPa3N6GYiBhMMTevl082RrzAzu+22h94BaJVNs+irZ+RJDuo8VizicsAtX3gPYRCiQhSIg==
 
 "@epok.tech/fn-time@^0.0.2":
   version "0.0.2"

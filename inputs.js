@@ -53,16 +53,11 @@ export function getUniforms(state, out = {}) {
     // Set up the past steps, as the number of steps into the past from the
     // currently bound step ([1...(steps-1)]).
 
-    const addTexture = (past, texture) => {
-        console.log(past, texture, `${n}states[${(past*texturesL)+texture}]`);
+    const addTexture = (past, texture) =>
         // Hook to pull a given texture from the latest `props`.
-        return out[`${n}states[${(past*texturesL)+texture}]`] =
+        out[`${n}states[${(past*texturesL)+texture}]`] =
             (_, { stepNow: s, bound: b = bound, textures }) =>
-                // wrap.get(s+b+past, textures)[texture].texture;
                 wrap.get(s-b-past, textures)[texture].texture;
-                // wrap.get(s+past, textures)[texture].texture;
-                // wrap.get(s-past, textures)[texture].texture;
-    };
 
     // Flatten all input textures, as uniforms are stored in flat arrays.
     for(let past = 0; past < stepsL-bound; ++past) {
