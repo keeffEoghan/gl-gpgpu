@@ -67,11 +67,22 @@ const vec4 stRange = vec4(0, 0, 1, 1);
     #pragma glslify: verlet = require('@epok.tech/glsl-verlet');
 #endif
 
-#ifdef lifeOutput
+#if defined(lifeOutput) || defined(accOutput)
     #pragma glslify: random = require('glsl-random');
 #endif
 
-#pragma glslify: eq = require('glsl-conditionals/when_eq');
+#ifdef accOutput
+    const float tau = 6.283185;
+
+    // @see https://observablehq.com/@rreusser/equally-distributing-points-on-a-sphere
+    vec3 randomOnSphere(vec2 randoms) {
+        float a = randoms[0]*tau;
+        float u = (randoms[1]*2.0)-1.0;
+
+        return vec3(sqrt(1.0-(u*u))*vec2(cos(a), sin(a)), u);
+    }
+#endif
+
 #pragma glslify: le = require('glsl-conditionals/when_le');
 
 void main() {
@@ -79,8 +90,11 @@ void main() {
     tapSamples(states, uv, textures)
 
     // Read values.
+
     #ifdef posOutput
         vec3 pos0 = data[posReadPos0].posChannels;
+    #endif
+    #if defined(lifeOutput) || defined(posOutput)
         vec3 pos1 = data[posReadPos1].posChannels;
     #endif
 
@@ -88,7 +102,7 @@ void main() {
         #if defined(posOutput)
             #define readLife posReadLife
         #elif defined(lifeOutput)
-            #define readLife lifeReadLife1
+            #define readLife lifeReadLife
         #elif defined(accOutput)
             #define readLife accReadLife
         #endif
@@ -120,20 +134,21 @@ void main() {
         posOutput = mix(pos, posSpawn, spawn);
     #endif
     #ifdef lifeOutput
-        // Only spawn life once the oldest step reaches the end of its lifetime.
-        // (Past and current life are both 0)
-        float spawnLife = le(life0, 0.0);
+        life = max(0.0, life-dt);
 
-        lifeOutput = mix(max(0.0, life-dt),
-            map(random(uv*time), 0.0, 1.0, lifetime[0], lifetime[1]),
-            spawnLife*eq(spawn, spawnLife));
+        float lifeSpawn = map(random(uv*time),
+            0.0, 1.0, lifetime[0], lifetime[1]);
+
+        // Only spawn life once the oldest step reaches the end of its lifetime
+        // (past and current life are both 0).
+        lifeOutput = mix(life, lifeSpawn, spawn*le(life0, 0.0));
     #endif
     #ifdef accOutput
-        float r = random(uv*time);
+        acc += g*dt*force;
 
-        accOutput = mix(acc+(g*dt*force),
-            vec3(vec2(cos(time+r), -sin(time+r)), tan(time+r))*random(uv-time)*
-                force,
-            spawn);
+        vec2 randoms = vec2(random((uv+time)/dt), random((uv-time)*dt));
+        vec3 accSpawn = randomOnSphere(randoms)*(random((time-uv)*dt)*force);
+
+        accOutput = mix(acc, accSpawn, spawn);
     #endif
 }

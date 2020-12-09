@@ -1,6 +1,6 @@
 {
   "name": "gl-gpgpu",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "GPGPU current/past state-stepping - map minimal passes of shaders, GL resources, inputs, outputs - BYORenderer.",
   "main": "index.js",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",

@@ -9,12 +9,11 @@ import wrap from '@epok.tech/fn-lists/wrap-index';
 import { gpgpu, extensions, optionalExtensions } from '../';
 import { macroValues } from '../macros';
 import { getUniforms, countDrawIndexes, getDrawIndexes } from '../inputs';
+import linesPairs from './lines-pairs';
 
 import stepVert from '@epok.tech/gl-screen-triangle/uv-texture.vert.glsl';
 
 import stepFrag from './step.frag.glsl';
-
-import fboFrag from './fbo.frag.glsl';
 
 import drawVert from './draw.vert.glsl';
 import drawFrag from './draw.frag.glsl';
@@ -47,6 +46,7 @@ const derives = Object.values(derivesMap);
 const state = gpgpu(regl, {
     useVerlet: true,
     scale: 9,
+    // scale: 1,
     maps: { values: [...values], derives: [...derives] },
     step: {
         vert: stepVert, frag: stepFrag,
@@ -54,7 +54,7 @@ const state = gpgpu(regl, {
         uniforms: {
             dt: regl.prop('step.timer.dt'),
             time: regl.prop('step.timer.time'),
-            lifetime: [1e3, 4e3],
+            lifetime: [1e3, 2e3],
             force: (_, { useVerlet: v }) => ((v)? 1e-3 : 1),
             useVerlet: (_, { useVerlet: v }) => +v
         }
@@ -64,22 +64,16 @@ const state = gpgpu(regl, {
     steps: 1+2
 });
 
-// state.step.timer = { step: '-', time: regl.now()*1e3 };
-state.step.timer = { step: '+', time: 0 };
+state.step.timer = { step: '-', time: regl.now()*1e3 };
+// state.step.timer = { step: '+', time: 0 };
 timer(state.step.timer, state.step.timer.time);
 
 console.log(self.state = state);
 
-/**
- * Draw pairs of vertexes for lines between each particle's current and past
- * positions using `gl.LINES`.
- * @see `gl.LINES` at https://webglfundamentals.org/webgl/lessons/webgl-points-lines-triangles.html
- *
- * If fewer than 2 states are given, lines can't be drawn, so uses `gl.POINTS`.
- */
 const drawCount = countDrawIndexes(state.size)*
-    // Math.max(1, (state.steps.length-state.bound-1)*2);
-    Math.max(1, (state.steps.length-1)*2);
+    // @todo Why does `bound` not seem to make much difference?
+    // linesPairs(state.steps.length-state.bound);
+    linesPairs(state.steps.length);
 
 const drawIndexes = getDrawIndexes(drawCount);
 const drawState = { ...state };
@@ -89,7 +83,7 @@ const drawCommand = {
     frag: drawFrag,
     attributes: { index: drawIndexes },
     uniforms: getUniforms(drawState,
-        { ...drawState.step.uniforms, pointSize: 5 }),
+        { ...drawState.step.uniforms, pointSize: 10 }),
     lineWidth: 1,
     count: drawCount,
     primitive: ((drawState.steps.length > 2)? 'lines' : 'points')
@@ -101,8 +95,8 @@ console.log((self.drawCommand = drawCommand), drawCount);
 const draw = regl(drawCommand);
 
 regl.frame(() => {
-    // timer(state.step.timer, regl.now()*1e3);
-    timer(state.step.timer);
+    timer(state.step.timer, regl.now()*1e3);
+    // timer(state.step.timer);
     state.step.run();
     drawState.stepNow = state.stepNow;
     draw(drawState);
