@@ -52,8 +52,7 @@ void main() {
     float life = texture2D(states[stateIndex+lifeTexture], uv).lifeChannels;
     float l = pow(life/lifetime[1], 0.2);
 
-    // color = l*
-    color = 1.0*
+    color = l*
         vec4(stepEntry[0]/float(stepsPast), stepEntry[1]/float(count), 0.4, 1);
 
     gl_Position = vec4(pos/max(viewShape.x, viewShape.y), 1)*gt(life, 0.0);
