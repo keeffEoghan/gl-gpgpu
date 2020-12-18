@@ -13,7 +13,16 @@
  *     correct data to draw a line along each entry's steps of state.
  */
 vec2 linesPairs(float index, float states) {
-    return vec2(ceil(mod(index, states)), floor(index/states));
+    float i = index/2.0;
+    float s = states-1.0;
+    float d = floor(i/s);
+
+    // Equivalent, but can avoid recalculating part of modulo, reusing `d`.
+    // @see https://www.shaderific.com/glsl-functions#modulo
+    // float m = mod(i, s);
+    float m = i-(s*d);
+
+    return vec2(ceil(m), d);
 }
 
 ivec2 linesPairs(int index, int states) {

@@ -35,7 +35,7 @@ useSamples
 #ifdef output_1
     #define lifeOutput output_1
     useReads_1
-    #define lifeReadLife0 reads_1_i(0)
+    #define lifeReadLifeOldest reads_1_i(0)
     #define lifeReadLife1 reads_1_i(1)
 #endif
 #ifdef output_2
@@ -47,19 +47,19 @@ useSamples
 
 // The main shader.
 
+// States from `gl-gpgpu`.
 uniform sampler2D states[stepsPast*textures];
+// Custom inputs for this demo.
 uniform float dt;
 uniform float time;
+uniform float loop;
 uniform vec2 lifetime;
 uniform float force;
 uniform float useVerlet;
+uniform vec3 g;
+uniform vec3 source;
 
 varying vec2 uv;
-
-const vec3 g = vec3(0, -0.00098, 0);
-const vec3 posSpawn = vec3(0);
-const vec4 ndcRange = vec4(-1, -1, 1, 1);
-const vec4 stRange = vec4(0, 0, 1, 1);
 
 #pragma glslify: map = require('glsl-map');
 
@@ -72,7 +72,7 @@ const vec4 stRange = vec4(0, 0, 1, 1);
 #endif
 
 #ifdef accOutput
-    const float tau = 6.283185;
+    const float tau = 6.28318530718;
 
     // @see https://observablehq.com/@rreusser/equally-distributing-points-on-a-sphere
     vec3 randomOnSphere(vec2 randoms) {
@@ -112,7 +112,7 @@ void main() {
     #endif
 
     #if defined(lifeOutput)
-        float life0 = data[lifeReadLife0].lifeChannels;
+        float lifeOldest = data[lifeReadLifeOldest].lifeChannels;
     #endif
 
     #if defined(posOutput) || defined(accOutput)
@@ -131,23 +131,23 @@ void main() {
         vec3 pos = mix(pos1+(acc*dt*force), verlet(acc, pos0, pos1, dt),
             useVerlet);
 
-        posOutput = mix(pos, posSpawn, spawn);
+        posOutput = mix(pos, source, spawn);
     #endif
     #ifdef lifeOutput
         life = max(0.0, life-dt);
 
-        float lifeSpawn = map(random(uv*time),
+        float lifeSpawn = map(random(uv*loop),
             0.0, 1.0, lifetime[0], lifetime[1]);
 
         // Only spawn life once the oldest step reaches the end of its lifetime
         // (past and current life are both 0).
-        lifeOutput = mix(life, lifeSpawn, spawn*le(life0, 0.0));
+        lifeOutput = mix(life, lifeSpawn, spawn*le(lifeOldest, 0.0));
     #endif
     #ifdef accOutput
         acc += g*dt*force;
 
-        vec2 randoms = vec2(random((uv+time)/dt), random((uv-time)*dt));
-        vec3 accSpawn = randomOnSphere(randoms)*(random((time-uv)*dt)*force);
+        vec2 randoms = vec2(random((uv+loop)/dt), random((uv-loop)*dt));
+        vec3 accSpawn = randomOnSphere(randoms)*(random((loop-uv)*dt)*force);
 
         accOutput = mix(acc, accSpawn, spawn);
     #endif

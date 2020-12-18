@@ -33,7 +33,7 @@ varying vec4 color;
 void main() {
     #if stepsPast < 2
         // If fewer than 2 steps are given, uses `gl.POINTS`.
-        vec2 stepEntry = (0.0, index);
+        vec2 stepEntry = vec2(0.0, index);
     #else
         vec2 stepEntry = linesPairs(index, float(stepsPast));
     #endif
@@ -52,8 +52,9 @@ void main() {
     float life = texture2D(states[stateIndex+lifeTexture], uv).lifeChannels;
     float l = pow(life/lifetime[1], 0.2);
 
-    color = l*
-        vec4(stepEntry[0]/float(stepsPast), stepEntry[1]/float(count), 0.4, 1);
+    color = mix(vec4(l),
+        vec4(stepEntry[0]/float(stepsPast), stepEntry[1]/float(count), 0.4, l),
+        0.3);
 
     gl_Position = vec4(pos/max(viewShape.x, viewShape.y), 1)*gt(life, 0.0);
     gl_PointSize = pointSize*l;

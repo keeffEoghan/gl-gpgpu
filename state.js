@@ -9,6 +9,7 @@
 import range from '@epok.tech/fn-lists/range';
 import map from '@epok.tech/fn-lists/map';
 import reduce from '@epok.tech/fn-lists/reduce';
+import isNumber from '@epok.tech/is-type/number';
 
 import {
         scaleDef, stepsDef, valuesDef, channelsMinDef, typeDef
@@ -178,7 +179,8 @@ import {
  *     If given, supersedes `state.scale`.
  * @param {number} [state.scale=scaleDef] The length of the data textures sides
  *     to allocate; gives a square power-of-two texture raising 2 to this power.
- * @param {number} [state.steps=stepsDef] How many steps of state to track.
+ * @param {number|array} [state.steps=stepsDef] How many steps of state to
+ *     track, or the list of states if already set up.
  * @param {object} [state.maps] How `state.maps.values` are grouped per-texture
  *     per-pass per-step. See `mapGroups`.
  * @param {array<number>} [state.maps.values=valuesDef()] How values of each
@@ -208,8 +210,9 @@ import {
  * @returns {array<api.framebuffer<array<api.texture>>>} `out.steps`
  *     Hierarchy of steps of state, as an array of `api.framebuffer` from
  *     `out.passes`, with arrays of `api.texture` from `out.textures`, and meta
- *     information. See `mapGroups`.
- *     State data may be drawn into the framebuffers accordingly. See `getStep`.
+ *     information; set up here, or the given `state.steps` if it was an array.
+ *     State data may be drawn into the framebuffers accordingly.
+ *     See `mapGroups` and `getStep`.
  * @returns {object<number,string,array<number>>} `out.size` Size/type
  *     information on data resources.
  * @returns {number} `out.stepNow` The currently active state step, as given.
@@ -237,7 +240,7 @@ export function getState(api, state = {}, out = state) {
     maps.values = values;
 
     const textureProps = {
-        type,
+        type, min: 'nearest', mag: 'nearest',
         // Passing `state.scale` ensures a power-of-two square texture size.
         width: (radius || width || 2**scale),
         height: (radius || height || 2**scale)
@@ -245,7 +248,8 @@ export function getState(api, state = {}, out = state) {
 
     // Size of the created resources.
     const size = out.size = {
-        ...textureProps, steps, textures: 0, passes: 0,
+        ...textureProps, steps: ((isNumber(steps))? steps : steps.length),
+        textures: 0, passes: 0,
         shape: [textureProps.width, textureProps.height],
         count: textureProps.width*textureProps.height
     };
@@ -292,8 +296,11 @@ export function getState(api, state = {}, out = state) {
     };
 
     // Set up resources we'll need to store data per-texture per-pass per-step.
-    out.steps = map((v, step) => map(addPass(step), maps.passes),
-        range(steps), 0);
+    out.steps = map((passes, step) =>
+            // Use any given passes or create a new list of them.
+            (passes || map(addPass(step), maps.passes)),
+        // Use any given steps or create a new list of them.
+        ((isNumber(steps))? range(steps) : steps), 0);
 
     return out;
 }
