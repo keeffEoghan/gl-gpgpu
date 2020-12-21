@@ -26,16 +26,17 @@ uniform vec2 lifetime;
 
 varying vec4 color;
 
+#pragma glslify: aspect = require('@epok.tech/glsl-aspect/contain');
 #pragma glslify: gt = require('glsl-conditionals/when_gt');
 
-#pragma glslify: linesPairs = require('./lines-pairs');
+#pragma glslify: indexPairs = require('../index-pairs');
 
 void main() {
     #if stepsPast < 2
         // If fewer than 2 steps are given, uses `gl.POINTS`.
         vec2 stepEntry = vec2(0.0, index);
     #else
-        vec2 stepEntry = linesPairs(index, float(stepsPast));
+        vec2 stepEntry = indexPairs(index, float(stepsPast));
     #endif
 
     // Step back a full state's worth of textures per step index.
@@ -52,10 +53,13 @@ void main() {
     float life = texture2D(states[stateIndex+lifeTexture], uv).lifeChannels;
     float l = pow(life/lifetime[1], 0.2);
 
-    color = mix(vec4(l),
-        vec4(stepEntry[0]/float(stepsPast), stepEntry[1]/float(count), 0.4, l),
-        0.3);
+    color = l*mix(vec4(1),
+        vec4(stepEntry[0]/float(stepsPast), stepEntry[1]/float(count), 0.8,
+            1.0/(dataShape.x*dataShape.y)),
+        l);
 
-    gl_Position = vec4(pos/max(viewShape.x, viewShape.y), 1)*gt(life, 0.0);
+    vec2 ar = aspect(viewShape);
+
+    gl_Position = vec4(vec3(pos.xy*ar, pos.z)*1e-7, 1)*gt(life, 0.0);
     gl_PointSize = pointSize*l;
 }

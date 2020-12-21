@@ -2,6 +2,7 @@
  * Test implementation of 3D particle Verlet-integration simulation.
  */
 import getRegl from 'regl';
+import querystring from 'querystring';
 import timer from '@epok.tech/fn-time';
 import { count, vertices } from '@epok.tech/gl-screen-triangle';
 import wrap from '@epok.tech/fn-lists/wrap-index';
@@ -9,7 +10,7 @@ import wrap from '@epok.tech/fn-lists/wrap-index';
 import { gpgpu, extensions, optionalExtensions } from '../';
 import { macroValues } from '../macros';
 import { getUniforms, countDrawIndexes, getDrawIndexes } from '../inputs';
-import linesPairs from './lines-pairs';
+import indexPairs from '../index-pairs';
 
 import stepVert from '@epok.tech/gl-screen-triangle/uv-texture.vert.glsl';
 
@@ -22,13 +23,12 @@ const regl = self.regl = getRegl({
     extensions: extensions(), optionalExtensions: optionalExtensions()
 });
 
-const query = document.location.search.match(/(?:[\?\&]addSteps=)([\-0-9]+)/i);
-
+const query = querystring.parse(document.location.search.slice(1));
 const bound = 1;
 // 1 active state, 2 past states needed for Verlet integration, plus as many
 // others as can be bound.
-const steps = bound+2+((query && parseInt(query[1], 10)) || 0);
-const scale = Math.floor(10-(Math.sqrt(steps)/2));
+const steps = bound+(parseInt(query.steps, 10) || 2);
+const scale = Math.floor((parseInt(query.scale, 10) || 9)-(Math.sqrt(steps)/2));
 
 // How many values/channels each property independently tracks.
 const valuesMap = { position: 3, life: 1, acceleration: 3 };
@@ -75,7 +75,7 @@ const state = gpgpu(regl, {
         // Range of how long a particle lives before respawning.
         lifetime: [1e3, 2e3],
         // Acceleration due to gravity.
-        g: [0, -9.807e-3, 0],
+        g: [0, -9.80665, 0],
         // The position particles respawn from.
         source: [0, 0, 0]
     },
@@ -106,8 +106,8 @@ console.log(self.state = state);
 
 const drawCount = countDrawIndexes(state.size)*
     // @todo Why does `bound` not seem to make much difference?
-    // linesPairs(state.steps.length-state.bound);
-    linesPairs(state.steps.length);
+    // indexPairs(state.steps.length-state.bound);
+    indexPairs(state.steps.length);
 
 const drawIndexes = getDrawIndexes(drawCount);
 const drawState = { ...state };
@@ -142,3 +142,13 @@ self.addEventListener('click', () =>
     console.log('useVerlet',
         (state.props.useVerlet = (canVerlet(state.steps.length, state.bound) &&
             !state.props.useVerlet))));
+
+self.addEventListener((('onpointermove' in self)? 'pointermove'
+        : (('ontouchmove' in self)? 'touchmove' : 'mousemove')),
+    ({ clientX: x, clientY: y }) => {
+        const { source } = state.props;
+        const size = Math.min(innerWidth, innerHeight);
+
+        source[0] = ((((x-((innerWidth-size)/2))/size)*2)-1)*1e7;
+        source[1] = -((((y-((innerHeight-size)/2))/size)*2)-1)*1e7;
+    });
