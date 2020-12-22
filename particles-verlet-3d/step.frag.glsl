@@ -54,7 +54,7 @@ uniform float dt;
 uniform float time;
 uniform float loop;
 uniform vec2 lifetime;
-uniform float force;
+uniform vec2 force;
 uniform float useVerlet;
 uniform vec3 g;
 uniform vec3 source;
@@ -128,8 +128,7 @@ void main() {
     // Output updated values.
     #ifdef posOutput
         // Use either Euler or Verlet integration.
-        vec3 pos = mix(pos1+(acc*force*dt), verlet(acc, pos0, pos1, dt),
-            useVerlet);
+        vec3 pos = mix(pos1+(acc*dt), verlet(acc, pos0, pos1, dt), useVerlet);
 
         posOutput = mix(pos, source, spawn);
     #endif
@@ -144,10 +143,13 @@ void main() {
         lifeOutput = mix(life, lifeSpawn, spawn*le(lifeOldest, 0.0));
     #endif
     #ifdef accOutput
-        acc += g*force*dt;
+        // To help accuracy of very small numbers, pass force as `[x, y] = xey`.
+        float f = force.x*pow(10.0, force.y);
+
+        acc += g*f*dt;
 
         vec2 randoms = vec2(random((uv+loop)/dt), random((uv-loop)*dt));
-        vec3 accSpawn = randomOnSphere(randoms)*random(loop-(uv*dt))*force*5e3;
+        vec3 accSpawn = randomOnSphere(randoms)*random(loop-(uv*dt))*f*5e3;
 
         accOutput = mix(acc, accSpawn, spawn);
     #endif

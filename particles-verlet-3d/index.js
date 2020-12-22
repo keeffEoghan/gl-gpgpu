@@ -23,6 +23,8 @@ const regl = self.regl = getRegl({
     extensions: extensions(), optionalExtensions: optionalExtensions()
 });
 
+const canvas = document.querySelector('canvas');
+
 const query = querystring.parse(document.location.search.slice(1));
 const bound = 1;
 // 1 active state, 2 past states needed for Verlet integration, plus as many
@@ -77,7 +79,21 @@ const state = gpgpu(regl, {
         // Acceleration due to gravity.
         g: [0, -9.80665, 0],
         // The position particles respawn from.
-        source: [0, 0, 0]
+        source: [0, 0, 0],
+        // To help accuracy of very small numbers, pass force as `[x, y] = xey`.
+        // One of these options chosen depending on integration used.
+        force: [
+            // // Euler.
+            // [1, -7],
+            // // Verlet.
+            // [1, -10]
+            // Euler.
+            [1, -4],
+            // Verlet.
+            [1, -7]
+        ],
+        // To help with accuracy of small numbers, uniformly scale the drawing.
+        scale: 1e-3
     },
     bound, steps, scale,
     maps: { values: [...values], derives: [...derives] },
@@ -92,10 +108,11 @@ const state = gpgpu(regl, {
             lifetime: regl.prop('props.lifetime'),
             g: regl.prop('props.g'),
             source: regl.prop('props.source'),
-            force: (_, { steps: s, bound: b, props: { useVerlet: v } }) =>
-                ((canVerlet(s.length, b) && v)? 1e-3 : 1),
-            useVerlet: (_, { steps: s, bound: b, props: { useVerlet: v } }) =>
-                +(canVerlet(s.length, b) && v)
+            scale: regl.prop('props.scale'),
+            force: (_, { steps: s, bound: b, props: { useVerlet, force } }) =>
+                force[+(canVerlet(s.length, b) && useVerlet)],
+            useVerlet: (_, { steps: s, bound: b, props: { useVerlet } }) =>
+                +(canVerlet(s.length, b) && useVerlet)
         }
     }
 });
@@ -143,12 +160,26 @@ self.addEventListener('click', () =>
         (state.props.useVerlet = (canVerlet(state.steps.length, state.bound) &&
             !state.props.useVerlet))));
 
-self.addEventListener((('onpointermove' in self)? 'pointermove'
+canvas.addEventListener('touchstart', (e) => {
+    // e.stopPropagation();
+    // e.preventDefault();
+});
+
+canvas.addEventListener('touchmove', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+});
+
+canvas.addEventListener((('onpointermove' in self)? 'pointermove'
         : (('ontouchmove' in self)? 'touchmove' : 'mousemove')),
-    ({ clientX: x, clientY: y }) => {
-        const { source } = state.props;
+    (e) => {
+        const { clientX: x, clientY: y } = e;
+        const { source, scale } = state.props;
         const size = Math.min(innerWidth, innerHeight);
 
-        source[0] = ((((x-((innerWidth-size)/2))/size)*2)-1)*1e7;
-        source[1] = -((((y-((innerHeight-size)/2))/size)*2)-1)*1e7;
+        source[0] = ((((x-((innerWidth-size)/2))/size)*2)-1)/scale;
+        source[1] = -((((y-((innerHeight-size)/2))/size)*2)-1)/scale;
+
+        e.stopPropagation();
+        e.preventDefault();
     });

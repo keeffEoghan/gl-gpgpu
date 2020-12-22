@@ -23,6 +23,7 @@ uniform vec2 dataShape;
 uniform vec2 viewShape;
 uniform float pointSize;
 uniform vec2 lifetime;
+uniform float scale;
 
 varying vec4 color;
 
@@ -60,6 +61,6 @@ void main() {
 
     vec2 ar = aspect(viewShape);
 
-    gl_Position = vec4(vec3(pos.xy*ar, pos.z)*1e-7, 1)*gt(life, 0.0);
+    gl_Position = vec4(vec3(pos.xy*ar, pos.z*max(ar.x, ar.y))*scale, 1)*gt(life, 0.0);
     gl_PointSize = pointSize*l;
 }
