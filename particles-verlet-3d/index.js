@@ -23,6 +23,12 @@ const regl = self.regl = getRegl({
     extensions: extensions(), optionalExtensions: optionalExtensions()
 });
 
+console.log('extensions',
+    ...extensions().map((e) => e+': '+regl.hasExtension(e)));
+
+console.log('optionalExtensions',
+    ...optionalExtensions().map((e) => e+': '+regl.hasExtension(e)));
+
 const canvas = document.querySelector('canvas');
 
 const query = querystring.parse(document.location.search.slice(1));
@@ -93,6 +99,7 @@ const state = gpgpu(regl, {
             [1, -7]
         ],
         // To help with accuracy of small numbers, uniformly scale the drawing.
+        // scale: 1
         scale: 1e-3
     },
     bound, steps, scale,
@@ -159,11 +166,6 @@ self.addEventListener('click', () =>
     console.log('useVerlet',
         (state.props.useVerlet = (canVerlet(state.steps.length, state.bound) &&
             !state.props.useVerlet))));
-
-canvas.addEventListener('touchstart', (e) => {
-    // e.stopPropagation();
-    // e.preventDefault();
-});
 
 canvas.addEventListener('touchmove', (e) => {
     e.stopPropagation();

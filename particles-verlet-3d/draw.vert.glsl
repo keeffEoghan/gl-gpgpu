@@ -43,24 +43,26 @@ void main() {
     // Step back a full state's worth of textures per step index.
     int stateIndex = int(stepEntry[0])*textures;
 
-    // Turn the 1D index into a 2D texture UV - adding a half-pixel offset to
-    // ensure sampling from the pixel's center and avoid errors.
-    vec2 uv = vec2(mod(stepEntry[1]+0.5, dataShape.x)/dataShape.x,
-        (floor(stepEntry[1]/dataShape.x)+0.5)/dataShape.y);
+    // Turn the 1D index into a 2D texture UV.
+    // Add pixel offset to sample from the pixel's center and avoid errors.
+    vec2 uv = vec2(mod(stepEntry[1]+0.25, dataShape.x)/dataShape.x,
+        (floor(stepEntry[1]/dataShape.x)+0.25)/dataShape.y);
 
     // Sample the desired state values.
     // @todo Make use of the `reads` logic to take the minimum possible samples.
     vec3 pos = texture2D(states[stateIndex+posTexture], uv).posChannels;
     float life = texture2D(states[stateIndex+lifeTexture], uv).lifeChannels;
-    float l = pow(life/lifetime[1], 0.2);
+    float l = pow(life/lifetime[1], 0.7);
 
-    color = l*mix(vec4(1),
+    color = mix(vec4(l),
         vec4(stepEntry[0]/float(stepsPast), stepEntry[1]/float(count), 0.8,
-            1.0/(dataShape.x*dataShape.y)),
+            l/(dataShape.x*dataShape.y)),
         l);
 
     vec2 ar = aspect(viewShape);
 
-    gl_Position = vec4(vec3(pos.xy*ar, pos.z*max(ar.x, ar.y))*scale, 1)*gt(life, 0.0);
+    gl_Position = gt(life, 0.0)*
+        vec4(vec3(pos.xy*ar, pos.z*max(ar.x, ar.y))*scale, 1);
+
     gl_PointSize = pointSize*l;
 }

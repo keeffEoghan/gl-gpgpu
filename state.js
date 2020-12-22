@@ -240,7 +240,7 @@ export function getState(api, state = {}, out = state) {
     maps.values = values;
 
     const textureProps = {
-        type, min: 'nearest', mag: 'nearest',
+        type, min: 'nearest', mag: 'nearest', wrap: 'clamp',
         // Passing `state.scale` ensures a power-of-two square texture size.
         width: (radius || width || 2**scale),
         height: (radius || height || 2**scale)
