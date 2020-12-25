@@ -1,5 +1,5 @@
 {
-  "name": "gl-gpgpu",
+  "name": "@epok.tech/gl-gpgpu",
   "version": "0.0.6",
   "description": "GPGPU current/past state-stepping - map minimal passes of shaders, GL resources, inputs, outputs - BYORenderer.",
   "main": "index.js",
