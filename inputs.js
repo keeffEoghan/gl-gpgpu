@@ -46,7 +46,7 @@ export function getUniforms(state, out = {}) {
     const cache = { viewShape: [] };
 
     out[n+'stepNow'] = (_, { stepNow: s }) => s;
-    out[n+'dataShape'] = (_, { size: { shape: s } }) => (console.log(s), s);
+    out[n+'dataShape'] = (_, { size: { shape: s } }) => s;
     out[n+'viewShape'] = ({ viewportWidth: w, viewportHeight: h }) =>
         setC2(cache.viewShape, w, h);
 

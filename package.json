@@ -1,6 +1,6 @@
 {
   "name": "gl-gpgpu",
-  "version": "0.0.51",
+  "version": "0.0.6",
   "description": "GPGPU current/past state-stepping - map minimal passes of shaders, GL resources, inputs, outputs - BYORenderer.",
   "main": "index.js",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
@@ -12,9 +12,9 @@
   },
   "scripts": {
     "start": "yarn run dev",
-    "dev": "parcel --log-level verbose ./particles-verlet-3d/index.html",
-    "build": "rm -rf dist/ && parcel build ./particles-verlet-3d/index.html -d ./dist/ --public-url ./dist/",
-    "docs": "rm -rf docs/ && parcel build ./particles-verlet-3d/index.html -d ./docs/ --public-url ./"
+    "dev": "parcel --log-level verbose ./example-particles/index.html",
+    "build": "rm -rf dist/ && parcel build ./example-particles/index.html -d ./dist/ --public-url ./dist/",
+    "docs": "rm -rf docs/ && parcel build ./example-particles/index.html -d ./docs/ --public-url ./"
   },
   "dependencies": {
     "@epok.tech/fn-lists": "^0.0.8",
