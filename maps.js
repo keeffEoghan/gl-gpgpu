@@ -10,6 +10,9 @@
  * System limits/features/extensions are accounted for, to produce the most
  * efficient mappings available with the least I/O when it comes to drawing
  * (draw passes, texture samples, etc).
+ *
+ * @todo Check `packValues` optional and/or based on the given `derives` work.
+ * @todo Check examples are correct.
  */
 
 import map from '@epok.tech/fn-lists/map';
@@ -91,9 +94,8 @@ export function packValues(values, channelsMax = channelsMaxDef, out = []) {
 /**
  * Groups the `values` of GPGPU data items across draw passes and data textures.
  *
- * @todo The `values` are grouped in the given order, which may affect the
- * number of passes/textures used; sort/zip the values first to pack them into
- * buckets of `channelsMax` tightly before mapping.
+ * @todo Now `values` may be packed first into buckets of `channelsMax` tightly
+ *     before mapping, check whether the examples are correct.
  *
  * @example
  *     mapGroups({ values: [2, 4, 1], channelsMax: 4, texturesMax: 1 }); // =>
@@ -156,6 +158,8 @@ export function packValues(values, channelsMax = channelsMaxDef, out = []) {
  *         textureToPass: [0, 0, 1]
  *     };
  *
+ * @see packValues
+ *
  * @export
  * @param {object} [maps={}] The maps. A new object if not given.
  * @param {array<number>} [maps.values=valuesDef()] An array where each number
@@ -168,8 +172,14 @@ export function packValues(values, channelsMax = channelsMaxDef, out = []) {
  *     number of passes/textures used. Where the next state depends on previous
  *     states, these should ideally be an entry of `channels` or less, for
  *     fewest texture reads to retrieve previous states.
- * @param {number} [maps.channelsMax=channelsMaxDef] Maximum channels per texture.
- * @param {number} [maps.texturesMax=texturesMaxDef] Maximum textures bound per pass.
+ * @param {number} [maps.channelsMax=channelsMaxDef] Maximum channels per
+ *     texture.
+ * @param {number} [maps.texturesMax=texturesMaxDef] Maximum textures bound per
+ *     pass.
+ * @param {array<number>|falsey} [maps.packed] An array of indexes into `values`
+ *     packed into an order that best fits into blocks of `channelsMax` to
+ *     minimise resources; or `falsey` to use `values` in their given order;
+ *     uses `packValues` if not given.
  * @param {object} [out=maps] An object to contain the results; modifies `maps`
  *     if not given.
  *
@@ -194,7 +204,9 @@ export function packValues(values, channelsMax = channelsMaxDef, out = []) {
 export function mapGroups(maps = {}, out = maps) {
     const {
             values = valuesDef(),
-            channelsMax = channelsMaxDef, texturesMax = texturesMaxDef
+            channelsMax = channelsMaxDef, texturesMax = texturesMaxDef,
+            // Pack `values` into blocks of `channelsMax` to minimise resources.
+            packed = packValues(values, channelsMax, cache.packed)
         } = maps;
 
     out.values = values;
@@ -206,13 +218,13 @@ export function mapGroups(maps = {}, out = maps) {
     out.valueToPass = [];
     out.textureToPass = [];
 
-    // Pack `values` into blocks of `channelsMax` to minimise resources.
-    const packed = packValues(values, channelsMax, cache.packed);
     // Counts the number of channels written in a single draw pass.
     let channels = 0;
+    // Get the value, via `packed` if valid, or directly as given in `values`.
+    const getValue = ((packed)? (v) => values[v] : (v) => v);
 
-    return reduce((out, index) => {
-            const value = values[index];
+    return reduce((out, v) => {
+            const value = getValue(v);
 
             if(!validValue(value, channelsMax)) { return out; }
 
@@ -231,6 +243,7 @@ export function mapGroups(maps = {}, out = maps) {
 
                 ((pass.length >= texturesMax) &&
                     (p = passes.push(pass = [])-1));
+
                 pass.push(t);
                 textureToPass.push(p);
             }
@@ -239,13 +252,13 @@ export function mapGroups(maps = {}, out = maps) {
                 textureToPass.push(p);
             }
 
-            texture.push(index);
+            texture.push(v);
             valueToTexture.push(t);
             valueToPass.push(p);
 
             return out;
         },
-        packed, out);
+        (packed || values), out);
 }
 
 /**

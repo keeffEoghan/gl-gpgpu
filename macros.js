@@ -6,6 +6,7 @@
  * So, as few unique macros as possible should be created for a given set of
  * inputs, for efficiency.
  *
+ * @todo Check examples are correct.
  * @todo Consider doing something better with indentation.
  */
 

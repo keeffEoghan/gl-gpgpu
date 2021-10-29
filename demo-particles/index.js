@@ -179,8 +179,8 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
         const { source, scale } = state.props;
         const size = Math.min(innerWidth, innerHeight);
 
-        source[0] = ((((x-((innerWidth-size)/2))/size)*2)-1)/scale;
-        source[1] = -((((y-((innerHeight-size)/2))/size)*2)-1)/scale;
+        source[0] = ((((x-((innerWidth-size)*0.5))/size)*2)-1)/scale;
+        source[1] = -((((y-((innerHeight-size)*0.5))/size)*2)-1)/scale;
 
         e.stopPropagation();
         e.preventDefault();
