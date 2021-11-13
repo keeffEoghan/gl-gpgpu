@@ -2,8 +2,8 @@
  * Drawing a GPGPU particle simulation.
  * Requires setup with preprocessor macros. See `macroPass` and `macroValues`.
  *
- * @see [macroPass]{@link ../macros.js#macroPass}
- * @see [macroValues]{@link ../macros.js#macroValues}
+ * @see [macroPass]{@link ../../macros.js#macroPass}
+ * @see [macroValues]{@link ../../macros.js#macroValues}
  */
 
 precision highp float;

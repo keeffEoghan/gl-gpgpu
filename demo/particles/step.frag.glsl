@@ -2,8 +2,8 @@
  * The update step for a GPGPU particle simulation.
  * Requires setup with preprocessor macros - see `macroPass`.
  *
- * @see [getStep]{@link ../step.js#getStep}
- * @see [macroPass]{@link ../macros.js#macroPass}
+ * @see [getStep]{@link ../../step.js#getStep}
+ * @see [macroPass]{@link ../../macros.js#macroPass}
  */
 
 #ifdef GL_EXT_draw_buffers
@@ -147,7 +147,7 @@ void main() {
         lifeOutput = mix(life, lifeSpawn, spawn*le(lifeOldest, 0.0));
     #endif
     #ifdef accOutput
-        // To help accuracy of very small numbers, pass force as `[x, y] = xey`.
+        // To help accuracy of very small numbers, pass force as `[x, y] = xEy`.
         float f = force.x*pow(10.0, force.y);
 
         acc += g*f*dt;

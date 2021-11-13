@@ -43,7 +43,7 @@ export function gpgpu(api, state = {}, out = state) {
 
     out.glsl = parseFloat(glsl.match(/[0-9\.]+/)[0]);
 
-    (('texturesMax' in maps) || (maps.texturesMax = texturesMax));
+    (maps.texturesMax ?? (maps.texturesMax = texturesMax));
     ((('textures' in maps) && ('passes' in maps)) || mapGroups(maps));
     ((('derives' in maps) && !('samples' in maps)) && mapSamples(maps));
     out.maps = maps;

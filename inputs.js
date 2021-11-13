@@ -60,7 +60,7 @@ export function getUniforms(state, out = {}) {
                 wrap.get(s-b-past, textures)[texture].texture;
 
     // Flatten all input textures, as uniforms are stored in flat arrays.
-    for(let past = 0; past < stepsL-bound; ++past) {
+    for(let past = 0, pl = stepsL-bound; past < pl; ++past) {
         each((v, texture) => addTexture(past, texture), textureMap);
     }
 

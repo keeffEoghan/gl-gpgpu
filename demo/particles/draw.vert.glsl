@@ -2,8 +2,8 @@
  * Drawing a GPGPU particle simulation.
  * Requires setup with preprocessor macros. See `macroPass` and `macroValues`.
  *
- * @see [macroPass]{@link ../macros.js#macroPass}
- * @see [macroValues]{@link ../macros.js#macroValues}
+ * @see [macroPass]{@link ../../macros.js#macroPass}
+ * @see [macroValues]{@link ../../macros.js#macroValues}
  */
 
 #define posTexture texture_0
@@ -27,10 +27,10 @@ uniform float scale;
 
 varying vec4 color;
 
-#pragma glslify: aspect = require('@epok.tech/glsl-aspect/contain');
-#pragma glslify: gt = require('glsl-conditionals/when_gt');
+#pragma glslify: aspect = require(@epok.tech/glsl-aspect/contain)
+#pragma glslify: gt = require(glsl-conditionals/when_gt)
 
-#pragma glslify: indexPairs = require('../index-pairs');
+#pragma glslify: indexPairs = require(../../index-pairs)
 
 void main() {
     #if stepsPast < 2

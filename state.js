@@ -19,7 +19,7 @@ import {
  * Set up the GPGPU resources and meta information for a state of a number data.
  *
  * @todo Transform feedback.
- * @todo Validation.
+ * @todo Validate, check examples.
  * @todo Reorder the given `values` into the most efficient `maps`?
  *
  * @example
@@ -242,8 +242,8 @@ export function getState(api, state = {}, out = state) {
     const textureProps = {
         type, min: 'nearest', mag: 'nearest', wrap: 'clamp',
         // Passing `state.scale` ensures a power-of-two square texture size.
-        width: (radius || width || 2**scale),
-        height: (radius || height || 2**scale)
+        width: (radius ?? width ?? 2**scale),
+        height: (radius ?? height ?? 2**scale)
     };
 
     // Size of the created resources.
@@ -278,21 +278,19 @@ export function getState(api, state = {}, out = state) {
 
         const textures = map(addTexture(step, index, passProps), pass);
 
-        const f = framebuffer({
-            width: passProps.width,
-            height: passProps.height,
-            color: textures,
-            depthStencil: false
+        const frame = framebuffer({
+            width: passProps.width, height: passProps.height,
+            color: textures, depth: false, stencil: false
         });
 
         (passes[step] || (passes[step] = []))[index] = {
             // Meta info.
             step, index, count: size.passes++, map: pass,
             // Resources.
-            textures, framebuffer: f
+            textures, framebuffer: frame
         };
 
-        return f;
+        return frame;
     };
 
     // Set up resources we'll need to store data per-texture per-pass per-step.

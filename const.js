@@ -7,18 +7,17 @@ import { positions } from '@epok.tech/gl-screen-triangle';
 export { default as vertDef }
     from '@epok.tech/gl-screen-triangle/index.vert.glsl';
 
-/**
- * The required and optional GL extensions for a GPGPU state.
- *
- * @todo
- * For drawing into floating-point buffers:
- * `oes_texture_float` and `oes_texture_half_float` are required dependencies of
- * `webgl_color_buffer_float` and `ext_color_buffer_half_float`, respectively.
- *
- * @todo Can these be optional? Fallbacks? `ext_color_buffer_half_float`?
- */
-export const extensions = () =>
+// The required and optional GL extensions for a GPGPU state.
+
+export const extensions = () => [];
+
+// To draw to `float` buffers.
+export const extensionsFloat = () =>
     ['oes_texture_float', 'webgl_color_buffer_float'];
+
+// To draw to `half float` buffers.
+export const extensionsHalfFloat = () =>
+    ['oes_texture_half_float', 'ext_color_buffer_half_float'];
 
 export const optionalExtensions = () => ['webgl_draw_buffers'];
 

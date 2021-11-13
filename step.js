@@ -67,10 +67,10 @@ const scale = { vec2: 0.5 };
  */
 export function getStep(api, state, out = {}) {
     const { buffer, command = api } = api;
-    const { maps: { passes }, pre: n = preDef, step = out } = state;
+    const { maps: { passes }, pre = preDef, step = out } = state;
     let { positions = positionsDef() } = step;
     const {
-            vert = vertDef, frag, verts, frags, uniforms,
+            vert = vertDef, verts, frag, frags, uniforms,
             count = positions.length*scale.vec2
         } = step;
 
@@ -113,24 +113,24 @@ export function getStep(api, state, out = {}) {
             return ((fs)? fs[p] : macroPass(props)+f);
         },
         attributes: {
-            [n+'position']: (_, { step: { positions: p = positions } }) => p
+            [pre+'position']: (_, { step: { positions: p = positions } }) => p
         },
         uniforms,
         count,
         depth: { enable: false },
-        framebuffer: (_, { steps: a, stepNow: s, passNow: p }) =>
-            wrap.get(s, a)[p]
+        framebuffer: (_, { steps: ss, stepNow: s, passNow: p }) =>
+            wrap.get(s, ss)[p]
     });
 
     out.run = (props = state) => {
         const { step: { pass, onPass, onStep }, maps: { passes } } = props;
 
         ++props.stepNow;
-        (onStep && onStep(props, wrap.get(props.stepNow, props.steps)));
+        onStep?.(props, wrap.get(props.stepNow, props.steps));
 
         each((passProps, p) => {
                 props.passNow = p;
-                pass((onPass)? onPass(props, passProps) : props);
+                pass(onPass?.(props, passProps) ?? props);
             },
             passes);
 

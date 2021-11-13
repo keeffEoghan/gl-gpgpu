@@ -7,10 +7,10 @@ import timer from '@epok.tech/fn-time';
 import { count, vertices } from '@epok.tech/gl-screen-triangle';
 import wrap from '@epok.tech/fn-lists/wrap-index';
 
-import { gpgpu, extensions, optionalExtensions } from '../';
-import { macroValues } from '../macros';
-import { getUniforms, countDrawIndexes, getDrawIndexes } from '../inputs';
-import indexPairs from '../index-pairs';
+import { gpgpu, extensionsFloat, optionalExtensions } from '../../index';
+import { macroValues } from '../../macros';
+import { getUniforms, countDrawIndexes, getDrawIndexes } from '../../inputs';
+import indexPairs from '../../index-pairs';
 
 import stepVert from '@epok.tech/gl-screen-triangle/uv-texture.vert.glsl';
 
@@ -19,15 +19,17 @@ import stepFrag from './step.frag.glsl';
 import drawVert from './draw.vert.glsl';
 import drawFrag from './draw.frag.glsl';
 
-const regl = self.regl = getRegl({
-    extensions: extensions(), optionalExtensions: optionalExtensions()
-});
+const reglProps = {
+    extensions: extensionsFloat(), optionalExtensions: optionalExtensions()
+};
+
+const regl = self.regl = getRegl(reglProps);
 
 console.log('extensions',
-    ...extensions().map((e) => e+': '+regl.hasExtension(e)));
+    ...reglProps.extensions.map((e) => e+': '+regl.hasExtension(e)));
 
 console.log('optionalExtensions',
-    ...optionalExtensions().map((e) => e+': '+regl.hasExtension(e)));
+    ...reglProps.optionalExtensions.map((e) => e+': '+regl.hasExtension(e)));
 
 const canvas = document.querySelector('canvas');
 
@@ -81,18 +83,14 @@ const state = gpgpu(regl, {
         // Whether to use Verlet (midpoint) or Euler (forward) integration.
         useVerlet: true,
         // Range of how long a particle lives before respawning.
-        lifetime: [1e3, 2e3],
+        lifetime: [1e3, 5e3],
         // Acceleration due to gravity.
         g: [0, -9.80665, 0],
         // The position particles respawn from.
         source: [0, 0, 0],
-        // To help accuracy of very small numbers, pass force as `[x, y] = xey`.
+        // To help accuracy of very small numbers, pass force as `[x, y] = xEy`.
         // One of these options chosen depending on integration used.
         force: [
-            // // Euler.
-            // [1, -7],
-            // // Verlet.
-            // [1, -10]
             // Euler.
             [1, -4],
             // Verlet.
@@ -117,9 +115,9 @@ const state = gpgpu(regl, {
             source: regl.prop('props.source'),
             scale: regl.prop('props.scale'),
             force: (_, { steps: s, bound: b, props: { useVerlet, force } }) =>
-                force[+(canVerlet(s.length, b) && useVerlet)],
+                force[+(useVerlet && canVerlet(s.length, b))],
             useVerlet: (_, { steps: s, bound: b, props: { useVerlet } }) =>
-                +(canVerlet(s.length, b) && useVerlet)
+                +(useVerlet && canVerlet(s.length, b))
         }
     }
 });
@@ -173,7 +171,7 @@ canvas.addEventListener('touchmove', (e) => {
 });
 
 canvas.addEventListener((('onpointermove' in self)? 'pointermove'
-        : (('ontouchmove' in self)? 'touchmove' : 'mousemove')),
+        :   (('ontouchmove' in self)? 'touchmove' : 'mousemove')),
     (e) => {
         const { clientX: x, clientY: y } = e;
         const { source, scale } = state.props;
