@@ -1,6 +1,6 @@
 {
   "name": "@epok.tech/gl-gpgpu",
-  "version": "0.0.8",
+  "version": "0.0.10",
   "description": "GPGPU current/past state-stepping - map minimal passes of shaders, GL resources, inputs, outputs - BYORenderer.",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
   "author": "Eoghan O'Keeffe <epok.tech@gmail.com> (https://epok.tech)",
@@ -14,7 +14,7 @@
     "start": "yarn docs",
     "dev": "parcel --log-level verbose --target docs",
     "dist": "yarn build:safe && yarn docs:safe",
-    "build": "rm -rf ./dist/ && parcel build --target default",
+    "build": "rm -rf ./dist/ && parcel build --target es --target cjs",
     "docs": "rm -rf ./docs/ && parcel build --target docs",
     "dist:safe": "yarn build:safe && yarn docs:safe",
     "build:safe": "yarn build --no-cache",
@@ -39,7 +39,8 @@
     "querystring": "^0.2.1",
     "regl": "^2.1.0"
   },
-  "main": "dist/index.js",
+  "main": "dist/main/index.js",
+  "module": "dist/es/index.js",
   "source": [
     "const.js",
     "index.js",
@@ -58,13 +59,23 @@
     "demo/**/*"
   ],
   "targets": {
-    "default": {
+    "cjs": {
+      "outputFormat": "commonjs",
       "isLibrary": true,
       "engines": {
         "browsers": "last 2 versions, > 0.5%, not dead"
       },
-      "distDir":  "dist/",
-      "publicUrl":  "dist/"
+      "distDir":  "dist/main/",
+      "publicUrl":  "dist/main/"
+    },
+    "es": {
+      "outputFormat": "esmodule",
+      "isLibrary": true,
+      "engines": {
+        "browsers": "last 2 versions, > 0.5%, not dead"
+      },
+      "distDir":  "dist/es/",
+      "publicUrl":  "dist/es/"
     },
     "docs": {
       "isLibrary": false,
