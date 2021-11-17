@@ -183,3 +183,5 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
         e.stopPropagation();
         e.preventDefault();
     });
+
+module?.hot?.accept?.(() => location.reload());

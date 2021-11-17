@@ -1,6 +1,6 @@
 {
   "name": "@epok.tech/gl-gpgpu",
-  "version": "0.0.10",
+  "version": "0.0.12",
   "description": "GPGPU current/past state-stepping - map minimal passes of shaders, GL resources, inputs, outputs - BYORenderer.",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
   "author": "Eoghan O'Keeffe <epok.tech@gmail.com> (https://epok.tech)",
@@ -16,17 +16,18 @@
     "dist": "yarn build:safe && yarn docs:safe",
     "build": "rm -rf ./dist/ && parcel build --target es --target cjs",
     "docs": "rm -rf ./docs/ && parcel build --target docs",
+    "dev:safe": "yarn dev --no-cache",
     "dist:safe": "yarn build:safe && yarn docs:safe",
     "build:safe": "yarn build --no-cache",
     "docs:safe": "yarn docs --no-cache"
   },
   "dependencies": {
-    "@epok.tech/fn-lists": "^0.0.9",
-    "@epok.tech/is-type": "^0.0.2",
+    "@epok.tech/fn-lists": "^0.1.1",
+    "@epok.tech/is-type": "^0.1.0",
     "@thi.ng/vectors": "^7.1.1"
   },
   "devDependencies": {
-    "@epok.tech/fn-time": "^0.0.2",
+    "@epok.tech/fn-time": "^0.1.0",
     "@epok.tech/gl-screen-triangle": "^1.1.3",
     "@epok.tech/glsl-aspect": "^1.0.3",
     "@epok.tech/glsl-verlet": "^0.0.1",
@@ -53,6 +54,7 @@
     "index-pairs/glsl.js"
   ],
   "files": [
+    "*.js",
     "dist/**/*",
     "index-pairs/**/*",
     "docs/**/*",
@@ -65,8 +67,8 @@
       "engines": {
         "browsers": "last 2 versions, > 0.5%, not dead"
       },
-      "distDir":  "dist/main/",
-      "publicUrl":  "dist/main/"
+      "distDir": "dist/main/",
+      "publicUrl": "dist/main/"
     },
     "es": {
       "outputFormat": "esmodule",
@@ -74,8 +76,8 @@
       "engines": {
         "browsers": "last 2 versions, > 0.5%, not dead"
       },
-      "distDir":  "dist/es/",
-      "publicUrl":  "dist/es/"
+      "distDir": "dist/es/",
+      "publicUrl": "dist/es/"
     },
     "docs": {
       "isLibrary": false,
@@ -84,7 +86,7 @@
       },
       "source": "demo/particles/index.html",
       "distDir": "docs/",
-      "publicUrl":  "./"
+      "publicUrl": "./"
     }
   },
   "keywords": [
