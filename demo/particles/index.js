@@ -6,6 +6,7 @@ import querystring from 'querystring';
 import timer from '@epok.tech/fn-time';
 import { count, vertices } from '@epok.tech/gl-screen-triangle';
 import wrap from '@epok.tech/fn-lists/wrap-index';
+import reduce from '@epok.tech/fn-lists/reduce';
 
 import { gpgpu, extensionsFloat, optionalExtensions } from '../../index';
 import { macroValues } from '../../macros';
@@ -26,10 +27,12 @@ const reglProps = {
 const regl = self.regl = getRegl(reglProps);
 
 console.log('extensions',
-    ...reglProps.extensions.map((e) => e+': '+regl.hasExtension(e)));
+    reduce((o, e) => o+((o)? '; ' : '')+e+': '+regl.hasExtension(e),
+        reglProps.extensions, ''));
 
 console.log('optionalExtensions',
-    ...reglProps.optionalExtensions.map((e) => e+': '+regl.hasExtension(e)));
+    reduce((o, e) => o+((o)? '; ' : '')+e+': '+regl.hasExtension(e),
+        reglProps.optionalExtensions, ''));
 
 const canvas = document.querySelector('canvas');
 
