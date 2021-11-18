@@ -4,8 +4,6 @@
 import getRegl from 'regl';
 import querystring from 'querystring';
 import timer from '@epok.tech/fn-time';
-import { count, vertices } from '@epok.tech/gl-screen-triangle';
-import wrap from '@epok.tech/fn-lists/wrap-index';
 import reduce from '@epok.tech/fn-lists/reduce';
 
 import { gpgpu, extensionsFloat, optionalExtensions } from '../../index';
@@ -19,6 +17,21 @@ import stepFrag from './step.frag.glsl';
 
 import drawVert from './draw.vert.glsl';
 import drawFrag from './draw.frag.glsl';
+
+const search = document.location.search.slice(1);
+const query = querystring.parse(search);
+
+const bound = 1;
+// 1 active state, 2 past states needed for Verlet integration, plus as many
+// others as can be bound.
+const steps = bound+(parseInt(query.steps, 10) || 2);
+const scale = Math.floor((parseInt(query.scale, 10) || 9)-(Math.sqrt(steps)/2));
+
+// Fixed timestep if given; otherwise uses look-behind delta-time.
+const timestep = (query.timestep && (parseFloat(query.timestep, 10) || 1e3/60));
+
+console.log(search+':', query,
+    'steps:', steps, 'scale:', scale, 'timestep:', timestep);
 
 const reglProps = {
     extensions: extensionsFloat(), optionalExtensions: optionalExtensions()
@@ -35,13 +48,6 @@ console.log('optionalExtensions',
         reglProps.optionalExtensions, ''));
 
 const canvas = document.querySelector('canvas');
-
-const query = querystring.parse(document.location.search.slice(1));
-const bound = 1;
-// 1 active state, 2 past states needed for Verlet integration, plus as many
-// others as can be bound.
-const steps = bound+(parseInt(query.steps, 10) || 2);
-const scale = Math.floor((parseInt(query.scale, 10) || 9)-(Math.sqrt(steps)/2));
 
 // How many values/channels each property independently tracks.
 const valuesMap = { position: 3, life: 1, acceleration: 3 };
@@ -73,12 +79,11 @@ const canVerlet = (steps, bound) => steps-bound >= 2;
 
 const state = gpgpu(regl, {
     props: {
-        timer: {
-            // Real-time, look-behind delta-time.
-            step: '-', time: regl.now()*1e3,
-            // Fixed-step, look-ahead add-time.
-            // step: '+', time: 0, step: 1e3/60,
-        },
+        timer: ((timestep)?
+                // Fixed-step, look-ahead add-time.
+                { step: '+', time: 0, step: timestep }
+                // Real-time, look-behind delta-time.
+            :   { step: '-', time: regl.now()*1e3 }),
         // Speed up or slow down the passage of time.
         rate: 1,
         // Loop time over this period to avoid instability of parts of the demo.
@@ -113,12 +118,15 @@ const state = gpgpu(regl, {
             time: (_, { props: { timer: { time }, rate } }) => time*rate,
             loop: (_, { props: { timer: { time }, loop } }) =>
                 Math.sin(time/loop*Math.PI)*loop,
+
             lifetime: regl.prop('props.lifetime'),
             g: regl.prop('props.g'),
             source: regl.prop('props.source'),
             scale: regl.prop('props.scale'),
+
             force: (_, { steps: s, bound: b, props: { useVerlet, force } }) =>
                 force[+(useVerlet && canVerlet(s.length, b))],
+
             useVerlet: (_, { steps: s, bound: b, props: { useVerlet } }) =>
                 +(useVerlet && canVerlet(s.length, b))
         }
@@ -152,12 +160,14 @@ console.log((self.drawCommand = drawCommand), drawCount);
 
 const draw = regl(drawCommand);
 
-regl.frame(() => {
-    // Real-time.
-    timer(state.props.timer, regl.now()*1e3);
-    // Fixed-step.
-    // timer(state.props.timer, state.props.timer.step);
+const stepTimer = ((timestep)?
+        // Fixed-step.
+        () => timer(state.props.timer, state.props.timer.step)
+        // Real-time.
+    :   () => timer(state.props.timer, regl.now()*1e3));
 
+regl.frame(() => {
+    stepTimer();
     state.step.run();
     drawState.stepNow = state.stepNow;
     draw(drawState);

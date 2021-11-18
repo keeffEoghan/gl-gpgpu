@@ -62,14 +62,14 @@ uniform vec3 source;
 
 varying vec2 uv;
 
-#pragma glslify: map = require('glsl-map');
+#pragma glslify: map = require(glsl-map);
 
 #ifdef posOutput
-    #pragma glslify: verlet = require('@epok.tech/glsl-verlet');
+    #pragma glslify: verlet = require(@epok.tech/glsl-verlet);
 #endif
 
 #if defined(lifeOutput) || defined(accOutput)
-    #pragma glslify: random = require('glsl-random');
+    #pragma glslify: random = require(glsl-random);
 #endif
 
 #ifdef accOutput
