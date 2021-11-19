@@ -7,7 +7,70 @@ html {
     width: 100%;
     height: 100%;
     background-color: #000;
-    cursor: pointer;
+    font-size: 12px;
 }
 
 body { margin: 0; }
+
+.view { cursor: pointer; }
+
+.links {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    align-items: center;
+    position: absolute;
+    z-index: 1;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #333;
+    opacity: 0.6;
+    transition: opacity 800ms ease-out;
+    will-change: opacity;
+
+    &:hover,
+    &:focus {
+        opacity: 1;
+        transition: opacity 200ms ease-in;
+    }
+}
+
+.link {
+    flex: 1 0 auto;
+    position: relative;
+    font-family: sans-serif;
+    font-weight: 900;
+    margin: 1em;
+    padding: 0.5em;
+    color: #fff;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+
+    &::after {
+        content: '';
+        display: block;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 0.13em;
+        background-color: currentColor;
+        transform-origin: top center;
+        transition: transform 800ms ease-out;
+        will-change: transform;
+    }
+
+    &:hover::after,
+    &:focus::after {
+        transform: translateY(-200%) scaleY(2);
+        transition: transform 200ms ease-in;
+    }
+
+    &:active::after,
+    &:target::after {
+        transform: translateY(100%) scaleY(0.1);
+        transition: transform 100ms ease-in;
+    }
+}

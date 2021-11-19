@@ -30,14 +30,16 @@ varying vec4 color;
 #pragma glslify: aspect = require(@epok.tech/glsl-aspect/contain)
 #pragma glslify: gt = require(glsl-conditionals/when_gt)
 
-#pragma glslify: indexPairs = require(../../index-pairs)
+#if stepsPast > 1
+    #pragma glslify: indexPairs = require(../../index-pairs)
+#endif
 
 void main() {
-    #if stepsPast < 2
-        // If fewer than 2 steps are given, uses `gl.POINTS`.
-        vec2 stepEntry = vec2(0.0, index);
-    #else
+    #if stepsPast > 1
         vec2 stepEntry = indexPairs(index, float(stepsPast));
+    #else
+        // If only 1 step is given, uses `gl.POINTS`.
+        vec2 stepEntry = vec2(0.0, index);
     #endif
 
     // Step back a full state's worth of textures per step index.
@@ -52,17 +54,14 @@ void main() {
     // @todo Make use of the `reads` logic to take the minimum possible samples.
     vec3 pos = texture2D(states[stateIndex+posTexture], uv).posChannels;
     float life = texture2D(states[stateIndex+lifeTexture], uv).lifeChannels;
-    float l = pow(life/lifetime[1], 0.7);
-
-    color = mix(vec4(l),
-        vec4(stepEntry[0]/float(stepsPast), stepEntry[1]/float(count), 0.8,
-            l/(dataShape.x*dataShape.y)),
-        l);
-
     vec2 ar = aspect(viewShape);
+    vec4 vertex = vec4(vec3(pos.xy*ar, pos.z)*scale, 1.0);
 
-    gl_Position = gt(life, 0.0)*
-        vec4(vec3(pos.xy*ar, pos.z*max(ar.x, ar.y))*scale, 1);
+    gl_Position = gt(life, 0.0)*vertex;
+    gl_PointSize = gt(life, 0.0)*pointSize*clamp(vertex.z/vertex.w, 0.1, 1.0);
 
-    gl_PointSize = pointSize*l;
+    float a = pow(life/lifetime[1], 0.1);
+
+    color = a*
+        vec4(stepEntry[0]/float(stepsPast), stepEntry[1]/float(count), 0.8, a);
 }

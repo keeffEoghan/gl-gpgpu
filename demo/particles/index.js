@@ -2,9 +2,10 @@
  * Test implementation of 3D particle Verlet-integration simulation.
  */
 import getRegl from 'regl';
-import querystring from 'querystring';
+import clamp from 'clamp';
 import timer from '@epok.tech/fn-time';
 import reduce from '@epok.tech/fn-lists/reduce';
+import map from '@epok.tech/fn-lists/map';
 
 import { gpgpu, extensionsFloat, optionalExtensions } from '../../index';
 import { macroValues } from '../../macros';
@@ -18,22 +19,8 @@ import stepFrag from './step.frag.glsl';
 import drawVert from './draw.vert.glsl';
 import drawFrag from './draw.frag.glsl';
 
-const search = document.location.search.slice(1);
-const query = querystring.parse(search);
-
-const bound = 1;
-// 1 active state, 2 past states needed for Verlet integration, plus as many
-// others as can be bound.
-const steps = bound+(parseInt(query.steps, 10) || 2);
-const scale = Math.floor((parseInt(query.scale, 10) || 9)-(Math.sqrt(steps)/2));
-
-// Fixed timestep if given; otherwise uses look-behind delta-time.
-const timestep = (query.timestep && (parseFloat(query.timestep, 10) || 1e3/60));
-
-console.log(search+':', query,
-    'steps:', steps, 'scale:', scale, 'timestep:', timestep);
-
 const reglProps = {
+    canvas, pixelRatio: Math.max(Math.floor(devicePixelRatio), 1.5),
     extensions: extensionsFloat(), optionalExtensions: optionalExtensions()
 };
 
@@ -49,13 +36,67 @@ console.log('optionalExtensions',
 
 const canvas = document.querySelector('canvas');
 
+canvas.classList.add('view');
+
+// How many frame-buffers are bound at a given time.
+const bound = 1;
 // How many values/channels each property independently tracks.
 const valuesMap = { position: 3, life: 1, acceleration: 3 };
+const values = Object.values(valuesMap);
+
+// Limits of this device and these `values`.
+const { maxTextureUnits, maxTextureSize } = regl.limits;
+
+const range = {
+    steps: [2, Math.floor(maxTextureUnits*4/reduce((s, v) => s+v, values, 0))],
+    // Better stay farther under maximum texture size, or errors/crashes.
+    scale: [1, Math.log2(maxTextureSize)]
+};
+
+console.log('range', range);
+
+// Handle query parameters.
+const query = new URLSearchParams(location.search);
+
+// 1 active state, as many others as can be bound; at least 2 past states needed
+// for Verlet integration, 1 for Euler integration.
+const steps = Math.floor(clamp((parseInt(query.get('steps'), 10) || 2+bound),
+    ...range.steps));
+
+const scale = Math.floor(clamp((parseInt(query.get('scale'), 10) || 8),
+    ...range.scale));
+
+// Fixed timestep if given; otherwise uses look-behind delta-time.
+const hasTimestep = query.has('timestep');
+const timestepDef = 1e3/60;
+
+const timestep = (hasTimestep &&
+    (parseFloat(query.get('timestep'), 10) || timestepDef));
+
+console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
+    'steps:', steps, 'scale:', scale, 'timestep:', timestep);
+
+// Set up the links.
+document.querySelector('#points').href = `?steps=2&scale=${
+    Math.max(range.scale[1]-5, 9)}${
+    ((hasTimestep)? '&timestep='+query.get('timestep') : '')}#points`;
+
+document.querySelector('#max').href = `?steps=${Math.max(range.steps[1]-3, 1)
+    }&scale=${Math.max(range.scale[1]-5, 9)}${
+    ((hasTimestep)? '&timestep='+query.get('timestep') : '')}#max`;
+
+// Override `query` here for convenience - not reused later.
+((timestep)? query.delete('timestep') : query.set('timestep', timestepDef));
+document.querySelector('#time').href = `?${query}#time`;
+
+// How values/channels map to their derivations.
+
 const valuesKeys = Object.keys(valuesMap);
+
 const derivesMap = {
     position: [
         // Position, 2 steps past.
-        [Math.min(steps-1-bound, 1), valuesKeys.indexOf('position')],
+        [clamp(steps-1-bound, 0, 1), valuesKeys.indexOf('position')],
         // Position, 1 step past.
         valuesKeys.indexOf('position'),
         valuesKeys.indexOf('acceleration'),
@@ -63,7 +104,7 @@ const derivesMap = {
     ],
     life: [
         // Life, oldest step.
-        [Math.max(0, steps-1-bound), valuesKeys.indexOf('life')],
+        [Math.max(steps-1-bound, 0), valuesKeys.indexOf('life')],
         // Life, 1 step past.
         valuesKeys.indexOf('life')
     ],
@@ -72,11 +113,12 @@ const derivesMap = {
     ]
 };
 
-const values = Object.values(valuesMap);
 const derives = Object.values(derivesMap);
 
+// Whether to allow Verlet integration.
 const canVerlet = (steps, bound) => steps-bound >= 2;
 
+// The main GPGPU state.
 const state = gpgpu(regl, {
     props: {
         timer: ((timestep)?
@@ -91,11 +133,11 @@ const state = gpgpu(regl, {
         // Whether to use Verlet (midpoint) or Euler (forward) integration.
         useVerlet: true,
         // Range of how long a particle lives before respawning.
-        lifetime: [1e3, 5e3],
+        lifetime: [5e2, 3e3],
         // Acceleration due to gravity.
         g: [0, -9.80665, 0],
         // The position particles respawn from.
-        source: [0, 0, 0],
+        source: [0, 0, -0.5],
         // To help accuracy of very small numbers, pass force as `[x, y] = xEy`.
         // One of these options chosen depending on integration used.
         force: [
@@ -105,7 +147,6 @@ const state = gpgpu(regl, {
             [1, -7]
         ],
         // To help with accuracy of small numbers, uniformly scale the drawing.
-        // scale: 1
         scale: 1e-3
     },
     bound, steps, scale,
@@ -122,7 +163,6 @@ const state = gpgpu(regl, {
             lifetime: regl.prop('props.lifetime'),
             g: regl.prop('props.g'),
             source: regl.prop('props.source'),
-            scale: regl.prop('props.scale'),
 
             force: (_, { steps: s, bound: b, props: { useVerlet, force } }) =>
                 force[+(useVerlet && canVerlet(s.length, b))],
@@ -133,15 +173,14 @@ const state = gpgpu(regl, {
     }
 });
 
+// Set up the timer.
 timer(state.props.timer, state.props.timer.time);
 
 console.log(self.state = state);
 
-const drawCount = countDrawIndexes(state.size)*
-    // @todo Why does `bound` not seem to make much difference?
-    // indexPairs(state.steps.length-state.bound);
-    indexPairs(state.steps.length);
-
+// Set up rendering.
+// @todo Why doesn't `state.steps.length-state.bound` seem to make a difference?
+const drawCount = countDrawIndexes(state.size)*indexPairs(state.steps.length);
 const drawIndexes = getDrawIndexes(drawCount);
 const drawState = { ...state };
 
@@ -149,16 +188,22 @@ const drawCommand = {
     vert: macroValues(drawState)+'\n'+drawVert,
     frag: drawFrag,
     attributes: { index: drawIndexes },
-    uniforms: getUniforms(drawState,
-        { ...drawState.step.uniforms, pointSize: 4 }),
+    uniforms: getUniforms(drawState, {
+        ...drawState.step.uniforms,
+        scale: regl.prop('props.scale'), pointSize: 2**4
+    }),
     lineWidth: 1,
     count: drawCount,
+    depth: { enable: true },
+    blend: { enable: true, func: { src: 'one', dst: 'one minus src alpha' } },
     primitive: ((drawState.steps.length > 2)? 'lines' : 'points')
 };
 
 console.log((self.drawCommand = drawCommand), drawCount);
 
 const draw = regl(drawCommand);
+
+const clearView = { color: [0, 0, 0, 0], depth: 1 };
 
 const stepTimer = ((timestep)?
         // Fixed-step.
@@ -170,10 +215,11 @@ regl.frame(() => {
     stepTimer();
     state.step.run();
     drawState.stepNow = state.stepNow;
+    regl.clear(clearView);
     draw(drawState);
 });
 
-self.addEventListener('click', () =>
+canvas.addEventListener('click', () =>
     console.log('useVerlet',
         (state.props.useVerlet = (canVerlet(state.steps.length, state.bound) &&
             !state.props.useVerlet))));
