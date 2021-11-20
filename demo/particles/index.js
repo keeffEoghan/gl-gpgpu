@@ -1,6 +1,7 @@
 /**
- * Test implementation of 3D particle Verlet-integration simulation.
+ * Demo implementation of 3D particle Verlet/Euler integration simulation.
  */
+
 import getRegl from 'regl';
 import clamp from 'clamp';
 import timer from '@epok.tech/fn-time';
@@ -20,7 +21,7 @@ import drawVert from './draw.vert.glsl';
 import drawFrag from './draw.frag.glsl';
 
 const reglProps = {
-    canvas, pixelRatio: Math.max(Math.floor(devicePixelRatio), 1.5),
+    pixelRatio: Math.max(Math.floor(devicePixelRatio), 1.5),
     extensions: extensionsFloat(), optionalExtensions: optionalExtensions()
 };
 
