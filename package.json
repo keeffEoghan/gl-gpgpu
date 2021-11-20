@@ -1,6 +1,6 @@
 {
   "name": "@epok.tech/gl-gpgpu",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "GPGPU current/past state-stepping - map minimal passes of shaders, GL resources, inputs, outputs - BYORenderer.",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
   "author": "Eoghan O'Keeffe <epok.tech@gmail.com> (https://epok.tech)",
@@ -28,7 +28,7 @@
     "@thi.ng/vectors": "^7.1.1"
   },
   "devDependencies": {
-    "@epok.tech/fn-time": "^0.1.0",
+    "@epok.tech/fn-time": "^0.2.1",
     "@epok.tech/glsl-aspect": "^1.0.3",
     "@epok.tech/glsl-verlet": "^0.0.1",
     "@parcel/transformer-glsl": "^2.0.1",

@@ -48,13 +48,16 @@ const values = Object.values(valuesMap);
 // Limits of this device and these `values`.
 const { maxTextureUnits, maxTextureSize } = regl.limits;
 
-const range = {
-    steps: [2, Math.floor(maxTextureUnits*4/reduce((s, v) => s+v, values, 0))],
+const limits = {
+    steps: [
+        1+bound,
+        Math.floor(maxTextureUnits*4/reduce((s, v) => s+v, values, 0))
+    ],
     // Better stay farther under maximum texture size, or errors/crashes.
     scale: [1, Math.log2(maxTextureSize)]
 };
 
-console.log('range', range);
+console.log('limits', limits, regl.limits);
 
 // Handle query parameters.
 const query = new URLSearchParams(location.search);
@@ -62,12 +65,14 @@ const query = new URLSearchParams(location.search);
 // 1 active state, as many others as can be bound; at least 2 past states needed
 // for Verlet integration, 1 for Euler integration.
 const steps = Math.floor(clamp((parseInt(query.get('steps'), 10) || 2+bound),
-    ...range.steps));
+    ...limits.steps));
+
+pastSteps = steps-bound;
 
 const scale = Math.floor(clamp((parseInt(query.get('scale'), 10) || 8),
-    ...range.scale));
+    ...limits.scale));
 
-// Fixed timestep if given; otherwise uses look-behind delta-time.
+// Fixed time-step if given; otherwise uses look-behind delta-time.
 const hasTimestep = query.has('timestep');
 const timestepDef = 1e3/60;
 
@@ -78,12 +83,13 @@ console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
     'steps:', steps, 'scale:', scale, 'timestep:', timestep);
 
 // Set up the links.
+
 document.querySelector('#points').href = `?steps=2&scale=${
-    Math.max(range.scale[1]-5, 9)}${
+    Math.max(limits.scale[1]-5, 9)}${
     ((hasTimestep)? '&timestep='+query.get('timestep') : '')}#points`;
 
-document.querySelector('#max').href = `?steps=${Math.max(range.steps[1]-3, 1)
-    }&scale=${Math.max(range.scale[1]-5, 9)}${
+document.querySelector('#max').href = `?steps=${Math.max(limits.steps[1]-3, 1)
+    }&scale=${Math.max(limits.scale[1]-5, 9)}${
     ((hasTimestep)? '&timestep='+query.get('timestep') : '')}#max`;
 
 // Override `query` here for convenience - not reused later.
@@ -97,7 +103,7 @@ const valuesKeys = Object.keys(valuesMap);
 const derivesMap = {
     position: [
         // Position, 2 steps past.
-        [clamp(steps-1-bound, 0, 1), valuesKeys.indexOf('position')],
+        [Math.min(1, pastSteps-1), valuesKeys.indexOf('position')],
         // Position, 1 step past.
         valuesKeys.indexOf('position'),
         valuesKeys.indexOf('acceleration'),
@@ -105,7 +111,7 @@ const derivesMap = {
     ],
     life: [
         // Life, oldest step.
-        [Math.max(steps-1-bound, 0), valuesKeys.indexOf('life')],
+        [Math.max(pastSteps-1, 0), valuesKeys.indexOf('life')],
         // Life, 1 step past.
         valuesKeys.indexOf('life')
     ],
@@ -117,24 +123,25 @@ const derivesMap = {
 const derives = Object.values(derivesMap);
 
 // Whether to allow Verlet integration.
-const canVerlet = (steps, bound) => steps-bound >= 2;
+const canVerlet = (pastSteps >= 2);
 
 const cache = { source: [] };
 
 // The main GPGPU state.
 const state = gpgpu(regl, {
     props: {
-        timer: ((timestep)?
+        // Set up the timer.
+        timer: timer((timestep)?
                 // Fixed-step, look-ahead add-time.
-                { step: '+', time: 0, step: timestep }
+                { step: timestep }
                 // Real-time, look-behind delta-time.
-            :   { step: '-', time: regl.now()*1e3 }),
+            :   { step: '-', now: () => regl.now()*1e3 }),
         // Speed up or slow down the passage of time.
         rate: 1,
         // Loop time over this period to avoid instability of parts of the demo.
         loop: 3e3,
         // Whether to use Verlet (midpoint) or Euler (forward) integration.
-        useVerlet: true,
+        useVerlet: canVerlet,
         // Range of how long a particle lives before respawning.
         lifetime: [5e2, 3e3],
         // Acceleration due to gravity.
@@ -169,17 +176,11 @@ const state = gpgpu(regl, {
             source: (_, { props: { source, scale } }) =>
                 map((v, i) => v/scale, source, cache.source),
 
-            force: (_, { steps: s, bound: b, props: { useVerlet, force } }) =>
-                force[+(useVerlet && canVerlet(s.length, b))],
-
-            useVerlet: (_, { steps: s, bound: b, props: { useVerlet } }) =>
-                +(useVerlet && canVerlet(s.length, b))
+            force: (_, { props: { useVerlet: u, force: f } }) => f[+u],
+            useVerlet: (_, { props: { useVerlet: u } }) => +u
         }
     }
 });
-
-// Set up the timer.
-timer(state.props.timer, state.props.timer.time);
 
 console.log(self.state = state);
 
@@ -210,24 +211,18 @@ const draw = regl(drawCommand);
 
 const clearView = { color: [0, 0, 0, 0], depth: 1 };
 
-const stepTimer = ((timestep)?
-        // Fixed-step.
-        () => timer(state.props.timer, state.props.timer.step)
-        // Real-time.
-    :   () => timer(state.props.timer, regl.now()*1e3));
-
 regl.frame(() => {
-    stepTimer();
+    timer(state.props.timer);
     state.step.run();
     drawState.stepNow = state.stepNow;
     regl.clear(clearView);
     draw(drawState);
 });
 
+// Toggle Verlet integration, if there are enough past steps.
 canvas.addEventListener('click', () =>
     console.log('useVerlet',
-        (state.props.useVerlet = (canVerlet(state.steps.length, state.bound) &&
-            !state.props.useVerlet))));
+        (state.props.useVerlet = (canVerlet && !state.props.useVerlet))));
 
 canvas.addEventListener('touchmove', (e) => {
     e.stopPropagation();
