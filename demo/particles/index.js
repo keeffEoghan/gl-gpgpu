@@ -119,6 +119,8 @@ const derives = Object.values(derivesMap);
 // Whether to allow Verlet integration.
 const canVerlet = (steps, bound) => steps-bound >= 2;
 
+const cache = { source: [] };
+
 // The main GPGPU state.
 const state = gpgpu(regl, {
     props: {
@@ -138,7 +140,7 @@ const state = gpgpu(regl, {
         // Acceleration due to gravity.
         g: [0, -9.80665, 0],
         // The position particles respawn from.
-        source: [0, 0, -0.5],
+        source: [0, 0, 0.5],
         // To help accuracy of very small numbers, pass force as `[x, y] = xEy`.
         // One of these options chosen depending on integration used.
         force: [
@@ -163,7 +165,9 @@ const state = gpgpu(regl, {
 
             lifetime: regl.prop('props.lifetime'),
             g: regl.prop('props.g'),
-            source: regl.prop('props.source'),
+
+            source: (_, { props: { source, scale } }) =>
+                map((v, i) => v/scale, source, cache.source),
 
             force: (_, { steps: s, bound: b, props: { useVerlet, force } }) =>
                 force[+(useVerlet && canVerlet(s.length, b))],
@@ -191,7 +195,7 @@ const drawCommand = {
     attributes: { index: drawIndexes },
     uniforms: getUniforms(drawState, {
         ...drawState.step.uniforms,
-        scale: regl.prop('props.scale'), pointSize: 2**4
+        scale: regl.prop('props.scale'), pointSize: 2**3
     }),
     lineWidth: 1,
     count: drawCount,
@@ -234,11 +238,11 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
         :   (('ontouchmove' in self)? 'touchmove' : 'mousemove')),
     (e) => {
         const { clientX: x, clientY: y } = e;
-        const { source, scale } = state.props;
+        const { source } = state.props;
         const size = Math.min(innerWidth, innerHeight);
 
-        source[0] = ((((x-((innerWidth-size)*0.5))/size)*2)-1)/scale;
-        source[1] = -((((y-((innerHeight-size)*0.5))/size)*2)-1)/scale;
+        source[0] = ((((x-((innerWidth-size)*0.5))/size)*2)-1);
+        source[1] = -((((y-((innerHeight-size)*0.5))/size)*2)-1);
 
         e.stopPropagation();
         e.preventDefault();
