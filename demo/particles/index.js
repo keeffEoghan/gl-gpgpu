@@ -47,7 +47,6 @@ const bound = 1;
 const valuesMap = (new Map())
     .set('position', 3).set('life', 1).set('acceleration', 3);
 
-const valuesKeys = [...valuesMap.keys()];
 const values = [...valuesMap.values()];
 
 // Limits of this device and these `values`.
@@ -103,26 +102,29 @@ document.querySelector('#time').href = `?${query}#time`;
 
 // How values/channels map to their derivations.
 
+const valuesIndex = reduce((o, k, i) => { o[k] = i; return o; },
+    [...valuesMap.keys()], {});
+
 const derives = [];
 
-derives[valuesKeys.indexOf('position')] = [
+derives[valuesIndex['position']] = [
     // Position, 2 steps past.
-    [Math.min(1, pastSteps-1), valuesKeys.indexOf('position')],
+    [Math.min(1, pastSteps-1), valuesIndex['position']],
     // Position, 1 step past.
-    valuesKeys.indexOf('position'),
-    valuesKeys.indexOf('acceleration'),
-    valuesKeys.indexOf('life')
+    valuesIndex['position'],
+    valuesIndex['acceleration'],
+    valuesIndex['life']
 ];
 
-derives[valuesKeys.indexOf('life')] = [
+derives[valuesIndex['life']] = [
     // Life, oldest step.
-    [Math.max(pastSteps-1, 0), valuesKeys.indexOf('life')],
+    [Math.max(pastSteps-1, 0), valuesIndex['life']],
     // Life, 1 step past.
-    valuesKeys.indexOf('life')
+    valuesIndex['life']
 ];
 
-derives[valuesKeys.indexOf('acceleration')] =
-    valuesKeys.indexOf('acceleration'), valuesKeys.indexOf('life');
+derives[valuesIndex['acceleration']] =
+    valuesIndex['acceleration'], valuesIndex['life'];
 
 // Whether to allow Verlet integration.
 const canVerlet = (pastSteps >= 2);
