@@ -103,27 +103,26 @@ document.querySelector('#time').href = `?${query}#time`;
 
 // How values/channels map to their derivations.
 
-const derivesMap = {
-    position: [
-        // Position, 2 steps past.
-        [Math.min(1, pastSteps-1), valuesKeys.indexOf('position')],
-        // Position, 1 step past.
-        valuesKeys.indexOf('position'),
-        valuesKeys.indexOf('acceleration'),
-        valuesKeys.indexOf('life')
-    ],
-    life: [
-        // Life, oldest step.
-        [Math.max(pastSteps-1, 0), valuesKeys.indexOf('life')],
-        // Life, 1 step past.
-        valuesKeys.indexOf('life')
-    ],
-    acceleration: [
-        valuesKeys.indexOf('acceleration'), valuesKeys.indexOf('life')
-    ]
-};
+const derives = [];
 
-const derives = Object.values(derivesMap);
+derives[valuesKeys.indexOf('position')] = [
+    // Position, 2 steps past.
+    [Math.min(1, pastSteps-1), valuesKeys.indexOf('position')],
+    // Position, 1 step past.
+    valuesKeys.indexOf('position'),
+    valuesKeys.indexOf('acceleration'),
+    valuesKeys.indexOf('life')
+];
+
+derives[valuesKeys.indexOf('life')] = [
+    // Life, oldest step.
+    [Math.max(pastSteps-1, 0), valuesKeys.indexOf('life')],
+    // Life, 1 step past.
+    valuesKeys.indexOf('life')
+];
+
+derives[valuesKeys.indexOf('acceleration')] =
+    valuesKeys.indexOf('acceleration'), valuesKeys.indexOf('life');
 
 // Whether to allow Verlet integration.
 const canVerlet = (pastSteps >= 2);

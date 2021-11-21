@@ -270,7 +270,7 @@ export function mapGroups(maps = {}, out = maps) {
  *         values: [2, 4, 1, 2], channelsMax: 4, texturesMax: 2,
  *         // Entries per-value of derived step/value indexes, entries include:
  *         // empty, single, multiple, and defined step samples.
- *         derives: [[1, 0], , [3, [1, 0]], [2]]
+ *         derives: [[1, 0], , [3, [1, 0]], 2]
  *     });
  *
  *     mapSamples(maps); // =>
@@ -295,9 +295,9 @@ export function mapGroups(maps = {}, out = maps) {
  * @export
  * @param {object} maps How values are grouped per-texture per-pass per-step.
  *     See `mapGroups`.
- * @param {array<null,array<number,array<number>>>} [maps.derives] How values
- *     are derived. For each value index, a list of indexes of any past values
- *     it derives its from - a value not derived from past values may have an
+ * @param {array<null,number,array<number,array<number>>>} [maps.derives] How
+ *     values derive from others. For each value index, index/es of any past
+ *     values it derives from - a value not derived from past values may have an
  *     empty/null entry; a value derives from past values where its entry has:
  *     - Numbers; deriving from the most recent state at the given value index.
  *     - Lists of numbers; deriving from the given past state index (1st number
@@ -355,7 +355,10 @@ export function mapSamples(maps, out = maps) {
     const getAddSamples = (pass) => (set, value) => {
         const valueDerives = derives[value];
 
-        (valueDerives && each(getAddSample(set, pass, value), valueDerives));
+        ((valueDerives || (valueDerives === 0)) &&
+            ((Number.isInteger(valueDerives))?
+                getAddSample(set, pass, value)(valueDerives)
+            :   each(getAddSample(set, pass, value), valueDerives)));
 
         return set;
     }
