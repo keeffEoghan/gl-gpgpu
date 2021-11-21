@@ -71,7 +71,7 @@ const query = new URLSearchParams(location.search);
 const steps = Math.floor(clamp((parseInt(query.get('steps'), 10) || 2+bound),
     ...limits.steps));
 
-pastSteps = steps-bound;
+const pastSteps = steps-bound;
 
 const scale = Math.floor(clamp((parseInt(query.get('scale'), 10) || 8),
     ...limits.scale));
