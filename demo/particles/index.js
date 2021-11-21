@@ -41,9 +41,14 @@ canvas.classList.add('view');
 
 // How many frame-buffers are bound at a given time.
 const bound = 1;
+
 // How many values/channels each property independently tracks.
-const valuesMap = { position: 3, life: 1, acceleration: 3 };
-const values = Object.values(valuesMap);
+
+const valuesMap = (new Map())
+    .set('position', 3).set('life', 1).set('acceleration', 3);
+
+const valuesKeys = [...valuesMap.keys()];
+const values = [...valuesMap.values()];
 
 // Limits of this device and these `values`.
 const { maxTextureUnits, maxTextureSize } = regl.limits;
@@ -97,8 +102,6 @@ document.querySelector('#max').href = `?steps=${Math.max(limits.steps[1]-3, 1)
 document.querySelector('#time').href = `?${query}#time`;
 
 // How values/channels map to their derivations.
-
-const valuesKeys = Object.keys(valuesMap);
 
 const derivesMap = {
     position: [

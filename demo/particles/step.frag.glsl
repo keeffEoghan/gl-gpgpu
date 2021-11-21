@@ -13,6 +13,8 @@
 precision highp float;
 
 // Setting up the macros and aliases.
+// Note that these `texture_i`/`channels_i` indexes correspond to the value at
+// that index in the `values` array provided to `gpgpu`.
 
 #define posTexture texture_0
 #define lifeTexture texture_1
