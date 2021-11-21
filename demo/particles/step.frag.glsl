@@ -13,8 +13,9 @@
 precision highp float;
 
 // Setting up the macros and aliases.
-// Note that these `texture_i`/`channels_i` indexes correspond to the value at
-// that index in the `values` array provided to `gpgpu`.
+// Note that these `texture_i`/`channels_i`/`reads_i_j` indexes correspond to
+// the value at that index in the `values`/`derives` arrays provided to `gpgpu`;
+// they are defined here to match the arrangement in `./index.js`.
 
 #define posTexture texture_0
 #define lifeTexture texture_1
@@ -29,22 +30,22 @@ useSamples
 #ifdef output_0
     #define posOutput output_0
     useReads_0
-    #define posReadPos0 reads_0_i(0)
-    #define posReadPos1 reads_0_i(1)
-    #define posReadAcc reads_0_i(2)
-    #define posReadLife reads_0_i(3)
+    #define posReadPos0 reads_0_0
+    #define posReadPos1 reads_0_1
+    #define posReadAcc reads_0_2
+    #define posReadLife reads_0_3
 #endif
 #ifdef output_1
     #define lifeOutput output_1
     useReads_1
-    #define lifeReadLifeOldest reads_1_i(0)
-    #define lifeReadLife1 reads_1_i(1)
+    #define lifeReadLifeOldest reads_1_0
+    #define lifeReadLife1 reads_1_1
 #endif
 #ifdef output_2
     #define accOutput output_2
     useReads_2
-    #define accReadAcc reads_2_i(0)
-    #define accReadLife reads_2_i(1)
+    #define accReadAcc reads_2_0
+    #define accReadLife reads_2_1
 #endif
 
 // The main shader.
@@ -93,6 +94,7 @@ void main() {
     // Add pixel offset to sample from the pixel's center and avoid errors.
     vec2 st = uv+(vec2(0.25)/dataShape);
 
+    // Creates the `data` array.
     tapSamples(states, st, textures)
 
     // Read values.
