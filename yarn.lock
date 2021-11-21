@@ -351,6 +351,7 @@ __metadata:
     autoprefixer: ^10.4.0
     clamp: ^1.0.1
     glsl-conditionals: ^1.0.0
+    glsl-constants: ^1.0.0
     glsl-map: ^1.0.1
     glsl-random: ^0.0.5
     parcel: ^2.0.1
@@ -3404,6 +3405,13 @@ __metadata:
   version: 1.0.0
   resolution: "glsl-conditionals@npm:1.0.0"
   checksum: c28974bd3100d43aea5d58bc9e534f4b78a5c56e7543e2511587c571afe204323291505e70a8d37e7e62f477a423f518fd7631bc190c889c322fecb8c4d34d06
+  languageName: node
+  linkType: hard
+
+"glsl-constants@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "glsl-constants@npm:1.0.0"
+  checksum: 8bd1da5d6d90e9b754ce7dbd2f1ab51be9322449028915b2a3f366ab4284dea1505f834c2b725a87c68237daade3a8ecf6addc0ce19d89ed8c153e985d171c00
   languageName: node
   linkType: hard
 

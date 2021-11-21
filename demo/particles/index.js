@@ -71,7 +71,7 @@ const query = new URLSearchParams(location.search);
 const steps = Math.floor(clamp((parseInt(query.get('steps'), 10) || 2+bound),
     ...limits.steps));
 
-const pastSteps = steps-bound;
+const stepsPast = steps-bound;
 
 const scale = Math.floor(clamp((parseInt(query.get('scale'), 10) || 8),
     ...limits.scale));
@@ -109,7 +109,7 @@ const derives = [];
 
 derives[valuesIndex['position']] = [
     // Position, 2 steps past.
-    [Math.min(1, pastSteps-1), valuesIndex['position']],
+    [Math.min(1, stepsPast-1), valuesIndex['position']],
     // Position, 1 step past.
     valuesIndex['position'],
     valuesIndex['acceleration'],
@@ -118,7 +118,7 @@ derives[valuesIndex['position']] = [
 
 derives[valuesIndex['life']] = [
     // Life, oldest step.
-    [Math.max(pastSteps-1, 0), valuesIndex['life']],
+    [Math.max(stepsPast-1, 0), valuesIndex['life']],
     // Life, 1 step past.
     valuesIndex['life']
 ];
@@ -127,7 +127,7 @@ derives[valuesIndex['acceleration']] =
     valuesIndex['acceleration'], valuesIndex['life'];
 
 // Whether to allow Verlet integration.
-const canVerlet = (pastSteps >= 2);
+const canVerlet = (stepsPast >= 2);
 
 const cache = { source: [] };
 
@@ -152,7 +152,7 @@ const state = gpgpu(regl, {
         g: [0, -9.80665, 0],
         // The position particles respawn from.
         source: [0, 0, 0.5],
-        // To help accuracy of very small numbers, pass force as `[x, y] = xEy`.
+        // To help accuracy of very small numbers, pass force as `[X, Y] = XeY`.
         // One of these options chosen depending on integration used.
         force: [
             // Euler.
@@ -160,11 +160,11 @@ const state = gpgpu(regl, {
             // Verlet.
             [1, -7]
         ],
-        // To help with accuracy of small numbers, uniformly scale the drawing.
+        // To help with accuracy of small numbers, uniformly scale space.
         scale: 1e-3
     },
     bound, steps, scale,
-    maps: { values: [...values], derives: [...derives] },
+    maps: { values, derives },
     step: {
         vert: stepVert, frag: stepFrag,
         verts: [], frags: [],

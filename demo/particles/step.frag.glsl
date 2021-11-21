@@ -76,7 +76,7 @@ varying vec2 uv;
 #endif
 
 #ifdef accOutput
-    const float tau = 6.28318530718;
+    #pragma glslify: tau = require(glsl-constants/TWO_PI);
 
     // @see https://observablehq.com/@rreusser/equally-distributing-points-on-a-sphere
     vec3 randomOnSphere(vec2 randoms) {
@@ -87,7 +87,7 @@ varying vec2 uv;
     }
 #endif
 
-#pragma glslify: le = require('glsl-conditionals/when_le');
+#pragma glslify: le = require(glsl-conditionals/when_le);
 
 void main() {
     // Sample textures.
@@ -151,7 +151,7 @@ void main() {
         lifeOutput = mix(life, lifeSpawn, spawn*le(lifeOldest, 0.0));
     #endif
     #ifdef accOutput
-        // To help accuracy of very small numbers, pass force as `[x, y] = xEy`.
+        // To help accuracy of very small numbers, pass force as `[X, Y] = XeY`.
         float f = force.x*pow(10.0, force.y);
 
         acc += g*f*dt;

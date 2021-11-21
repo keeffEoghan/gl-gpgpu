@@ -1,6 +1,6 @@
 {
   "name": "@epok.tech/gl-gpgpu",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "description": "GPGPU current/past state-stepping - map minimal passes of shaders, GL resources, inputs, outputs - BYORenderer.",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
   "author": "Eoghan O'Keeffe <epok.tech@gmail.com> (https://epok.tech)",
@@ -35,6 +35,7 @@
     "autoprefixer": "^10.4.0",
     "clamp": "^1.0.1",
     "glsl-conditionals": "^1.0.0",
+    "glsl-constants": "^1.0.0",
     "glsl-map": "^1.0.1",
     "glsl-random": "^0.0.5",
     "parcel": "^2.0.1",
