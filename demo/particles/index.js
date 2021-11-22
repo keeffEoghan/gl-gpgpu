@@ -189,6 +189,8 @@ const state = gpgpu(regl, {
 console.log(self.state = state);
 
 // Set up rendering.
+
+// Particle count - note `countDrawIndexes` here equals `state.size.count`.
 // @todo Why doesn't `state.steps.length-state.bound` seem to make a difference?
 const drawCount = countDrawIndexes(state.size)*indexPairs(state.steps.length);
 const drawIndexes = getDrawIndexes(drawCount);

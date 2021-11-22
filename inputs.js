@@ -68,17 +68,33 @@ export function getUniforms(state, out = {}) {
 }
 
 /**
- * Gives the number of indexes needed to draw a full state.
+ * Gives the number of indexes to draw a full state, for various parameters.
  *
- * @param {object} size Size/type information on data resources.
+ * @see [getState]{@link ./state.js#getState}
+ *
+ * @param {object|array<number>|number} size Size/type information of data
+ *     resources, or a shape array of width and height numbers, or width if
+ *     height is given as a second parameter.
+ * @param {number} [size.count] The number of entries of each data-texture.
+ * @param {number} [size[0]] The width of each data-texture.
+ * @param {number} [size[1]] The height of each data-texture.
  * @param {number} [size.width] The width of each data-texture.
  * @param {number} [size.height] The height of each data-texture.
- * @param {number} [size.count=size.width*size.height] How many entries are in
- *     each data-texture; that is, its area (width*height).
+ * @param {number} [size.shape] The shape of each data-texture.
+ * @param {number} [size.shape[0]] The width of each data-texture.
+ * @param {number} [size.shape[1]] The height of each data-texture.
  *
- * @returns {number} The number of indexes needed to draw a full state.
+ * @param {number} [height] The height of each data-texture.
+ *
+ * @returns {number} The number of indexes needed to draw a full state; each
+ *     entry of a data-texture (its area, equivalent to `state.size.count`).
  */
-export const countDrawIndexes = ({ width: w, height: h, count = w*h }) => count;
+export function countDrawIndexes(size, height) {
+    const { count, 0: x, 1: y, width: w, height: h, shape } = size;
+
+    return (count ??
+        (x ?? w ?? shape?.[0] ?? size)*(y ?? h ?? shape?.[1] ?? height));
+}
 
 /**
  * Gives the array of indexes needed to draw a full state.
