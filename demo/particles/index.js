@@ -107,24 +107,24 @@ const valuesIndex = reduce((o, k, i) => { o[k] = i; return o; },
 
 const derives = [];
 
-derives[valuesIndex['position']] = [
+derives[valuesIndex.position] = [
     // Position, 2 steps past.
-    [Math.min(1, stepsPast-1), valuesIndex['position']],
+    [Math.min(1, stepsPast-1), valuesIndex.position],
     // Position, 1 step past.
-    valuesIndex['position'],
-    valuesIndex['acceleration'],
-    valuesIndex['life']
+    valuesIndex.position,
+    valuesIndex.acceleration,
+    valuesIndex.life
 ];
 
-derives[valuesIndex['life']] = [
+derives[valuesIndex.life] = [
     // Life, oldest step.
-    [Math.max(stepsPast-1, 0), valuesIndex['life']],
+    [Math.max(stepsPast-1, 0), valuesIndex.life],
     // Life, 1 step past.
-    valuesIndex['life']
+    valuesIndex.life
 ];
 
-derives[valuesIndex['acceleration']] =
-    valuesIndex['acceleration'], valuesIndex['life'];
+derives[valuesIndex.acceleration] =
+    valuesIndex.acceleration, valuesIndex.life;
 
 // Whether to allow Verlet integration.
 const canVerlet = (stepsPast >= 2);

@@ -53,8 +53,8 @@ void main() {
     // Sample the desired state values.
     // @todo Make use of the `reads` logic to take the minimum possible samples.
     float life = texture2D(states[stateIndex+lifeTexture], uv).lifeChannels;
-    float alive = gt(life, 0.0);
     vec3 pos = texture2D(states[stateIndex+posTexture], uv).posChannels;
+    float alive = gt(life, 0.0);
     vec2 ar = aspect(viewShape);
     vec4 vertex = vec4(vec3(pos.xy*ar, pos.z)*scale, 1.0);
 

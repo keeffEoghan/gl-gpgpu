@@ -34,24 +34,24 @@ export * from './const';
  * @param {number} [state.maps.texturesMax=api.limits.maxDrawbuffers] The
  *     maximum number of textures to use per draw pass. Uses more passes above
  *     this limit.
- * @param {object} [out=state] The state object to set up. Modifies the given
+ * @param {object} [to=state] The state object to set up. Modifies the given
  *     `state` object by default.
  */
-export function gpgpu(api, state = {}, out = state) {
-    const { maxDrawbuffers: texturesMax, glsl } = (api.limits || api);
+export function gpgpu(api, state = {}, to = state) {
+    const { maxDrawbuffers: texturesMax, glsl } = (api.limits ?? api);
     const { maps = {} } = state;
 
-    out.glsl = parseFloat(glsl.match(/[0-9\.]+/)[0]);
+    to.glsl = parseFloat(glsl.match(/[0-9\.]+/)[0]);
 
-    (maps.texturesMax ?? (maps.texturesMax = texturesMax));
-    ((('textures' in maps) && ('passes' in maps)) || mapGroups(maps));
-    ((('derives' in maps) && !('samples' in maps)) && mapSamples(maps));
-    out.maps = maps;
+    maps.texturesMax ??= texturesMax;
+    maps.textures ?? maps.passes ?? mapGroups(maps);
+    maps.derives && (maps.samples ?? mapSamples(maps));
+    to.maps = maps;
 
-    getState(api, state, out);
-    out.step = getStep(api, state);
+    getState(api, state, to);
+    to.step = getStep(api, state);
 
-    return out;
+    return to;
 }
 
 export default gpgpu;

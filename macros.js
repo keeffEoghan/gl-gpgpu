@@ -62,9 +62,8 @@ export const getPre = ({ macros, pre = preDef }) =>
 export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
     `const int ${name}_l = ${a.length}; `+
     `${(qualify && qualify+' ')+type} ${name}[${name}_l] = ${
-        init}[${name}_l](${reduce((s, v, i) =>
-                `${s+type}(${((Array.isArray(v))? v.join(', ') : v)})${
-                    ((i < a.length-1)? ', ' : '')}`,
+        init}[${name}_l](${reduce((s, v, i, { length: l }) =>
+                `${s+type}(${v.join?.(', ') ?? v})${(i < l-1)? ', ' : ''}`,
             a, '')});\n`+
     `#define ${name}_i(i) ${name}[i]\n`;
 
@@ -93,10 +92,8 @@ export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
  */
 export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
     `const int ${name}_l = ${a.length}; ${
-    (qualify && qualify+' ')+type} ${name}[${name}_l]; ${
-    reduce((s, v, i) =>
-            `${s} ${name}[${i}] = ${
-                init}(${((Array.isArray(v))? v.join(', ') : v)});`,
+    (qualify && qualify+' ')+type} ${name}[${name}_l];${
+    reduce((s, v, i) => `${s} ${name}[${i}] = ${init}(${v.join?.(', ') ?? v});`,
         a, '')}\n`+
     `#define ${name}_i(i) ${name}[i]\n`;
 
@@ -122,10 +119,10 @@ export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
  * @returns {string} The GLSL 1 array-like declaration string.
  */
 export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
-    `const int ${name}_l = ${a.length}; ${
+    `const int ${name}_l = ${a.length};${
     reduce((s, v, i) =>
             `${s} ${(qualify && qualify+' ')+type} ${name}_${i} = ${
-                init}(${((Array.isArray(v))? v.join(', ') : v)});`,
+                init}(${v.join?.(', ') ?? v});`,
         a, '')}\n`+
     // `#define ${name}_i(i) ${name}_##i`;
     `#define ${name}_i(i) ${reduce((s, v, i) =>
@@ -215,9 +212,8 @@ export function hasMacros(props, key, macros = props.macros) {
 
     return ((t === 'Function')? macros(props, key, macros)
         : ((t === 'String')? macros
-        : (((macros instanceof Object) && (key in macros))?
-            hasMacros(props, key, macros[key])
-        :   false)));
+        : (((macros instanceof Object) && (key in macros)) &&
+            hasMacros(props, key, macros[key]))));
 }
 
 /**
@@ -280,15 +276,16 @@ export function macroValues(state) {
 
     const {
             maps: { values, textures, passes: { length: passesL } },
-            steps: { length: stepsL }, bound = boundDef
+            steps: { length: stepsL }, bound = boundDef, size
         } = state;
 
-    const count = (state.size && state.size.count);
+    const count = size?.count;
     const n = getPre(state);
+
     const c = key+':'+
         JSON.stringify({ n, bound, values, textures, stepsL, passesL, count });
 
-    return (cache[c] || (cache[c] =
+    return (cache[c] ??=
         reduce((s, texture, t, _, i = 0) => reduce((s, v) => s+
                     `#define ${n}texture_${v} ${t}\n`+
                     `#define ${n}channels_${v} ${
@@ -299,7 +296,7 @@ export function macroValues(state) {
         `#define ${n}textures ${textures.length}\n`+
         `#define ${n}passes ${passesL}\n`+
         `#define ${n}stepsPast ${stepsL-bound}\n`+
-        `#define ${n}steps ${stepsL}\n`));
+        `#define ${n}steps ${stepsL}\n`);
 }
 
 /**
@@ -365,16 +362,15 @@ export function macroOutput(state) {
     const pass = passes[p];
     const c = key+':'+JSON.stringify({ n, p, values, textures, passes });
 
-    return (cache[c] || (cache[c] =
+    return (cache[c] ??=
         `#define ${n}passNow ${p}\n`+
         reduce((s, texture, bound, _, i = 0) => reduce((s, v) => `${s}\n`+
                     `#define ${n}bound_${v} ${texture}\n`+
                     `#define ${n}attach_${v} ${bound}\n`+
                     `#define ${n}output_${v} gl_FragData[${n}attach_${v}].${
-                        rgba.slice(i, (i += values[v]))
-                    }\n`,
+                        rgba.slice(i, (i += values[v]))}\n`,
                 textures[texture], s),
-            pass, '')));
+            pass, ''));
 }
 
 /**
@@ -443,15 +439,15 @@ export function macroSamples(state) {
 
     const { passNow: p, maps: { samples, reads }, glsl } = state;
     const n = getPre(state);
-    const passSamples = (samples && samples[p]);
-    const passReads = (reads && reads[p]);
+    const passSamples = samples?.[p];
+    const passReads = reads?.[p];
     // Whether to generate GLSL preprocessor macros for the lookup logic.
     const tap = hasMacros(state, hooks.macroSamplesTap);
 
     const c = key+':'+
         JSON.stringify({ n, p, passSamples, passReads, glsl, tap });
 
-    return (cache[c] || (cache[c] =
+    return (cache[c] ??=
         ((!passSamples)? ''
         :   `#define ${n}useSamples ${
                 getGLSLList('ivec2', `${n}samples`, passSamples, 'const', glsl)
@@ -471,7 +467,7 @@ export function macroSamples(state) {
                     `${s}\n#define ${n}useReads_${v} ${
                         getGLSLList('int', `${n}reads_${v}`, reads, 'const',
                             glsl)}`,
-                passReads, ''))));
+                passReads, '')));
 }
 
 /**

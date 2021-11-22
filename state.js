@@ -9,11 +9,9 @@
 import range from '@epok.tech/fn-lists/range';
 import map from '@epok.tech/fn-lists/map';
 import reduce from '@epok.tech/fn-lists/reduce';
-import isNumber from '@epok.tech/is-type/number';
 
-import {
-        scaleDef, stepsDef, valuesDef, channelsMinDef, typeDef
-    } from './const';
+import { scaleDef, stepsDef, valuesDef, channelsMinDef, typeDef }
+    from './const';
 
 /**
  * Set up the GPGPU resources and meta information for a state of a number data.
@@ -194,31 +192,31 @@ import {
  * @param {string} [state.type=typeDef] The data type of the textures.
  * @param {number} [state.stepNow=-1] The currently active state step, if any.
  * @param {number} [state.passNow=-1] The currently active draw pass, if any.
- * @param {object} [out=state] The state object to set up. Modifies the given
+ * @param {object} [to=state] The state object to set up. Modifies the given
  *     `state` object by default.
  *
- * @returns {object} `out` The state object, set up with the data resources and
+ * @returns {object} `to` The state object, set up with the data resources and
  *     meta information, for step/draw later:
- * @returns {object<number,array<number,array<number>>>} `out.maps` Any given
+ * @returns {object<number,array<number,array<number>>>} `to.maps` Any given
  *     `state.maps`. See `mapGroups`.
  * @returns {array<array<object<api.texture,number,array<number>>>>}
- *     `out.textures` Textures per step, as arrays of objects of `api.texture`,
- *     and meta info. See `out.maps.textures`.
+ *     `to.textures` Textures per step, as arrays of objects of `api.texture`,
+ *     and meta info. See `to.maps.textures`.
  * @returns {array<array<object<api.framebuffer,number,array<number>>>>}
- *     `out.passes` Passes per step, as arrays of objects of `api.framebuffer`,
- *     referencing `out.textures`, and meta info. See `out.maps.passes`.
- * @returns {array<api.framebuffer<array<api.texture>>>} `out.steps`
+ *     `to.passes` Passes per step, as arrays of objects of `api.framebuffer`,
+ *     referencing `to.textures`, and meta info. See `to.maps.passes`.
+ * @returns {array<api.framebuffer<array<api.texture>>>} `to.steps`
  *     Hierarchy of steps of state, as an array of `api.framebuffer` from
- *     `out.passes`, with arrays of `api.texture` from `out.textures`, and meta
+ *     `to.passes`, with arrays of `api.texture` from `to.textures`, and meta
  *     information; set up here, or the given `state.steps` if it was an array.
  *     State data may be drawn into the framebuffers accordingly.
  *     See `mapGroups` and `getStep`.
- * @returns {object<number,string,array<number>>} `out.size` Size/type
+ * @returns {object<number,string,array<number>>} `to.size` Size/type
  *     information on data resources.
- * @returns {number} `out.stepNow` The currently active state step, as given.
- * @returns {number} `out.passNow` The currently active draw pass, as given.
+ * @returns {number} `to.stepNow` The currently active state step, as given.
+ * @returns {number} `to.passNow` The currently active draw pass, as given.
  */
-export function getState(api, state = {}, out = state) {
+export function getState(api, state = {}, to = state) {
     // See usage here for what the API must implement.
     const { texture, framebuffer } = api;
 
@@ -227,9 +225,9 @@ export function getState(api, state = {}, out = state) {
             steps = stepsDef, stepNow = -1, passNow = -1, maps
         } = state;
 
-    out.maps = maps;
-    out.stepNow = stepNow;
-    out.passNow = passNow;
+    to.maps = maps;
+    to.stepNow = stepNow;
+    to.passNow = passNow;
 
     const {
             values = valuesDef(),
@@ -241,24 +239,25 @@ export function getState(api, state = {}, out = state) {
 
     const textureProps = {
         type, min: 'nearest', mag: 'nearest', wrap: 'clamp',
+        depth: false, stencil: false,
         // Passing `state.scale` ensures a power-of-two square texture size.
         width: (radius ?? width ?? 2**scale),
         height: (radius ?? height ?? 2**scale)
     };
 
+    const { width: w, height: h } = textureProps;
+
     // Size of the created resources.
-    const size = out.size = {
-        ...textureProps, steps: ((isNumber(steps))? steps : steps.length),
-        textures: 0, passes: 0,
-        shape: [textureProps.width, textureProps.height],
-        count: textureProps.width*textureProps.height
+    const size = to.size = {
+        ...textureProps, steps: (steps.length ?? steps),
+        textures: 0, passes: 0, shape: [w, h], count: w*h
     };
 
-    const textures = out.textures = [];
-    const passes = out.passes = [];
+    const textures = to.textures = [];
+    const passes = to.passes = [];
 
     const addTexture = (step, pass, textureProps) => (index) =>
-        ((textures[step] || (textures[step] = []))[index] = {
+        ((textures[step] ??= [])[index] = {
             // Meta info.
             step, pass, index, count: size.textures++, map: texturesMap[index],
             // Resources.
@@ -283,7 +282,7 @@ export function getState(api, state = {}, out = state) {
             color: textures, depth: false, stencil: false
         });
 
-        (passes[step] || (passes[step] = []))[index] = {
+        (passes[step] ??= [])[index] = {
             // Meta info.
             step, index, count: size.passes++, map: pass,
             // Resources.
@@ -294,13 +293,13 @@ export function getState(api, state = {}, out = state) {
     };
 
     // Set up resources we'll need to store data per-texture per-pass per-step.
-    out.steps = map((passes, step) =>
+    to.steps = map((passes, step) =>
             // Use any given passes or create a new list of them.
             (passes || map(addPass(step), maps.passes)),
         // Use any given steps or create a new list of them.
-        ((isNumber(steps))? range(steps) : steps), 0);
+        ((Number.isFinite(steps))? range(steps) : steps), 0);
 
-    return out;
+    return to;
 }
 
 export default getState;

@@ -7,7 +7,6 @@ import map from '@epok.tech/fn-lists/map';
 import range from '@epok.tech/fn-lists/range';
 import each from '@epok.tech/fn-lists/each';
 import wrap from '@epok.tech/fn-lists/wrap-index';
-import isNumber from '@epok.tech/is-type/number';
 
 import { boundDef, preDef } from './const';
 
@@ -29,14 +28,14 @@ import { boundDef, preDef } from './const';
  * @param {number} [state.bound=boundDef] How many steps are bound as outputs,
  *     unavailable as inputs.
  * @param {string} [state.pre=preDef] The namespace prefix; `preDef` by default.
- * @param {object} [out={}] The object to contain the uniforms.
+ * @param {object} [to={}] The object to contain the uniforms.
  *
- * @returns {object<function>} `out` The uniform hooks for the given `state`.
+ * @returns {object<function>} `to` The uniform hooks for the given `state`.
  *     Each is a function taking 2 arguments: a `context` object of general
  *     or global properties, and a `props` object of local properties (such as
  *     the given `state`).
  */
-export function getUniforms(state, out = {}) {
+export function getUniforms(state, to = {}) {
     const {
             steps: { length: stepsL }, maps: { textures: textureMap },
             bound = boundDef, pre: n = preDef
@@ -45,9 +44,9 @@ export function getUniforms(state, out = {}) {
     const texturesL = textureMap.length;
     const cache = { viewShape: [] };
 
-    out[n+'stepNow'] = (_, { stepNow: s }) => s;
-    out[n+'dataShape'] = (_, { size: { shape: s } }) => s;
-    out[n+'viewShape'] = ({ viewportWidth: w, viewportHeight: h }) =>
+    to[n+'stepNow'] = (_, { stepNow: s }) => s;
+    to[n+'dataShape'] = (_, { size: { shape: s } }) => s;
+    to[n+'viewShape'] = ({ viewportWidth: w, viewportHeight: h }) =>
         setC2(cache.viewShape, w, h);
 
     // Set up the past steps, as the number of steps into the past from the
@@ -55,7 +54,7 @@ export function getUniforms(state, out = {}) {
 
     const addTexture = (past, texture) =>
         // Hook to pull a given texture from the latest `props`.
-        out[`${n}states[${(past*texturesL)+texture}]`] =
+        to[`${n}states[${(past*texturesL)+texture}]`] =
             (_, { stepNow: s, bound: b = bound, textures }) =>
                 wrap.get(s-b-past, textures)[texture].texture;
 
@@ -64,7 +63,7 @@ export function getUniforms(state, out = {}) {
         each((v, texture) => addTexture(past, texture), textureMap);
     }
 
-    return out;
+    return to;
 }
 
 /**
@@ -80,6 +79,8 @@ export function getUniforms(state, out = {}) {
  * @param {number} [size[1]] The height of each data-texture.
  * @param {number} [size.width] The width of each data-texture.
  * @param {number} [size.height] The height of each data-texture.
+ * @param {number} [size.x] The width of each data-texture.
+ * @param {number} [size.y] The height of each data-texture.
  * @param {number} [size.shape] The shape of each data-texture.
  * @param {number} [size.shape[0]] The width of each data-texture.
  * @param {number} [size.shape[1]] The height of each data-texture.
@@ -89,12 +90,9 @@ export function getUniforms(state, out = {}) {
  * @returns {number} The number of indexes needed to draw a full state; each
  *     entry of a data-texture (its area, equivalent to `state.size.count`).
  */
-export function countDrawIndexes(size, height) {
-    const { count, 0: x, 1: y, width: w, height: h, shape } = size;
-
-    return (count ??
-        (x ?? w ?? shape?.[0] ?? size)*(y ?? h ?? shape?.[1] ?? height));
-}
+export const countDrawIndexes = (size, height) => (size.count ??
+    ((size[0] ?? size.width ?? size.x ?? size.shape?.[0] ?? size)*
+        (size[1] ?? size.height ?? size.y ?? size.shape?.[1] ?? height)));
 
 /**
  * Gives the array of indexes needed to draw a full state.
@@ -105,5 +103,5 @@ export function countDrawIndexes(size, height) {
  * @returns {array<number>} An array of indexes for drawing all data-texture
  *     entries.
  */
-export const getDrawIndexes = (size) =>
-    map((v, i) => i, range(isNumber(size)? size : countDrawIndexes(size)), 0);
+export const getDrawIndexes = (size) => map((v, i) => i,
+        range(Number.isInteger(size)? size : countDrawIndexes(size)), 0);
