@@ -52,20 +52,17 @@ void main() {
 
     // Sample the desired state values.
     // @todo Make use of the `reads` logic to take the minimum possible samples.
-    vec3 pos = texture2D(states[stateIndex+posTexture], uv).posChannels;
     float life = texture2D(states[stateIndex+lifeTexture], uv).lifeChannels;
+    float alive = gt(life, 0.0);
+    vec3 pos = texture2D(states[stateIndex+posTexture], uv).posChannels;
     vec2 ar = aspect(viewShape);
     vec4 vertex = vec4(vec3(pos.xy*ar, pos.z)*scale, 1.0);
 
-    gl_Position = gt(life, 0.0)*vertex;
-
-    gl_PointSize = gt(life, 0.0)*
-        pointSize*clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
+    gl_Position = alive*vertex;
+    gl_PointSize = alive*pointSize*clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
 
     float a = pow(life/lifetime[1], 0.1);
 
-    // color = a*
-    //     vec4(stepEntry[0]/float(stepsPast), stepEntry[1]/float(count), 0.8, a);
-    color = vec4(a*
-        vec3(stepEntry[0]/float(stepsPast), stepEntry[1]/float(count), 0.8), 1.0);
+    color = a*
+        vec4(stepEntry[0]/float(stepsPast), stepEntry[1]/float(count), 0.8, a);
 }
