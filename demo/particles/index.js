@@ -14,10 +14,7 @@ import { getMaps } from '../../maps';
 import { getUniforms, countDrawIndexes, getDrawIndexes } from '../../inputs';
 import indexPairs from '../../index-pairs';
 
-import stepVert from '@epok.tech/gl-screen-triangle/uv-texture.vert.glsl';
-
 import stepFrag from './step.frag.glsl';
-
 import drawVert from './draw.vert.glsl';
 import drawFrag from './draw.frag.glsl';
 
@@ -169,9 +166,11 @@ const state = gpgpu(regl, {
     },
     bound, steps, scale,
     maps: { values, derives },
+    // Per-shader macro hooks, no macros needed for the `vert` shader.
+    macros: { vert: false },
     step: {
-        vert: stepVert, frag: stepFrag,
-        verts: [], frags: [],
+        // Per-pass macros will prepend to `frag` shader and cache in `frags`.
+        frag: stepFrag, frags: [],
         uniforms: {
             dt: (_, { props: { timer: { dt }, rate } }) => dt*rate,
             time: (_, { props: { timer: { time }, rate } }) => time*rate,
@@ -208,9 +207,11 @@ const drawState = {
 };
 
 const drawCommand = {
-    vert: macroPass(drawState)+'\n'+drawVert,
+    // Use GPGPU macro mappings by prepending macros from a single pass.
+    vert: macroPass(drawState)+drawVert,
     frag: drawFrag,
     attributes: { index: drawIndexes },
+    // Hook up GPGPU uniforms by adding them here.
     uniforms: getUniforms(drawState, {
         ...drawState.step.uniforms,
         scale: regl.prop('props.scale'), pointSize: 2**3

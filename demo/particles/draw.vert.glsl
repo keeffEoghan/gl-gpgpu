@@ -6,19 +6,17 @@
  * @see [macroValues]{@link ../../macros.js#macroValues}
  */
 
+precision highp float;
+
 #define posChannels channels_0
 #define lifeChannels channels_1
 #define accChannels channels_2
-
 useSamples
-
 // Only the first value derives from all values, giving these minimal `reads`.
 useReads_0
 #define readPos reads_0_0
 #define readLife reads_0_1
 #define readAcc reads_0_2
-
-precision highp float;
 
 attribute float index;
 

@@ -22,66 +22,66 @@ export const cache = {};
 // Keys for each part of the macro handling process available to hooks.
 export const hooks = {
     // The full set of macros.
-    macroPass: 'pass',
+    macroPass: '',
     // Each part of the set of macros.
     macroValues: 'values', macroOutput: 'output',
     macroSamples: 'samples', macroSamplesTap: 'tap'
 };
 
 /**
- * Whether macros should be handled in this module; or the result of handling
- * them by a given named hook.
+ * Whether macros should be handled here; or the result of handling them by a
+ * given named hook.
  * Allows macros of the given key to be handled by external named hooks, to
- * replace any part of the functionality in this module.
+ * replace any part of the functionality here.
  *
  * @example
- *     // Macros to be handled in part of this module.
- *     hasMacros({}) === false;
- *     // Macros to be handled in part of this module (with a name prefix `m`).
- *     hasMacros({ macros: 'm' }) === false;
- *     // No/empty macros created.
- *     hasMacros({ macros: false }) === '';
- *     // Macros for 'a' handled by external static hook, not this module.
+ *     // Macros to be handled here, the default.
+ *     hasMacros() === hasMacros({}) === hasMacros({ macros: true }) === null;
+ *     // Macros to be handled here, with prefix `'pre_'` instead of `'preDef'`.
+ *     hasMacros({ pre: 'pre_' }) === null;
+ *     // Macros not created.
+ *     hasMacros({ macros: false }) === hasMacros({ macros: 0 }) === '';
+ *     // Macros for 'a' handled by external static hook, not here.
  *     hasMacros({ macros: { a: '//A\n', b: () => '//B\n' } }, 'a') === '//A\n';
- *     // Macros for 'b' handled by external function hook, not this module.
+ *     // Macros for 'b' handled by external function hook, not here.
  *     hasMacros({ macros: { a: '//A\n', b: () => '//B\n' } }, 'b') === '//B\n';
+ *     // Macros specified `on` a 'frag' not created.
+ *     hasMacros({ macros: { frag: 0 } }, '', 'frag') === '';
+ *     // Macros specified `on` a 'vert' handled here.
+ *     hasMacros({ macros: { frag: 0, a_vert: 0 } }, '', 'vert') === null;
+ *     // Macros for hook `'a'` specified `on` a 'vert' not created.
+ *     hasMacros({ macros: { frag: 0, a_vert: 0 } }, 'a', 'vert') === '';
  *
- * @param {object} props The properties handling macros.
+ * @param {object} [props] The properties handling macros.
  * @param {string} [key] The name for which macros should be handled.
- * @param {string|function|object|false} [macros=props.macros] Whether and
- *     how GLSL preprocessor macros should be handled:
- *     - If it's defined and falsey, no macros are handled in this module.
- *     - If it's a function, it's passed the given `props`, `key`, `macros`.
+ * @param {string} [on=''] Any further macro `hooks` specifier; if given, both
+ *     the hook key and this specifier are checked (e.g: `key` and `key_on`).
+ * @param {string|function|object|false} [macros=props.macros] Whether and how
+ *     GLSL preprocessor macros should be handled:
+ *     - If it's falsey and non-nullish, no macros are handled here.
+ *     - If it's a string, no macros are handled here as it's used instead.
+ *     - If it's a function, it's passed the given `props`, `key`, `macros`, and
+ *         the returned result is interpreted in the same way as described.
  *     - If it's an object, any value at the given `key` is entered recursively,
  *         with the given `props`, `key`, and `macros[key]`.
- *     - Otherwise, returns `false` to indicate macros should be handled here.
+ *     - Otherwise, returns `null` to indicate macros should be handled here.
  *
- * @returns {string|*|false} Either the result of the macros handled elsewhere,
- *     or `false` if macros should be handled here.
+ * @returns {string|null|*} Either the result of the macros handled elsewhere,
+ *     or `null` if macros should be handled here.
  */
-export function hasMacros(props, key, macros = props.macros) {
-    if(macros === undefined) { return false; }
-    if(!macros) { return ''; }
+export function hasMacros(props, key, on = '', macros = props?.macros) {
+    if((macros ?? true) === true) { return null; }
+    else if(!macros) { return ''; }
 
     const t = type(macros);
 
-    return ((t === 'Function')? macros(props, key, macros)
+    return ((t === 'Function')? macros(props, key, on, macros)
         : ((t === 'String')? macros
-        : (((macros instanceof Object) && (key in macros)) &&
-            hasMacros(props, key, macros[key]))));
+        : (((macros instanceof Object) && (key in macros))?
+            hasMacros(props, key, on, macros[key])
+        : ((on)? hasMacros(props, (key || '')+(key && on && '_')+on, '', macros)
+        :   null))));
 }
-
-/**
- * Gives the prefix to use, to avoid namespace collisions.
- *
- * @param {object} state The state to check.
- * @param {string} [state.macros] The macros prefix; supersedes `state.pre`.
- * @param {string} [state.pre=preDef] The namespace prefix; `preDef` by default.
- *
- * @returns {string} The prefix string to use.
- */
-export const getPre = ({ macros, pre = preDef }) =>
-    ((type(macros) === 'String')? macros : pre);
 
 /**
  * Generates an array-like declaration, as a GLSL syntax string compatible with
@@ -262,7 +262,6 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  * Caches the result if `macros` generation is enabled, to help reuse shaders.
  *
  * @see hasMacros
- * @see getPre
  * @see [mapGroups]{@link ./maps.js#mapGroups}
  * @see [getState]{@link ./state.js#getState}
  *
@@ -288,9 +287,11 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  *
  * @export
  * @param {object} state Properties used to generate the macros. See `getState`.
- * @param {string|function|object|falsey} [state.macros] How macros are handled
- *     or prefixed. See `hasMacros` and `getPre`.
- * @param {string} [state.pre] How macros are prefixed. See `getPre`.
+ * @param {string} [on] Any further macro `hooks` specifier; if given, both
+ *     the hook key and this specifier are checked (e.g: `key` and `key_on`).
+ * @param {string|function|object|false} [state.macros] How macros are handled
+ *     or prefixed. See `hasMacros`.
+ * @param {string} [state.pre=preDef] Macros prefix; `preDef` if not given.
  * @param {object} state.maps How values are grouped per-texture per-pass
  *     per-step.
  * @param {array<number>} state.maps.values How values of each data item are
@@ -308,19 +309,16 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  * @returns {string} The GLSL preprocessor macros defining the mappings from
  *     values to textures/channels.
  */
-export function macroValues(state) {
+export function macroValues(state, on) {
     const key = hooks.macroValues;
-    const hook = hasMacros(state, key);
+    const hook = hasMacros(state, key, on);
 
-    if(hook !== false) { return hook; }
+    if(hook !== null) { return hook; }
 
-    const {
-            maps: { values, textures, passes: { length: passesL } },
-            steps: { length: stepsL }, bound = boundDef, size
-        } = state;
-
+    const { maps, steps, bound = boundDef, size, pre: n = preDef } = state;
+    const { values, textures, passes: { length: passesL } } = maps;
+    const stepsL = steps.length;
     const count = size?.count;
-    const n = getPre(state);
 
     const c = key+':'+
         JSON.stringify({ n, bound, values, textures, stepsL, passesL, count });
@@ -345,7 +343,6 @@ export function macroValues(state) {
  * Caches the result if `macros` generation is enabled, to help reuse shaders.
  *
  * @see hasMacros
- * @see getPre
  * @see [mapGroups]{@link ./maps.js#mapGroups}
  * @see [getState]{@link ./state.js#getState}
  *
@@ -376,9 +373,11 @@ export function macroValues(state) {
  *
  * @export
  * @param {object} state Properties for generating the macros. See `getState`:
- * @param {string|function|object|falsey} [state.macros] How macros are handled
- *     or prefixed. See `hasMacros` and `getPre`.
- * @param {string} [state.pre] How macros are prefixed. See `getPre`.
+ * @param {string} [on] Any further macro `hooks` specifier; if given, both
+ *     the hook key and this specifier are checked (e.g: `key` and `key_on`).
+ * @param {string|function|object|false} [state.macros] How macros are handled.
+ *     See `hasMacros`.
+ * @param {string} [state.pre=preDef] Macros prefix; `pre` if not given.
  * @param {number} state.passNow The index of the currently active pass.
  * @param {object} state.maps How values are grouped per-texture per-pass
  *     per-step. See `mapGroups`.
@@ -391,14 +390,14 @@ export function macroValues(state) {
  *
  * @returns {string} The GLSL preprocessor macros defining the bound outputs.
  */
-export function macroOutput(state) {
+export function macroOutput(state, on) {
     const key = hooks.macroOutput;
-    const hook = hasMacros(state, key);
+    const hook = hasMacros(state, key, on);
 
-    if(hook !== false) { return hook; }
+    if(hook !== null) { return hook; }
 
-    const { passNow: p, maps: { values, textures, passes } } = state;
-    const n = getPre(state);
+    const { passNow: p, maps, pre: n = preDef } = state;
+    const { values, textures, passes } = maps;
     const pass = passes[p];
     const c = key+':'+JSON.stringify({ n, p, values, textures, passes });
 
@@ -422,7 +421,6 @@ export function macroOutput(state) {
  * Caches the result if `macros` generation is enabled, to help reuse shaders.
  *
  * @see hasMacros
- * @see getPre
  * @see getGLSLList
  * @see [mapGroups]{@link ./maps.js#mapGroups}
  * @see [mapSamples]{@link ./maps.js#mapSamples}
@@ -466,9 +464,11 @@ export function macroOutput(state) {
  *     '#define reads_0_i(i) ((i == 1)? reads_0_1 : reads_0_0)\n';
  *
  * @param {object} state Properties used to generate the macros. See `getState`.
- * @param {string|function|object|falsey} [state.macros] How macros are handled
- *     or prefixed. See `hasMacros` and `getPre`.
- * @param {string} [state.pre] How macros are prefixed. See `getPre`.
+ * @param {string} [on] Any further macro `hooks` specifier; if given, both
+ *     the hook key and this specifier are checked (e.g: `key` and `key_on`).
+ * @param {string|function|object|false} [state.macros] How macros are handled.
+ *     See `hasMacros`.
+ * @param {string} [state.pre=preDef] Macros prefix; `preDef` if not given.
  * @param {number} state.passNow The index of the currently active pass.
  * @param {object} state.maps  How `values` are grouped per-texture per-pass
  *     per-step. See `mapGroups`.
@@ -481,18 +481,18 @@ export function macroOutput(state) {
  * @returns {string} The GLSL preprocessor macros defining the mappings for
  *     samples and reads, for each value.
  */
-export function macroSamples(state) {
+export function macroSamples(state, on) {
     const key = hooks.macroSamples;
-    const hook = hasMacros(state, key);
+    const hook = hasMacros(state, key, on);
 
-    if(hook !== false) { return hook; }
+    if(hook !== null) { return hook; }
 
-    const { passNow: p = 0, maps: { samples, reads }, glsl } = state;
-    const n = getPre(state);
+    const { passNow: p = 0, maps, glsl, pre: n = preDef } = state;
+    const { samples, reads } = maps;
     const passSamples = samples?.[p];
     const passReads = reads?.[p];
     // Whether to generate GLSL preprocessor macros for the lookup logic.
-    const tap = hasMacros(state, hooks.macroSamplesTap);
+    const tap = hasMacros(state, hooks.macroSamplesTap, on);
 
     const c = key+':'+
         JSON.stringify({ n, p, passSamples, passReads, glsl, tap });
@@ -503,9 +503,9 @@ export function macroSamples(state) {
                 getGLSLList('ivec2', n+'samples', passSamples, 'const', glsl)
             }\n`+
             // The texture-sampling logic.
-            ((tap !== false)? tap
+            (tap ??
                 // Data may be sampled by adding step/texture lookup shifts.
-            :   `#define ${n}tapSamplesShift(states, uv, textures, by) ${
+                `#define ${n}tapSamplesShift(states, uv, textures, by) ${
                     // 2D-to-1D indexing, as textures are a flat array.
                     getGLSLList('vec4', n+'data',
                         map((_, s) =>
@@ -589,7 +589,7 @@ export function macroSamples(state) {
  *     '#define reads_0_i(i) ((i == 1)? reads_0_1 : reads_0_0)\n';
  *
  *     ++state.passNow;
- *     state.macros = 'draw_';
+ *     state.pre = 'draw_';
  *     state.steps.push(null);
  *     Object.assign(state.maps, mapSamples(mapGroups({
  *         values: [4, 2, 3, 1], channelsMax: 4, texturesMax: 2,
@@ -647,18 +647,15 @@ export function macroSamples(state) {
  * @export
  * @param {object} state Properties for generating the macros. See `getState`
  *     and `mapGroups`.
+ * @param {string} [on] Any further macro `hooks` specifier; if given, both
+ *     the hook key and this specifier are checked (e.g: `key` and `key_on`).
  *
  * @returns {string} The GLSL preprocessor macros defining the mappings for
  *     values, textures, channels, bound outputs of the active pass, etc. See
  *     `macroValues`, `macroOutput`, and `macroSamples`.
  */
-export function macroPass(state) {
-    const key = hooks.macroPass;
-    const hook = hasMacros(state, key);
-
-    return ((hook === false)?
-            macroValues(state)+'\n'+macroOutput(state)+'\n'+macroSamples(state)
-        :   hook);
-}
+export const macroPass = (state, on) =>
+    (hasMacros(state, hooks.macroPass, on) ??
+        macroValues(state)+'\n'+macroOutput(state)+'\n'+macroSamples(state));
 
 export default macroPass;

@@ -28,14 +28,15 @@ import { boundDef, preDef } from './const';
  * @param {number} [state.bound=boundDef] How many steps are bound as outputs,
  *     unavailable as inputs.
  * @param {string} [state.pre=preDef] The namespace prefix; `preDef` by default.
- * @param {object} [to={}] The object to contain the uniforms.
+ * @param {object} [to=(state.uniforms ?? {})] The object to contain the
+ *     uniforms; `state.uniforms` or a new object if not given.
  *
  * @returns {object<function>} `to` The uniform hooks for the given `state`.
  *     Each is a function taking 2 arguments: a `context` object of general
  *     or global properties, and a `props` object of local properties (such as
  *     the given `state`).
  */
-export function getUniforms(state, to = {}) {
+export function getUniforms(state, to = (state.uniforms ?? {})) {
     const {
             steps: { length: stepsL }, maps: { textures: textureMap },
             bound = boundDef, pre: n = preDef
@@ -104,4 +105,4 @@ export const countDrawIndexes = (size, height) => (size.count ??
  *     entries.
  */
 export const getDrawIndexes = (size) => map((v, i) => i,
-        range(Number.isInteger(size)? size : countDrawIndexes(size)), 0);
+    range(Number.isInteger(size)? size : countDrawIndexes(size)), 0);

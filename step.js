@@ -47,7 +47,8 @@ const scale = { vec2: 0.5 };
  *     per-pass if given, otherwise processes it just-in-time before each pass.
  * @param {array} [state.step.frags] Preprocesses and caches fragment GLSL code
  *     per-pass, otherwise processes it just-in-time before each pass.
- * @param {object} [to={}] The results object; a new object if not given.
+ * @param {object} [to=(state.step ?? {})] The results object; `state.step` or
+ *     a new object if not given.
  *
  * @returns {object} `to` The given `to` object; containing a GPGPU update
  *     step function and related properties, to be passed a GPGPU state.
@@ -65,7 +66,7 @@ const scale = { vec2: 0.5 };
  * @returns {function} `to.run` The main step function, which performs all the
  *     draw pass GL commands for a given state step.
  */
-export function getStep(api, state, to = {}) {
+export function getStep(api, state, to = (state.step ?? {})) {
     const { buffer, command = api } = api;
     const { maps: { passes }, pre = preDef, step = to } = state;
     let { positions = positionsDef() } = step;
@@ -90,11 +91,8 @@ export function getStep(api, state, to = {}) {
 
         each((pass, p) => {
                 stateCache.passNow = p;
-
-                const passMacros = macroPass(stateCache);
-
-                (verts && (verts[p] = passMacros+vert));
-                (frags && (frags[p] = passMacros+frag));
+                (verts && (verts[p] = macroPass(stateCache, 'vert')+vert));
+                (frags && (frags[p] = macroPass(stateCache, 'frag')+frag));
             },
             passes);
     }
@@ -105,13 +103,15 @@ export function getStep(api, state, to = {}) {
             const { passNow: p, step } = props;
             const { vert: v = vert, verts: vs = verts } = step;
 
-            return vs?.[p] ?? macroPass(props)+v;
+            // Specify the shader type, for per-shader macro hooks.
+            return vs?.[p] ?? macroPass(props, 'vert')+v;
         },
         frag(_, props) {
             const { passNow: p, step } = props;
             const { frag: f = frag, frags: fs = frags } = step;
 
-            return fs?.[p] ?? macroPass(props)+f;
+            // Specify the shader type, for per-shader macro hooks.
+            return fs?.[p] ?? macroPass(props, 'frag')+f;
         },
         attributes: {
             [pre+'position']: (_, { step: { positions: p = positions } }) => p

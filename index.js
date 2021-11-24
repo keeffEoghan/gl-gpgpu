@@ -44,8 +44,7 @@ export function gpgpu(api, state = {}, to = state) {
     to.glsl = parseFloat(glsl.match(/[0-9\.]+/)[0]);
     maps.texturesMax ??= texturesMax;
     to.maps = getMaps(maps);
-    getState(api, state, to);
-    to.step = getStep(api, state);
+    getState(api, state, to).step = getStep(api, state);
 
     return to;
 }

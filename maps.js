@@ -201,6 +201,8 @@ export function packValues(values, channelsMax = channelsMaxDef, to = []) {
  *     `to.textures` to the index of the pass containing it.
  */
 export function mapGroups(maps = {}, to = maps) {
+    if(!maps) { return to; }
+
     const {
             values = valuesDef(),
             channelsMax = channelsMaxDef, texturesMax = texturesMaxDef,
@@ -211,11 +213,12 @@ export function mapGroups(maps = {}, to = maps) {
     to.values = values;
     to.texturesMax = texturesMax;
     to.channelsMax = channelsMax;
-    to.passes = [[]];
-    to.textures = [[]];
-    to.valueToTexture = [];
-    to.valueToPass = [];
-    to.textureToPass = [];
+
+    const passes = to.passes = [[]];
+    const textures = to.textures = [[]];
+    const valueToTexture = to.valueToTexture = [];
+    const valueToPass = to.valueToPass = [];
+    const textureToPass = to.textureToPass = [];
 
     // Counts the number of channels written in a single draw pass.
     let channels = 0;
@@ -226,10 +229,6 @@ export function mapGroups(maps = {}, to = maps) {
             const value = getValue(v);
 
             if(!validValue(value, channelsMax)) { return to; }
-
-            const {
-                    textures, passes, valueToTexture, valueToPass, textureToPass
-                } = to;
 
             let p = passes.length-1;
             let pass = passes[p];
@@ -327,15 +326,15 @@ export function mapGroups(maps = {}, to = maps) {
  *     `[to.derives]` How values are derived, as given.
  */
 export function mapSamples(maps, to = maps) {
-    const { derives, passes, textures, valueToTexture } = maps;
+    const derives = maps?.derives;
 
     if(!derives) { return to; }
 
-    to.derives = derives;
-
+    const { passes, textures, valueToTexture } = maps;
     const reads = to.reads = [];
-
     const cache = {};
+
+    to.derives = derives;
 
     const all = (step = 0) =>
         cache[step] ??= map((t, v) => [step, v], valueToTexture);
@@ -388,11 +387,7 @@ export function mapSamples(maps, to = maps) {
     return to;
 }
 
-export function getMaps(maps, to = maps) {
-    maps.textures ?? maps.passes ?? mapGroups(maps, to);
-    maps.derives && (maps.samples ?? mapSamples(maps, to));
-
-    return to;
-}
+export const getMaps = (maps, to = maps) =>
+    mapSamples(maps, mapGroups(maps, to));
 
 export default getMaps;

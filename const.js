@@ -5,7 +5,7 @@
 import { positions } from '@epok.tech/gl-screen-triangle';
 
 export { default as vertDef }
-    from '@epok.tech/gl-screen-triangle/index.vert.glsl';
+    from '@epok.tech/gl-screen-triangle/uv-texture.vert.glsl';
 
 // The required and optional GL extensions for a GPGPU state.
 
