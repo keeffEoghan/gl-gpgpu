@@ -29,151 +29,6 @@ export const hooks = {
 };
 
 /**
- * Gives the prefix to use, to avoid namespace collisions.
- *
- * @param {object} state The state to check.
- * @param {string} [state.macros] The macros prefix; supersedes `state.pre`.
- * @param {string} [state.pre=preDef] The namespace prefix; `preDef` by default.
- *
- * @returns {string} The prefix string to use.
- */
-export const getPre = ({ macros, pre = preDef }) =>
-    ((type(macros) === 'String')? macros : pre);
-
-/**
- * Generates an array declaration, as a GLSL 3 syntax string.
- * Lookup and meta macros are added for consistency with other versions.
- *
- * @export
- * @example
- *     getGLSL3List('int', 'list', [1, 2, 3], 'const'); // =>
- *     'const int list_l = 3; '+
- *     'const int list[list_l] = int[list_l](int(1), int(2), int(3));\n'+
- *     '#define list_i(i) list[i]\n';
- *
- * @param {string} type The GLSL list data-type.
- * @param {string} name The name of the GLSL list variable.
- * @param {array<number,array<number>>} a The list of GLSL values.
- * @param {string} [qualify=''] A GLSL qualifier, if needed.
- * @param {string} [init=type] A data-type initialiser, `type` by default.
- *
- * @returns {string} The GLSL 3 array declaration string.
- */
-export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
-    `const int ${name}_l = ${a.length}; `+
-    `${(qualify && qualify+' ')+type} ${name}[${name}_l] = ${
-        init}[${name}_l](${reduce((s, v, i, { length: l }) =>
-                `${s+type}(${v.join?.(', ') ?? v})${(i < l-1)? ', ' : ''}`,
-            a, '')});\n`+
-    `#define ${name}_i(i) ${name}[i]\n`;
-
-/**
- * Generates an array declaration, as a GLSL 1 syntax string.
- * Lookup and meta macros are added for consistency with other versions.
- *
- * @export
- * @example
- *     getGLSL1ListArray('vec3', 'list', [[1, 0, 0], [0, 2, 0], [0, 0, 3]]);
- *     // =>
- *     'const int list_l = 3; '+
- *     'vec3 list[list_l]; '+
- *     'list[0] = vec3(1, 0, 0); '+
- *     'list[1] = vec3(0, 2, 0); '+
- *     'list[2] = vec3(0, 0, 3);\n'+
- *     '#define list_i(i) list[i]\n';
- *
- * @param {string} type The GLSL list data-type.
- * @param {string} name The name of the GLSL list variable.
- * @param {array<number,array<number>>} a The list of GLSL values.
- * @param {string} [qualify=''] A GLSL qualifier, if needed.
- * @param {string} [init=type] A data-type initialiser, `type` by default.
- *
- * @returns {string} The GLSL 1 array declaration string.
- */
-export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
-    `const int ${name}_l = ${a.length}; ${
-    (qualify && qualify+' ')+type} ${name}[${name}_l];${
-    reduce((s, v, i) => `${s} ${name}[${i}] = ${init}(${v.join?.(', ') ?? v});`,
-        a, '')}\n`+
-    `#define ${name}_i(i) ${name}[i]\n`;
-
-/**
- * Generates an array-like declaration, as a GLSL 1 syntax string.
- * Workaround for lack of `const` arrays in GLSL < 3.
- *
- * @export
- * @example
- *     getGLSL1ListLike('float', 'list', [1, 2, 3], 'const'); // =>
- *     'const int list_l = 3; '+
- *     'const int list_0 = float(1); '+
- *     'const int list_1 = float(2); '+
- *     'const int list_2 = float(3);\n'+
- *     '#define list_i(i) ((i == 2)? list_2 : ((i == 1)? list_1 : list_0))\n';
- *
- * @param {string} type The GLSL list data-type.
- * @param {string} name The name of the GLSL list variable.
- * @param {array<number,array<number>>} a The list of GLSL values.
- * @param {string} [qualify=''] A GLSL qualifier, if needed.
- * @param {string} [init=type] A data-type initialiser, `type` by default.
- *
- * @returns {string} The GLSL 1 array-like declaration string.
- */
-export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
-    `const int ${name}_l = ${a.length};${
-    reduce((s, v, i) =>
-            `${s} ${(qualify && qualify+' ')+type} ${name}_${i} = ${
-                init}(${v.join?.(', ') ?? v});`,
-        a, '')}\n`+
-    // `#define ${name}_i(i) ${name}_##i`;
-    `#define ${name}_i(i) ${reduce((s, v, i) =>
-            ((i)? `((i == ${i})? ${name}_${i} : ${s})` : `${name}_${i}`),
-        a, '')}\n`;
-
-/**
- * Creates a GLSL definition of an array, and initialises it with the given
- * values, type, and variable name.
- * The initialisation is valid GLSL 1.0 or greater syntax; but is written with
- * escaped new-lines so it may be used in a single-line - e.g: for preprocessor
- * macros.
- * For a `qualify` of `const` on any `glsl` less than `3`, falls back to using
- * non-array variables with the index appended to `name`, since `const` arrays
- * aren't supported before GLSL 3.0.
- *
- * @example
- *     getGLSLList('int', 'test', [0, 1]); // =>
- *     'const int test_l = 2; '+
- *     'int test[test_l]; '+
- *     'test[0] = int(0); '+
- *     'test[1] = int(1);\n'+
- *     '#define test_i(i) test[i]\n';
- *
- *     getGLSLList('ivec2', 'vecs', [[0, 1], [0, 0]], 'const', 3); // =>
- *     'const int vecs_l = 2; '+
- *     'const ivec2 vecs[vecs_l] = ivec2[vecs_l](ivec2(0, 1), ivec2(0, 0));\n'+
- *     '#define vecs_i(i) vecs[i]\n';
- *
- *     getGLSLList('int', 'listLike', [0, 1], 'const', 1); // =>
- *     'const int listLike_l = 2; '+
- *     'const int listLike_0 = int(0); '+
- *     'const int listLike_1 = int(1);\n'+
- *     '#define listLike_i(i) ((i == 1)? listLike_1 : listLike_0)\n';
- *
- * @export
- * @param {string} type The GLSL list data-type.
- * @param {string} name The name of the GLSL list variable.
- * @param {array<number,array<number>>} a The list of GLSL values.
- * @param {number} [qualify=''] A GLSL qualifier, if needed (e.g: `const`).
- * @param {number} [glsl=1] The GLSL version to target, if specified.
- * @param {string} [init] A data-type initialiser.
- *
- * @returns {string} The GLSL (1 or 3) array or array-like declaration string.
- */
-export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
-    ((glsl >= 3)? getGLSL3List
-    : ((qualify.trim() === 'const')? getGLSL1ListLike
-    :   getGLSL1ListArray))(type, name, a, qualify, init);
-
-/**
  * Whether macros should be handled in this module; or the result of handling
  * them by a given named hook.
  * Allows macros of the given key to be handled by external named hooks, to
@@ -215,6 +70,191 @@ export function hasMacros(props, key, macros = props.macros) {
         : (((macros instanceof Object) && (key in macros)) &&
             hasMacros(props, key, macros[key]))));
 }
+
+/**
+ * Gives the prefix to use, to avoid namespace collisions.
+ *
+ * @param {object} state The state to check.
+ * @param {string} [state.macros] The macros prefix; supersedes `state.pre`.
+ * @param {string} [state.pre=preDef] The namespace prefix; `preDef` by default.
+ *
+ * @returns {string} The prefix string to use.
+ */
+export const getPre = ({ macros, pre = preDef }) =>
+    ((type(macros) === 'String')? macros : pre);
+
+/**
+ * Generates an array-like declaration, as a GLSL syntax string compatible with
+ * all versions.
+ * Workaround for lack of `const` arrays in GLSL < 3.
+ * Used as the base for the other GLSL version list types, ensuring a standard
+ * basis while offering further language features where available.
+ *
+ * @export
+ * @example
+ *     getGLSLListBase('float', 'list', [0, 1, 2], 'const'); // =>
+ *     'const int list_l = 3; '+
+ *     'const int list_0 = float(0); '+
+ *     'const int list_1 = float(1); '+
+ *     'const int list_2 = float(2);';
+ *
+ * @param {string} type The GLSL list data-type.
+ * @param {string} name The name of the GLSL list variable.
+ * @param {array<number,array<number>>} a The list of GLSL values.
+ * @param {string} [qualify=''] A GLSL qualifier, if needed.
+ * @param {string} [init=type] A data-type initialiser, `type` by default.
+ *
+ * @returns {string} The GLSL 1 array-like declaration string.
+ */
+export const getGLSLListBase = (type, name, a, qualify = '', init = type) =>
+    `const int ${name}_l = ${a.length};`+
+    reduce((s, v, i) =>
+            `${s} ${(qualify && qualify+' ')+type} ${name}_${i} = ${
+                init}(${v.join?.(', ') ?? v});`,
+        a, '');
+
+/**
+ * Generates an array-like declaration, as a GLSL 1 syntax string.
+ * Workaround for lack of `const` arrays in GLSL < 3.
+ * Adds a lookup macro function; slow here, but standard.
+ *
+ * @export
+ * @example
+ *     getGLSL1ListLike('float', 'list', [0, 1, 2], 'const'); // =>
+ *     'const int list_l = 3; '+
+ *     'const int list_0 = float(0); '+
+ *     'const int list_1 = float(1); '+
+ *     'const int list_2 = float(2);\n'+
+ *     '// `list_i` index macro (e.g: `list_i(0)`) may be slow, `+
+ *         'prefer direct reference (e.g: `list_0`) where possible.\n'+
+ *     '#define list_i(i) ((i == 2)? list_2 : ((i == 1)? list_1 : list_0))\n';
+ *
+ * @param {string} type The GLSL list data-type.
+ * @param {string} name The name of the GLSL list variable.
+ * @param {array<number,array<number>>} a The list of GLSL values.
+ * @param {string} [qualify=''] A GLSL qualifier, if needed.
+ * @param {string} [init=type] A data-type initialiser, `type` by default.
+ *
+ * @returns {string} The GLSL 1 array-like declaration string.
+ */
+export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
+    getGLSLListBase(type, name, a, qualify, init)+'\n'+
+    // `#define ${name}_i(i) ${name}_##i`;
+    `// \`${name}_i\` index macro (e.g: \`${name}_i(0)\`) may be slow, `+
+        `prefer direct reference (e.g: \`${name}_0\`) where possible.\n`+
+    `#define ${name}_i(i) ${reduce((s, v, i) =>
+            ((i)? `((i == ${i})? ${name}_${i} : ${s})` : `${name}_${i}`),
+        a, '')}\n`;
+
+/**
+ * Generates an array declaration, as a GLSL 1 syntax string.
+ * Lookup and meta macros are added for consistency with other versions.
+ *
+ * @export
+ * @example
+ *     getGLSL1ListArray('vec3', 'list', [[1, 0, 0], [0, 2, 0], [0, 0, 3]]);
+ *     // =>
+ *     'const int list_l = 3; '+
+ *     'vec3 list_0 = vec3(1, 0, 0); '+
+ *     'vec3 list_1 = vec3(0, 2, 0); '+
+ *     'vec3 list_2 = vec3(0, 0, 3); '+
+ *     'vec3 list[list_l]; '+
+ *     'list[0] = list_0; '+
+ *     'list[1] = list_1; '+
+ *     'list[2] = list_2;\n'+
+ *     '#define list_i(i) list[i]\n';
+ *
+ * @param {string} type The GLSL list data-type.
+ * @param {string} name The name of the GLSL list variable.
+ * @param {array<number,array<number>>} a The list of GLSL values.
+ * @param {string} [qualify=''] A GLSL qualifier, if needed.
+ * @param {string} [init=type] A data-type initialiser, `type` by default.
+ *
+ * @returns {string} The GLSL 1 array declaration string.
+ */
+export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
+    getGLSLListBase(type, name, a, qualify, init)+' '+
+    (qualify && qualify+' ')+`${type} ${name}[${name}_l];`+
+    reduce((s, _, i) => `${s} ${name}[${i}] = ${name}_${i};`, a, '')+'\n'+
+    `#define ${name}_i(i) ${name}[i]\n`;
+
+/**
+ * Generates an array declaration, as a GLSL 3 syntax string.
+ * Lookup and meta macros are added for consistency with other versions.
+ *
+ * @export
+ * @example
+ *     getGLSL3List('int', 'list', [0, 1, 2], 'const'); // =>
+ *     'const int list_l = 3; '+
+ *     'const int list_0 = int(0); '+
+ *     'const int list_1 = int(1); '+
+ *     'const int list_2 = int(2); '+
+ *     'const int list[list_l] = int[list_l](list_0, list_1, list_2);\n'+
+ *     '#define list_i(i) list[i]\n';
+ *
+ * @param {string} type The GLSL list data-type.
+ * @param {string} name The name of the GLSL list variable.
+ * @param {array<number,array<number>>} a The list of GLSL values.
+ * @param {string} [qualify=''] A GLSL qualifier, if needed.
+ * @param {string} [init=type] A data-type initialiser, `type` by default.
+ *
+ * @returns {string} The GLSL 3 array declaration string.
+ */
+export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
+    getGLSLListBase(type, name, a, qualify, init)+' '+
+    `${(qualify && qualify+' ')+type} ${name}[${name}_l] = ${init}[${name}_l](${
+        reduce((s, _, i) => (s && s+', ')+name+'_'+i, a, '')});\n`+
+    `#define ${name}_i(i) ${name}[i]\n`;
+
+/**
+ * Creates a GLSL definition of an array, and initialises it with the given
+ * values, type, and variable name.
+ * The initialisation is valid GLSL 1.0 or greater syntax; but is written with
+ * escaped new-lines so it may be used in a single-line - e.g: for preprocessor
+ * macros.
+ * For a `qualify` of `const` on any `glsl` less than `3`, falls back to using
+ * non-array variables with the index appended to `name`, since `const` arrays
+ * aren't supported before GLSL 3.0.
+ *
+ * @example
+ *     getGLSLList('int', 'test', [0, 1]); // =>
+ *     'const int test_l = 2; '+
+ *     'int test_0 = int(0); '+
+ *     'int test_1 = int(1); '+
+ *     'int test[test_l]; '+
+ *     'test[0] = test_0; '+
+ *     'test[1] = test_1;\n'+
+ *     '#define test_i(i) test[i]\n';
+ *
+ *     getGLSLList('ivec2', 'vecs', [[1, 0], [0, 1]], 'const', 3); // =>
+ *     'const int vecs_l = 2; '+
+ *     'ivec2 vecs_0 = ivec2(1, 0); '+
+ *     'ivec2 vecs_1 = ivec2(0, 1); '+
+ *     'const ivec2 vecs[vecs_l] = ivec2[vecs_l](vecs_0, vecs_1);\n'+
+ *     '#define vecs_i(i) vecs[i]\n';
+ *
+ *     getGLSLList('int', 'listLike', [0, 1], 'const', 1); // =>
+ *     'const int listLike_l = 2; '+
+ *     'const int listLike_0 = int(0); '+
+ *     'const int listLike_1 = int(1);\n'+
+ *     '// `listLike_i` index macro (e.g: `listLike_i(0)`) may be slow, `+
+ *         'prefer direct reference (e.g: `listLike_0`) where possible.\n'+
+ *     '#define listLike_i(i) ((i == 1)? listLike_1 : listLike_0)\n';
+ *
+ * @export
+ * @param {string} type The GLSL list data-type.
+ * @param {string} name The name of the GLSL list variable.
+ * @param {array<number,array<number>>} a The list of GLSL values.
+ * @param {string} [qualify=''] A GLSL qualifier, if needed (e.g: `const`).
+ * @param {number} [glsl=1] The GLSL version to target, if specified.
+ * @param {string} [init] A data-type initialiser.
+ *
+ * @returns {string} The GLSL (1 or 3) array or array-like declaration string.
+ */
+export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
+    ((glsl >= 3)? getGLSL3List
+    : ((qualify.trim() === 'const')? getGLSL1ListLike
+    :   getGLSL1ListArray))(type, name, a, qualify, init);
 
 /**
  * Defines the values within textures per-step, as GLSL preprocessor macros.
@@ -400,19 +440,29 @@ export function macroOutput(state) {
  *         'const int samples_l = 2; '+
  *         'const ivec2 samples_0 = ivec2(0, 1); '+
  *         'const ivec2 samples_1 = ivec2(0, 0);\n'+
+ *     '// `samples_i` index macro (e.g: `samples_i(0)`) may be slow, `+
+ *         'prefer direct reference (e.g: `samples_0`) where possible.\n'+
  *     '#define samples_i(i) ((i == 1)? samples_1 : samples_0)\n'+
  *     '\n'+
- *     '#define tapSamples(states, uv, textures) '+
+ *     '#define tapSamples(states, uv, textures, by) '+
  *         'const int data_l = 2; '+
  *         'vec4 data[data_l]; '+
- *         'data[0] = texture2D(states[(0*textures)+1], uv); '+
- *         'data[1] = texture2D(states[(0*textures)+0], uv);\n'+
+ *         'data[0] = texture2D('+
+ *             'states[((samples_0.s+by.s)*textures)+samples_0.t+by.t], uv); '+
+ *         'data[1] = texture2D('+
+ *             'states[((samples_1.s+by.s)*textures)+samples_1.t+by.t], uv); '+
+ *         '// `data_i` index macro (e.g: `data_i(0)`) may be slow, `+
+ *             'prefer direct reference (e.g: `data_0`) where possible.\n'+
  *         '#define data_i(i) data[i]\n'+
+ *     '#define tapSamples(states, uv, textures) '+
+ *         'tapSamplesShift(states, uv, textures, ivec2(0))\n'+
  *     '\n'+
  *     '#define useReads_0 '+
  *         'const int reads_0_l = 2; '+
  *         'const int reads_0_0 = int(0); '+
  *         'const int reads_0_1 = int(1);\n'+
+ *     '// `reads_0_i` index macro (e.g: `reads_0_i(0)`) may be slow, `+
+ *         'prefer direct reference (e.g: `reads_0_0`) where possible.\n'+
  *     '#define reads_0_i(i) ((i == 1)? reads_0_1 : reads_0_0)\n';
  *
  * @param {object} state Properties used to generate the macros. See `getState`.
@@ -437,7 +487,7 @@ export function macroSamples(state) {
 
     if(hook !== false) { return hook; }
 
-    const { passNow: p, maps: { samples, reads }, glsl } = state;
+    const { passNow: p = 0, maps: { samples, reads }, glsl } = state;
     const n = getPre(state);
     const passSamples = samples?.[p];
     const passReads = reads?.[p];
@@ -450,23 +500,29 @@ export function macroSamples(state) {
     return (cache[c] ??=
         ((!passSamples)? ''
         :   `#define ${n}useSamples ${
-                getGLSLList('ivec2', `${n}samples`, passSamples, 'const', glsl)
+                getGLSLList('ivec2', n+'samples', passSamples, 'const', glsl)
             }\n`+
             // The texture-sampling logic.
-            // @todo `Index expression must be constant`
             ((tap !== false)? tap
-            :   `#define ${n}tapSamples(states, uv, textures) ${
-                    getGLSLList('vec4', `${n}data`,
-                        // 2D-to-1D indexing, as textures a flat array.
-                        map(([s, t]) =>
-                                `texture2D(states[(${s}*textures)+${t}], uv)`,
+                // Data may be sampled by adding step/texture lookup shifts.
+            :   `#define ${n}tapSamplesShift(states, uv, textures, by) ${
+                    // 2D-to-1D indexing, as textures are a flat array.
+                    getGLSLList('vec4', n+'data',
+                        map((_, s) =>
+                                'texture2D(states['+
+                                        `((${n}samples_${s}.s+by.s)*textures)+`+
+                                        `${n}samples_${s}.t+by.t`+
+                                    '], uv)',
                             passSamples),
-                        '', glsl)}\n`))+
+                        '', glsl)}\n`+
+                // Data is usually sampled without step/texture lookup shifts.
+                `#define ${n}tapSamples(states, uv, textures) `+
+                    n+'tapSamplesShift(states, uv, textures, ivec2(0))\n\n'))+
         ((!passReads)? ''
         :   reduce((s, reads, v) =>
-                    `${s}\n#define ${n}useReads_${v} ${
-                        getGLSLList('int', `${n}reads_${v}`, reads, 'const',
-                            glsl)}`,
+                    `${s}#define ${n}useReads_${v} ${
+                        getGLSLList('int', n+'reads_'+v, reads, 'const', glsl)
+                    }\n`,
                 passReads, '')));
 }
 
@@ -600,9 +656,9 @@ export function macroPass(state) {
     const key = hooks.macroPass;
     const hook = hasMacros(state, key);
 
-    return ((hook !== false)? hook
-        :   macroValues(state)+'\n'+macroOutput(state)+'\n'+
-                macroSamples(state)+'\n');
+    return ((hook === false)?
+            macroValues(state)+'\n'+macroOutput(state)+'\n'+macroSamples(state)
+        :   hook);
 }
 
 export default macroPass;

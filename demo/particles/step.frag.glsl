@@ -17,10 +17,6 @@ precision highp float;
 // the value at that index in the `values`/`derives` arrays provided to `gpgpu`;
 // they are defined here to match the arrangement in `./index.js`.
 
-#define posTexture texture_0
-#define lifeTexture texture_1
-#define accTexture texture_2
-
 #define posChannels channels_0
 #define lifeChannels channels_1
 #define accChannels channels_2
@@ -94,7 +90,7 @@ void main() {
     // Add pixel offset to sample from the pixel's center and avoid errors.
     vec2 st = uv+(vec2(0.25)/dataShape);
 
-    // Creates the `data` array.
+    // Sample the desired state values - creates the `data` array.
     tapSamples(states, st, textures)
 
     // Read values.

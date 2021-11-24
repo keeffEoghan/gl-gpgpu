@@ -81,9 +81,12 @@ export function getStep(api, state, to = {}) {
     to.count = count;
     positions = to.positions = buffer(positions);
 
-    if((verts && (to.verts = verts)) || (frags && (to.frags = frags))) {
+    if(verts || frags) {
         // Pre-process the shaders needed for all the passes.
         const stateCache = { ...state };
+
+        (verts && (to.verts = verts));
+        (frags && (to.frags = frags));
 
         each((pass, p) => {
                 stateCache.passNow = p;
@@ -122,7 +125,7 @@ export function getStep(api, state, to = {}) {
 
     to.run = (props = state) => {
         const { steps, step, maps: { passes } } = props;
-        const stepNow = ++props.stepNow;
+        const stepNow = props.stepNow = (props.stepNow+1 || 0);
         const { pass, onPass, onStep } = step;
 
         onStep?.(props, wrapGet(stepNow, steps));

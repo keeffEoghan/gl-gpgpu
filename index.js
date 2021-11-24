@@ -6,7 +6,7 @@
  * The modules and many hooks may be used as given, or piecemeal, or overridden.
  */
 
-import { mapGroups, mapSamples } from './maps';
+import { getMaps } from './maps';
 import { getState } from './state';
 import { getStep } from './step';
 
@@ -42,12 +42,8 @@ export function gpgpu(api, state = {}, to = state) {
     const { maps = {} } = state;
 
     to.glsl = parseFloat(glsl.match(/[0-9\.]+/)[0]);
-
     maps.texturesMax ??= texturesMax;
-    maps.textures ?? maps.passes ?? mapGroups(maps);
-    maps.derives && (maps.samples ?? mapSamples(maps));
-    to.maps = maps;
-
+    to.maps = getMaps(maps);
     getState(api, state, to);
     to.step = getStep(api, state);
 

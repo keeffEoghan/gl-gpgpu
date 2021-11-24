@@ -294,13 +294,17 @@ export function mapGroups(maps = {}, to = maps) {
  * @export
  * @param {object} maps How values are grouped per-texture per-pass per-step.
  *     See `mapGroups`.
- * @param {array<null,number,array<number,array<number>>>} [maps.derives] How
- *     values derive from others. For each value index, index/es of any past
- *     values it derives from - a value not derived from past values may have an
- *     empty/null entry; a value derives from past values where its entry has:
+ * @param {true|array<null,true,number,array<true,number,array<true,number>>>}
+ *     [maps.derives] How values derive from others.
+ *     If given as an array, each entry relates the corresponding value to
+ *     any past value steps/indexes it derives from - a value not derived from
+ *     past values may have an empty/null entry; a value derives from past
+ *     values where its entry has:
  *     - Numbers; deriving from the most recent state at the given value index.
  *     - Lists of numbers; deriving from the given past state index (1st number
- *         denotes how many states ago), at the given value index (2nd number).
+ *         denotes how many steps ago), at the given value index (2nd number).
+ *     If any level is given as `true`, maps to sample all values, at the given
+ *     or most recent step.
  *     If not given, no samples are mapped and `to` is returned unchanged.
  * @param {array<array<number>>} maps.passes Textures grouped into passes. See
  *     `mapGroups`.
@@ -319,8 +323,8 @@ export function mapGroups(maps = {}, to = maps) {
  *     pass of `maps.passes`.
  * @returns {array<array<null,array<number>>>} `[to.reads]` Sparse map from
  *     each value of `derives` to its step and texture indexes in `to.samples`.
- * @returns {array<null,array<number,array<number>>>} `[to.derives]` How
- *     values are derived, as given.
+ * @returns {true|array<null,true,number,array<true,number,array<true,number>>>}
+ *     `[to.derives]` How values are derived, as given.
  */
 export function mapSamples(maps, to = maps) {
     const { derives, passes, textures, valueToTexture } = maps;
@@ -331,33 +335,47 @@ export function mapSamples(maps, to = maps) {
 
     const reads = to.reads = [];
 
-    const getAddSample = (set, pass, value) => (derive, d) => {
-        const sample = ((Number.isFinite(derive))? [0, valueToTexture[derive]]
-            :   [derive[0], valueToTexture[derive[1]]]);
+    const cache = {};
 
-        if(!sample.every(Number.isFinite)) {
-            return console.error('`mapSamples`: invalid map for sample',
-                derives, maps, pass, value, derive, d, sample);
+    const all = (step = 0) =>
+        cache[step] ??= map((t, v) => [step, v], valueToTexture);
+
+    const getAddSample = (pass, value) => function add(set, derive, d) {
+        let step = 0;
+        let texture;
+
+        if(derive === true) { return reduce(add, all(step), set); }
+        else if(Number.isFinite(derive)) { texture = valueToTexture[derive]; }
+        else if(derive[1] === true) { return reduce(add, all(derive[0]), set); }
+        else {
+            step = derive[0];
+            texture = valueToTexture[derive[1]];
         }
 
-        const [step, texture] = sample;
+        if(!Number.isFinite(step) || !Number.isFinite(texture)) {
+            return console.error('`mapSamples`: invalid map for sample',
+                derives, maps, pass, value, derive, d, step, texture);
+        }
+
         let i = set.findIndex(([s, t]) => (s === step) && (t === texture));
 
-        ((i < 0) && (i = set.push(sample)-1));
+        ((i < 0) && (i = set.push([step, texture])-1));
 
         const passReads = reads[pass] ??= [];
         const valueReads = passReads[value] ??= [];
 
-        valueReads[d] = i;
+        valueReads[d ?? 0] = i;
+
+        return set;
     };
 
     const getAddSamples = (pass) => (set, value) => {
-        const valueDerives = derives[value];
+        const valueDerives = ((derives === true)? derives : derives[value]);
 
         ((valueDerives || (valueDerives === 0)) &&
-            ((Number.isFinite(valueDerives))?
-                getAddSample(set, pass, value)(valueDerives)
-            :   each(getAddSample(set, pass, value), valueDerives)));
+            (((valueDerives === true) || Number.isFinite(valueDerives))?
+                getAddSample(pass, value)(set, valueDerives)
+            :   reduce(getAddSample(pass, value), valueDerives, set)));
 
         return set;
     }
@@ -370,4 +388,11 @@ export function mapSamples(maps, to = maps) {
     return to;
 }
 
-export default mapGroups;
+export function getMaps(maps, to = maps) {
+    maps.textures ?? maps.passes ?? mapGroups(maps, to);
+    maps.derives && (maps.samples ?? mapSamples(maps, to));
+
+    return to;
+}
+
+export default getMaps;

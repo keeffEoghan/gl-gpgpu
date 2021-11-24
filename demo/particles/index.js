@@ -9,7 +9,8 @@ import reduce from '@epok.tech/fn-lists/reduce';
 import map from '@epok.tech/fn-lists/map';
 
 import { gpgpu, extensionsFloat, optionalExtensions } from '../../index';
-import { macroValues } from '../../macros';
+import { macroPass } from '../../macros';
+import { getMaps } from '../../maps';
 import { getUniforms, countDrawIndexes, getDrawIndexes } from '../../inputs';
 import indexPairs from '../../index-pairs';
 
@@ -43,6 +44,7 @@ canvas.classList.add('view');
 const bound = 1;
 
 // How many values/channels each property independently tracks.
+// The order here corresponds to the order in the shaders and generated macros.
 
 const valuesMap = (new Map())
     .set('position', 3).set('life', 1).set('acceleration', 3);
@@ -123,8 +125,10 @@ derives[valuesIndex.life] = [
     valuesIndex.life
 ];
 
-derives[valuesIndex.acceleration] =
-    valuesIndex.acceleration, valuesIndex.life;
+derives[valuesIndex.acceleration] = [
+    valuesIndex.acceleration,
+    valuesIndex.life
+];
 
 // Whether to allow Verlet integration.
 const canVerlet = (stepsPast >= 2);
@@ -194,10 +198,17 @@ console.log(self.state = state);
 // @todo Why doesn't `state.steps.length-state.bound` seem to make a difference?
 const drawCount = countDrawIndexes(state.size)*indexPairs(state.steps.length);
 const drawIndexes = getDrawIndexes(drawCount);
-const drawState = { ...state };
+
+const drawState = {
+    ...state,
+    // Drawing, don't need to output anything to the data textures.
+    macros: { 'output': false },
+    // Set `derives[0]` to `true` - one derive can read all values efficiently.
+    maps: getMaps({ values, derives: [true], texturesMax: maxTextureUnits })
+};
 
 const drawCommand = {
-    vert: macroValues(drawState)+'\n'+drawVert,
+    vert: macroPass(drawState)+'\n'+drawVert,
     frag: drawFrag,
     attributes: { index: drawIndexes },
     uniforms: getUniforms(drawState, {
@@ -211,7 +222,7 @@ const drawCommand = {
     primitive: ((drawState.steps.length > 2)? 'lines' : 'points')
 };
 
-console.log((self.drawCommand = drawCommand), drawCount);
+console.log((self.drawState = drawState), (self.drawCommand = drawCommand));
 
 const draw = regl(drawCommand);
 

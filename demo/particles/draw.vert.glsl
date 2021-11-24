@@ -6,13 +6,17 @@
  * @see [macroValues]{@link ../../macros.js#macroValues}
  */
 
-#define posTexture texture_0
-#define lifeTexture texture_1
-#define accTexture texture_2
-
 #define posChannels channels_0
 #define lifeChannels channels_1
 #define accChannels channels_2
+
+useSamples
+
+// Only the first value derives from all values, giving these minimal `reads`.
+useReads_0
+#define readPos reads_0_0
+#define readLife reads_0_1
+#define readAcc reads_0_2
 
 precision highp float;
 
@@ -23,6 +27,8 @@ uniform vec2 dataShape;
 uniform vec2 viewShape;
 uniform float pointSize;
 uniform vec2 lifetime;
+uniform vec2 force;
+uniform float dt;
 uniform float scale;
 
 varying vec4 color;
@@ -36,24 +42,32 @@ varying vec4 color;
 
 void main() {
     #if stepsPast > 1
+        // If multiple steps are given, use `gl.LINES`, shift into past steps.
         vec2 stepEntry = indexPairs(index, float(stepsPast));
+        float stepPast = stepEntry.s;
+        float entry = stepEntry.t;
+        ivec2 stepShift = ivec2(int(stepPast), 0);
     #else
-        // If only 1 step is given, uses `gl.POINTS`.
-        vec2 stepEntry = vec2(0.0, index);
+        // If only 1 step is given, use `gl.POINTS`, no shift into past steps.
+        ivec2 stepShift = ivec2(0);
+        float stepPast = 0.0;
+        float entry = index;
     #endif
-
-    // Step back a full state's worth of textures per step index.
-    int stateIndex = int(stepEntry[0])*textures;
 
     // Turn the 1D index into a 2D texture UV.
     // Add pixel offset to sample from the pixel's center and avoid errors.
-    vec2 uv = vec2(mod(stepEntry[1]+0.25, dataShape.x)/dataShape.x,
-        (floor(stepEntry[1]/dataShape.x)+0.25)/dataShape.y);
+    vec2 uv = vec2(mod(entry+0.25, dataShape.x)/dataShape.x,
+        (floor(entry/dataShape.x)+0.25)/dataShape.y);
 
-    // Sample the desired state values.
-    // @todo Make use of the `reads` logic to take the minimum possible samples.
-    float life = texture2D(states[stateIndex+lifeTexture], uv).lifeChannels;
-    vec3 pos = texture2D(states[stateIndex+posTexture], uv).posChannels;
+    // Can also use the `reads` logic to take the minimum possible samples here.
+    // Sample the desired state values - creates the `data` array.
+    tapSamplesShift(states, uv, textures, stepShift)
+
+    // Read values.
+    vec3 pos = data[readPos].posChannels;
+    float life = data[readLife].lifeChannels;
+    vec3 acc = data[readAcc].accChannels;
+
     float alive = gt(life, 0.0);
     vec2 ar = aspect(viewShape);
     vec4 vertex = vec4(vec3(pos.xy*ar, pos.z)*scale, 1.0);
@@ -63,6 +77,6 @@ void main() {
 
     float a = pow(life/lifetime[1], 0.1);
 
-    color = a*
-        vec4(stepEntry[0]/float(stepsPast), stepEntry[1]/float(count), 0.8, a);
+    color = a*vec4(stepPast/float(stepsPast), entry/float(count),
+        (length(acc)/(force.x*pow(10.0, force.y)*dt))*scale, a);
 }

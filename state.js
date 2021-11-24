@@ -27,7 +27,7 @@ import { scaleDef, stepsDef, valuesDef, channelsMinDef, typeDef }
  *
  *     getState(api, state); // =>
  *     {
- *         ...state, passNow: -1, stepNow: -1,
+ *         ...state, passNow: undefined, stepNow: undefined,
  *         size: {
  *             type: 'float', steps: 2, passes: 2, textures: 6,
  *             width: 1024, height: 1024, shape: [1024, 1024], count: 1048576
@@ -88,7 +88,7 @@ import { scaleDef, stepsDef, valuesDef, channelsMinDef, typeDef }
  *
  *     getState(api, state); // =>
  *     {
- *        ...state, passNow: -1, stepNow: 2,
+ *        ...state, passNow: undefined, stepNow: 2,
  *        size: {
  *            type: 'uint8', steps: 2, passes: 6, textures: 6,
  *            width: 1024, height: 1024, shape: [1024, 1024], count: 1048576
@@ -190,8 +190,8 @@ import { scaleDef, stepsDef, valuesDef, channelsMinDef, typeDef }
  * @param {number} [state.maps.textures] How values are grouped into textures.
  *     See `mapGroups`.
  * @param {string} [state.type=typeDef] The data type of the textures.
- * @param {number} [state.stepNow=-1] The currently active state step, if any.
- * @param {number} [state.passNow=-1] The currently active draw pass, if any.
+ * @param {number} [state.stepNow] The currently active state step, if any.
+ * @param {number} [state.passNow] The currently active draw pass, if any.
  * @param {object} [to=state] The state object to set up. Modifies the given
  *     `state` object by default.
  *
@@ -222,7 +222,7 @@ export function getState(api, state = {}, to = state) {
 
     const {
             radius, width, height, scale = scaleDef, type = typeDef,
-            steps = stepsDef, stepNow = -1, passNow = -1, maps
+            steps = stepsDef, stepNow, passNow, maps
         } = state;
 
     to.maps = maps;
@@ -239,7 +239,6 @@ export function getState(api, state = {}, to = state) {
 
     const textureProps = {
         type, min: 'nearest', mag: 'nearest', wrap: 'clamp',
-        depth: false, stencil: false,
         // Passing `state.scale` ensures a power-of-two square texture size.
         width: (radius ?? width ?? 2**scale),
         height: (radius ?? height ?? 2**scale)
@@ -249,8 +248,8 @@ export function getState(api, state = {}, to = state) {
 
     // Size of the created resources.
     const size = to.size = {
-        ...textureProps, steps: (steps.length ?? steps),
-        textures: 0, passes: 0, shape: [w, h], count: w*h
+        steps: (steps.length ?? steps), textures: 0, passes: 0,
+        width: w, height: h, shape: [w, h], count: w*h
     };
 
     const textures = to.textures = [];
@@ -259,7 +258,8 @@ export function getState(api, state = {}, to = state) {
     const addTexture = (step, pass, textureProps) => (index) =>
         ((textures[step] ??= [])[index] = {
             // Meta info.
-            step, pass, index, count: size.textures++, map: texturesMap[index],
+            ...textureProps,
+            count: size.textures++, step, pass, index, map: texturesMap[index],
             // Resources.
             texture: texture(textureProps)
         })
@@ -277,19 +277,17 @@ export function getState(api, state = {}, to = state) {
 
         const textures = map(addTexture(step, index, passProps), pass);
 
-        const frame = framebuffer({
-            width: passProps.width, height: passProps.height,
-            color: textures, depth: false, stencil: false
-        });
-
-        (passes[step] ??= [])[index] = {
-            // Meta info.
-            step, index, count: size.passes++, map: pass,
-            // Resources.
-            textures, framebuffer: frame
-        };
-
-        return frame;
+        return ((passes[step] ??= [])[index] = {
+                // Meta info.
+                ...passProps, step, index, count: size.passes++, map: pass,
+                // Resources.
+                textures,
+                framebuffer: framebuffer({
+                    width: w, height: h, color: textures,
+                    depth: false, stencil: false
+                })
+            })
+            .framebuffer;
     };
 
     // Set up resources we'll need to store data per-texture per-pass per-step.
