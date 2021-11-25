@@ -1,6 +1,7 @@
 /**
  * GPGPU state and GL resources.
  *
+ * @todo Update examples.
  * @todo In-place updates of complex resources and meta info.
  * @todo Use transform feedback instead of data textures, if supported (WebGL2)?
  * @todo Consider class/object/data/function structure further.
@@ -10,8 +11,10 @@ import range from '@epok.tech/fn-lists/range';
 import map from '@epok.tech/fn-lists/map';
 import reduce from '@epok.tech/fn-lists/reduce';
 
-import { scaleDef, stepsDef, valuesDef, channelsMinDef, typeDef }
-    from './const';
+import {
+        scaleDef, stepsDef, valuesDef, channelsMinDef,
+        typeDef, minDef, magDef, wrapDef, depthDef, stencilDef
+    } from './const';
 
 /**
  * Set up the GPGPU resources and meta information for a state of a number data.
@@ -36,14 +39,14 @@ import { scaleDef, stepsDef, valuesDef, channelsMinDef, typeDef }
  *         passes: [
  *             [
  *                 {
- *                     step: 0, index: 0, count: 0, map: [0, 1, 2],
+ *                     step: 0, index: 0, entry: 0, map: [0, 1, 2],
  *                     framebuffer: api.framebuffer,
  *                     textures: [api.texture, api.texture, api.texture]
  *                 }
  *             ],
  *             [
  *                 {
- *                     step: 1, index: 0, count: 1, map: [0, 1, 2],
+ *                     step: 1, index: 0, entry: 1, map: [0, 1, 2],
  *                     framebuffer: api.framebuffer,
  *                     textures: [api.texture, api.texture, api.texture]
  *                 }
@@ -52,29 +55,29 @@ import { scaleDef, stepsDef, valuesDef, channelsMinDef, typeDef }
  *         textures: [
  *             [
  *                 {
- *                     step: 0, pass: 0, index: 0, count: 0, map: [0],
+ *                     step: 0, pass: 0, index: 0, entry: 0, map: [0],
  *                     texture: api.texture
  *                 },
  *                 {
- *                     step: 0, pass: 0, index: 1, count: 1, map: [1],
+ *                     step: 0, pass: 0, index: 1, entry: 1, map: [1],
  *                     texture: api.texture
  *                 },
  *                 {
- *                     step: 0, pass: 0, index: 2, count: 2, map: [2],
+ *                     step: 0, pass: 0, index: 2, entry: 2, map: [2],
  *                     texture: api.texture
  *                 }
  *             ],
  *             [
  *                 {
- *                     step: 1, pass: 0, index: 0, count: 3, map: [0],
+ *                     step: 1, pass: 0, index: 0, entry: 3, map: [0],
  *                     texture: api.texture
  *                 },
  *                 {
- *                     step: 1, pass: 0, index: 1, count: 4, map: [1],
+ *                     step: 1, pass: 0, index: 1, entry: 4, map: [1],
  *                     texture: api.texture
  *                 },
  *                 {
- *                     step: 1, pass: 0, index: 2, count: 5, map: [2],
+ *                     step: 1, pass: 0, index: 2, entry: 5, map: [2],
  *                     texture: api.texture
  *                 }
  *             ]
@@ -100,29 +103,29 @@ import { scaleDef, stepsDef, valuesDef, channelsMinDef, typeDef }
  *        passes: [
  *            [
  *                {
- *                    step: 0, index: 0, count: 0, map: [0],
+ *                    step: 0, index: 0, entry: 0, map: [0],
  *                    framebuffer: api.framebuffer, textures: [api.texture]
  *                },
  *                {
- *                    step: 0, index: 1, count: 1, map: [1],
+ *                    step: 0, index: 1, entry: 1, map: [1],
  *                    framebuffer: api.framebuffer, textures: [api.texture]
  *                },
  *                {
- *                    step: 0, index: 2, count: 2, map: [2],
+ *                    step: 0, index: 2, entry: 2, map: [2],
  *                    framebuffer: api.framebuffer, textures: [api.texture]
  *                }
  *            ],
  *            [
  *                {
- *                    step: 1, index: 0, count: 3, map: [0],
+ *                    step: 1, index: 0, entry: 3, map: [0],
  *                    framebuffer: api.framebuffer, textures: [api.texture]
  *                },
  *                {
- *                    step: 1, index: 1, count: 4, map: [1],
+ *                    step: 1, index: 1, entry: 4, map: [1],
  *                    framebuffer: api.framebuffer, textures: [api.texture]
  *                },
  *                {
- *                    step: 1, index: 2, count: 5, map: [2],
+ *                    step: 1, index: 2, entry: 5, map: [2],
  *                    framebuffer: api.framebuffer, textures: [api.texture]
  *                }
  *            ]
@@ -130,29 +133,29 @@ import { scaleDef, stepsDef, valuesDef, channelsMinDef, typeDef }
  *        textures: [
  *            [
  *                {
- *                    step: 0, pass: 0, index: 0, count: 0, map: [0],
+ *                    step: 0, pass: 0, index: 0, entry: 0, map: [0],
  *                    texture: api.texture
  *                },
  *                {
- *                    step: 0, pass: 1, index: 1, count: 1, map: [1],
+ *                    step: 0, pass: 1, index: 1, entry: 1, map: [1],
  *                    texture: api.texture
  *                },
  *                {
- *                    step: 0, pass: 2, index: 2, count: 2, map: [2],
+ *                    step: 0, pass: 2, index: 2, entry: 2, map: [2],
  *                    texture: api.texture
  *                }
  *            ],
  *            [
  *                {
- *                    step: 1, pass: 0, index: 0, count: 3, map: [0],
+ *                    step: 1, pass: 0, index: 0, entry: 3, map: [0],
  *                    texture: api.texture
  *                },
  *                {
- *                    step: 1, pass: 1, index: 1, count: 4, map: [1],
+ *                    step: 1, pass: 1, index: 1, entry: 4, map: [1],
  *                    texture: api.texture
  *                },
  *                {
- *                    step: 1, pass: 2, index: 2, count: 5, map: [2],
+ *                    step: 1, pass: 2, index: 2, entry: 5, map: [2],
  *                    texture: api.texture
  *                }
  *            ]
@@ -221,8 +224,11 @@ export function getState(api, state = {}, to = state) {
     const { texture, framebuffer } = api;
 
     const {
-            radius, width, height, scale = scaleDef, type = typeDef,
-            steps = stepsDef, stepNow, passNow, maps
+            radius, width: w, height: h, scale = scaleDef, steps = stepsDef,
+            stepNow, passNow, maps,
+            // Resource format settings.
+            type = typeDef, min = minDef, mag = magDef, wrap = wrapDef,
+            depth = depthDef, stencil = stencilDef
         } = state;
 
     to.maps = maps;
@@ -237,31 +243,28 @@ export function getState(api, state = {}, to = state) {
     maps.channelsMin = channelsMin;
     maps.values = values;
 
-    const textureProps = {
-        type, min: 'nearest', mag: 'nearest', wrap: 'clamp',
-        // Passing `state.scale` ensures a power-of-two square texture size.
-        width: (radius ?? width ?? 2**scale),
-        height: (radius ?? height ?? 2**scale)
-    };
-
-    const { width: w, height: h } = textureProps;
+    // Passing `state.scale` ensures a power-of-two square texture size.
+    const width = (radius ?? w ?? 2**scale);
+    const height = (radius ?? h ?? 2**scale);
+    const textureProps = { type, min, mag, wrap, width, height };
+    const frameProps = { depth, stencil, width, height };
 
     // Size of the created resources.
     const size = to.size = {
         steps: (steps.length ?? steps), textures: 0, passes: 0,
-        width: w, height: h, shape: [w, h], count: w*h
+        width, height, shape: [width, height], count: width*height
     };
 
     const textures = to.textures = [];
     const passes = to.passes = [];
 
-    const addTexture = (step, pass, textureProps) => (index) =>
+    const addTexture = (step, pass, props) => (index) =>
         ((textures[step] ??= [])[index] = {
             // Meta info.
-            ...textureProps,
-            count: size.textures++, step, pass, index, map: texturesMap[index],
+            ...props,
+            entry: size.textures++, step, pass, index, map: texturesMap[index],
             // Resources.
-            texture: texture(textureProps)
+            texture: texture(props)
         })
         .texture;
 
@@ -279,13 +282,10 @@ export function getState(api, state = {}, to = state) {
 
         return ((passes[step] ??= [])[index] = {
                 // Meta info.
-                ...passProps, step, index, count: size.passes++, map: pass,
+                ...frameProps, entry: size.passes++, step, index, map: pass,
                 // Resources.
-                textures,
-                framebuffer: framebuffer({
-                    width: w, height: h, color: textures,
-                    depth: false, stencil: false
-                })
+                textures, color: textures,
+                framebuffer: framebuffer({ ...frameProps, color: textures })
             })
             .framebuffer;
     };

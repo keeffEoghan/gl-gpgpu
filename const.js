@@ -38,6 +38,13 @@ export const texturesMaxDef = 1;
 export const boundDef = 1;
 export const scaleDef = 10;
 export const stepsDef = 2;
-export const typeDef = 'float';
 export const valuesDef = () => [channelsMaxDef];
 export const positionsDef = () => [...positions];
+
+// Resource format defaults.
+export const typeDef = 'float';
+export const minDef = 'nearest';
+export const magDef = 'nearest';
+export const wrapDef = 'clamp';
+export const depthDef = false;
+export const stencilDef = false;

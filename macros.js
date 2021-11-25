@@ -499,13 +499,13 @@ export function macroSamples(state, on) {
 
     return (cache[c] ??=
         ((!passSamples)? ''
-        :   `#define ${n}useSamples ${
-                getGLSLList('ivec2', n+'samples', passSamples, 'const', glsl)
-            }\n`+
+        :   `#define ${n}useSamples `+
+                getGLSLList('ivec2', n+'samples', passSamples, 'const', glsl)+
+            '\n'+
             // The texture-sampling logic.
             (tap ??
                 // Data may be sampled by adding step/texture lookup shifts.
-                `#define ${n}tapSamplesShift(states, uv, textures, by) ${
+                `#define ${n}tapSamplesAdd(states, uv, textures, by) ${
                     // 2D-to-1D indexing, as textures are a flat array.
                     getGLSLList('vec4', n+'data',
                         map((_, s) =>
@@ -517,7 +517,8 @@ export function macroSamples(state, on) {
                         '', glsl)}\n`+
                 // Data is usually sampled without step/texture lookup shifts.
                 `#define ${n}tapSamples(states, uv, textures) `+
-                    n+'tapSamplesShift(states, uv, textures, ivec2(0))\n\n'))+
+                    `${n}tapSamplesAdd(states, uv, textures, ivec2(0))\n`+
+                '\n'))+
         ((!passReads)? ''
         :   reduce((s, reads, v) =>
                     `${s}#define ${n}useReads_${v} ${

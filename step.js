@@ -72,7 +72,7 @@ export function getStep(api, state, to = (state.step ?? {})) {
     let { positions = positionsDef() } = step;
 
     const {
-            vert = vertDef, verts, frag, frags, uniforms,
+            passCommand, vert = vertDef, verts, frag, frags, uniforms,
             count = positions.length*scale.vec2
         } = step;
 
@@ -116,11 +116,11 @@ export function getStep(api, state, to = (state.step ?? {})) {
         attributes: {
             [pre+'position']: (_, { step: { positions: p = positions } }) => p
         },
-        uniforms,
-        count,
+        uniforms, count,
         depth: { enable: false },
         framebuffer: (_, { steps: ss, stepNow: s, passNow: p }) =>
-            wrapGet(s, ss)[p]
+            wrapGet(s, ss)[p],
+        ...passCommand
     });
 
     to.run = (props = state) => {

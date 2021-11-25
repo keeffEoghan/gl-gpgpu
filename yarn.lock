@@ -322,10 +322,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@epok.tech/fn-lists@npm:^0.1.1":
-  version: 0.1.1
-  resolution: "@epok.tech/fn-lists@npm:0.1.1"
-  checksum: 44dcd2eb308fa411d3b766b3478d45ddf227a3396646e68fb1fec3282ef7b0499c0a66b43b6c483561847e6af4065077f43eccf212442b583513fd7592c7c183
+"@epok.tech/fn-lists@npm:^0.1.2":
+  version: 0.1.2
+  resolution: "@epok.tech/fn-lists@npm:0.1.2"
+  checksum: 75ede990b817866c90121d24d55b4e5dba1b642cd0d1c02135ce009adc96573a6458344fab1e331c1c190563ba4341a0a2495e8df4a344389f61d3f67d165206
   languageName: node
   linkType: hard
 
@@ -340,9 +340,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@epok.tech/gl-gpgpu@workspace:."
   dependencies:
-    "@epok.tech/fn-lists": ^0.1.1
+    "@epok.tech/fn-lists": ^0.1.2
     "@epok.tech/fn-time": ^0.2.1
-    "@epok.tech/gl-screen-triangle": ^1.1.3
+    "@epok.tech/gl-screen-triangle": ^1.2.0
     "@epok.tech/glsl-aspect": ^1.0.3
     "@epok.tech/glsl-verlet": ^0.0.1
     "@epok.tech/is-type": ^0.1.0
@@ -363,10 +363,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@epok.tech/gl-screen-triangle@npm:^1.1.3":
-  version: 1.1.3
-  resolution: "@epok.tech/gl-screen-triangle@npm:1.1.3"
-  checksum: 3b02d5cff413107d2fadf9eee9e635e1e38e8226eaa3cae2cbc8af57168787f93aeb4c598e8ba0b18317405bcdae1c4841cd3a47d30ecc152ed6ff7e88c93400
+"@epok.tech/gl-screen-triangle@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@epok.tech/gl-screen-triangle@npm:1.2.0"
+  checksum: 102827c9de29497c57063a1c3e2f71569e3de2d6569bc65916091772d48e0063e0c7939ed58a681bdc5e00ab8bd02f9d713ae415d2031a932dc0ae69b22c3bca
   languageName: node
   linkType: hard
 

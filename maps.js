@@ -12,7 +12,7 @@
  * (draw passes, texture samples, etc).
  *
  * @todo Check `packValues` optional and/or based on the given `derives` work.
- * @todo Check examples are correct.
+ * @todo Update examples.
  */
 
 import map from '@epok.tech/fn-lists/map';
@@ -213,20 +213,22 @@ export function mapGroups(maps = {}, to = maps) {
     to.values = values;
     to.texturesMax = texturesMax;
     to.channelsMax = channelsMax;
+    to.packed = packed;
 
     const passes = to.passes = [[]];
     const textures = to.textures = [[]];
     const valueToTexture = to.valueToTexture = [];
     const valueToPass = to.valueToPass = [];
     const textureToPass = to.textureToPass = [];
-
     // Counts the number of channels written in a single draw pass.
     let channels = 0;
     // Get the value, via `packed` if valid, or directly as given in `values`.
-    const getValue = ((packed)? (v) => values[v] : (v) => v);
+    const getValue = ((packed)? ((_, i) => values[i]) : ((v) => v));
+    const getIndex = ((packed)? ((i) => packed[i]) : ((i) => i));
 
-    return reduce((to, v) => {
-            const value = getValue(v);
+    return reduce((to, v, i) => {
+            const index = getIndex(i);
+            const value = getValue(v, index);
 
             if(!validValue(value, channelsMax)) { return to; }
 
@@ -250,13 +252,13 @@ export function mapGroups(maps = {}, to = maps) {
                 textureToPass.push(p);
             }
 
-            texture.push(v);
-            valueToTexture.push(t);
-            valueToPass.push(p);
+            texture.push(index);
+            valueToTexture[index] = t;
+            valueToPass[index] = p;
 
             return to;
         },
-        (packed || values), to);
+        values, to);
 }
 
 /**

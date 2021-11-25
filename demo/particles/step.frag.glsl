@@ -1,6 +1,9 @@
 /**
  * The update step for a GPGPU particle simulation.
  * Requires setup with preprocessor macros - see `macroPass`.
+ * Written as several individual shaders that may be combined into one or more
+ * passes; `gpgpu` preprocessor macros control the combination according to
+ * which `values` are currently bound for `output` to the next `state`.
  *
  * @see [getStep]{@link ../../step.js#getStep}
  * @see [macroPass]{@link ../../macros.js#macroPass}
@@ -17,12 +20,16 @@ precision highp float;
 // the value at that index in the `values`/`derives` arrays provided to `gpgpu`;
 // they are defined here to match the arrangement in `./index.js`.
 
+// The texture channels each of the `values` is stored in.
 #define posChannels channels_0
-#define lifeChannels channels_1
-#define accChannels channels_2
-
+#define accChannels channels_1
+#define lifeChannels channels_2
+// Set up sampling logic.
 useSamples
 
+// Set up minimal texture reads logic; only read what a value with a currently
+// bound output `derives` from other `values` for its next state.
+// See `derives` for indexing (`reads_${bound value index}_${derives index}`).
 #ifdef output_0
     #define posOutput output_0
     useReads_0
@@ -32,16 +39,16 @@ useSamples
     #define posReadLife reads_0_3
 #endif
 #ifdef output_1
-    #define lifeOutput output_1
+    #define accOutput output_1
     useReads_1
-    #define lifeReadLifeOldest reads_1_0
-    #define lifeReadLife1 reads_1_1
+    #define accReadAcc reads_1_0
+    #define accReadLife reads_1_1
 #endif
 #ifdef output_2
-    #define accOutput output_2
+    #define lifeOutput output_2
     useReads_2
-    #define accReadAcc reads_2_0
-    #define accReadLife reads_2_1
+    #define lifeReadLifeOldest reads_2_0
+    #define lifeReadLife1 reads_2_1
 #endif
 
 // The main shader.
@@ -67,10 +74,6 @@ varying vec2 uv;
     #pragma glslify: verlet = require(@epok.tech/glsl-verlet);
 #endif
 
-#if defined(lifeOutput) || defined(accOutput)
-    #pragma glslify: random = require(glsl-random);
-#endif
-
 #ifdef accOutput
     #pragma glslify: tau = require(glsl-constants/TWO_PI);
 
@@ -81,6 +84,10 @@ varying vec2 uv;
 
         return vec3(sqrt(1.0-(u*u))*vec2(cos(a), sin(a)), u);
     }
+#endif
+
+#if defined(accOutput) || defined(lifeOutput)
+    #pragma glslify: random = require(glsl-random);
 #endif
 
 #pragma glslify: le = require(glsl-conditionals/when_le);
@@ -95,30 +102,24 @@ void main() {
 
     // Read values.
 
+    // If reads all map to the same value sample, any of them will do.
+    #if defined(posOutput)
+        #define readLife posReadLife
+    #elif defined(lifeOutput)
+        #define readLife lifeReadLife
+    #elif defined(accOutput)
+        #define readLife accReadLife
+    #endif
+
+    float life = data[readLife].lifeChannels;
+    float spawn = le(life, 0.0);
+
     #ifdef posOutput
         vec3 pos0 = data[posReadPos0].posChannels;
-    #endif
-    #if defined(lifeOutput) || defined(posOutput)
         vec3 pos1 = data[posReadPos1].posChannels;
     #endif
 
-    #if defined(lifeOutput) || defined(posOutput) || defined(accOutput)
-        #if defined(posOutput)
-            #define readLife posReadLife
-        #elif defined(lifeOutput)
-            #define readLife lifeReadLife
-        #elif defined(accOutput)
-            #define readLife accReadLife
-        #endif
-
-        float life = data[readLife].lifeChannels;
-        float spawn = le(life, 0.0);
-    #endif
-
-    #if defined(lifeOutput)
-        float lifeOldest = data[lifeReadLifeOldest].lifeChannels;
-    #endif
-
+    // If reads all map to the same value sample, any of them will do.
     #if defined(posOutput) || defined(accOutput)
         #if defined(posOutput)
             #define readAcc posReadAcc
@@ -129,6 +130,10 @@ void main() {
         vec3 acc = data[readAcc].accChannels;
     #endif
 
+    #ifdef lifeOutput
+        float lifeOldest = data[lifeReadLifeOldest].lifeChannels;
+    #endif
+
     // Output updated values.
     #ifdef posOutput
         // Use either Euler or Verlet integration.
@@ -137,24 +142,21 @@ void main() {
         posOutput = mix(pos, source, spawn);
     #endif
     #ifdef lifeOutput
-        life = max(0.0, life-dt);
-
-        float lifeSpawn = map(random(uv*loop),
-            0.0, 1.0, lifetime[0], lifetime[1]);
+        float lifeNew = map(random(uv*loop), 0.0, 1.0, lifetime.s, lifetime.t);
 
         // Only spawn life once the oldest step reaches the end of its lifetime
         // (past and current life are both 0).
-        lifeOutput = mix(life, lifeSpawn, spawn*le(lifeOldest, 0.0));
+        lifeOutput = mix(max(0.0, life-dt), lifeNew, spawn*le(lifeOldest, 0.0));
     #endif
     #ifdef accOutput
-        // To help accuracy of very small numbers, pass force as `[X, Y] = XeY`.
-        float f = force.x*pow(10.0, force.y);
+        // To help accuracy of very small numbers, pass force as `[S, T] = SeT`.
+        float f = force.s*pow(10.0, force.t);
 
         acc += g*f*dt;
 
         vec2 randoms = vec2(random((uv+loop)/dt), random((uv-loop)*dt));
-        vec3 accSpawn = randomOnSphere(randoms)*random(loop-(uv*dt))*f*5e3;
+        vec3 accNew = randomOnSphere(randoms)*random(loop-(uv*dt))*f*5e3;
 
-        accOutput = mix(acc, accSpawn, spawn);
+        accOutput = mix(acc, accNew, spawn);
     #endif
 }
