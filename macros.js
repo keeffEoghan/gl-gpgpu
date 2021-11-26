@@ -504,20 +504,26 @@ export function macroSamples(state, on) {
             '\n'+
             // The texture-sampling logic.
             (tap ??
-                // Data may be sampled by adding step/texture lookup shifts.
-                `#define ${n}tapSamplesAdd(states, uv, textures, by) ${
+                `#define ${n}tapSamples(states, uv, textures) `+
                     // 2D-to-1D indexing, as textures are a flat array.
                     getGLSLList('vec4', n+'data',
-                        map((_, s) =>
-                                'texture2D(states['+
-                                        `((${n}samples_${s}.s+by.s)*textures)+`+
-                                        `${n}samples_${s}.t+by.t`+
+                            map((_, s) => 'texture2D(states['+
+                                        `((${n}samples_${s}.s)*int(textures))+`+
+                                        `${n}samples_${s}.t`+
                                     '], uv)',
                             passSamples),
-                        '', glsl)}\n`+
-                // Data is usually sampled without step/texture lookup shifts.
-                `#define ${n}tapSamples(states, uv, textures) `+
-                    `${n}tapSamplesAdd(states, uv, textures, ivec2(0))\n`+
+                        '', glsl)+'\n'+
+                // Data may also be sampled by adding step/texture lookup shift.
+                `#define ${n}tapSamplesShift(states, uv, textures, byS, byT) `+
+                    // 2D-to-1D indexing, as textures are a flat array.
+                    getGLSLList('vec4', n+'data',
+                            map((_, s) => 'texture2D(states['+
+                                        `((${n}samples_${s}.s+int(byS))*`+
+                                            'int(textures))+'+
+                                        `${n}samples_${s}.t+int(byT)`+
+                                    '], uv)',
+                            passSamples),
+                        '', glsl)+'\n'+
                 '\n'))+
         ((!passReads)? ''
         :   reduce((s, reads, v) =>

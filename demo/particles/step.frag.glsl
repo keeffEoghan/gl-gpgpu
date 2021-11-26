@@ -68,14 +68,15 @@ uniform vec3 source;
 
 varying vec2 uv;
 
-#pragma glslify: map = require(glsl-map);
+#pragma glslify: map = require(glsl-map)
+#pragma glslify: le = require(glsl-conditionals/when_le)
 
 #ifdef posOutput
-    #pragma glslify: verlet = require(@epok.tech/glsl-verlet);
+    #pragma glslify: verlet = require(@epok.tech/glsl-verlet)
 #endif
 
 #ifdef accOutput
-    #pragma glslify: tau = require(glsl-constants/TWO_PI);
+    #pragma glslify: tau = require(glsl-constants/TWO_PI)
 
     // @see https://observablehq.com/@rreusser/equally-distributing-points-on-a-sphere
     vec3 randomOnSphere(vec2 randoms) {
@@ -87,15 +88,15 @@ varying vec2 uv;
 #endif
 
 #if defined(accOutput) || defined(lifeOutput)
-    #pragma glslify: random = require(glsl-random);
+    #pragma glslify: random = require(glsl-random)
 #endif
 
-#pragma glslify: le = require(glsl-conditionals/when_le);
+#pragma glslify: offsetUV = require(../../sample/offset-uv)
 
 void main() {
-    // Sample textures.
-    // Add pixel offset to sample from the pixel's center and avoid errors.
-    vec2 st = uv+(vec2(0.25)/dataShape);
+    // Offset UV to sample at the texel center and avoid errors.
+    // @todo Could go in vertex shader.
+    vec2 st = offsetUV(uv, dataShape);
 
     // Sample the desired state values - creates the `data` array.
     tapSamples(states, st, textures)

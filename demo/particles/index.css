@@ -17,7 +17,7 @@ body { margin: 0; }
 .links {
     display: flex;
     flex-flow: row wrap;
-    justify-content: space-around;
+    justify-content: flex-start;
     align-items: center;
     position: absolute;
     z-index: 1;
@@ -28,6 +28,7 @@ body { margin: 0; }
     opacity: 0.6;
     transition: opacity 800ms ease-out;
     will-change: opacity;
+    overflow: auto;
 
     &:hover,
     &:focus {

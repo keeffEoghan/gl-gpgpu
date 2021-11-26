@@ -246,8 +246,6 @@ export function getState(api, state = {}, to = state) {
     // Passing `state.scale` ensures a power-of-two square texture size.
     const width = (radius ?? w ?? 2**scale);
     const height = (radius ?? h ?? 2**scale);
-    const textureProps = { type, min, mag, wrap, width, height };
-    const frameProps = { depth, stencil, width, height };
 
     // Size of the created resources.
     const size = to.size = {
@@ -270,22 +268,22 @@ export function getState(api, state = {}, to = state) {
 
     const addPass = (step) => (pass, index) => {
         // All framebuffer color attachments need the same number of channels.
-        const passProps = {
-            ...textureProps,
+        const textureProps = {
+            type, min, mag, wrap, width, height,
             channels: reduce((max, t) =>
                     reduce((max, v) => Math.max(max, values[v]),
                         texturesMap[t], max),
                 pass, channelsMin)
         };
 
-        const textures = map(addTexture(step, index, passProps), pass);
+        const textures = map(addTexture(step, index, textureProps), pass);
+        const props = { depth, stencil, width, height, color: textures };
 
         return ((passes[step] ??= [])[index] = {
                 // Meta info.
-                ...frameProps, entry: size.passes++, step, index, map: pass,
+                ...props, entry: size.passes++, step, index, map: pass,
                 // Resources.
-                textures, color: textures,
-                framebuffer: framebuffer({ ...frameProps, color: textures })
+                textures, framebuffer: framebuffer(props)
             })
             .framebuffer;
     };

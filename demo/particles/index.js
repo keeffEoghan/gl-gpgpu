@@ -9,7 +9,9 @@ import reduce from '@epok.tech/fn-lists/reduce';
 import map from '@epok.tech/fn-lists/map';
 import each from '@epok.tech/fn-lists/each';
 
-import { gpgpu, extensionsFloat, optionalExtensions } from '../../index';
+import { gpgpu, extensionsFloat, extensionsHalfFloat, optionalExtensions }
+    from '../../index';
+
 import { macroPass } from '../../macros';
 import { getMaps } from '../../maps';
 import { getUniforms, getDrawIndexes } from '../../inputs';
@@ -19,20 +21,37 @@ import stepFrag from './step.frag.glsl';
 import drawVert from './draw.vert.glsl';
 import drawFrag from './draw.frag.glsl';
 
-const reglProps = {
-    pixelRatio: Math.max(Math.floor(devicePixelRatio), 1.5),
-    extensions: extensionsFloat(), optionalExtensions: optionalExtensions()
+const extend = {
+    halfFloat: extensionsHalfFloat(),
+    float: extensionsFloat(),
+    other: optionalExtensions()
 };
 
-const regl = self.regl = getRegl(reglProps);
+const regl = self.regl = getRegl({
+    pixelRatio: Math.max(Math.floor(devicePixelRatio), 1.5),
+    extensions: extend.required = extend.halfFloat,
+    optionalExtensions: extend.optional = [...extend.float, ...extend.other]
+});
 
-console.log('extensions',
-    reduce((o, e) => o+((o)? '; ' : '')+e+': '+regl.hasExtension(e),
-        reglProps.extensions, ''));
 
-console.log('optionalExtensions',
-    reduce((o, e) => o+((o)? '; ' : '')+e+': '+regl.hasExtension(e),
-        reglProps.optionalExtensions, ''));
+// alert('Extensions:\n Required - '+
+//     reduce((o, e) => o+(o && '; ')+e+': '+regl.hasExtension(e),
+//         extend.required, '')+'\n'+
+//     'Optional - '+
+//     reduce((o, e) => o+(o && '; ')+e+': '+regl.hasExtension(e),
+//         extend.optional, ''));
+
+console.group('Extensions');
+
+console.log('required',
+    reduce((o, e) => o+(o && '; ')+e+': '+regl.hasExtension(e),
+        extend.required, ''));
+
+console.log('optional',
+    reduce((o, e) => o+(o && '; ')+e+': '+regl.hasExtension(e),
+        extend.optional, ''));
+
+console.groupEnd();
 
 const canvas = document.querySelector('canvas');
 
@@ -181,8 +200,9 @@ const state = gpgpu(regl, {
         // To help with accuracy of small numbers, uniformly scale space.
         scale: 1e-3
     },
-    bound, steps, scale,
-    maps: { values, derives },
+    bound, steps, scale, maps: { values, derives },
+    // Data type according to support.
+    type: ((extend.float.every(regl.hasExtension))? 'float' : 'half float'),
     // Per-shader macro hooks, no macros needed for the `vert` shader.
     macros: { vert: false },
     step: {
