@@ -196,13 +196,14 @@ const state = gpgpu(regl, {
         source: [0, 0, 0.5],
         // To help accuracy of very small numbers, pass force as `[S, T] = SeT`.
         // One of these chosen for integration used; Euler/Verlet, respectively.
-        forces: [[1, -4], [1, -7]],
+        forces: [[7, -6], [1, -7]],
         // To help with accuracy of small numbers, uniformly scale space.
         scale: 1e-3
     },
     bound, steps, scale, maps: { values, derives },
     // Data type according to support.
     type: ((extend.float.every(regl.hasExtension))? 'float' : 'half float'),
+    // type: 'half float',
     // Per-shader macro hooks, no macros needed for the `vert` shader.
     macros: { vert: false },
     step: {

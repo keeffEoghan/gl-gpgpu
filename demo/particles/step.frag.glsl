@@ -137,10 +137,11 @@ void main() {
 
     // Output updated values.
     #ifdef posOutput
-        // Use either Euler or Verlet integration.
-        vec3 pos = mix(pos1+(acc*dt), verlet(acc, pos0, pos1, dt), useVerlet);
+        // Use either Euler (approximate) or Verlet integration.
+        vec3 posEuler = pos1+(acc*dt*dt);
+        vec3 posVerlet = verlet(acc, pos0, pos1, dt);
 
-        posOutput = mix(pos, source, spawn);
+        posOutput = mix(mix(posEuler, posVerlet, useVerlet), source, spawn);
     #endif
     #ifdef lifeOutput
         float lifeNew = map(random(uv*loop), 0.0, 1.0, lifetime.s, lifetime.t);
