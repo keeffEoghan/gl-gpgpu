@@ -202,6 +202,7 @@ const state = gpgpu(regl, {
     },
     bound, steps, scale, maps: { values, derives },
     // Data type according to support.
+    // @todo Fix acceleration on `half float` precision and mobile.
     type: ((extend.float.every(regl.hasExtension))? 'float' : 'half float'),
     // type: 'half float',
     // Per-shader macro hooks, no macros needed for the `vert` shader.

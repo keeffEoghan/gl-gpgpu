@@ -156,6 +156,7 @@ void main() {
 
         acc += g*f*dt;
 
+        // @todo Fix acceleration on `half float` precision and mobile.
         vec2 randoms = vec2(random((uv+loop)/dt), random((uv-loop)*dt));
         vec3 accNew = randomOnSphere(randoms)*random(loop-(uv*dt))*f*5e3;
 
