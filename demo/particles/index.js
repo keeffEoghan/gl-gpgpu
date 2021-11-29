@@ -8,6 +8,7 @@ import timer from '@epok.tech/fn-time';
 import reduce from '@epok.tech/fn-lists/reduce';
 import map from '@epok.tech/fn-lists/map';
 import each from '@epok.tech/fn-lists/each';
+import range from '@epok.tech/fn-lists/range';
 
 import { gpgpu, extensionsFloat, extensionsHalfFloat, optionalExtensions }
     from '../../index';
@@ -33,14 +34,6 @@ const regl = self.regl = getRegl({
     optionalExtensions: extend.optional = [...extend.float, ...extend.other]
 });
 
-
-// alert('Extensions:\n Required - '+
-//     reduce((o, e) => o+(o && '; ')+e+': '+regl.hasExtension(e),
-//         extend.required, '')+'\n'+
-//     'Optional - '+
-//     reduce((o, e) => o+(o && '; ')+e+': '+regl.hasExtension(e),
-//         extend.optional, ''));
-
 console.group('Extensions');
 
 console.log('required',
@@ -61,10 +54,11 @@ canvas.classList.add('view');
 const bound = 1;
 
 // How many values/channels each property independently tracks.
-// The order here corresponds to the order in the shaders and generated macros.
+// The order here corresponds to the order in the shaders and generated macros,
+// though these may be packed across channels/textures/passes differently.
 
 const valuesMap = (new Map())
-    .set('position', 3).set('acceleration', 3).set('life', 1);
+    .set('position', 3).set('motion', 3).set('life', 1);
 
 const values = [];
 const valuesIndex = {};
@@ -84,7 +78,7 @@ const limits = {
     scale: [1, Math.log2(maxTextureSize)]
 };
 
-const niceScale = Math.min(8, limits.scale[1]);
+const niceScale = clamp(8, ...limits.scale);
 
 console.log('limits', limits, regl.limits);
 
@@ -111,10 +105,11 @@ const stepsPast = steps-bound;
 const scale = Math.floor(clamp((parseInt(query.get('scale'), 10) || niceScale),
     ...limits.scale));
 
-// Trails of points if given; otherwise trails of lines.
+// Trails of points if given; if not given, uses trails of lines.
 const usePoints = query.has('points');
 
-// Fixed time-step if given; otherwise uses look-behind delta-time.
+// Constant-step (add time-step), if given; if not given, uses real-time
+// (variable delta-time).
 const hasTimestep = query.has('timestep');
 const timestepDef = 1e3/60;
 
@@ -138,6 +133,11 @@ document.querySelector('#max').href = `?${setQuery([
         ['scale', Math.max(niceScale, limits.scale[1]-5)]
     ])}#max`;
 
+document.querySelector('#long').href = `?${setQuery([
+        ['steps', limits.steps[1]],
+        ['scale', Math.max(limits.scale[0], limits.scale[1]-6)]
+    ])}#long`;
+
 document.querySelector('#trails').href =
     `?${setQuery([['points', ((usePoints)? null : '')]])}#trails`;
 
@@ -150,20 +150,20 @@ const derives = [];
 
 derives[valuesIndex.position] = [
     // Position, 2 steps past.
-    [Math.min(1, stepsPast-1), valuesIndex.position],
+    [clamp(1, 0, stepsPast-1), valuesIndex.position],
     // Position, 1 step past.
     valuesIndex.position,
-    valuesIndex.acceleration,
+    valuesIndex.motion,
     valuesIndex.life
 ];
 
-derives[valuesIndex.acceleration] = [
-    valuesIndex.acceleration,
+derives[valuesIndex.motion] = [
+    valuesIndex.motion,
     valuesIndex.life
 ];
 
 derives[valuesIndex.life] = [
-    // Life, oldest step.
+    // Life, last step past.
     [Math.max(stepsPast-1, 0), valuesIndex.life],
     // Life, 1 step past.
     valuesIndex.life
@@ -178,10 +178,10 @@ const state = gpgpu(regl, {
     props: {
         // Set up the timer.
         timer: timer((timestep)?
-                // Fixed-step, look-ahead add-time.
-                { step: timestep }
-                // Real-time, look-behind delta-time.
-            :   { step: '-', now: () => regl.now()*1e3 }),
+                // Constant-step (add time-step).
+                { step: timestep, dts: range(2, 0) }
+                // Real-time (variable delta-time).
+            :   { step: '-', now: () => regl.now()*1e3, dts: range(2, 0) }),
         // Speed up or slow down the passage of time.
         rate: 1,
         // Loop time over this period to avoid instability of parts of the demo.
@@ -194,27 +194,33 @@ const state = gpgpu(regl, {
         g: [0, -9.80665, 0],
         // The position particles respawn from.
         source: [0, 0, 0.5],
-        // To help accuracy of very small numbers, pass force as `[S, T] = SeT`.
-        // One of these chosen for integration used; Euler/Verlet, respectively.
-        forces: [[7, -6], [1, -7]],
         // To help with accuracy of small numbers, uniformly scale space.
-        scale: 1e-3
+        scale: 1e-3,
+
+        // One option in the array chosen by Euler/Verlet, respectively.
+
+        // The motion particles respawn with.
+        spout: [2e3, 1e2],
+        // Use `energy` to scale motion.
+        // To help numeric accuracy, pass energy as `[x, y] = x*10**y`.
+        energy: [[2, -4], [2, -4]]
     },
     bound, steps, scale, maps: { values, derives },
     // Data type according to support.
-    // @todo Fix acceleration on `half float` precision and mobile.
     type: ((extend.float.every(regl.hasExtension))? 'float' : 'half float'),
-    // type: 'half float',
     // Per-shader macro hooks, no macros needed for the `vert` shader.
     macros: { vert: false },
     step: {
         // Per-pass macros will prepend to `frag` shader and cache in `frags`.
         frag: stepFrag, frags: [],
         uniforms: {
-            dt: (_, { props: { timer: { dt }, rate } }) => dt*rate,
-            time: (_, { props: { timer: { time }, rate } }) => time*rate,
-            loop: (_, { props: { timer: { time }, loop } }) =>
-                Math.sin(time/loop*Math.PI)*loop,
+            dt: (_, { props: { timer: { dt }, rate: r } }) => dt*r,
+            dt0: (_, { props: { timer: { dts: { 0: dt } }, rate: r } }) => dt*r,
+            dt1: (_, { props: { timer: { dts: { 1: dt } }, rate: r } }) => dt*r,
+            time: (_, { props: { timer: { time: t }, rate: r } }) => t*r,
+
+            loop: (_, { props: { timer: { time: t }, loop: l } }) =>
+                Math.sin(t/l*Math.PI)*l,
 
             lifetime: regl.prop('props.lifetime'),
             g: regl.prop('props.g'),
@@ -222,8 +228,10 @@ const state = gpgpu(regl, {
             source: (_, { props: { source, scale } }) =>
                 map((v, i) => v/scale, source, cache.source),
 
-            force: (_, { props: { useVerlet: u, forces: fs } }) => fs[+u],
-            useVerlet: (_, { props: { useVerlet: u } }) => +u
+            // One option in the array chosen by Euler/Verlet, respectively.
+            useVerlet: (_, { props: { useVerlet: u } }) => +u,
+            energy: (_, { props: { useVerlet: u, energy: e } }) => e[+u],
+            spout: (_, { props: { spout: ss, useVerlet: u } }) => ss[+u]
         }
     }
 });
@@ -245,6 +253,11 @@ const drawIndexes = getDrawIndexes(drawCount);
 
 const drawState = {
     ...state,
+    drawProps: {
+        // Speed-to-colour scaling, as `[multiply, power]`.
+        // One option in the array chosen by Euler/Verlet, respectively.
+        pace: [[5, 0.5], [0.5, 3]]
+    },
     // @todo Draw all states with none bound as outputs - currently errors.
     // bound: 0,
     // Drawing, don't need to output any data; also don't need `frag` macros.
@@ -252,10 +265,19 @@ const drawState = {
     // Everything mapped the same way.
     maps: getMaps({
         ...state.maps,
-        // Set `derives[0]` to `true`; one set of efficient reads of all values.
-        derives: [true],
         // This one pass can bind textures for input; not output across passes.
-        texturesMax: maxTextureUnits
+        texturesMax: maxTextureUnits,
+        /**
+         * One set of reads of all values in one pass.
+         * Passing `true` adds all values at that level of nesting:
+         * `pass|[values|[value|[step, value]]]`
+         * Thus, this example means that the _first_ value derives from:
+         * - All values 1 step past (`true`).
+         * - The position value 2 steps past.
+         * Makes `reads_0_i` macros for each `i => [step, value]` of
+         * `[[0, 0], [0, 1], [0, 2], [1, 0]]`
+         */
+        derives: [[true, [clamp(1, 0, stepsPast-1), valuesIndex.position]]]
     })
 };
 
@@ -270,6 +292,7 @@ const drawCommand = {
     uniforms: getUniforms(drawState, {
         ...drawState.step.uniforms,
         scale: regl.prop('props.scale'),
+        pace: (_, { drawProps: { pace }, props: { useVerlet: u } }) => pace[+u],
         pointSize: clamp(drawWidth, ...pointSizeDims)
     }),
     lineWidth: clamp(drawWidth, ...lineWidthDims),
@@ -283,10 +306,19 @@ console.log((self.drawState = drawState), (self.drawCommand = drawCommand));
 
 const draw = regl(drawCommand);
 
+function stepTime(state) {
+    const { dts } = state;
+
+    dts[0] = dts[1];
+    dts[1] = timer(state).dt;
+
+    return state;
+}
+
 const clearView = { color: [0, 0, 0, 0], depth: 1 };
 
 regl.frame(() => {
-    timer(state.props.timer);
+    stepTime(state.props.timer);
     state.step.run();
     drawState.stepNow = state.stepNow;
     regl.clear(clearView);

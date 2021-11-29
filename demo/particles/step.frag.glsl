@@ -1,9 +1,10 @@
 /**
  * The update step for a GPGPU particle simulation.
  * Requires setup with preprocessor macros - see `macroPass`.
- * Written as several individual shaders that may be combined into one or more
- * passes; `gpgpu` preprocessor macros control the combination according to
- * which `values` are currently bound for `output` to the next `state`.
+ * Executed in one or more passes; each chunk depending on a `gpgpu` macro may
+ * be combined with others into one pass or separated into its own pass; `gpgpu`
+ * preprocessor macros control the combination according to which `values` are
+ * currently bound for `output` to the next `state`.
  *
  * @see [getStep]{@link ../../step.js#getStep}
  * @see [macroPass]{@link ../../macros.js#macroPass}
@@ -21,33 +22,34 @@ precision highp float;
 // they are defined here to match the arrangement in `./index.js`.
 
 // The texture channels each of the `values` is stored in.
-#define posChannels channels_0
-#define accChannels channels_1
+#define positionChannels channels_0
+#define motionChannels channels_1
 #define lifeChannels channels_2
+
 // Set up sampling logic.
 useSamples
 
 // Set up minimal texture reads logic; only read what a value with a currently
 // bound output `derives` from other `values` for its next state.
-// See `derives` for indexing (`reads_${bound value index}_${derives index}`).
+// See `derives` for indexing `reads_${bound value index}_${derives index}`.
 #ifdef output_0
-    #define posOutput output_0
+    #define positionOutput output_0
     useReads_0
-    #define posReadPos0 reads_0_0
-    #define posReadPos1 reads_0_1
-    #define posReadAcc reads_0_2
-    #define posReadLife reads_0_3
+    #define positionReadPosition0 reads_0_0
+    #define positionReadPosition1 reads_0_1
+    #define positionReadMotion reads_0_2
+    #define positionReadLife reads_0_3
 #endif
 #ifdef output_1
-    #define accOutput output_1
+    #define motionOutput output_1
     useReads_1
-    #define accReadAcc reads_1_0
-    #define accReadLife reads_1_1
+    #define motionReadMotion reads_1_0
+    #define motionReadLife reads_1_1
 #endif
 #ifdef output_2
     #define lifeOutput output_2
     useReads_2
-    #define lifeReadLifeOldest reads_2_0
+    #define lifeReadLifeLast reads_2_0
     #define lifeReadLife1 reads_2_1
 #endif
 
@@ -57,37 +59,39 @@ useSamples
 uniform sampler2D states[stepsPast*textures];
 uniform vec2 dataShape;
 // Custom inputs for this demo.
-uniform float dt;
-uniform float time;
+uniform float dt0;
+uniform float dt1;
 uniform float loop;
 uniform vec2 lifetime;
-uniform vec2 force;
+uniform vec2 energy;
 uniform float useVerlet;
 uniform vec3 g;
 uniform vec3 source;
+uniform float spout;
 
 varying vec2 uv;
 
 #pragma glslify: map = require(glsl-map)
 #pragma glslify: le = require(glsl-conditionals/when_le)
 
-#ifdef posOutput
-    #pragma glslify: verlet = require(@epok.tech/glsl-verlet)
+#ifdef positionOutput
+    // @todo Try Velocity Verlet integration.
+    #pragma glslify: verlet = require(@epok.tech/glsl-verlet/p-p-a)
 #endif
 
-#ifdef accOutput
+#ifdef motionOutput
     #pragma glslify: tau = require(glsl-constants/TWO_PI)
 
     // @see https://observablehq.com/@rreusser/equally-distributing-points-on-a-sphere
-    vec3 randomOnSphere(vec2 randoms) {
-        float a = randoms[0]*tau;
-        float u = (randoms[1]*2.0)-1.0;
+    vec3 randomOnSphere(float randomAngle, float randomDepth) {
+        float a = randomAngle*tau;
+        float u = (randomDepth*2.0)-1.0;
 
         return vec3(sqrt(1.0-(u*u))*vec2(cos(a), sin(a)), u);
     }
 #endif
 
-#if defined(accOutput) || defined(lifeOutput)
+#if defined(motionOutput) || defined(lifeOutput)
     #pragma glslify: random = require(glsl-random)
 #endif
 
@@ -103,63 +107,82 @@ void main() {
 
     // Read values.
 
+    #ifdef positionOutput
+        vec3 position0 = data[positionReadPosition0].positionChannels;
+        vec3 position1 = data[positionReadPosition1].positionChannels;
+    #endif
+
     // If reads all map to the same value sample, any of them will do.
-    #if defined(posOutput)
-        #define readLife posReadLife
+    #if defined(positionOutput) || defined(motionOutput)
+        #if defined(positionOutput)
+            #define readMotion positionReadMotion
+        #elif defined(motionOutput)
+            #define readMotion motionReadMotion
+        #endif
+
+        vec3 motion = data[readMotion].motionChannels;
+    #endif
+
+    // If reads all map to the same value sample, any of them will do.
+    #if defined(positionOutput)
+        #define readLife positionReadLife
     #elif defined(lifeOutput)
         #define readLife lifeReadLife
-    #elif defined(accOutput)
-        #define readLife accReadLife
+    #elif defined(motionOutput)
+        #define readLife motionReadLife
     #endif
 
     float life = data[readLife].lifeChannels;
-    float spawn = le(life, 0.0);
-
-    #ifdef posOutput
-        vec3 pos0 = data[posReadPos0].posChannels;
-        vec3 pos1 = data[posReadPos1].posChannels;
-    #endif
-
-    // If reads all map to the same value sample, any of them will do.
-    #if defined(posOutput) || defined(accOutput)
-        #if defined(posOutput)
-            #define readAcc posReadAcc
-        #elif defined(accOutput)
-            #define readAcc accReadAcc
-        #endif
-
-        vec3 acc = data[readAcc].accChannels;
-    #endif
 
     #ifdef lifeOutput
-        float lifeOldest = data[lifeReadLifeOldest].lifeChannels;
+        float lifeLast = data[lifeReadLifeLast].lifeChannels;
     #endif
 
-    // Output updated values.
-    #ifdef posOutput
-        // Use either Euler (approximate) or Verlet integration.
-        vec3 posEuler = pos1+(acc*dt*dt);
-        vec3 posVerlet = verlet(acc, pos0, pos1, dt);
+    // Update and output values.
 
-        posOutput = mix(mix(posEuler, posVerlet, useVerlet), source, spawn);
+    // Whether the particle is ready to respawn.
+    float spawn = le(life, 0.0);
+
+    #if defined(positionOutput) || defined(motionOutput)
+        // Workaround for switching Euler/Verlet; interpret `motion` data as
+        // acceleration/velocity, respectively.
+        vec3 velocity = motion;
+        vec3 acceleration = motion;
+    #endif
+
+    #ifdef positionOutput
+        // Use either Euler integration...
+        position1 = mix(position1+(velocity*dt1),
+            // ... or Verlet integration...
+            verlet(position0, position1, acceleration, dt0, dt1),
+            // ... according to which is currently active.
+            useVerlet);
+
+        positionOutput = mix(position1, source, spawn);
+    #endif
+    #ifdef motionOutput
+        // Use `energy` to scale kinetic motions.
+        // To help numeric accuracy, pass energy as `[x, y] = x*10**y`.
+        float e = energy.s*pow(10.0, energy.t);
+
+        // The new acceleration is just constant acceleration due to gravity.
+        // @todo To make this more interesting, add e.g: drag.
+        // @see https://en.wikipedia.org/wiki/Verlet_integration#Algorithmic_representation
+        acceleration = g*e;
+        motion = mix(velocity+(acceleration*dt1), acceleration, useVerlet);
+
+        vec3 motionNew = e*spout*random(loop-(uv*dt0))*
+            randomOnSphere(random((uv+loop)/dt1), random((uv-loop)*dt0));
+
+        motionOutput = mix(motion, motionNew, spawn);
     #endif
     #ifdef lifeOutput
         float lifeNew = map(random(uv*loop), 0.0, 1.0, lifetime.s, lifetime.t);
+        // Whether the oldest of this trail has faded.
+        float faded = le(lifeLast, 0.0);
 
         // Only spawn life once the oldest step reaches the end of its lifetime
         // (past and current life are both 0).
-        lifeOutput = mix(max(0.0, life-dt), lifeNew, spawn*le(lifeOldest, 0.0));
-    #endif
-    #ifdef accOutput
-        // To help accuracy of very small numbers, pass force as `[S, T] = SeT`.
-        float f = force.s*pow(10.0, force.t);
-
-        acc += g*f*dt;
-
-        // @todo Fix acceleration on `half float` precision and mobile.
-        vec2 randoms = vec2(random((uv+loop)/dt), random((uv-loop)*dt));
-        vec3 accNew = randomOnSphere(randoms)*random(loop-(uv*dt))*f*5e3;
-
-        accOutput = mix(acc, accNew, spawn);
+        lifeOutput = mix(max(life-dt1, 0.0), lifeNew, spawn*faded);
     #endif
 }

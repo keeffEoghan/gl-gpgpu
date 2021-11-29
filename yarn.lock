@@ -344,7 +344,7 @@ __metadata:
     "@epok.tech/fn-time": ^0.2.1
     "@epok.tech/gl-screen-triangle": ^1.2.0
     "@epok.tech/glsl-aspect": ^1.0.3
-    "@epok.tech/glsl-verlet": ^0.0.1
+    "@epok.tech/glsl-verlet": ^0.1.1
     "@epok.tech/is-type": ^0.1.0
     "@parcel/transformer-glsl": ^2.0.1
     "@thi.ng/vectors": ^7.1.1
@@ -377,10 +377,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@epok.tech/glsl-verlet@npm:^0.0.1":
-  version: 0.0.1
-  resolution: "@epok.tech/glsl-verlet@npm:0.0.1"
-  checksum: 3ff7af330884dfb3f9ab6ac03f50afa6e9cc80ca03ffc7fff69681bf12b2a1dae5539df579f4c5ce452258d9f770ae80f2f59d3f79690b29dc260ec1103a17bb
+"@epok.tech/glsl-verlet@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@epok.tech/glsl-verlet@npm:0.1.1"
+  checksum: e0fc994670a269d5b50c3b1a895a4cef1fafb8331670ef17b668c21d5f231803036e0b386672d68f1671a565cb01ca03d1fe850330144bda9d47847e358f3728
   languageName: node
   linkType: hard
 

@@ -9,18 +9,19 @@
 precision highp float;
 
 // The texture channels each of the `values` is stored in.
-#define posChannels channels_0
-#define accChannels channels_1
+#define positionChannels channels_0
+#define motionChannels channels_1
 #define lifeChannels channels_2
 // Set up sampling logic.
 useSamples
 // Only the first value derives from all values, giving these minimal `reads`.
 useReads_0
 // All `derives` here are in one pass (`0`), and in the same order as `values`.
-// See `values` for indexing (`reads_0_${derives index == values index}`).
-#define readPos reads_0_0
-#define readAcc reads_0_1
+// See `values` for indexing `reads_0_${derives index == values index}`.
+#define readPosition1 reads_0_0
+#define readMotion reads_0_1
 #define readLife reads_0_2
+#define readPosition0 reads_0_3
 
 attribute float index;
 
@@ -28,10 +29,11 @@ uniform sampler2D states[stepsPast*textures];
 uniform vec2 dataShape;
 uniform vec2 viewShape;
 uniform float pointSize;
-uniform vec2 lifetime;
-uniform vec2 force;
 uniform float dt;
+uniform vec2 lifetime;
 uniform float scale;
+uniform vec2 pace;
+uniform float useVerlet;
 
 varying vec4 color;
 
@@ -72,9 +74,10 @@ void main() {
     #endif
 
     // Read values.
-    vec3 pos = data[readPos].posChannels;
+    vec3 position0 = data[readPosition0].positionChannels;
+    vec3 position1 = data[readPosition1].positionChannels;
+    vec3 velocity = data[readMotion].motionChannels;
     float life = data[readLife].lifeChannels;
-    vec3 acc = data[readAcc].accChannels;
 
     #if stepsPast > 1
         float ratioNow = 1.0-(stepPast/float(stepsPast-1));
@@ -84,17 +87,15 @@ void main() {
 
     float alive = gt(life, 0.0);
     vec2 ar = aspect(viewShape);
-    vec4 vertex = vec4(pos.xy*ar*scale, pos.z*scale, 1.0);
+    vec4 vertex = vec4(position1.xy*ar*scale, position1.z*scale, 1.0);
+    float depth = clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
 
     gl_Position = alive*vertex;
+    gl_PointSize = alive*pointSize*depth*mix(0.1, 1.0, ratioNow);
 
-    gl_PointSize = alive*pointSize*clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0)*
-        mix(0.1, 1.0, ratioNow);
-
-    float a = pow(life/lifetime.t, 0.1);
-    // To help accuracy of very small numbers, pass force as `[S, T] = SeT`.
-    float f = force.s*pow(10.0, force.t);
+    float a = pow(life/lifetime.t, 0.5)*ratioNow;
+    float speed = length(mix(velocity, position1-position0, useVerlet)/dt);
 
     color = a*vec4(mix(0.2, 1.0, ratioNow), mix(0.2, 1.0, entry/float(count)),
-        clamp((length(acc)/f/dt)*scale, 0.0, 1.0), a);
+        clamp(pow(speed*pace.s, pace.t), 0.0, 1.0), a);
 }

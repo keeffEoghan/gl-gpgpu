@@ -304,8 +304,9 @@ export function mapGroups(maps = {}, to = maps) {
  *     - Numbers; deriving from the most recent state at the given value index.
  *     - Lists of numbers; deriving from the given past state index (1st number
  *         denotes how many steps ago), at the given value index (2nd number).
+ *     The nested hierarchy is thus `pass|[values|[value|[step, value]]]`.
  *     If any level is given as `true`, maps to sample all values, at the given
- *     or most recent step.
+ *     (or most recent) step.
  *     If not given, no samples are mapped and `to` is returned unchanged.
  * @param {array<array<number>>} maps.passes Textures grouped into passes. See
  *     `mapGroups`.
@@ -358,14 +359,13 @@ export function mapSamples(maps, to = maps) {
                 derives, maps, pass, value, derive, d, step, texture);
         }
 
-        let i = set.findIndex(([s, t]) => (s === step) && (t === texture));
+        // Check for any existing matching step/texture read in the set.
+        const i = set.findIndex(([s, t]) => (s === step) && (t === texture));
 
-        ((i < 0) && (i = set.push([step, texture])-1));
-
-        const passReads = reads[pass] ??= [];
-        const valueReads = passReads[value] ??= [];
-
-        valueReads[d ?? 0] = i;
+        // Add the read for this value in this pass; creating any needed maps.
+        ((reads[pass] ??= [])[value] ??= [])
+            // A new read as needed, or any existing matching read.
+            .push((i < 0)? set.push([step, texture])-1 : i);
 
         return set;
     };
