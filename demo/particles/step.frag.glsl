@@ -63,11 +63,11 @@ uniform float dt0;
 uniform float dt1;
 uniform float loop;
 uniform vec2 lifetime;
-uniform vec2 energy;
 uniform float useVerlet;
 uniform vec3 g;
 uniform vec3 source;
 uniform float spout;
+// uniform vec3 drag;
 
 varying vec2 uv;
 
@@ -95,15 +95,17 @@ varying vec2 uv;
     #pragma glslify: random = require(glsl-random)
 #endif
 
-#pragma glslify: offsetUV = require(../../sample/offset-uv)
+// Drag acceleration, constrained within the given velocity.
+// @see https://en.wikipedia.org/wiki/Verlet_integration#Algorithmic_representation
+// vec3 dragAcc(vec3 velocity, vec3 drag) {
+//     vec3 l = abs(velocity);
+
+//     return clamp(-0.5*sign(velocity)*dot(velocity, velocity)*drag, -l, l);
+// }
 
 void main() {
-    // Offset UV to sample at the texel center and avoid errors.
-    // @todo Could go in vertex shader.
-    vec2 st = offsetUV(uv, dataShape);
-
     // Sample the desired state values - creates the `data` array.
-    tapSamples(states, st, textures)
+    tapSamples(states, uv, textures)
 
     // Read values.
 
@@ -139,6 +141,11 @@ void main() {
     #endif
 
     // Update and output values.
+    // Note that the update/output logic components within each `#if` macro
+    // block from `gpgpu` are independent modules, as the `gpgpu` macros
+    // determine whether they're executed across one or more passes - they could
+    // also be coded in separate files called from here, however for brevity and
+    // easy access to shared variables they're coded inline.
 
     // Whether the particle is ready to respawn.
     float spawn = le(life, 0.0);
@@ -152,37 +159,37 @@ void main() {
 
     #ifdef positionOutput
         // Use either Euler integration...
-        position1 = mix(position1+(velocity*dt1),
+        vec3 positionTo = mix(position1+(velocity*dt1),
             // ... or Verlet integration...
             verlet(position0, position1, acceleration, dt0, dt1),
             // ... according to which is currently active.
             useVerlet);
 
-        positionOutput = mix(position1, source, spawn);
+        positionOutput = mix(positionTo, source, spawn);
     #endif
     #ifdef motionOutput
-        // Use `energy` to scale kinetic motions.
-        // To help numeric accuracy, pass energy as `[x, y] = x*10**y`.
-        float e = energy.s*pow(10.0, energy.t);
-
         // The new acceleration is just constant acceleration due to gravity.
-        // @todo To make this more interesting, add e.g: drag.
-        // @see https://en.wikipedia.org/wiki/Verlet_integration#Algorithmic_representation
-        acceleration = g*e;
-        motion = mix(velocity+(acceleration*dt1), acceleration, useVerlet);
+        acceleration = g;
+        // Can also combine other forces, e.g: drag.
+        // acceleration = g+
+        //     dragAcc(mix(velocity, acceleration*dt1, useVerlet), drag);
 
-        vec3 motionNew = e*spout*random(loop-(uv*dt0))*
+        vec3 motionTo = mix(velocity+(acceleration*dt1), acceleration,
+            useVerlet);
+
+        vec3 motionNew = spout*random(loop-(uv*dt0))*
             randomOnSphere(random((uv+loop)/dt1), random((uv-loop)*dt0));
 
-        motionOutput = mix(motion, motionNew, spawn);
+        motionOutput = mix(motionTo, motionNew, spawn);
     #endif
     #ifdef lifeOutput
+        float lifeTo = max(life-dt1, 0.0);
         float lifeNew = map(random(uv*loop), 0.0, 1.0, lifetime.s, lifetime.t);
         // Whether the oldest of this trail has faded.
         float faded = le(lifeLast, 0.0);
 
         // Only spawn life once the oldest step reaches the end of its lifetime
         // (past and current life are both 0).
-        lifeOutput = mix(max(life-dt1, 0.0), lifeNew, spawn*faded);
+        lifeOutput = mix(lifeTo, lifeNew, spawn*faded);
     #endif
 }

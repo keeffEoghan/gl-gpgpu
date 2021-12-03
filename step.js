@@ -23,14 +23,16 @@ const scale = { vec2: 0.5 };
  * @see [macroPass]{@link ./macros.js#macroPass}
  * @see [getUniforms]{@link ./inputs.js#getUniforms}
  *
- * @export
+ * @todo @example
+ *
  * @param {object} api An API for GL resources.
- * @param {function} api.buffer A function to set up a GL buffer.
- * @param {function} api.command A function to call a GL draw, with all options.
+ * @param {buffer} [api.buffer] Function to set up a GL buffer.
+ * @param {command} [api.command=api] Function to create a GL render pass, given
+ *     options, to be called later with options.
  * @param {object} state The GPGPU state to use. See `getState` and `mapGroups`.
  * @param {object} state.maps How values are grouped per-texture per-pass
  *     per-step. See `mapGroups`.
- * @returns {array<array<number>>} `to.passes` How textures are grouped into
+ * @param {array<array<number>>} state.passes How textures are grouped into
  *     passes. See `mapGroups`.
  * @param {string} [state.pre=preDef] The namespace prefix; `preDef` by default.
  * @param {object} [state.step=to] The properties for the step GL command.
@@ -39,14 +41,20 @@ const scale = { vec2: 0.5 };
  * @param {string} state.step.frag The step fragment shader GLSL.
  * @param {object} [state.step.uniforms=getUniforms(state)] The step uniforms;
  *     modifies any given. See `getUniforms`.
- * @param {array|api.buffer} [state.step.positions=positionsDef()] The step
+ * @param {array<number>|buffer} [state.step.positions=positionsDef()] The step
  *     position attributes; 3 points of a large flat triangle if not given.
  * @param {number} [state.step.count=state.step.positions.length*scale.vec2] The
  *     number of elements/attributes to draw.
+ * @param {object} [state.step.passCommand] Any GL command properties to mix in
+ *     over the default ones here, and passed to `api.command`.
+ * @param {string} [state.step.vert=vertDef] Vertex shader GLSL to add code to.
  * @param {array} [state.step.verts] Preprocesses and caches vertex GLSL code
  *     per-pass if given, otherwise processes it just-in-time before each pass.
+ * @param {string} [state.step.frag] Fragment shader GLSL to add code to.
  * @param {array} [state.step.frags] Preprocesses and caches fragment GLSL code
  *     per-pass, otherwise processes it just-in-time before each pass.
+ * @param {onStep} [onStep] Callback upon each step.
+ * @param {onPass} [onPass] Callback upon each pass.
  * @param {object} [to=(state.step ?? {})] The results object; `state.step` or
  *     a new object if not given.
  *
@@ -60,9 +68,10 @@ const scale = { vec2: 0.5 };
  *     shaders GLSL, if `state.step.verts` was enabled.
  * @returns {object} `to.uniforms` The given `state.uniforms`.
  * @returns {number} `to.count` The given/new `state.count`.
- * @returns {api.buffer} `to.positions` The given/new `state.positions`; passed
- *     through `api.buffer`.
- * @returns {api.command} `to.pass` A GL command function to draw a given pass.
+ * @returns {buffer} `to.positions` The given/new `state.positions`; via
+ *     `api.buffer`.
+ * @returns {command} `to.pass` A GL command function to draw a given pass; via
+ *     `api.command`.
  * @returns {function} `to.run` The main step function, which performs all the
  *     draw pass GL commands for a given state step.
  */
@@ -124,22 +133,92 @@ export function getStep(api, state, to = (state.step ?? {})) {
     });
 
     to.run = (props = state) => {
-        const { steps, step, maps: { passes } } = props;
+        const { steps, step } = props;
         const stepNow = props.stepNow = (props.stepNow+1 || 0);
         const { pass, onPass, onStep } = step;
+        const stepProps = (onStep?.(props, wrapGet(stepNow, steps)) ?? props);
 
-        onStep?.(props, wrapGet(stepNow, steps));
-
-        each((passProps, p) => {
-                props.passNow = p;
-                pass(onPass?.(props, passProps) ?? props);
+        each((p, i) => {
+                stepProps.passNow = i;
+                pass(onPass?.(stepProps, p) ?? stepProps);
             },
-            passes);
+            stepProps.maps.passes);
 
         return props;
     };
 
     return to;
 }
+
+/**
+ * Function to set up a GL buffer.
+ *
+ * @callback buffer
+ *
+ * @param {array<number>|buffer} [state.step.positions] The step position
+ *     attributes.
+ *
+ * @returns {*} A GL buffer to use for vertex attributes, or an object serving
+ *     that purpose.
+ */
+
+/**
+ * Function to create a GL render pass, given options, to be called later with
+ * options.
+ *
+ * @see [getUniforms]{@link ./step.js#getUniforms}
+ * @see [framebuffer]{@link ./state.js#framebuffer}
+ *
+ * @callback command
+ *
+ * @param {object} passCommand The properties from which to create the GL render
+ *     function for a given pass.
+ * @param {function} [passCommand.vert] Function hook returning the vertex
+ *     shader GLSL string for the next render pass.
+ * @param {function} [passCommand.frag] Function hook returning the fragment
+ *     shader GLSL string for the next render pass.
+ * @param {object<buffer>} [passCommand.attributes] The vertex attributes for
+ *     the next render pass.
+ * @param {object<function>} [passCommand.uniforms] The uniform hooks for the
+ *     given `props`. See `getUniforms`.
+ * @param {number} [passCommand.count] The number of elements to draw.
+ * @param {object<boolean,*>} [passCommand.depth] An object describing the depth
+ *     settings for the next render pass; e.g: `passCommand.depth.enable` flag.
+ * @param {function} [passCommand.framebuffer] Function hook returning the
+ *     `framebuffer` to draw to in the next render pass. See `framebuffer`.
+ *
+ * @returns {function} Function to execute a GL render pass, with options, for
+ *     a given render pass.
+ */
+
+/**
+ * Callback upon each step.
+ *
+ * @see [getState]{@link ./state.js#getState}
+ * @see [framebuffer]{@link ./state.js#framebuffer}
+ *
+ * @callback onStep
+ *
+ * @param {object} [props] The `props` passed to `run`.
+ * @param {array<framebuffer>} step The `framebuffer`s for `props.stepNow` from
+ *     `props.steps`, where the next state step will be drawn. See `getState`.
+ *
+ * @returns {object} A `stepProps` to use for each of the step's next passes; or
+ *     nullish to use the given `props`.
+ */
+
+/**
+ * Callback upon each pass.
+ *
+ * @see [mapGroups]{@link ./maps.js#mapGroups}
+ *
+ * @callback onPass
+ *
+ * @param {object} [stepProps] The `props` passed to `run` via any `onStep`.
+ * @param {array<number>} pass The maps for the next pass. See `mapGroups`.
+ *
+ * @returns {object} A `passProps` to use for the render `command` call; or
+ *     nullish to use the given `stepProps`.
+ */
 
 export default getStep;

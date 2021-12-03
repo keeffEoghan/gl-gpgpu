@@ -68,6 +68,25 @@ void main() {
     #if stepsPast > 1
         // Shift into past steps.
         tapSamplesShift(states, st, textures, stepPast, 0)
+        /**
+         * @todo Fix D3D "sampler array index must be a literal expression".
+         *     Caused by need for vertex attribute to look up sampler array;
+         *     as it's a non-constant expression.
+         *     Maybe `gl_VertexID` would work around this, if it's constant.
+         *     Combining texture steps into one map would work around it, by
+         *     avoiding the sampler array entirely; but specific and heavy.
+         *
+         *     So, maybe try a list-like instead of a sampler array; e.g:
+         *     `uniform sampler2D state_0;` etc; instead of the current
+         *     `uniform sampler2D states[stepsPast*textures];`
+         *     Needs updates to both inputs and macros. How can lookups be
+         *     quick without loop or nested `((i == 1)? state_1 : state_0)`?
+         */
+        // #define modConst(x, y) (x-(y*(x/y)))
+        // #define pairStepConst(i, s) ((modConst(i, ((s-1)*2))+1)/2)
+
+        // tapSamplesShift(states, st, textures,
+        //     pairStepConst(int(index), stepsPast), 0)
     #else
         // No past steps, no shift.
         tapSamples(states, st, textures)
@@ -93,7 +112,7 @@ void main() {
     gl_Position = alive*vertex;
     gl_PointSize = alive*pointSize*depth*mix(0.1, 1.0, ratioNow);
 
-    float a = pow(life/lifetime.t, 0.5)*ratioNow;
+    float a = pow(life/lifetime.t, 0.3)*pow(ratioNow, 0.3);
     float speed = length(mix(velocity, position1-position0, useVerlet)/dt);
 
     color = a*vec4(mix(0.2, 1.0, ratioNow), mix(0.2, 1.0, entry/float(count)),

@@ -22,10 +22,17 @@ import stepFrag from './step.frag.glsl';
 import drawVert from './draw.vert.glsl';
 import drawFrag from './draw.frag.glsl';
 
+self.gpgpu = gpgpu;
+self.macroPass = macroPass;
+self.getMaps = getMaps;
+self.getUniforms = getUniforms;
+self.getDrawIndexes = getDrawIndexes;
+self.indexPairs = indexPairs;
+
 const extend = {
-    halfFloat: extensionsHalfFloat(),
-    float: extensionsFloat(),
-    other: optionalExtensions()
+    halfFloat: extensionsHalfFloat?.(),
+    float: extensionsFloat?.(),
+    other: optionalExtensions?.()
 };
 
 const regl = self.regl = getRegl({
@@ -36,13 +43,13 @@ const regl = self.regl = getRegl({
 
 console.group('Extensions');
 
-console.log('required',
+console.log('required', (extend.required &&
     reduce((o, e) => o+(o && '; ')+e+': '+regl.hasExtension(e),
-        extend.required, ''));
+        extend.required, '')));
 
-console.log('optional',
+console.log('optional', (extend.optional &&
     reduce((o, e) => o+(o && '; ')+e+': '+regl.hasExtension(e),
-        extend.optional, ''));
+        extend.optional, '')));
 
 console.groupEnd();
 
@@ -55,7 +62,7 @@ const bound = 1;
 
 // How many values/channels each property independently tracks.
 // The order here corresponds to the order in the shaders and generated macros,
-// though these may be packed across channels/textures/passes differently.
+// though these may be `packed` across channels/textures/passes differently.
 
 const valuesMap = (new Map())
     .set('position', 3).set('motion', 3).set('life', 1);
@@ -72,7 +79,7 @@ const { maxTextureUnits, maxTextureSize, lineWidthDims, pointSizeDims } =
 const limits = {
     steps: [
         1+bound,
-        Math.floor(maxTextureUnits*4/reduce((s, v) => s+v, values, 0))
+        Math.floor(maxTextureUnits/(reduce((s, v) => s+v, values, 0)/4))
     ],
     // Better stay farther under maximum texture size, or errors/crashes.
     scale: [1, Math.log2(maxTextureSize)]
@@ -97,7 +104,7 @@ let query = getQuery();
 
 // 1 active state, as many others as can be bound; at least 2 past states needed
 // for Verlet integration, 1 for Euler integration.
-const steps = Math.floor(clamp((parseInt(query.get('steps'), 10) || 2+bound),
+const steps = Math.floor(clamp((parseInt(query.get('steps'), 10) || 1+bound),
     ...limits.steps));
 
 const stepsPast = steps-bound;
@@ -124,19 +131,19 @@ console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
 document.querySelector('#default').href =
     `?${setQuery([['steps'], ['scale']])}#default`;
 
-document.querySelector('#euler').href = `?${setQuery([
-        ['steps', 1+bound], ['scale', Math.max(niceScale, limits.scale[1]-5)]
-    ])}#euler`;
+document.querySelector('#verlet').href = `?${setQuery([
+        ['steps', 2+bound], ['scale', niceScale]
+    ])}#verlet`;
+
+document.querySelector('#long').href = `?${setQuery([
+        ['steps', limits.steps[1]],
+        ['scale', clamp(limits.scale[0]+5, limits.scale[1]-8, limits.scale[1])]
+    ])}#long`;
 
 document.querySelector('#max').href = `?${setQuery([
         ['steps', Math.max(limits.steps[0], limits.steps[1]-3)],
         ['scale', Math.max(niceScale, limits.scale[1]-5)]
     ])}#max`;
-
-document.querySelector('#long').href = `?${setQuery([
-        ['steps', limits.steps[1]],
-        ['scale', Math.max(limits.scale[0], limits.scale[1]-6)]
-    ])}#long`;
 
 document.querySelector('#trails').href =
     `?${setQuery([['points', ((usePoints)? null : '')]])}#trails`;
@@ -195,15 +202,14 @@ const state = gpgpu(regl, {
         // The position particles respawn from.
         source: [0, 0, 0.5],
         // To help with accuracy of small numbers, uniformly scale space.
-        scale: 1e-3,
+        scale: 1e-7,
 
-        // One option in the array chosen by Euler/Verlet, respectively.
+        // One option in these arrays chosen by Euler/Verlet, respectively.
 
         // The motion particles respawn with.
-        spout: [2e3, 1e2],
-        // Use `energy` to scale motion.
-        // To help numeric accuracy, pass energy as `[x, y] = x*10**y`.
-        energy: [[2, -4], [2, -4]]
+        spout: [3e3, 2e2],
+        // Drag coefficient.
+        // drag: [range(3, 1e-3), range(3, 1e-1)]
     },
     bound, steps, scale, maps: { values, derives },
     // Data type according to support.
@@ -224,14 +230,14 @@ const state = gpgpu(regl, {
 
             lifetime: regl.prop('props.lifetime'),
             g: regl.prop('props.g'),
+            useVerlet: (_, { props: { useVerlet: u } }) => +u,
 
             source: (_, { props: { source, scale } }) =>
                 map((v, i) => v/scale, source, cache.source),
 
-            // One option in the array chosen by Euler/Verlet, respectively.
-            useVerlet: (_, { props: { useVerlet: u } }) => +u,
-            energy: (_, { props: { useVerlet: u, energy: e } }) => e[+u],
-            spout: (_, { props: { spout: ss, useVerlet: u } }) => ss[+u]
+            // One option in these arrays chosen by Euler/Verlet, respectively.
+            spout: (_, { props: { spout: ss, useVerlet: u } }) => ss[+u],
+            // drag: (_, { props: { drag: ds, useVerlet: u } }) => ds[+u]
         }
     }
 });
@@ -255,8 +261,8 @@ const drawState = {
     ...state,
     drawProps: {
         // Speed-to-colour scaling, as `[multiply, power]`.
-        // One option in the array chosen by Euler/Verlet, respectively.
-        pace: [[5, 0.5], [0.5, 3]]
+        // One option in these arrays chosen by Euler/Verlet, respectively.
+        pace: [[1e-3, 0.5], [5e-5, 0.5]]
     },
     // @todo Draw all states with none bound as outputs - currently errors.
     // bound: 0,

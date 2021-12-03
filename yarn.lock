@@ -342,7 +342,7 @@ __metadata:
   dependencies:
     "@epok.tech/fn-lists": ^0.1.2
     "@epok.tech/fn-time": ^0.2.1
-    "@epok.tech/gl-screen-triangle": ^1.2.0
+    "@epok.tech/gl-screen-triangle": ^1.2.1
     "@epok.tech/glsl-aspect": ^1.0.3
     "@epok.tech/glsl-verlet": ^0.1.1
     "@epok.tech/is-type": ^0.1.0
@@ -363,10 +363,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@epok.tech/gl-screen-triangle@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "@epok.tech/gl-screen-triangle@npm:1.2.0"
-  checksum: 102827c9de29497c57063a1c3e2f71569e3de2d6569bc65916091772d48e0063e0c7939ed58a681bdc5e00ab8bd02f9d713ae415d2031a932dc0ae69b22c3bca
+"@epok.tech/gl-screen-triangle@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "@epok.tech/gl-screen-triangle@npm:1.2.1"
+  checksum: 551e98be3cb147835f4d4bfb1d4a67937d4aaacb6bb5a77e35f3a9f882d6462be5051279e6abd36f8e1a6270d9ddaa55ba6339b1ee1667517fa5611528f715fc
   languageName: node
   linkType: hard
 

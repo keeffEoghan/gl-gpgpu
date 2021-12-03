@@ -2,7 +2,7 @@
  * GPGPU state-stepping: maps minimal draw passes, shaders, GL resources,
  * inputs, outputs. BYORenderer.
  *
- * Rendering approach/engine specific, decoupled from the physics code.
+ * Rendering approach/engine specific, decoupled from the logic code.
  * The modules and many hooks may be used as given, or piecemeal, or overridden.
  */
 
