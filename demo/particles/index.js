@@ -178,7 +178,6 @@ derives[valuesIndex.life] = [
 
 // Whether to allow Verlet integration.
 const canVerlet = (stepsPast >= 2);
-const cache = { source: [] };
 
 // The main GPGPU state.
 const state = gpgpu(regl, {
@@ -193,16 +192,16 @@ const state = gpgpu(regl, {
         rate: 1,
         // Loop time over this period to avoid instability of parts of the demo.
         loop: 3e3,
-        // Whether to use Verlet (midpoint) or Euler (forward) integration.
-        useVerlet: canVerlet,
         // Range of how long a particle lives before respawning.
         lifetime: [5e2, 3e3],
+        // Whether to use Verlet (midpoint) or Euler (forward) integration.
+        useVerlet: canVerlet,
         // Acceleration due to gravity.
         g: [0, -9.80665, 0],
         // The position particles respawn from.
         source: [0, 0, 0.5],
-        // To help with accuracy of small numbers, uniformly scale space.
-        scale: 1e-7,
+        // For numeric accuracy, encoded as exponent `[b, p] => b*(10**p)`.
+        scale: [1, 7],
 
         // One option in these arrays chosen by Euler/Verlet, respectively.
 
@@ -229,11 +228,11 @@ const state = gpgpu(regl, {
                 Math.sin(t/l*Math.PI)*l,
 
             lifetime: regl.prop('props.lifetime'),
-            g: regl.prop('props.g'),
             useVerlet: (_, { props: { useVerlet: u } }) => +u,
-
-            source: (_, { props: { source, scale } }) =>
-                map((v, i) => v/scale, source, cache.source),
+            g: regl.prop('props.g'),
+            source: regl.prop('props.source'),
+            // For numeric accuracy, encoded as exponent `[b, e] => b*(10**e)`.
+            scale: regl.prop('props.scale'),
 
             // One option in these arrays chosen by Euler/Verlet, respectively.
             spout: (_, { props: { spout: ss, useVerlet: u } }) => ss[+u],

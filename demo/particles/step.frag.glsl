@@ -66,6 +66,7 @@ uniform vec2 lifetime;
 uniform float useVerlet;
 uniform vec3 g;
 uniform vec3 source;
+uniform vec2 scale;
 uniform float spout;
 // uniform vec3 drag;
 
@@ -158,10 +159,13 @@ void main() {
     #endif
 
     #ifdef positionOutput
+        // For numeric accuracy, encoded as exponent `[b, p] => b*(10**p)`.
+        float size = scale.s*pow(10.0, -scale.t);
+
         // Use either Euler integration...
-        vec3 positionTo = mix(position1+(velocity*dt1),
+        vec3 positionTo = mix(position1+(velocity*dt1*size),
             // ... or Verlet integration...
-            verlet(position0, position1, acceleration, dt0, dt1),
+            verlet(position0, position1, acceleration*size, dt0, dt1),
             // ... according to which is currently active.
             useVerlet);
 

@@ -31,7 +31,6 @@ uniform vec2 viewShape;
 uniform float pointSize;
 uniform float dt;
 uniform vec2 lifetime;
-uniform float scale;
 uniform vec2 pace;
 uniform float useVerlet;
 
@@ -98,7 +97,7 @@ void main() {
 
     float alive = gt(life, 0.0);
     vec2 ar = aspect(viewShape);
-    vec4 vertex = vec4(position1.xy*ar*scale, position1.z*scale, 1.0);
+    vec4 vertex = vec4(position1.xy*ar, position1.z, 1.0);
     float depth = clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
 
     gl_Position = alive*vertex;
