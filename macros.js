@@ -729,18 +729,29 @@ export function macroSamples(state, on) {
             }\n`+
             // The texture-sampling logic.
             /**
-             * @todo Fix D3D "sampler array index must be a literal expression".
+             * @todo Fix GLSL3/D3D error "sampler array index must be a literal
+             *     expression".
              *     Caused by need for vertex attribute to look up sampler array;
-             *     as it's a non-constant expression.
-             *     Maybe `gl_VertexID` would work around this, if it's constant.
-             *     Combining texture steps into one map would work around it, by
-             *     avoiding the sampler array entirely; but specific and heavy.
-             *
-             *     So, maybe try a list-like instead of a sampler array; e.g:
+             *     as it's a non-constant expression; this is also a limitation
+             *     in the GLSL3 spec:
+             *     (a) Combine texture steps into one map would work around it,
+             *     avoiding sampler arrays entirely; maybe usage-specific/heavy;
+             *     could have 1 framebuffer, copy pixels into its offset in
+             *     1 big past states texture (merge the current sampler array);
+             *     analogous to GLSL3 `sampler2DArray` and `sampler3D`.
+             *     (b) Maybe `gl_VertexID` could work around this; only GLSL 3+.
+             *     (c) Maybe try a list-like instead of a sampler array; e.g:
              *     `uniform sampler2D state_0;` etc; instead of the current
-             *     `uniform sampler2D states[stepsPast*textures];`
-             *     Needs updates to both inputs and macros. How can lookups be
-             *     quick without loop or nested `((i == 1)? state_1 : state_0)`?
+             *     `uniform sampler2D states[stepsPast*textures];`; updates to
+             *     both inputs and macros; how can lookups be quick without loop
+             *     or nested `((i == 1)? state_1 : state_0)`?
+             *     Of these options, (a) seems to be the best, most future-proof
+             *     and in line with the specs, cross-platform, while avoiding
+             *     awkward workarounds.
+             *
+             * @see https://stackoverflow.com/a/60110986/716898
+             * @see https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_2d_array.html
+             * @see https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_3d.html
              */
             (tap ??
                 `#define ${n}tapSamples(states, uv, textures) `+

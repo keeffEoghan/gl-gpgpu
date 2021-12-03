@@ -4,6 +4,10 @@
  *
  * Rendering approach/engine specific, decoupled from the logic code.
  * The modules and many hooks may be used as given, or piecemeal, or overridden.
+ *
+ * @todo Fix GLSL3/D3D error "sampler array index must be a literal expression".
+ *     See info in `macroSamples` in `macros.js`.
+ * @todo Allow passes within/across textures; separate data and texture shapes.
  */
 
 import { getMaps } from './maps';

@@ -11,7 +11,7 @@
  * efficient mappings available with the least I/O when it comes to drawing
  * (draw passes, texture samples, etc).
  *
- * @todo Allow passes into or across textures; separate data and texture shapes.
+ * @todo Allow passes within/across textures; separate data and texture shapes.
  */
 
 import map from '@epok.tech/fn-lists/map';
