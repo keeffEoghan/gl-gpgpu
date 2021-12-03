@@ -160,7 +160,7 @@ void main() {
 
     #ifdef positionOutput
         // For numeric accuracy, encoded as exponent `[b, p] => b*(10**p)`.
-        float size = scale.s*pow(10.0, -scale.t);
+        float size = scale.s*pow(10.0, scale.t);
 
         // Use either Euler integration...
         vec3 positionTo = mix(position1+(velocity*dt1*size),

@@ -201,7 +201,7 @@ const state = gpgpu(regl, {
         // The position particles respawn from.
         source: [0, 0, 0.5],
         // For numeric accuracy, encoded as exponent `[b, p] => b*(10**p)`.
-        scale: [1, 7],
+        scale: [1, -7],
 
         // One option in these arrays chosen by Euler/Verlet, respectively.
 
@@ -261,7 +261,7 @@ const drawState = {
     drawProps: {
         // Speed-to-colour scaling, as `[multiply, power]`.
         // One option in these arrays chosen by Euler/Verlet, respectively.
-        pace: [[1e-3, 0.5], [5e-5, 0.5]]
+        pace: [[1e-3, 0.6], [3e2, 0.6]]
     },
     // @todo Draw all states with none bound as outputs - currently errors.
     // bound: 0,
