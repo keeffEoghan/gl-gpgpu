@@ -10,16 +10,15 @@ import range from '@epok.tech/fn-lists/range';
 import map from '@epok.tech/fn-lists/map';
 import reduce from '@epok.tech/fn-lists/reduce';
 
+import { getWidth, getHeight, getScaled } from './size';
+
 import {
-        scaleDef, stepsDef, valuesDef, channelsMinDef,
-        typeDef, minDef, magDef, wrapDef, depthDef, stencilDef
+        widthDef, heightDef, scaleDef, stepsDef, valuesDef, channelsMinDef,
+        typeDef, minDef, magDef, wrapDef, depthDef, stencilDef, mergeDef
     } from './const';
 
 /**
  * Set up the GPGPU resources and meta information for a state of a number data.
- *
- * @todo Transform feedback.
- * @todo Reorder the given `values` into the most efficient `maps`?
  *
  * @example
  *     const api = {
@@ -28,7 +27,7 @@ import {
  *     };
  *
  *     // Example with `webgl_draw_buffers` extension support, for 4 buffers.
- *     let maps = mapGroups({ values: [1, 2, 3], texturesMax: 4, packed: 0 });
+ *     let maps = mapGroups({ values: [1, 2, 3], buffersMax: 4, packed: 0 });
  *     let state = { steps: 2, side: 10, maps };
  *
  *     const s0 = getState(api, state, {}); // =>
@@ -103,7 +102,7 @@ import {
  *     };
  *
  *     // Example with no `webgl_draw_buffers` extension support, only 1 buffer.
- *     maps = mapGroups({ values: [1, 2, 3], texturesMax: 1, packed: 0 });
+ *     maps = mapGroups({ values: [1, 2, 3], buffersMax: 1, packed: 0 });
  *     state = { type: 'uint8', steps: 2, scale: 5, maps, stepNow: 1 };
  *
  *     const s1 = getState(api, state, {}); // =>
@@ -193,20 +192,39 @@ import {
  * @see [mapGroups]{@link ./maps.js#mapGroups}
  * @see [mapSamples]{@link ./maps.js#mapSamples}
  * @see [getStep]{@link ./step.js#getStep}
+ * @see [macroSamples]{@link ./macros.js#macroSamples}
+ * @see [macroTaps]{@link ./macros.js#macroTaps}
  * @see [macroPass]{@link ./macros.js#macroPass}
+ * @see [getWidth]{@link ./size.js#getWidth}
+ * @see [getHeight]{@link ./size.js#getHeight}
+ * @see [getScaled]{@link ./size.js#getScaled}
+ *
+ * @see https://stackoverflow.com/a/60110986/716898
+ * @see https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_2d_array.html
+ * @see https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_3d.html
  *
  * @param {object} api The API for GL resources.
  * @param {texture} [api.texture] Function to create a GL texture.
  * @param {framebuffer} [api.framebuffer] Function to create a GL framebuffer.
  * @param {object} [state={}] The state parameters.
- * @param {number} [state.width] The width of the data textures to allocate;
- *     if given, supersedes `state.side` and `state.scale`.
- * @param {number} [state.height] The height of the data textures to allocate;
- *     if given, supersedes `state.side` and `state.scale`.
- * @param {number} [state.side] The length of both sides of the data textures
- *     to allocate; if given, supersedes `state.scale`.
- * @param {number} [state.scale=scaleDef] The length of the data textures sides
- *     to allocate; gives a square power-of-two texture raising 2 to this power.
+ *
+ * @param {number} [state.width=widthDef] Data width, aliases follow in order
+ *     of precedence. See `getWidth`.
+ * @param {number} [state.w] Alias of `state.width`. See `getWidth`.
+ * @param {number} [state.x] Alias of `state.width`. See `getWidth`.
+ * @param {number} [state.height=heightDef] Data height, aliases follow in order
+ *     of precedence. See `getHeight`.
+ * @param {number} [state.h] Alias of `state.height`. See `getHeight`.
+ * @param {number} [state.y] Alias of `state.height`. See `getHeight`.
+ * @param {number} [state.shape] Data size. See `getWidth` and `getHeight`.
+ * @param {number} [state.size] Data size. See `getWidth` and `getHeight`.
+ * @param {number} [state.side] Data size of width/height.
+ *     See `getWidth` and `getHeight`.
+ * @param {number} [state.0] Alias of `state.width` (index 0). See `getWidth`.
+ * @param {number} [state.1] Alias of `state.height` (index 1). See `getHeight`.
+ * @param {number} [state.scale=scaleDef] Data size of width/height as a square
+ *     power-of-two size, 2 raised to this power. See `getScaled`.
+ *
  * @param {number|array} [state.steps=stepsDef] How many steps of state to
  *     track, or the list of states if already set up.
  * @param {object} [state.maps] How `state.maps.values` are grouped per-texture
@@ -227,6 +245,45 @@ import {
  * @param {string} [state.wrap=wrapDef] Texture wrap mode.
  * @param {boolean|*} [state.depth=depthDef] Framebuffer depth attachment.
  * @param {boolean|*} [state.stencil=stencilDef] Framebuffer stencil attachment.
+ *
+ * @param {boolean|*} [state.merge=mergeDef] Whether to merge states into one
+ *     texture; `true` handles merging here; any other truthy is used as-is (the
+ *     merged texture already set up); falsey uses un-merged arrays of textures.
+ *     Merging allows shaders to access past steps by non-constant lookups; e.g:
+ *     attributes cause "sampler array index must be a literal expression" on
+ *     GLSL3 spec and some platforms (e.g: D3D); but takes more work to copy the
+ *     last pass's bound texture/s to merge into the past texture, so should be
+ *     used to variably access past steps or avoid arrays of textures limits.
+ *     Only this merged past texture and those bound in an active pass are
+ *     created, as upon each pass the output will be copied to the past texture,
+ *     and bound textures reused in the next pass.
+ *     If not merging, all state is as output by its pass in its own one of the
+ *     arrays of textures.
+ *     The default merged texture is laid out as `[texture, step]` on the
+ *     `[x, y]` axes, respectively; if other layouts are needed, the merge
+ *     texture can be given here to be used as-is, and the merging/copying and
+ *     lookup logic in their respective hooks. See `getStep` and `macroTaps`.
+ *     If a merge texture is given, size information is interpreted in a similar
+ *     way and precedence as it is from `state`. See `getWidth` and `getHeight`.
+ * @param {number} [state.merge.width] Merged data width, aliases follow in
+ *     order of precedence. See `state`.
+ * @param {number} [state.merge.w] Alias of `state.merge.width`. See `state`.
+ * @param {number} [state.merge.x] Alias of `state.merge.width`. See `state`.
+ * @param {number} [state.merge.height] Merged data height, aliases follow in
+ *     order of precedence. See `state`.
+ * @param {number} [state.merge.h] Alias of `state.merge.height`. See `state`.
+ * @param {number} [state.merge.y] Alias of `state.merge.height`. See `state`.
+ * @param {number} [state.merge.shape] Merged data size. See `state`.
+ * @param {number} [state.merge.size] Merged data size. See `state`.
+ * @param {number} [state.merge.side] Merged data size of width/height.
+ *     See `state`.
+ * @param {number} [state.merge.0] Alias of `state.merge.width` (index 0).
+ *     See `state`.
+ * @param {number} [state.merge.1] Alias of `state.merge.height` (index 1).
+ *     See `state`.
+ * @param {number} [state.merge.scale] Merged data size of width/height as a
+ *     square power-of-two size, 2 raised to this power. See `state`.
+ *
  * @param {object} [to=state] The state object to set up. Modifies the given
  *     `state` object by default.
  *
@@ -235,7 +292,7 @@ import {
  * @returns {object<number,array<number,array<number>>>} `to.maps` Any given
  *     `state.maps`. See `mapGroups`.
  * @returns {array<array<object<texture,string,number,array<number>>>>}
- *     `to.textures` Textures per step, as arrays of objects of `texture`s, and
+ *     `to.textures` Textures per step, as arrays of objects of `texture`s and
  *     meta info. See `to.maps.textures`.
  * @returns {array<array<object<framebuffer,number,array<number>>>>}
  *     `to.passes` Passes per step, as arrays of objects of `framebuffer`s,
@@ -246,20 +303,27 @@ import {
  *     information; set up here, or the given `state.steps` if it's an array.
  *     State data may be drawn into the framebuffers accordingly.
  *     See `mapGroups` and `getStep`.
+ * @returns {undefined|*|object<texture,string,number,array<number>>} `to.merge`
+ *     Any created object of a merged `texture` and meta info, or the given
+ *     `state.merge` as-is if not handled here. See `getStep` and `macroTaps`.
  * @returns {object<number,string,array<number>>} `to.size` Size/type
  *     information about the created data resources.
+ * @returns {undefined|object<number,string,array<number>>} `to.size.merge`
+ *     Size/type information about any created or given merge texture.
  * @returns {number} `to.stepNow` The currently active state step, as given.
  * @returns {number} `to.passNow` The currently active draw pass, as given.
  */
 export function getState({ texture, framebuffer }, state = {}, to = state) {
     const {
-            steps = stepsDef, stepNow, passNow, maps, side, scale = scaleDef,
-            // Just `state.scale` ensures square power-of-two; for e.g: mipmaps.
-            width = (side ?? 2**scale), height = (side ?? 2**scale),
+            steps = stepsDef, stepNow, passNow, maps, merge = mergeDef, scale,
             // Resource format settings.
             type = typeDef, min = minDef, mag = magDef, wrap = wrapDef,
             depth = depthDef, stencil = stencilDef
         } = state;
+
+    const scaled = getScaled(scale);
+    const width = getWidth(state) ?? scaled ?? widthDef;
+    const height = getHeight(state) ?? scaled ?? heightDef;
 
     to.maps = maps;
     to.stepNow = stepNow;
@@ -275,57 +339,134 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
 
     // Size of the created resources.
     const size = to.size = {
-        steps: (steps.length ?? steps), textures: 0, passes: 0,
+        steps: (steps.length ?? steps), textures: 0, passes: 0, colors: 0,
         width, height, shape: [width, height], count: width*height
     };
 
     const textures = to.textures = [];
     const passes = to.passes = [];
 
-    const addTexture = (step, pass, props) => (index) =>
-        ((textures[step] ??= [])[index] = {
-            // Meta info.
-            ...props,
-            entry: size.textures++, step, pass, index, map: texturesMap[index],
-            // Resources.
-            texture: texture?.(props)
-        })
-        .texture;
+    // All framebuffer attachments need the same number of channels; enough to
+    // hold all values a pass holds, or all passes hold if merging and reusing.
+    const passChannels = (pass, min) => reduce((min, t) =>
+            Math.max(min, reduce((sum, v) => sum+values[v], texturesMap[t], 0)),
+        pass, min);
 
+    // If merging past textures and reusing texture attachments in each pass's
+    // framebuffer, pre-compute the minimum channels for a reusable pool of
+    // texture attachments that can hold any pass's values; since all a
+    // framebuffer's attachments also need the same number of channels, this is
+    // also the same number of channels across all passes.
+    const mergeChannels = (merge &&
+        reduce((min, p) => passChannels(p, min), maps.passes, channelsMin));
+
+    // The textures bound to the next pass; reused if merging.
+    let color;
+
+    /**
+     * Add a texture attachment and meta info to `textures` if applicable; to
+     * return its new `texture` or a reused one to bind to a pass in `passes`.
+     */
+    const addTexture = (channels, w, h, step, pass) => (index, c, _, color) => {
+        /** Properties passed for texture creation, then meta info. */
+        const to = { channels, width: w, height: h, type, min, mag, wrap };
+
+        // Resources.
+
+        /**
+         * Add/reuse texture color attachments as needed; add minimal textures.
+         * If merging, passes may reuse any pass's existing texture attachments;
+         * otherwise, each pass has its own dedicated texture attachments.
+         */
+        let entry = c;
+        let t = color?.[entry];
+
+        // Only create new textures if existing ones can't be reused.
+        if(!t) {
+            t = texture?.(to);
+            entry = size.textures++;
+        }
+
+        // Add meta info.
+
+        /** Denotes attached texture; if merging, textures may be reused. */
+        to.texture = t;
+        to.entry = entry;
+        /** Denotes framebuffer attachments; may reuse underlying textures. */
+        to.color = (Number.isInteger(pass) && size.colors++);
+        to.step = step;
+        to.pass = pass;
+        to.index = index;
+        to.map = texturesMap[index];
+
+        /**
+         * Check whether this texture is part of the `step`/`pass` render flow.
+         * Gives the entire object if it's not going into the `textures` lists;
+         * otherwise add to the `textures` lists and return the texture itself.
+         */
+        return ((!Number.isInteger(step) || !Number.isInteger(index))? to
+            :   ((textures[step] ??= [])[index] = to).texture);
+    };
+
+    /**
+     * Add a pass to `passes`, with its `textures` bound; to return its
+     * `framebuffer` to one of `steps`.
+     */
     const addPass = (step) => (pass, index) => {
-        // All framebuffer color attachments need the same number of channels.
-        const textureProps = {
-            type, min, mag, wrap, width, height,
-            channels: reduce((max, t) =>
-                    reduce((max, v) => Math.max(max, values[v]),
-                        texturesMap[t], max),
-                pass, channelsMin)
-        };
+        /** All a framebuffer's attachments need the same number of channels. */
+        const channels = (mergeChannels || passChannels(pass, channelsMin));
 
-        const textures = map(addTexture(step, index, textureProps), pass);
-        const props = { depth, stencil, width, height, color: textures };
+        // Resources.
 
-        return ((passes[step] ??= [])[index] = {
-                // Meta info.
-                ...props, entry: size.passes++, step, index, map: pass,
-                // Resources.
-                framebuffer: framebuffer?.(props)
-            })
-            .framebuffer;
+        /** Map the pass's texture color attachments and their meta info. */
+        color = map(addTexture(channels, width, height, step), pass,
+            // Reuse any existing color attachments if merging; otherwise create
+            // dedicated color attachments for each pass.
+            ((merge)? (color ?? []) : []));
+
+        /** Properties passed for framebuffer creation, then meta info. */
+        const to = (passes[step] ??= [])[index] =
+            { depth, stencil, width, height, color };
+
+        /** The framebuffer for this pass. */
+        const f = to.framebuffer = framebuffer?.(to);
+
+        // Add meta info.
+        to.entry = size.passes++;
+        to.step = step;
+        to.index = index;
+        to.map = pass;
+
+        return f;
     };
 
     // Set up resources we'll need to store data per-texture per-pass per-step.
     to.steps = map((passes, step) =>
-            // Use any given passes or create a new list of them.
+            // Use any given passes or create a new list.
             (passes || map(addPass(step), maps.passes)),
-        // Use any given steps or create a new list of them.
-        ((Number.isFinite(steps))? range(steps) : steps), 0);
+        // Use any given steps or create a new list.
+        ((Number.isInteger(steps))? range(steps) : steps), 0);
+
+    // Finish here if merge is disabled.
+    if(!merge) { return to; }
+
+    // Set up the texture for states to be merged into.
+
+    // Use any size info available in `merge`, as with `state` above.
+    const mScaled = getScaled(merge.scale);
+    // Use any given size info, or arrange merges along `[texture, step]` axes.
+    const mw = getWidth(merge) ?? mScaled ?? size.textures*width;
+    const mh = getHeight(merge) ?? mScaled ?? size.steps*height;
+
+    size.merge = { width: mw, height: mh, shape: [mw, mh], count: mw*mh };
+    // Create a new merge, or use any given merge texture.
+    to.merge = ((merge === true)? addTexture(mergeChannels, mw, mh)() : merge);
 
     return to;
 }
 
 /**
- * Function to create a GL texture.
+ * Function to create a GL texture; from a GL API.
  *
  * @callback texture
  *
@@ -341,7 +482,7 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
  */
 
 /**
- * Function to create a GL framebuffer.
+ * Function to create a GL framebuffer; from a GL API.
  *
  * @callback framebuffer
  *

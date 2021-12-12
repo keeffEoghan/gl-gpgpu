@@ -26,6 +26,7 @@ useReads_0
 attribute float index;
 
 uniform sampler2D states[stepsPast*textures];
+uniform float stepNow;
 uniform vec2 dataShape;
 uniform vec2 viewShape;
 uniform float pointSize;
@@ -66,21 +67,14 @@ void main() {
     // Sample the desired state values - creates the `data` array.
     #if stepsPast > 1
         // Shift into past steps.
-        tapSamplesShift(states, st, textures, stepPast, 0)
         /**
          * @todo Fix GLSL3/D3D error "sampler array index must be a literal
          *     expression". See info in `macroSamples` in `macros.js`.
          */
-        // #define modConst(x, y) (x-(y*(x/y)))
-        // #define pairStepConst(i, s) ((modConst(i, ((s-1)*2))+1)/2)
-
-        // tapSamplesShift(states, st, textures,
-        //     pairStepConst(int(index), stepsPast),
-        //     // pairStepConst(gl_VertexID, stepsPast),
-        //     0)
+        tapStateBy(st, stepPast, 0)
     #else
         // No past steps, no shift.
-        tapSamples(states, st, textures)
+        tapState(st)
     #endif
 
     // Read values.

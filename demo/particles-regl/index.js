@@ -15,7 +15,8 @@ import { gpgpu, extensionsFloat, extensionsHalfFloat, optionalExtensions }
 
 import { macroPass } from '../../macros';
 import { getMaps } from '../../maps';
-import { getUniforms, getDrawIndexes } from '../../inputs';
+import { getUniforms } from '../../inputs';
+import { getDrawIndexes } from '../../size';
 import indexPairs from '../../index-pairs';
 
 import stepFrag from './step.frag.glsl';
@@ -137,7 +138,7 @@ document.querySelector('#verlet').href = `?${setQuery([
 
 document.querySelector('#long').href = `?${setQuery([
         ['steps', limits.steps[1]],
-        ['scale', clamp(limits.scale[0]+5, limits.scale[1]-8, limits.scale[1])]
+        ['scale', clamp(limits.scale[0]+6, ...limits.scale)]
     ])}#long`;
 
 document.querySelector('#max').href = `?${setQuery([
@@ -211,6 +212,8 @@ const state = gpgpu(regl, {
         // drag: [range(3, 1e-3), range(3, 1e-1)]
     },
     bound, steps, scale, maps: { values, derives },
+    // Ensure th draw shader can variably access past steps.
+    // merge: canVerlet,
     // Data type according to support.
     type: ((extend.float.every(regl.hasExtension))? 'float' : 'half float'),
     // Per-shader macro hooks, no macros needed for the `vert` shader.

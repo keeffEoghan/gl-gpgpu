@@ -18,7 +18,7 @@ import map from '@epok.tech/fn-lists/map';
 import reduce from '@epok.tech/fn-lists/reduce';
 import each from '@epok.tech/fn-lists/each';
 
-import { valuesDef, channelsMaxDef, texturesMaxDef } from './const';
+import { valuesDef, channelsMaxDef, buffersMaxDef } from './const';
 
 export const cache = { packed: [] };
 
@@ -114,7 +114,7 @@ export function packValues(values, channelsMax = channelsMaxDef, to = []) {
  *     const maps = { values: [x, y, z], channelsMax: 4 };
  *
  *     // No optimisations - values not packed, single texture output per pass.
- *     mapGroups({ ...maps, texturesMax: 1, packed: false }); // =>
+ *     mapGroups({ ...maps, buffersMax: 1, packed: false }); // =>
  *     {
  *         ...maps, packed: false,
  *         textures: [[0], [1], [2]], // length === 3
@@ -124,7 +124,7 @@ export function packValues(values, channelsMax = channelsMaxDef, to = []) {
  *     };
  *
  *     // Automatically packed values - values across fewer textures/passes.
- *     mapGroups({ ...maps, texturesMax: 1 }); // =>
+ *     mapGroups({ ...maps, buffersMax: 1 }); // =>
  *     {
  *         ...maps, packed: [1, 0, 2],
  *         textures: [[1], [0, 2]], // length === 2
@@ -134,7 +134,7 @@ export function packValues(values, channelsMax = channelsMaxDef, to = []) {
  *     };
  *
  *     // Can bind more texture outputs per pass - values across fewer passes.
- *     mapGroups({ ...maps, texturesMax: 4 }); // =>
+ *     mapGroups({ ...maps, buffersMax: 4 }); // =>
  *     {
  *         ...maps, packed: [1, 0, 2],
  *         textures: [[1], [0, 2]], // length === 2
@@ -144,7 +144,7 @@ export function packValues(values, channelsMax = channelsMaxDef, to = []) {
  *     };
  *
  *     // Custom packed values - fuller control.
- *     mapGroups({ ...maps, texturesMax: 4, packed: [0, 2, 1] }); // =>
+ *     mapGroups({ ...maps, buffersMax: 4, packed: [0, 2, 1] }); // =>
  *     {
  *         ...maps, packed: [0, 2, 1],
  *         textures: [[0, 2], [1]], // length === 2
@@ -154,7 +154,7 @@ export function packValues(values, channelsMax = channelsMaxDef, to = []) {
  *     };
  *
  *     // Merge dependent values - fuller control, but no map for merged values.
- *     mapGroups({ ...maps, values: [x+z, y], texturesMax: 4 }); // =>
+ *     mapGroups({ ...maps, values: [x+z, y], buffersMax: 4 }); // =>
  *     {
  *         ...maps, packed: [1, 0],
  *         textures: [[1], [0]], // length === 2
@@ -177,7 +177,7 @@ export function packValues(values, channelsMax = channelsMaxDef, to = []) {
  *     order as-is, or use a more efficient `packed` order. See `packValues`.
  * @param {number} [maps.channelsMax=channelsMaxDef] Maximum channels per
  *     texture.
- * @param {number} [maps.texturesMax=texturesMaxDef] Maximum textures bound per
+ * @param {number} [maps.buffersMax=buffersMaxDef] Maximum textures bound per
  *     pass.
  * @param {array<number>|false} [maps.packed] An array of indexes into `values`
  *     packed into an order that best fits into blocks of `channelsMax` to
@@ -195,7 +195,7 @@ export function packValues(values, channelsMax = channelsMaxDef, to = []) {
  *     textures, as arrays corresponding to framebuffer attachments, into which
  *     `values` are drawn; whose values are indexes into `to.values`.
  * @returns {array<number>} `to.values` The `values`, as given.
- * @returns {number} `to.texturesMax` The max textures per pass, as given.
+ * @returns {number} `to.buffersMax` The max textures per pass, as given.
  * @returns {number} `to.channelsMax` The max channels per texture, as given.
  * @returns {array<number>} `to.valueToTexture` Inverse map from each index of
  *     `to.values` to the index of the data texture containing it.
@@ -209,13 +209,13 @@ export function mapGroups(maps = {}, to = maps) {
 
     const {
             values = valuesDef(),
-            channelsMax = channelsMaxDef, texturesMax = texturesMaxDef,
+            channelsMax = channelsMaxDef, buffersMax = buffersMaxDef,
             // Pack `values` into blocks of `channelsMax` to minimise resources.
             packed = packValues(values, channelsMax, cache.packed)
         } = maps;
 
     to.values = values;
-    to.texturesMax = texturesMax;
+    to.buffersMax = buffersMax;
     to.channelsMax = channelsMax;
     to.packed = packed;
 
@@ -245,7 +245,7 @@ export function mapGroups(maps = {}, to = maps) {
                 channels = value;
                 t = textures.push(texture = [])-1;
 
-                ((pass.length >= texturesMax) &&
+                ((pass.length >= buffersMax) &&
                     (p = passes.push(pass = [])-1));
 
                 pass.push(t);
@@ -272,7 +272,7 @@ export function mapGroups(maps = {}, to = maps) {
  * @example
  *     const maps = mapGroups({
  *         // See `mapGroups` examples for resulting maps.
- *         values: [2, 4, 1], channelsMax: 4, texturesMax: 1, packed: false,
+ *         values: [2, 4, 1], channelsMax: 4, buffersMax: 1, packed: false,
  *         // Derived step/value indexes, per-value; sample entries include:
  *         derives: [
  *             // Single...

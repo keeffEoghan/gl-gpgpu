@@ -57,6 +57,7 @@ useSamples
 
 // States from `gl-gpgpu`.
 uniform sampler2D states[stepsPast*textures];
+uniform float stepNow;
 uniform vec2 dataShape;
 // Custom inputs for this demo.
 uniform float dt0;
@@ -106,7 +107,7 @@ varying vec2 uv;
 
 void main() {
     // Sample the desired state values - creates the `data` array.
-    tapSamples(states, uv, textures)
+    tapState(uv)
 
     // Read values.
 

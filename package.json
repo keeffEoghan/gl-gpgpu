@@ -1,6 +1,6 @@
 {
   "name": "@epok.tech/gl-gpgpu",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "description": "GPGPU current/past state-stepping - map minimal passes of shaders, GL resources, inputs, outputs - BYORenderer.",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
   "author": "Eoghan O'Keeffe <epok.tech@gmail.com> (https://epok.tech)",
@@ -55,6 +55,7 @@
     "maps.js",
     "state.js",
     "step.js",
+    "size.js",
     "index.vert.js",
     "index-pairs/index.js",
     "index-pairs/index.glsl.js",
@@ -95,7 +96,7 @@
       "engines": {
         "browsers": "last 2 versions, > 0.5%, not dead"
       },
-      "source": "demo/particles/index.html",
+      "source": "demo/particles-regl/index.html",
       "distDir": "docs/",
       "publicUrl": "./"
     }
