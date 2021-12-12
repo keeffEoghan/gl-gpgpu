@@ -84,7 +84,7 @@ export const typeDef = 'float';
 export const minDef = 'nearest';
 /** Default texture magnification filter. */
 export const magDef = 'nearest';
-/** Default texture wrap mode, avoids WebGL1 need for power-of-two texture. */
+/** Default texture wrap mode, avoids WebGL1 need for power-of-2 texture. */
 export const wrapDef = 'clamp';
 /** Default framebuffer depth attachment. */
 export const depthDef = false;

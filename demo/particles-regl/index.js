@@ -213,7 +213,7 @@ const state = gpgpu(regl, {
     },
     bound, steps, scale, maps: { values, derives },
     // Ensure th draw shader can variably access past steps.
-    // merge: canVerlet,
+    merge: canVerlet,
     // Data type according to support.
     type: ((extend.float.every(regl.hasExtension))? 'float' : 'half float'),
     // Per-shader macro hooks, no macros needed for the `vert` shader.

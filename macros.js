@@ -756,8 +756,8 @@ export function macroTaps(state, on) {
     // Aliases use default names for brevity, main functions offer more control.
     const aka = `#define ${f}(uv)${cr+f}`;
     const akaBy = `#define ${f}By(uv, ${by})${cr+f}`;
-    // The current `sample`.
-    const at = n+'samples_';
+    // The current `sample`, as `[step, texture]`.
+    const st = n+'samples_';
     // Prefix for private temporary variables.
     const t = '_'+n;
     // A temporary array to pass to `getGLSLList`.
@@ -777,7 +777,7 @@ export function macroTaps(state, on) {
                 getGLSLList('vec4', n+'data',
                     map((_, i) => texture+'(states['+
                                 // Offset texture, step.
-                                `int(${at+i}.t)+(int(${at+i}.s)*${t}tlI)`+
+                                `int(${st+i}.t)+(int(${st+i}.s)*${t}tlI)`+
                             `], ${t}uvI)`,
                         passSamples, tapsSamples),
                     '', glsl)+'\n'+
@@ -791,9 +791,9 @@ export function macroTaps(state, on) {
                 getGLSLList('vec4', n+'data',
                     map((_, i) => texture+'(states['+
                                 // Offset texture.
-                                `int(${at+i}.t)+${t}byIB.t+`+
+                                `int(${st+i}.t)+${t}byIB.t+`+
                                 // Offset step.
-                                `((int(${at+i}.s)+${t}byIB.s)*${t}tlIB)`+
+                                `((int(${st+i}.s)+${t}byIB.s)*${t}tlIB)`+
                             `], ${t}uvIB)`,
                         passSamples, tapsSamples),
                     '', glsl)+'\n'+
@@ -806,28 +806,28 @@ export function macroTaps(state, on) {
             `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
             tap+`2(uv, states, stepNow, steps, textures)`+cr+
                 // Compute before the loop for lighter work.
-                `vec2 ${t}scale2 = 1.0/vec2(steps, textures);`+cr+
+                `vec2 ${t}sxy2 = 1.0/vec2(textures, steps);`+cr+
+                // Offset texture, step.
                 `vec2 ${t}uv2 = vec2(uv)+vec2(0, stepNow);`+cr+
                 getGLSLList('vec4', n+'data',
-                    // Would repeat wrap not `mod`; but WebGL1 needs power-of-2.
-                    map((_, i) => texture+'(states, mod('+
+                // Would repeat wrap not `mod`; but WebGL1 needs power-of-2.
+                map((_, i) => texture+'(states, '+
                             // Offset texture, step.
-                            `(vec2(${at+i}).ts+${t}uv2)*${t}scale2.ts, `+
-                            '1.0))',
+                            `mod((vec2(${st+i}).ts+${t}uv2)*${t}sxy2, 1.0))`,
                         passSamples, tapsSamples),
                     '', glsl)+'\n'+
             '// States may also be sampled by shifted step/texture.\n'+
             `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
             tap+`2By(uv, states, stepNow, steps, textures, ${by})`+cr+
                 // Compute before the loop for lighter work.
-                `vec2 ${t}scale2B = 1.0/vec2(steps, textures);`+cr+
+                `vec2 ${t}sxy2B = 1.0/vec2(textures, steps);`+cr+
+                // Offset texture, step.
                 `vec2 ${t}uv2B = vec2(uv)+vec2(0, stepNow)+vec2(${by}).ts;`+cr+
                 getGLSLList('vec4', n+'data',
-                    // Would repeat wrap not `mod`; but WebGL1 needs power-of-2.
-                    map((_, i) => texture+'(states, mod('+
+                // Would repeat wrap not `mod`; but WebGL1 needs power-of-2.
+                map((_, i) => texture+'(states, '+
                             // Offset texture, step.
-                            `(vec2(${at+i}).ts+${t}uv2B)*${t}scale2B.ts, `+
-                            '1.0))',
+                            `mod((vec2(${st+i}).ts+${t}uv2B)*${t}sxy2B, 1.0))`,
                         passSamples, tapsSamples),
                     '', glsl)+'\n'+
             ((!glsl3)?
@@ -843,19 +843,21 @@ export function macroTaps(state, on) {
                 `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
                 tap+`3(uv, states, stepNow, steps, textures)`+cr+
                     // Compute before the loop for lighter work.
+                    // Offset texture.
                     `float ${t}sx3 = 1.0/float(textures);`+cr+
                     `float ${t}s3 = float(stepNow);`+cr+
+                    // Offset step.
                     `float ${t}sz3 = 1.0/max(float(steps)-1.0, 1.0);`+cr+
                     `vec2 ${t}uv3 = vec2(uv);`+cr+
                     getGLSLList('vec4', n+'data',
                         // Would repeat wrap not `mod`; consistent for WebGL1.
                         map((_, i) => texture+'(states, mod(vec3('+
                                     // Offset texture.
-                                    `(float(${at+i}.t)+${t}uv3.x)*${t}sx3, `+
+                                    `(float(${st+i}.t)+${t}uv3.x)*${t}sx3, `+
                                     `${t}uv3.y, `+
                                     // Offset step: `sampler3D` depth, `[0, 1]`;
                                     // `sampler2DArray` layer, `[0, steps-1]`.
-                                    `(float(${at+i}.s)+${t}s3)*${t}sz3), `+
+                                    `(float(${st+i}.s)+${t}s3)*${t}sz3), `+
                                 '1.0))',
                             passSamples, tapsSamples),
                         '', glsl)+'\n'+
@@ -863,19 +865,21 @@ export function macroTaps(state, on) {
                 `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
                 tap+`3By(uv, states, stepNow, steps, textures, ${by})`+cr+
                     // Compute before the loop for lighter work.
+                    // Offset texture.
                     `float ${t}sx3B = 1.0/float(textures);`+cr+
                     `float ${t}s3B = float(stepNow)+float(stepBy);`+cr+
+                    // Offset step.
                     `float ${t}sz3B = 1.0/max(float(steps)-1.0, 1.0);`+cr+
                     `vec2 ${t}uv3B = vec2(uv)+vec2(textureBy, 0);`+cr+
                     getGLSLList('vec4', n+'data',
                         // Would repeat wrap not `mod`; consistent for WebGL1.
                         map((_, i) => texture+'(states, mod(vec3('+
                                     // Offset texture.
-                                    `(float(${at+i}.t)+${t}uv3B.x)*${t}sx3B, `+
+                                    `(float(${st+i}.t)+${t}uv3B.x)*${t}sx3B, `+
                                     `${t}uv3B.y, `+
                                     // Offset step: `sampler3D` depth, `[0, 1]`;
                                     // `sampler2DArray` layer, `[0, steps-1]`.
-                                    `(float(${at+i}.s)+${t}s3B)*${t}sz3B), `+
+                                    `(float(${st+i}.s)+${t}s3B)*${t}sz3B), `+
                                 '1.0))',
                             passSamples, tapsSamples),
                         '', glsl)+'\n'+

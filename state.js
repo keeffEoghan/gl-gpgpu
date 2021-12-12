@@ -389,11 +389,14 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
 
         // Add meta info.
 
+        /** Check if this is bound to a pass. */
+        const bind = Number.isInteger(pass);
+
         /** Denotes attached texture; if merging, textures may be reused. */
         to.texture = t;
         to.entry = entry;
         /** Denotes framebuffer attachments; may reuse underlying textures. */
-        to.color = (Number.isInteger(pass) && size.colors++);
+        to.color = ((bind)? size.colors++ : undefined);
         to.step = step;
         to.pass = pass;
         to.index = index;
@@ -404,8 +407,9 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
          * Gives the entire object if it's not going into the `textures` lists;
          * otherwise add to the `textures` lists and return the texture itself.
          */
-        return ((!Number.isInteger(step) || !Number.isInteger(index))? to
-            :   ((textures[step] ??= [])[index] = to).texture);
+        return ((bind && Number.isInteger(step) && Number.isInteger(index))?
+                ((textures[step] ??= [])[index] = to).texture
+            :   to);
     };
 
     /**
@@ -419,7 +423,7 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
         // Resources.
 
         /** Map the pass's texture color attachments and their meta info. */
-        color = map(addTexture(channels, width, height, step), pass,
+        color = map(addTexture(channels, width, height, step, index), pass,
             // Reuse any existing color attachments if merging; otherwise create
             // dedicated color attachments for each pass.
             ((merge)? (color ?? []) : []));
