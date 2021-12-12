@@ -55,8 +55,13 @@ useSamples
 
 // The main shader.
 
-// States from `gl-gpgpu`.
-uniform sampler2D states[stepsPast*textures];
+// States from `gl-gpgpu`; in separate textures or merged.
+#ifdef mergedStates
+    uniform sampler2D states;
+#else
+    uniform sampler2D states[stepsPast*textures];
+#endif
+
 uniform float stepNow;
 uniform vec2 dataShape;
 // Custom inputs for this demo.

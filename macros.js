@@ -765,7 +765,8 @@ export function macroTaps(state, on) {
     const tapsL = tapsSamples.length = passSamples?.length ?? 0;
 
     // The texture-sampling logic.
-    return (cache[c] = ((!tapsL)? ''
+    return (cache[c] = ((index)? '' : `#define ${n}mergedStates\n\n`)+
+        ((!tapsL)? ''
         : ((index)?
             // Separate un-merged textures accessed by constant index.
             '// States in a `sampler2D[]`; looks up 1D index and 2D `uv`.\n'+
