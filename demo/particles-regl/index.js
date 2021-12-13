@@ -112,6 +112,7 @@ const stepsPast = steps-bound;
 
 const scale = Math.floor(clamp((parseInt(query.get('scale'), 10) || niceScale),
     ...limits.scale));
+// const scale = 0;
 
 // Trails of points if given; if not given, uses trails of lines.
 const usePoints = query.has('points');

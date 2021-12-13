@@ -20,6 +20,8 @@ import each from '@epok.tech/fn-lists/each';
 
 import { valuesDef, channelsMaxDef, buffersMaxDef } from './const';
 
+const { isInteger } = Number;
+
 export const cache = { packed: [] };
 
 export const validValue = (value, channelsMax = channelsMaxDef) =>
@@ -364,14 +366,14 @@ export function mapSamples(maps, to = maps) {
         let texture;
 
         if(derive === true) { return reduce(add, all(step), set); }
-        else if(Number.isFinite(derive)) { texture = valueToTexture[derive]; }
+        else if(isInteger(derive)) { texture = valueToTexture[derive]; }
         else if(derive[1] === true) { return reduce(add, all(derive[0]), set); }
         else {
             step = derive[0];
             texture = valueToTexture[derive[1]];
         }
 
-        if(!Number.isFinite(step) || !Number.isFinite(texture)) {
+        if(!(isInteger(step) && isInteger(texture))) {
             return console.error('`mapSamples`: invalid map for sample',
                 derives, maps, pass, value, derive, d, step, texture);
         }
@@ -393,7 +395,7 @@ export function mapSamples(maps, to = maps) {
         const valueDerives = ((derives === true)? derives : derives[value]);
 
         return ((!valueDerives && (valueDerives !== 0))? set
-            : (((valueDerives === true) || Number.isFinite(valueDerives))?
+            : (((valueDerives === true) || isInteger(valueDerives))?
                     getAddSample(pass, value)(set, valueDerives)
                 :   reduce(getAddSample(pass, value), valueDerives, set)));
     }

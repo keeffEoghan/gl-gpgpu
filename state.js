@@ -17,6 +17,8 @@ import {
         typeDef, minDef, magDef, wrapDef, depthDef, stencilDef, mergeDef
     } from './const';
 
+const { isInteger } = Number;
+
 /**
  * Set up the GPGPU resources and meta information for a state of a number data.
  *
@@ -306,8 +308,21 @@ import {
  * @returns {undefined|*|object<texture,string,number,array<number>>} `to.merge`
  *     Any created object of a merged `texture` and meta info, or the given
  *     `state.merge` as-is if not handled here. See `getStep` and `macroTaps`.
- * @returns {object<number,string,array<number>>} `to.size` Size/type
- *     information about the created data resources.
+ * @returns {object} `to.size` Size/type information of the created resources.
+ * @returns {string} `to.size.type` Data type of `framebuffer`s and `texture`s.
+ * @returns {boolean} `to.size.depth` Whether `framebuffer`s attach depth.
+ * @returns {boolean} `to.size.stencil` Whether `framebuffer`s attach stencil.
+ * @returns {number} `to.size.channelsMin` Minimum channels in any `texture`.
+ * @returns {number} `to.size.steps` Number of `to.steps` in the main flow.
+ * @returns {number} `to.size.passes` Number of `to.passes` in `to.steps`.
+ * @returns {number} `to.size.framebuffers` Number of `framebuffer`s created.
+ * @returns {number} `to.size.textures` Number of `to.textures` in `to.passes`.
+ * @returns {number} `to.size.colors` Number of `texture`s created.
+ * @returns {number} `to.size.width` Width of `framebuffer`s and `texture`s.
+ * @returns {number} `to.size.height` Height of `framebuffer`s and `texture`s.
+ * @returns {array<number>} `to.size.shape` Shape of `framebuffer`s and
+ *     `texture`s, as `[to.size.width, to.size.height]`.
+ * @returns {number} `to.size.count` Number of entries in each `texture`.
  * @returns {undefined|object<number,string,array<number>>} `to.size.merge`
  *     Size/type information about any created or given merge texture.
  * @returns {number} `to.stepNow` The currently active state step, as given.
@@ -337,15 +352,6 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
     maps.channelsMin = channelsMin;
     maps.values = values;
 
-    // Size of the created resources.
-    const size = to.size = {
-        steps: (steps.length ?? steps), textures: 0, passes: 0, colors: 0,
-        width, height, shape: [width, height], count: width*height
-    };
-
-    const textures = to.textures = [];
-    const passes = to.passes = [];
-
     // All framebuffer attachments need the same number of channels; enough to
     // hold all values a pass holds, or all passes hold if merging and reusing.
     const passChannels = (pass, min) => reduce((min, t) =>
@@ -357,11 +363,23 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
     // texture attachments that can hold any pass's values; since all a
     // framebuffer's attachments also need the same number of channels, this is
     // also the same number of channels across all passes.
-    const mergeChannels = (merge &&
-        reduce((min, p) => passChannels(p, min), maps.passes, channelsMin));
+    const mergeChannels = ((!merge)? null
+        :   reduce((min, p) => passChannels(p, min), maps.passes, channelsMin));
 
-    // The textures bound to the next pass; reused if merging.
-    let color;
+    // Size of the created resources.
+    const size = to.size = {
+        type, depth, stencil, channelsMin: (mergeChannels ?? channelsMin),
+        steps: (steps.length ?? steps),
+        passes: 0, framebuffers: 0, textures: 0, colors: 0,
+        width, height, shape: [width, height], count: width*height
+    };
+
+    /** The textures created for the `step`/`pass` render flow. */
+    const textures = to.textures = [];
+    /** The passes created for the `step`/`pass` render flow. */
+    const passes = to.passes = [];
+    /** The textures bound to the next pass; reused if merging. */
+    let colorPool;
 
     /**
      * Add a texture attachment and meta info to `textures` if applicable; to
@@ -373,11 +391,9 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
 
         // Resources.
 
-        /**
-         * Add/reuse texture color attachments as needed; add minimal textures.
-         * If merging, passes may reuse any pass's existing texture attachments;
-         * otherwise, each pass has its own dedicated texture attachments.
-         */
+        // Add/reuse texture color attachments as needed; add minimal textures.
+        // If merging, passes may reuse any pass's existing texture attachments;
+        // otherwise, each pass has its own dedicated texture attachments.
         let entry = c;
         let t = color?.[entry];
 
@@ -390,58 +406,64 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
         // Add meta info.
 
         /** Check if this is bound to a pass. */
-        const bind = Number.isInteger(pass);
+        const bind = (isInteger(pass) || null);
 
-        /** Denotes attached texture; if merging, textures may be reused. */
+        /** Denotes attached texture; if merging, textures are reused. */
         to.texture = t;
+        /** Denotes attached texture entry; if merging, textures are reused. */
         to.entry = entry;
         /** Denotes framebuffer attachments; may reuse underlying textures. */
-        to.color = ((bind)? size.colors++ : undefined);
+        to.color = (bind && size.colors++);
         to.step = step;
         to.pass = pass;
         to.index = index;
         to.map = texturesMap[index];
 
-        /**
-         * Check whether this texture is part of the `step`/`pass` render flow.
-         * Gives the entire object if it's not going into the `textures` lists;
-         * otherwise add to the `textures` lists and return the texture itself.
-         */
-        return ((bind && Number.isInteger(step) && Number.isInteger(index))?
-                ((textures[step] ??= [])[index] = to).texture
-            :   to);
+        // Check whether this texture is part of the `step`/`pass` render flow.
+        // If not, return the entire object.
+        return ((!(bind && isInteger(step) && isInteger(index)))? to
+            // If so, add to `textures`, return its `texture` to bind to a pass.
+            :   ((textures[step] ??= [])[index] = to).texture);
     };
 
     /**
      * Add a pass to `passes`, with its `textures` bound; to return its
      * `framebuffer` to one of `steps`.
      */
-    const addPass = (step) => (pass, index) => {
+    const addPass = (step, color) => (pass, index) => {
         /** All a framebuffer's attachments need the same number of channels. */
-        const channels = (mergeChannels || passChannels(pass, channelsMin));
+        const channels = (mergeChannels ??
+            color ?? ((pass)? passChannels(pass, channelsMin) : channelsMin));
 
         // Resources.
 
         /** Map the pass's texture color attachments and their meta info. */
-        color = map(addTexture(channels, width, height, step, index), pass,
+        color ??= map(addTexture(channels, width, height, step, index), pass,
             // Reuse any existing color attachments if merging; otherwise create
             // dedicated color attachments for each pass.
-            ((merge)? (color ?? []) : []));
+            ((merge)? (colorPool ??= []) : []));
 
         /** Properties passed for framebuffer creation, then meta info. */
-        const to = (passes[step] ??= [])[index] =
-            { depth, stencil, width, height, color };
+        const to = { depth, stencil, width, height, color };
 
         /** The framebuffer for this pass. */
-        const f = to.framebuffer = framebuffer?.(to);
+        to.framebuffer = framebuffer?.(to);
 
         // Add meta info.
-        to.entry = size.passes++;
+
+        /** Denotes attached texture entry; if merging, textures are reused. */
+        to.entry = size.framebuffers++;
+        /** Denotes framebuffer attachments; . */
+        to.pass = (pass && size.passes++);
         to.step = step;
         to.index = index;
         to.map = pass;
 
-        return f;
+        // Check whether this pass is part of the `step`/`pass` render flow.
+        // If not, return the entire object.
+        return ((!(pass && isInteger(step) && isInteger(index)))? to
+            // If so, add to `passes`, return its `framebuffer` for its step.
+            :   ((passes[step] ??= [])[index] = to).framebuffer);
     };
 
     // Set up resources we'll need to store data per-texture per-pass per-step.
@@ -449,7 +471,7 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
             // Use any given passes or create a new list.
             (passes || map(addPass(step), maps.passes)),
         // Use any given steps or create a new list.
-        ((Number.isInteger(steps))? range(steps) : steps), 0);
+        ((isInteger(steps))? range(steps) : steps), 0);
 
     // Finish here if merge is disabled.
     if(!merge) { return to; }
@@ -462,9 +484,12 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
     const mw = getWidth(merge) ?? mScaled ?? size.textures*width;
     const mh = getHeight(merge) ?? mScaled ?? size.steps*height;
 
+    // New merge texture and info, or use any given merge texture.
+    (to.merge = ((merge === true)? addTexture(mergeChannels, mw, mh)() : merge))
+        // Empty framebuffer, to copy data from each texture of each pass.
+        .copier ??= addPass(null, false)();
+
     size.merge = { width: mw, height: mh, shape: [mw, mh], count: mw*mh };
-    // Create a new merge, or use any given merge texture.
-    to.merge = ((merge === true)? addTexture(mergeChannels, mw, mh)() : merge);
 
     return to;
 }

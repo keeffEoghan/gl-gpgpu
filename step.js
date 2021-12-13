@@ -3,7 +3,6 @@
  */
 
 import { each } from '@epok.tech/fn-lists/each';
-import { reduce } from '@epok.tech/fn-lists/reduce';
 import { wrapGet } from '@epok.tech/fn-lists/wrap-index';
 
 import { macroPass } from './macros';
@@ -11,6 +10,8 @@ import { getUniforms } from './inputs';
 import { vertDef, positionsDef, preDef } from './const';
 
 const scale = { vec2: 0.5 };
+
+export const mergeProps = { copy: true };
 
 /**
  * Convenience to get the currently active framebuffer.
@@ -172,23 +173,34 @@ export function getStep(api, state, to = (state.step ?? {})) {
     });
 
     /**
-     * Any merged texture's update, called upon each pass.
+     * Any merged texture's update, called upon each pass. Copies the active
+     * pass's state output from all its attachments, into the merged texture.
      *
-     * @see Copying from multiple draw buffers on https://stackoverflow.com/a/34160982/716898
+     * @see https://stackoverflow.com/a/34160982/716898
      */
-    const mergeUpdate = merge?.update ??= (props = state) => {
-        const { color, stepNow: s, map: pass } = getPass(props);
-        const { merge, size: { shape: [w, h] } } = props;
-        const to = merge?.texture;
+    (merge && (merge.update ??= (props = state) => {
+        const { color, map: p } = getPass(props);
+        const { merge, stepNow, size: { steps, shape: [w, h] } } = props;
+        const { texture: to, copier } = merge;
+        const f = copier?.framebuffer;
+        const s = (stepNow%steps)*h;
 
-        return (to && color &&
-            reduce((t, c) => to.subimage(color[c], t*w, s*h), pass, to));
-    };
+        /** Reusable framebuffer to copy pixels over. */
+        (to && f && color && each((color, i) =>
+                f({ color }).use(() => to.subimage(mergeProps, p[i]*w, s)),
+            color));
+
+        // @todo Try this test.
+        // f({ color: to }).use(() => console.warn(regl.read()));
+
+        return to;
+    }));
 
     /** Executes the next step and all its passes. */
     to.run = (props = state) => {
-        const { steps, step } = props;
+        const { steps, step, merge } = props;
         const stepNow = props.stepNow = (props.stepNow+1 || 0);
+        const mergeUpdate = merge?.update;
         const { pass, onPass, onStep } = step;
         const stepProps = (onStep?.(props, wrapGet(stepNow, steps)) ?? props);
 
