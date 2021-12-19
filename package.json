@@ -22,7 +22,7 @@
     "docs:safe": "yarn docs --no-cache"
   },
   "dependencies": {
-    "@epok.tech/fn-lists": "^0.1.2",
+    "@epok.tech/fn-lists": "^0.1.4",
     "@epok.tech/gl-screen-triangle": "^1.2.1",
     "@epok.tech/is-type": "^0.1.0",
     "@thi.ng/vectors": "^7.1.1"
@@ -61,7 +61,7 @@
     "index-pairs/index.glsl.js",
     "sample/index-uv.glsl.js",
     "sample/offset-uv.glsl.js",
-    "util/mod-div.glsl.js"
+    "util/remain-div.glsl.js"
   ],
   "files": [
     "*.js",

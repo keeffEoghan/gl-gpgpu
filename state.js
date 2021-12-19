@@ -431,9 +431,12 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
      * `framebuffer` to one of `steps`.
      */
     const addPass = (step, color) => (pass, index) => {
-        /** All a framebuffer's attachments need the same number of channels. */
-        const channels = (mergeChannels ??
-            color ?? ((pass)? passChannels(pass, channelsMin) : channelsMin));
+        /**
+         * All a framebuffer's attachments need the same number of channels;
+         * ignored if a `color`'s given as it'll be defined there instead.
+         */
+        const channels = (color ?? mergeChannels ??
+            ((pass)? passChannels(pass, channelsMin) : channelsMin));
 
         // Resources.
 

@@ -8,8 +8,8 @@
  * Corresponds to the indexing logic in the `indexPairs` GLSL function.
  *
  * @see [readme]{@link ./readme.md}
- * @see `gl.LINES` at https://webglfundamentals.org/webgl/lessons/webgl-points-lines-triangles.html
  * @see [indexPairs]{@link ./index.glsl#indexPairs}
+ * @see `gl.LINES` at https://webglfundamentals.org/webgl/lessons/webgl-points-lines-triangles.html
  *
  * @param {number} states The number of steps of state to link by pairs of line
  *     segments.

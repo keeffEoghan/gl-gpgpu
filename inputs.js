@@ -2,9 +2,9 @@
  * GPGPU inputs (uniforms, attributes, indexes, etc).
  */
 
-import { setC2 } from '@thi.ng/vectors/setc';
+import { setC2, setC4 } from '@thi.ng/vectors/setc';
 import each from '@epok.tech/fn-lists/each';
-import { wrapGet } from '@epok.tech/fn-lists/wrap-index';
+import wrap from '@epok.tech/fn-lists/wrap';
 
 import { boundDef, preDef } from './const';
 
@@ -87,37 +87,35 @@ import { boundDef, preDef } from './const';
  *     be called on each pass.
  */
 export function getUniforms(state, to = (state.uniforms ?? {})) {
-    const { pre: n = preDef, merge } = state;
+    const { pre: n = preDef, steps, maps, bound = boundDef } = state;
+    const stepsL = steps.length ?? steps;
+    const { textures } = maps;
+    const texturesL = textures.length;
+    const dataShape = [];
     const viewShape = [];
 
     to[n+'stepNow'] = (_, { stepNow: s }) => s;
-    to[n+'dataShape'] = (_, { size: { shape: s } }) => s;
 
-    to[n+'viewShape'] =
-        ({ viewportWidth: w, viewportHeight: h }) => setC2(viewShape, w, h);
+    to[n+'dataShape'] = (_, { size: s }) => ((!(s?.shape))? set4(dataShape)
+        :   setC4(dataShape, ...s.shape, ...(s.merge?.shape ?? s.shape)));
 
-    if(merge) {
-        /** Past steps, all merged into one texture. */
-        to[`${n}states`] = (_, { merge: { texture: t } }) => t;
+    to[n+'viewShape'] = ({ viewportWidth: w, viewportHeight: h }) =>
+        setC2(viewShape, w, h);
 
-        return to;
-    }
-
-    const { steps, steps: { length: stepsL = steps }, maps } = state;
-    const { textures, bound = boundDef } = maps;
-    const texturesL = textures.length;
+    /** Past steps, all merged into one texture. */
+    to[n+'states'] = (_, { merge: m }) => m?.texture;
 
     /**
      * Past steps, each some steps `ago`, from the current active step at `0`
      * `[0,... stepsL-1-bound]`.
      */
-    const addTextures = (ago) => each((_, t) =>
-            // Hook to pull a given texture from the active pass `props`.
-            // GLSL dynamically accesses array of textures by a constant index.
-            to[`${n}states[${(ago*texturesL)+t}]`] =
-                (_, { stepNow: s, bound: b = bound, textures: ts }) =>
-                    wrapGet(s-b-ago, ts)[t].texture,
-        textures);
+    const addTextures = (ago) =>
+        // Hooks to pull a given texture from the active pass `props`.
+        // GLSL dynamically accesses array of textures by a constant index.
+        each((_, t) => to[n+`states[${(ago*texturesL)+t}]`] =
+                (_, { stepNow: s, bound: b = bound, merge: m, textures: ts }) =>
+                    (m || wrap(s-b-ago, ts)?.[t]?.texture),
+            textures);
 
     // Flatten all input textures, as uniforms are stored in flat arrays.
     for(let ago = 0, pl = stepsL-bound; ago < pl; ++ago) { addTextures(ago); }

@@ -2,11 +2,10 @@
  * The step and entry indexes corrseponding to the vertex count for pairs of
  * elements (e.g: lines linking each entry's states); as detailed in the
  * `indexPairs` JS function.
- * Computed with `modDiv`.
  *
  * @see [readme]{@link ./readme.md}
  * @see [indexPairs]{@link ./index.js#indexPairs}
- * @see [modDiv]{@link ../util/mod-div.glsl}
+ * @see [remainDiv]{@link ../util/remain-div.glsl}
  *
  * @param {float|int} `index` The index of a vertex (assumes simple sequential
  *     index attribute).
@@ -17,10 +16,10 @@
  *     `vec2` if any operand is a `float`.
  */
 
-#pragma glslify: modDiv = require(../util/mod-div)
+#pragma glslify: remainDiv = require(../util/remain-div)
 
 vec2 indexPairs(float index, float states) {
-    vec2 stepEntry = modDiv(index/2.0, states-1.0);
+    vec2 stepEntry = remainDiv(index*0.5, states-1.0);
 
     stepEntry.s = ceil(stepEntry.s);
 
@@ -28,8 +27,8 @@ vec2 indexPairs(float index, float states) {
 }
 
 ivec2 indexPairs(int index, int states) {
-    // Careful handling integer maths - values truncated.
-    ivec2 stepEntry = modDiv(index, (states-1)*2);
+    // Careful handling integer maths - decimals truncated.
+    ivec2 stepEntry = remainDiv(index, (states-1)*2);
 
     stepEntry.s = (stepEntry.s+1)/2;
 
@@ -37,7 +36,7 @@ ivec2 indexPairs(int index, int states) {
 }
 
 vec2 indexPairs(float index, int states) {
-    vec2 stepEntry = modDiv(index/2.0, states-1);
+    vec2 stepEntry = remainDiv(index*0.5, states-1);
 
     stepEntry.s = ceil(stepEntry.s);
 
@@ -45,10 +44,10 @@ vec2 indexPairs(float index, int states) {
 }
 
 vec2 indexPairs(int index, float states) {
-    // Careful handling integer maths - values truncated.
-    vec2 stepEntry = modDiv(index, (states-1.0)*2.0);
+    // Careful handling integer maths - decimals truncated.
+    vec2 stepEntry = remainDiv(index, (states-1.0)*2.0);
 
-    stepEntry.s = ceil(stepEntry.s/2.0);
+    stepEntry.s = ceil(stepEntry.s*0.5);
 
     return stepEntry;
 }

@@ -2,8 +2,8 @@
  * GPGPU update step.
  */
 
-import { each } from '@epok.tech/fn-lists/each';
-import { wrapGet } from '@epok.tech/fn-lists/wrap-index';
+import each from '@epok.tech/fn-lists/each';
+import wrap from '@epok.tech/fn-lists/wrap';
 
 import { macroPass } from './macros';
 import { getUniforms } from './inputs';
@@ -11,7 +11,11 @@ import { vertDef, positionsDef, preDef } from './const';
 
 const scale = { vec2: 0.5 };
 
-export const mergeProps = { copy: true };
+export const cache = {
+    clearPass: { color: [0, 0, 0, 0], depth: 1, stencil: 0 },
+    copyFrame: { color: null },
+    copyImage: { copy: true }
+};
 
 /**
  * Convenience to get the currently active framebuffer.
@@ -26,7 +30,85 @@ export const mergeProps = { copy: true };
  * @returns {object} The active step's active pass object, if any.
  */
 export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
-    wrapGet(s, ps)?.[p];
+    wrap(s, ps)?.[p];
+
+/**
+ * Merged texture update, called upon each pass. Copies the active pass's output
+ * from all its attachments, into the merged texture, one by one to support
+ * multiple draw buffers.
+ *
+ * @see https://stackoverflow.com/a/34160982/716898
+ * @see getPass
+ * @see [texture]{@link ./state.js#texture}
+ * @see [getState]{@link ./state.js#getState}
+ * @see [mapGroups]{@link ./maps.js#mapGroups}
+ *
+ * @param {object} state A GPGPU state of the active pass.
+ * @param {array<object<array<texture>,array<number>>>} state.passes Passes per
+ *     step; the active one is found via `getPass`, with a `color` array of
+ *     `texture`s, and a `map` array of numbers showing how the textures are
+ *     grouped into the pass. See `getState` and `mapGroups`.
+ * @param {merge} state.merge The merged texture to update.
+ * @param {number} [state.stepNow] The currently active state step, if any.
+ *
+ * @returns {texture} The merged `texture`, updated by the active pass's output.
+ */
+ export const updateMerge = (state) => {
+    const { color, map: pass } = getPass(state);
+    const { merge, stepNow: s, size } = state;
+    const { texture: to, copier } = merge;
+    const f = copier?.framebuffer;
+
+    // Silent exit if there's not enough info ready now to perform the update.
+    if(!(to && f && color && pass && (s || (s === 0)))) { return to; }
+
+    const { steps: sl, shape: [w, h] } = size;
+    // Start from the bottom of the texture, move down row-pre-step, wrapping.
+    const y = ((sl-1+s)%sl)*h;
+    const { copyFrame: cf, copyImage: ci } = cache;
+
+    const test = false;
+    const [wl, hl] = size.merge.shape;
+    const { channels } = merge;
+    const tl = state.maps.textures.length;
+
+    // @todo Try this test.
+    (test && f({ color: to })
+        .use(() => console.warn(Array.prototype.reduce.call(regl.read(),
+            (o, v, i) =>
+                o+((i)? ',\t' : '')+
+                ((!i)? ''
+                : ((i%(tl*w*h*channels) === 0)? '\n============s============\n'
+                : ((i%(tl*channels) === 0)? '/\n' : '')))+
+                (i*1e-3).toFixed(3).slice(2)+': '+v.toFixed(2),
+            '\n'))));
+
+    /** Reusable framebuffer to copy pixels over. */
+    each((c, i) => {
+            if(test) {
+                const x = pass[i]*w;
+                const lc = (x*h)+(y*tl*w);
+
+                console.warn(s, i, pass[i], ':');
+                console.warn('- l', x, 'r', x+w, 'w', w, 'wl', wl);
+                console.warn('- t', y, 'b', y+h, 'h', h, 'hl', hl);
+                console.warn('- c', channels, 'lc', lc*channels,
+                    'rc', (lc+(w*h))*channels,
+                    'sc', w*h*channels, 'slc', wl*hl*channels);
+            }
+
+            cf.color = c;
+            // ci.x = pass[i]*w;
+            // ci.y = y;
+            f(cf).use(() => to.subimage(ci, pass[i]*w, y));
+            // f(cf).use(() => to.subimage(ci));
+        },
+        color);
+
+    if(test && s && (s%(sl*4) === 0)) { debugger; }
+
+    return to;
+};
 
 /**
  * Creates a GPGPU update step function, for use with a GPGPU state object.
@@ -42,6 +124,7 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
  * @see onCommand
  * @see onStep
  * @see onPass
+ * @see getPass
  * @see [getState]{@link ./state.js#getState}
  * @see [mapGroups]{@link ./maps.js#mapGroups}
  * @see [macroPass]{@link ./macros.js#macroPass}
@@ -49,6 +132,7 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
  *
  * @param {object} api An API for GL resources.
  * @param {buffer} [api.buffer] Function to set up a GL buffer.
+ * @param {clear} [api.clear] Function to clear GL output view or `framebuffer`.
  * @param {command} [api.command=api] Function to create a GL render pass, given
  *     options, to be called later with options.
  * @param {object} state The GPGPU state to use. See `getState` and `mapGroups`.
@@ -109,7 +193,7 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
  *     draw pass GL commands for a given state step.
  */
 export function getStep(api, state, to = (state.step ?? {})) {
-    const { buffer, command = api } = api;
+    const { buffer, clear, command = api } = api;
     const { maps: { passes }, merge, pre: n = preDef, step = to } = state;
     let { positions = positionsDef() } = step;
 
@@ -172,29 +256,8 @@ export function getStep(api, state, to = (state.step ?? {})) {
         ...passCommand
     });
 
-    /**
-     * Any merged texture's update, called upon each pass. Copies the active
-     * pass's state output from all its attachments, into the merged texture.
-     *
-     * @see https://stackoverflow.com/a/34160982/716898
-     */
-    (merge && (merge.update ??= (props = state) => {
-        const { color, map: p } = getPass(props);
-        const { merge, stepNow, size: { steps, shape: [w, h] } } = props;
-        const { texture: to, copier } = merge;
-        const f = copier?.framebuffer;
-        const s = (stepNow%steps)*h;
-
-        /** Reusable framebuffer to copy pixels over. */
-        (to && f && color && each((color, i) =>
-                f({ color }).use(() => to.subimage(mergeProps, p[i]*w, s)),
-            color));
-
-        // @todo Try this test.
-        // f({ color: to }).use(() => console.warn(regl.read()));
-
-        return to;
-    }));
+    /** Any merged texture's update, set up if not already given. */
+    (merge && (merge.update ??= updateMerge));
 
     /** Executes the next step and all its passes. */
     to.run = (props = state) => {
@@ -202,12 +265,17 @@ export function getStep(api, state, to = (state.step ?? {})) {
         const stepNow = props.stepNow = (props.stepNow+1 || 0);
         const mergeUpdate = merge?.update;
         const { pass, onPass, onStep } = step;
-        const stepProps = (onStep?.(props, wrapGet(stepNow, steps)) ?? props);
+        const stepProps = (onStep?.(props, wrap(stepNow, steps)) ?? props);
+        const { clearPass } = cache;
 
         each((p, i) => {
                 stepProps.passNow = i;
 
                 const passProps = onPass?.(stepProps, p) ?? stepProps;
+
+                // @todo Remove unnecessary `clear` call?
+                ((clearPass.framebuffer = getPass(passProps)?.framebuffer) &&
+                    clear(clearPass));
 
                 pass(passProps);
                 // Update any merged texture upon each pass.
@@ -234,6 +302,22 @@ export function getStep(api, state, to = (state.step ?? {})) {
  *     serving that purpose.
  * @returns {number} `[buffer.count]` The buffer element/vertex count.
  * @returns {number} `[buffer.length]` The length of the buffer data array.
+ */
+
+/**
+ * Function to clear GL output view or `framebuffer`; from a GL API.
+ *
+ * @see getStep
+ * @see [framebuffer]{@link ./state.js#framebuffer}
+ *
+ * @callback clear
+ *
+ * @param {object} props The values to clear with.
+ * @param {array<number>} [color] The values to clear any color buffers with.
+ * @param {number} [depth] The value to clear any depth buffer with.
+ * @param {number} [stencil] The value to clear any stencil buffer with.
+ * @param {framebuffer} [framebuffer] Any `framebuffer` to clear; if not given,
+ *     clears any active `framebuffer` or the view.
  */
 
 /**

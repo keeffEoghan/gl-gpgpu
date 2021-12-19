@@ -388,7 +388,8 @@ export function macroValues(state, on) {
         `#define ${n}textures ${textures.length}\n`+
         `#define ${n}passes ${passesL}\n`+
         `#define ${n}stepsPast ${stepsL-bound}\n`+
-        `#define ${n}steps ${stepsL}\n\n`);
+        `#define ${n}steps ${stepsL}\n`+
+        `#define ${n}bound ${bound}\n\n`);
 }
 
 /**
@@ -768,8 +769,9 @@ export function macroTaps(state, on) {
     return (cache[c] = ((index)? '' : `#define ${n}mergedStates\n\n`)+
         ((!tapsL)? ''
         : ((index)?
-            // Separate un-merged textures accessed by constant index.
+            /** Separate un-merged textures accessed by constant index. */
             '// States in a `sampler2D[]`; looks up 1D index and 2D `uv`.\n'+
+            `// Pass constant array index values; \`textures\`.\n`+
             `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
             tap+`s(uv, states, textures)`+cr+
                 // Compute before the loop for lighter work.
@@ -783,6 +785,7 @@ export function macroTaps(state, on) {
                         passSamples, tapsSamples),
                     '', glsl)+'\n'+
             '// States may also be sampled by shifted step/texture.\n'+
+            `// Pass constant array index values; \`textures, ${by}\`.\n`+
             `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
             tap+`sBy(uv, states, textures, ${by})`+cr+
                 // Compute before the loop for lighter work.
@@ -801,7 +804,7 @@ export function macroTaps(state, on) {
             '// Preferred aliases: index suits states array constant access.\n'+
             aka+`s(uv, ${n}states, ${n}textures)\n`+
             akaBy+`sBy(uv, ${n}states, ${n}textures, ${by})\n`
-        :   // Merged texture.
+        :   /** Merged 2D texture. */
             '// States merged to a `sampler2D`, scales 2D `uv` over '+
                 '`[textures, steps]`.\n'+
             `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
@@ -809,12 +812,12 @@ export function macroTaps(state, on) {
                 // Compute before the loop for lighter work.
                 `vec2 ${t}sxy2 = 1.0/vec2(textures, steps);`+cr+
                 // Offset texture, step.
-                `vec2 ${t}uv2 = vec2(uv)+vec2(0, stepNow);`+cr+
+                `vec2 ${t}uv2 = vec2(uv)+vec2(0, float(stepNow)+1.0);`+cr+
                 getGLSLList('vec4', n+'data',
-                // Would repeat wrap not `mod`; but WebGL1 needs power-of-2.
+                // Would repeat wrap; but WebGL1 needs power-of-2.
                 map((_, i) => texture+'(states, '+
                             // Offset texture, step.
-                            `mod((vec2(${st+i}).ts+${t}uv2)*${t}sxy2, 1.0))`,
+                            `fract((vec2(${st+i}).ts+${t}uv2)*${t}sxy2))`,
                         passSamples, tapsSamples),
                     '', glsl)+'\n'+
             '// States may also be sampled by shifted step/texture.\n'+
@@ -823,12 +826,13 @@ export function macroTaps(state, on) {
                 // Compute before the loop for lighter work.
                 `vec2 ${t}sxy2B = 1.0/vec2(textures, steps);`+cr+
                 // Offset texture, step.
-                `vec2 ${t}uv2B = vec2(uv)+vec2(0, stepNow)+vec2(${by}).ts;`+cr+
+                `vec2 ${t}uv2B = vec2(uv)+vec2(0, float(stepNow)+1.0)+`+
+                    `vec2(${by}).ts;`+cr+
                 getGLSLList('vec4', n+'data',
-                // Would repeat wrap not `mod`; but WebGL1 needs power-of-2.
+                // Would repeat wrap; but WebGL1 needs power-of-2.
                 map((_, i) => texture+'(states, '+
                             // Offset texture, step.
-                            `mod((vec2(${st+i}).ts+${t}uv2B)*${t}sxy2B, 1.0))`,
+                            `fract((vec2(${st+i}).ts+${t}uv2B)*${t}sxy2B))`,
                         passSamples, tapsSamples),
                     '', glsl)+'\n'+
             ((!glsl3)?
@@ -836,7 +840,7 @@ export function macroTaps(state, on) {
                 aka+`2(uv, ${n}states, ${n}stepNow, ${n}steps, ${n}textures)\n`+
                 akaBy+`2By(uv, ${
                     n}states, ${n}stepNow, ${n}steps, ${n}textures, ${by})\n`
-            :   // GLSL3 sampler types supported.
+            :   /** Merged 3D texture types, supported from GLSL3. */
                 '// States merged to `sampler3D` or `sampler2DArray`; 2D `uv` '+
                     'to 3D; scales `x` over `textures`, `z` over `steps` as:\n'+
                 '// - `sampler3D`: the number of steps; depth, `[0, 1]`.\n'+
@@ -846,20 +850,19 @@ export function macroTaps(state, on) {
                     // Compute before the loop for lighter work.
                     // Offset texture.
                     `float ${t}sx3 = 1.0/float(textures);`+cr+
-                    `float ${t}s3 = float(stepNow);`+cr+
+                    `float ${t}s3 = float(stepNow)+1.0;`+cr+
                     // Offset step.
                     `float ${t}sz3 = 1.0/max(float(steps)-1.0, 1.0);`+cr+
                     `vec2 ${t}uv3 = vec2(uv);`+cr+
                     getGLSLList('vec4', n+'data',
-                        // Would repeat wrap not `mod`; consistent for WebGL1.
-                        map((_, i) => texture+'(states, mod(vec3('+
-                                    // Offset texture.
-                                    `(float(${st+i}.t)+${t}uv3.x)*${t}sx3, `+
-                                    `${t}uv3.y, `+
-                                    // Offset step: `sampler3D` depth, `[0, 1]`;
-                                    // `sampler2DArray` layer, `[0, steps-1]`.
-                                    `(float(${st+i}.s)+${t}s3)*${t}sz3), `+
-                                '1.0))',
+                        // Would repeat wrap; but `sampler2DArray` layer can't.
+                        map((_, i) => texture+'(states, fract(vec3('+
+                                // Offset texture.
+                                `(float(${st+i}.t)+${t}uv3.x)*${t}sx3, `+
+                                `${t}uv3.y, `+
+                                // Offset step: `sampler3D` depth, `[0, 1]`;
+                                // `sampler2DArray` layer, `[0, steps-1]`.
+                                `(float(${st+i}.s)+${t}s3)*${t}sz3)))`,
                             passSamples, tapsSamples),
                         '', glsl)+'\n'+
                 '// States may also be sampled by shifted step/texture.\n'+
@@ -868,20 +871,19 @@ export function macroTaps(state, on) {
                     // Compute before the loop for lighter work.
                     // Offset texture.
                     `float ${t}sx3B = 1.0/float(textures);`+cr+
-                    `float ${t}s3B = float(stepNow)+float(stepBy);`+cr+
+                    `float ${t}s3B = float(stepNow)+1.0+float(stepBy);`+cr+
                     // Offset step.
                     `float ${t}sz3B = 1.0/max(float(steps)-1.0, 1.0);`+cr+
                     `vec2 ${t}uv3B = vec2(uv)+vec2(textureBy, 0);`+cr+
                     getGLSLList('vec4', n+'data',
-                        // Would repeat wrap not `mod`; consistent for WebGL1.
-                        map((_, i) => texture+'(states, mod(vec3('+
-                                    // Offset texture.
-                                    `(float(${st+i}.t)+${t}uv3B.x)*${t}sx3B, `+
-                                    `${t}uv3B.y, `+
-                                    // Offset step: `sampler3D` depth, `[0, 1]`;
-                                    // `sampler2DArray` layer, `[0, steps-1]`.
-                                    `(float(${st+i}.s)+${t}s3B)*${t}sz3B), `+
-                                '1.0))',
+                        // Would repeat wrap; but `sampler2DArray` layer can't.
+                        map((_, i) => texture+'(states, fract(vec3('+
+                                // Offset texture.
+                                `(float(${st+i}.t)+${t}uv3B.x)*${t}sx3B, `+
+                                `${t}uv3B.y, `+
+                                // Offset step: `sampler3D` depth, `[0, 1]`;
+                                // `sampler2DArray` layer, `[0, steps-1]`.
+                                `(float(${st+i}.s)+${t}s3B)*${t}sz3B)))`,
                             passSamples, tapsSamples),
                         '', glsl)+'\n'+
                 '// Preferred aliases: 3D suits merged texture in GLSL 3+.\n'+

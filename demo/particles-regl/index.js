@@ -9,6 +9,7 @@ import reduce from '@epok.tech/fn-lists/reduce';
 import map from '@epok.tech/fn-lists/map';
 import each from '@epok.tech/fn-lists/each';
 import range from '@epok.tech/fn-lists/range';
+import wrap from '@epok.tech/fn-lists/wrap';
 
 import { gpgpu, extensionsFloat, extensionsHalfFloat, optionalExtensions }
     from '../../index';
@@ -80,10 +81,10 @@ const { maxTextureUnits, maxTextureSize, lineWidthDims, pointSizeDims } =
 const limits = {
     steps: [
         1+bound,
-        Math.floor(maxTextureUnits/(reduce((s, v) => s+v, values, 0)/4))
+        Math.floor((maxTextureUnits-bound)/(reduce((s, v) => s+v, values, 0)/4))
     ],
     // Better stay farther under maximum texture size, or errors/crashes.
-    scale: [1, Math.log2(maxTextureSize)]
+    scale: [0, Math.log2(maxTextureSize)]
 };
 
 const niceScale = clamp(8, ...limits.scale);
@@ -105,17 +106,20 @@ let query = getQuery();
 
 // 1 active state, as many others as can be bound; at least 2 past states needed
 // for Verlet integration, 1 for Euler integration.
-const steps = Math.floor(clamp((parseInt(query.get('steps'), 10) || 1+bound),
-    ...limits.steps));
+const steps = clamp((parseInt(query.get('steps'), 10) || 1+bound),
+    ...limits.steps);
 
+// How many past steps (not bound to outputs) are in the GPGPU state.
 const stepsPast = steps-bound;
+// Whether to allow Verlet integration.
+const canVerlet = (stepsPast > 1);
 
-const scale = Math.floor(clamp((parseInt(query.get('scale'), 10) || niceScale),
-    ...limits.scale));
-// const scale = 0;
+const scale = clamp((parseInt(query.get('scale'), 10) || niceScale),
+    ...limits.scale);
 
-// Trails of points if given; if not given, uses trails of lines.
-const usePoints = query.has('points');
+// Form vertexes to draw; if not given, uses trails of 'lines' if there are
+// enough steps, or 'points' if not.
+const form = parseInt(query.get('form'), 10);
 
 // Constant-step (add time-step), if given; if not given, uses real-time
 // (variable delta-time).
@@ -125,8 +129,14 @@ const timestepDef = 1e3/60;
 const timestep = (hasTimestep &&
     (parseFloat(query.get('timestep'), 10) || timestepDef));
 
+// Whether to merge states into one texture; only for drawing Verlet by default.
+let merge = query.get('merge');
+
+merge = ((merge === 'true') || ((merge === 'false')? false : canVerlet));
+
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
-    'steps:', steps, 'scale:', scale, 'timestep:', timestep);
+    'steps:', steps, 'scale:', scale, 'form:', form,
+    'timestep:', timestep, 'merge:', merge);
 
 // Set up the links.
 
@@ -148,7 +158,7 @@ document.querySelector('#max').href = `?${setQuery([
     ])}#max`;
 
 document.querySelector('#trails').href =
-    `?${setQuery([['points', ((usePoints)? null : '')]])}#trails`;
+    `?${setQuery([['form', ((form)? 0 : 1)]])}#trails`;
 
 document.querySelector('#timestep').href =
     `?${setQuery([['timestep', ((timestep)? null : timestepDef)]])}#timestep`;
@@ -159,7 +169,7 @@ const derives = [];
 
 derives[valuesIndex.position] = [
     // Position, 2 steps past.
-    [clamp(1, 0, stepsPast-1), valuesIndex.position],
+    [wrap(1, stepsPast), valuesIndex.position],
     // Position, 1 step past.
     valuesIndex.position,
     valuesIndex.motion,
@@ -168,18 +178,16 @@ derives[valuesIndex.position] = [
 
 derives[valuesIndex.motion] = [
     valuesIndex.motion,
-    valuesIndex.life
+    valuesIndex.life,
+    valuesIndex.position
 ];
 
 derives[valuesIndex.life] = [
     // Life, last step past.
-    [Math.max(stepsPast-1, 0), valuesIndex.life],
+    [wrap(-1, stepsPast), valuesIndex.life],
     // Life, 1 step past.
     valuesIndex.life
 ];
-
-// Whether to allow Verlet integration.
-const canVerlet = (stepsPast >= 2);
 
 // The main GPGPU state.
 const state = gpgpu(regl, {
@@ -195,13 +203,16 @@ const state = gpgpu(regl, {
         // Loop time over this period to avoid instability of parts of the demo.
         loop: 3e3,
         // Range of how long a particle lives before respawning.
-        lifetime: [5e2, 3e3],
+        lifetime: [1e3, 4e3],
         // Whether to use Verlet (midpoint) or Euler (forward) integration.
         useVerlet: canVerlet,
         // Acceleration due to gravity.
-        g: [0, -9.80665, 0],
+        // g: [0, -9.80665, 0],
+        // Gravitation position and universal gravitational constant; scaled.
+        g: [0, 0, 0.6, 6.674e-11*5e10],
+        epsilon: 1e-5,
         // The position particles respawn from.
-        source: [0, 0, 0.5],
+        source: [0, 0, 0.4],
         // For numeric accuracy, encoded as exponent `[b, p] => b*(10**p)`.
         scale: [1, -7],
 
@@ -212,9 +223,8 @@ const state = gpgpu(regl, {
         // Drag coefficient.
         // drag: [range(3, 1e-3), range(3, 1e-1)]
     },
-    bound, steps, scale, maps: { values, derives },
+    bound, steps, scale, merge, maps: { values, derives },
     // Ensure th draw shader can variably access past steps.
-    merge: canVerlet,
     // Data type according to support.
     type: ((extend.float.every(regl.hasExtension))? 'float' : 'half float'),
     // Per-shader macro hooks, no macros needed for the `vert` shader.
@@ -234,6 +244,7 @@ const state = gpgpu(regl, {
             lifetime: regl.prop('props.lifetime'),
             useVerlet: (_, { props: { useVerlet: u } }) => +u,
             g: regl.prop('props.g'),
+            epsilon: regl.prop('props.epsilon'),
             source: regl.prop('props.source'),
             // For numeric accuracy, encoded as exponent `[b, e] => b*(10**e)`.
             scale: regl.prop('props.scale'),
@@ -249,26 +260,42 @@ console.log(self.state = state);
 
 console.group('How `values` are `packed` to fit texture channels efficiently');
 console.log(state.maps.values, '`values` (referred to by index)');
-console.log(state.maps.packed, '`packed` (`values` indexes)');
-console.log(...state.maps.textures, '`textures` (`values` indexes)');
-console.log(state.maps.valueToTexture, '`valueToTexture` (`textures` indexes)');
+console.log(state.maps.packed, '`packed` (indexes `values`)');
+console.log(...state.maps.textures, '`textures` (indexes `values`)');
+console.log(state.maps.valueToTexture, '`valueToTexture` (indexes `textures`)');
 console.groupEnd();
 
 // Set up rendering.
 
-// Draw count; note `state.size.count` here equals `countDrawIndexes`.
-const drawCount = state.size.count*((usePoints)? steps : indexPairs(steps));
-const drawIndexes = getDrawIndexes(drawCount);
+// Draw all states with none bound as outputs.
+// @todo Errors without `merge`.
+const drawBound = +(!merge);
+const drawSteps = steps-drawBound;
+const drawPairs = indexPairs(drawSteps);
+const drawPoints = state.size.count*drawSteps;
+const drawLines = state.size.count*drawPairs;
+// Maximum count here to set up buffers, can be partly used later.
+const drawCount = Math.max(drawPoints, drawLines);
 
 const drawState = {
     ...state,
     drawProps: {
+        // Draw count; note `state.size.count` here equals `countDrawIndexes`;
+        count: drawCount,
+        // How many vertexes per form.
+        form: (form || 1+(drawSteps > 1)),
+        // How many vertexes per form, and how many steps it spreads over.
+        forms: map((s, f) => [f, s], [0, drawSteps, drawPairs], 0),
+        // Which primitives can be drawn.
+        primitives: [, 'points', 'lines'],
+        primitive: null,
+        // How wide the form is.
+        wide: 2**3,
         // Speed-to-colour scaling, as `[multiply, power]`.
         // One option in these arrays chosen by Euler/Verlet, respectively.
         pace: [[1e-3, 0.6], [3e2, 0.6]]
     },
-    // @todo Draw all states with none bound as outputs - currently errors.
-    // bound: 0,
+    bound: drawBound,
     // Drawing, don't need to output any data; also don't need `frag` macros.
     macros: { 'output': 0, 'frag': 0 },
     // Everything mapped the same way.
@@ -286,29 +313,31 @@ const drawState = {
          * Makes `reads_0_i` macros for each `i => [step, value]` of
          * `[[0, 0], [0, 1], [0, 2], [1, 0]]`
          */
-        derives: [[true, [clamp(1, 0, stepsPast-1), valuesIndex.position]]]
+        derives: [[true, [wrap(1, drawSteps), valuesIndex.position]]]
     })
 };
-
-const drawWidth = 2**3;
 
 const drawCommand = {
     // Use GPGPU macro mappings by prepending macros from a single pass.
     vert: macroPass(drawState)+drawVert,
     frag: drawFrag,
-    attributes: { index: drawIndexes },
+    // Maximum count here to set up buffers, can be partly used later.
+    attributes: { index: getDrawIndexes(drawCount) },
     // Hook up GPGPU uniforms by adding them here.
     uniforms: getUniforms(drawState, {
         ...drawState.step.uniforms,
         scale: regl.prop('props.scale'),
+        // How many vertexes per form, and how many steps it spreads over.
+        form: (_, { drawProps: { forms: sfs, form: f } }) => sfs[f],
         pace: (_, { drawProps: { pace }, props: { useVerlet: u } }) => pace[+u],
-        pointSize: clamp(drawWidth, ...pointSizeDims)
+        pointSize: (_, { drawProps: { wide: w } }) => clamp(w, ...pointSizeDims)
     }),
-    lineWidth: clamp(drawWidth, ...lineWidthDims),
-    count: drawCount,
+    lineWidth: (_, { drawProps: { wide: w } }) => clamp(w, ...lineWidthDims),
+    count: regl.prop('drawProps.count'),
     depth: { enable: true },
     blend: { enable: true, func: { src: 'one', dst: 'one minus src alpha' } },
-    primitive: ((usePoints || steps-drawState.bound < 2)? 'points' : 'lines')
+    primitive: (_, { drawProps: { primitive: p, primitives: ps, form: f } }) =>
+        (p ?? ps[f])
 };
 
 console.log((self.drawState = drawState), (self.drawCommand = drawCommand));
@@ -335,9 +364,13 @@ regl.frame(() => {
 });
 
 // Toggle Verlet integration, if there are enough past steps.
-canvas.addEventListener('click', () =>
-    console.log('useVerlet',
-        (state.props.useVerlet = (canVerlet && !state.props.useVerlet))));
+canvas.addEventListener('click', () => {
+    const v = state.props.useVerlet = (canVerlet && !state.props.useVerlet);
+    const f = drawState.drawProps.form = (form || 1+v);
+    const c = drawState.drawProps.count = ((f > 1)? drawLines : drawPoints);
+
+    console.log('useVerlet', v, 'form', f, 'count', c);
+});
 
 canvas.addEventListener('touchmove', (e) => {
     e.stopPropagation();
