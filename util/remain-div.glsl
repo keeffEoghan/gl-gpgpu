@@ -15,15 +15,14 @@
  *     a `vec2` if any operand is a `float`.
  */
 
-vec2 remainDiv(float x, float y) {
-    int t = int(y);
-    int d = int(x)/t;
+vec2 remainDiv(float x, int y) {
+    int d = int(x)/y;
 
     // Remainder, similar to `mod`, reuses `d`.
     // @see https://www.shaderific.com/glsl-functions#modulo
     // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Remainder
     // return vec2(mod(x, y), d);
-    return vec2(x-float(t*d), d);
+    return vec2(x-float(y*d), d);
 }
 
 /**
@@ -38,13 +37,13 @@ ivec2 remainDiv(int x, int y) {
 
 /**
  * Assume higher accuracy is desired; if less computation with `int` is desired,
- * call `remainDiv(int(x), y)` or `vec2(remainDiv(int(x), y))` instead.
+ * use `remainDiv(int(x), int(y))` or `vec2(remainDiv(int(x), int(y)))` instead.
  */
-vec2 remainDiv(float x, int y) { return remainDiv(x, float(y)); }
+vec2 remainDiv(float x, float y) { return remainDiv(x, int(y)); }
 
 /**
  * Assume higher accuracy is desired; if less computation with `int` is desired,
- * call `remainDiv(x, int(y))` or `vec2(remainDiv(x, int(y)))` instead.
+ * use `remainDiv(x, int(y))` or `vec2(remainDiv(x, int(y)))` instead.
  */
 vec2 remainDiv(int x, float y) { return remainDiv(float(x), y); }
 

@@ -67,7 +67,7 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
     const y = ((sl-1+s)%sl)*h;
     const { copyFrame: cf, copyImage: ci } = cache;
 
-    const test = false;
+    const test = true;
     const [wl, hl] = size.merge.shape;
     const { channels } = merge;
     const tl = state.maps.textures.length;
