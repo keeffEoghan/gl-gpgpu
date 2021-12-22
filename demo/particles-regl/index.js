@@ -18,7 +18,7 @@ import { macroPass } from '../../macros';
 import { getMaps } from '../../maps';
 import { getUniforms } from '../../inputs';
 import { getDrawIndexes } from '../../size';
-import indexPairs from '../../index-pairs';
+import indexForms from '../../index-forms';
 
 import stepFrag from './step.frag.glsl';
 import drawVert from './draw.vert.glsl';
@@ -29,7 +29,7 @@ self.macroPass = macroPass;
 self.getMaps = getMaps;
 self.getUniforms = getUniforms;
 self.getDrawIndexes = getDrawIndexes;
-self.indexPairs = indexPairs;
+self.indexForms = indexForms;
 
 const extend = {
     halfFloat: extensionsHalfFloat?.(),
@@ -189,8 +189,19 @@ derives[valuesIndex.life] = [
     valuesIndex.life
 ];
 
+// const testGPGPU = '#define testGPGPU 1e-2\n';
+const testGPGPU = '';
+
 // The main GPGPU state.
 const state = gpgpu(regl, {
+    // Prefix usually recommended, but none here to check for naming clashes.
+    pre: '',
+    bound, steps, scale, merge, maps: { values, derives },
+    // Ensure th draw shader can variably access past steps.
+    // Data type according to support.
+    type: ((extend.float.every(regl.hasExtension))? 'float' : 'half float'),
+    // Per-shader macro hooks, no macros needed for the `vert` shader.
+    macros: { vert: false },
     props: {
         // Set up the timer.
         timer: timer((timestep)?
@@ -223,15 +234,9 @@ const state = gpgpu(regl, {
         // Drag coefficient.
         // drag: [range(3, 1e-3), range(3, 1e-1)]
     },
-    bound, steps, scale, merge, maps: { values, derives },
-    // Ensure th draw shader can variably access past steps.
-    // Data type according to support.
-    type: ((extend.float.every(regl.hasExtension))? 'float' : 'half float'),
-    // Per-shader macro hooks, no macros needed for the `vert` shader.
-    macros: { vert: false },
     step: {
         // Per-pass macros will prepend to `frag` shader and cache in `frags`.
-        frag: stepFrag, frags: [],
+        frag: testGPGPU+stepFrag, frags: [],
         uniforms: {
             dt: (_, { props: { timer: { dt }, rate: r } }) => dt*r,
             dt0: (_, { props: { timer: { dts: { 0: dt } }, rate: r } }) => dt*r,
@@ -269,35 +274,37 @@ console.groupEnd();
 
 // Draw all states with none bound as outputs.
 // @todo Errors without `merge`.
-const drawBound = +(!merge);
+// const drawBound = +(!merge);
+const drawBound = 1;
 const drawSteps = steps-drawBound;
-const drawPairs = indexPairs(drawSteps);
-const drawPoints = state.size.count*drawSteps;
-const drawLines = state.size.count*drawPairs;
-// Maximum count here to set up buffers, can be partly used later.
-const drawCount = Math.max(drawPoints, drawLines);
+
+// Vertex counts by form; how many steps a form covers, for all entries;
+// respectively for: none, points, lines.
+// Note `state.size.count` equals `countDrawIndexes`.
+const drawCounts = map((_, form) =>
+        indexForms(drawSteps, form, state.size.count),
+    range(3), 0);
 
 const drawState = {
     ...state,
+    bound: drawBound,
+    // Drawing, don't need to output any data; also don't need `frag` macros.
+    macros: { 'output': 0, 'frag': 0 },
     drawProps: {
-        // Draw count; note `state.size.count` here equals `countDrawIndexes`;
-        count: drawCount,
         // How many vertexes per form.
         form: (form || 1+(drawSteps > 1)),
-        // How many vertexes per form, and how many steps it spreads over.
-        forms: map((s, f) => [f, s], [0, drawSteps, drawPairs], 0),
+        // Vertex counts by form; how many steps a form covers, for all entries.
+        count: null,
+        counts: drawCounts,
         // Which primitives can be drawn.
-        primitives: [, 'points', 'lines'],
         primitive: null,
+        primitives: [, 'points', 'lines'],
         // How wide the form is.
         wide: 2**3,
         // Speed-to-colour scaling, as `[multiply, power]`.
         // One option in these arrays chosen by Euler/Verlet, respectively.
         pace: [[1e-3, 0.6], [3e2, 0.6]]
     },
-    bound: drawBound,
-    // Drawing, don't need to output any data; also don't need `frag` macros.
-    macros: { 'output': 0, 'frag': 0 },
     // Everything mapped the same way.
     maps: getMaps({
         ...state.maps,
@@ -319,25 +326,26 @@ const drawState = {
 
 const drawCommand = {
     // Use GPGPU macro mappings by prepending macros from a single pass.
-    vert: macroPass(drawState)+drawVert,
+    vert: macroPass(drawState)+testGPGPU+drawVert,
     frag: drawFrag,
     // Maximum count here to set up buffers, can be partly used later.
-    attributes: { index: getDrawIndexes(drawCount) },
+    attributes: { index: getDrawIndexes(Math.max(...drawCounts)) },
     // Hook up GPGPU uniforms by adding them here.
     uniforms: getUniforms(drawState, {
         ...drawState.step.uniforms,
         scale: regl.prop('props.scale'),
-        // How many vertexes per form, and how many steps it spreads over.
-        form: (_, { drawProps: { forms: sfs, form: f } }) => sfs[f],
+        // How many vertexes per form.
+        form: regl.prop('drawProps.form'),
         pace: (_, { drawProps: { pace }, props: { useVerlet: u } }) => pace[+u],
         pointSize: (_, { drawProps: { wide: w } }) => clamp(w, ...pointSizeDims)
     }),
     lineWidth: (_, { drawProps: { wide: w } }) => clamp(w, ...lineWidthDims),
-    count: regl.prop('drawProps.count'),
+    // Vertex counts by form; how many steps a form covers, for all entries.
+    count: (_, { drawProps: { count: c, counts: cs, form: f } }) => c ?? cs[f],
     depth: { enable: true },
     blend: { enable: true, func: { src: 'one', dst: 'one minus src alpha' } },
     primitive: (_, { drawProps: { primitive: p, primitives: ps, form: f } }) =>
-        (p ?? ps[f])
+        p ?? ps[f]
 };
 
 console.log((self.drawState = drawState), (self.drawCommand = drawCommand));
@@ -358,18 +366,20 @@ const clearView = { color: [0, 0, 0, 0], depth: 1 };
 regl.frame(() => {
     stepTime(state.props.timer);
     state.step.run();
-    drawState.stepNow = state.stepNow;
+    drawState.stepNow = state.stepNow+1-drawBound;
     regl.clear(clearView);
     draw(drawState);
 });
 
 // Toggle Verlet integration, if there are enough past steps.
 canvas.addEventListener('click', () => {
-    const v = state.props.useVerlet = (canVerlet && !state.props.useVerlet);
-    const f = drawState.drawProps.form = (form || 1+v);
-    const c = drawState.drawProps.count = ((f > 1)? drawLines : drawPoints);
+    const v = (canVerlet && (state.props.useVerlet = !state.props.useVerlet));
+    const f = (form || (drawState.drawProps.form = 1+v));
 
-    console.log('useVerlet', v, 'form', f, 'count', c);
+    console.log('useVerlet', v, 'form', f,
+        // Check how this derives other properties.
+        'count', drawCommand.count(0, drawState),
+        'primitive', drawCommand.primitive(0, drawState));
 });
 
 canvas.addEventListener('touchmove', (e) => {

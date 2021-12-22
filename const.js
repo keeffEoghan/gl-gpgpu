@@ -23,8 +23,8 @@ export const extensionsHalfFloat = () =>
 /** Default optional extensions; update more data in one render pass. */
 export const optionalExtensions = () => ['webgl_draw_buffers'];
 
-/** Prefix namespace to avoid naming clashes; none by default. */
-export const preDef = '';
+/** Prefix namespace to avoid naming clashes; highly recommended. */
+export const preDef = 'gpgpu_';
 
 /**
  * Default minimum allowable channels for framebuffer attachments.

@@ -114,12 +114,11 @@ varying vec2 uv;
 //     return clamp(-0.5*sign(velocity)*dot(velocity, velocity)*drag, -l, l);
 // }
 
-// #define testGPGPU
 #ifdef testGPGPU
-    const float test = 1e-2;
-    const vec2 testPosition = vec2(1, 1e2);
-    const vec2 testMotion = vec2(2, 1e5);
-    const vec2 testLife = vec2(3, 1e5);
+    const float testPosition = 1.0;
+    const float testMotion = 2.0;
+    const float testLife = 3.0;
+    #pragma glslify: gt = require(glsl-conditionals/when_gt)
 #endif
 
 void main() {
@@ -162,14 +161,22 @@ void main() {
     #endif
 
     #ifdef testGPGPU
+        float test = gt(float(stepNow), 0.0);
+
         #ifdef positionOutput
-            positionOutput = vec3(testPosition.x+fract(test+position1));
+            // positionOutput = vec3(testPosition+fract(position1+(test*testGPGPU)));
+            // positionOutput = vec3(testPosition+fract(position0+(test*testGPGPU)));
+            // positionOutput = vec3(testPosition+fract(position0+position1+(test*testGPGPU)));
+            positionOutput = vec3(uv,
+                testPosition+fract(position1.z+mix(uv.x+uv.y, testGPGPU, test)));
         #endif
         #ifdef motionOutput
-            motionOutput = vec3(testMotion.x+fract(test+motion));
+            // motionOutput = vec3(testMotion+fract(motion+(test*testGPGPU)));
+            // motionOutput = vec3(uv,
+            //     testMotion+fract(motion.z+mix(uv.x+uv.y, testGPGPU, test)));
         #endif
         #ifdef lifeOutput
-            lifeOutput = float(testLife.x+fract(test+life));
+            // lifeOutput = float(testLife+fract(life+(test*testGPGPU)));
         #endif
 
         return;

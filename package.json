@@ -57,8 +57,9 @@
     "step.js",
     "size.js",
     "index.vert.js",
-    "index-pairs/index.js",
-    "index-pairs/index.glsl.js",
+    "index-forms/index.js",
+    "index-forms/index-entries.glsl.js",
+    "index-forms/index-states.glsl.js",
     "sample/index-uv.glsl.js",
     "sample/offset-uv.glsl.js",
     "util/remain-div.glsl.js"
@@ -66,7 +67,7 @@
   "files": [
     "*.js",
     "dist/**/*",
-    "index-pairs/**/*",
+    "index-forms/**/*",
     "sample/**/*",
     "util/**/*",
     "docs/**/*",

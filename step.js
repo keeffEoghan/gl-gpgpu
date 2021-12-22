@@ -34,14 +34,15 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
 
 /**
  * Merged texture update, called upon each pass. Copies the active pass's output
- * from all its attachments, into the merged texture, one by one to support
- * multiple draw buffers.
+ * into the merged texture, from each of its attachments one by one (to support
+ * multiple draw buffers). Matches the lookup logic defined in `macroTaps`.
  *
  * @see https://stackoverflow.com/a/34160982/716898
  * @see getPass
  * @see [texture]{@link ./state.js#texture}
  * @see [getState]{@link ./state.js#getState}
  * @see [mapGroups]{@link ./maps.js#mapGroups}
+ * @see [macroTaps]{@link ./macros.js#macroTaps}
  *
  * @param {object} state A GPGPU state of the active pass.
  * @param {array<object<array<texture>,array<number>>>} state.passes Passes per
@@ -51,7 +52,8 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
  * @param {merge} state.merge The merged texture to update.
  * @param {number} [state.stepNow] The currently active state step, if any.
  *
- * @returns {texture} The merged `texture`, updated by the active pass's output.
+ * @returns {texture} The merged `texture`, updated by the active pass's output;
+ *     matches the lookup logic defined in `macroTaps`.
  */
  export const updateMerge = (state) => {
     const { color, map: pass } = getPass(state);
@@ -63,11 +65,13 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
     if(!(to && f && color && pass && (s || (s === 0)))) { return to; }
 
     const { steps: sl, shape: [w, h] } = size;
-    // Start from the bottom of the texture, move down row-pre-step, wrapping.
-    const y = ((sl-1+s)%sl)*h;
+    // Start at the top of the texture, move down row-per-step and wrap.
+    const y = (s%sl)*h;
+    // const y = wrap(-s-1, sl)*h;
     const { copyFrame: cf, copyImage: ci } = cache;
 
-    const test = true;
+    // const test = true;
+    const test = false;
     const [wl, hl] = size.merge.shape;
     const { channels } = merge;
     const tl = state.maps.textures.length;
@@ -78,12 +82,15 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
             (o, v, i) =>
                 o+((i)? ',\t' : '')+
                 ((!i)? ''
-                : ((i%(tl*w*h*channels) === 0)? '\n============s============\n'
-                : ((i%(tl*channels) === 0)? '/\n' : '')))+
-                (i*1e-3).toFixed(3).slice(2)+': '+v.toFixed(2),
+                : ((i%(tl*w*h*channels) === 0)?
+                    '\n'+'='.repeat(100)+'step'+'='.repeat(100)+'\n'
+                : ((i%(tl*w*channels) === 0)? '\n'
+                : ((i%(w*channels) === 0)? ' || \t'
+                : ((i%channels === 0)? ' / \t' : '')))))+
+                (i*1e-3).toFixed(3).slice(2)+': '+((v)? v.toFixed(2) : '___'),
             '\n'))));
 
-    /** Reusable framebuffer to copy pixels over. */
+    /** Reusable framebuffer to copy the pass's pixels to the merged texture. */
     each((c, i) => {
             if(test) {
                 const x = pass[i]*w;
@@ -98,6 +105,8 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
             }
 
             cf.color = c;
+            ci.width = w;
+            ci.height = h;
             // ci.x = pass[i]*w;
             // ci.y = y;
             f(cf).use(() => to.subimage(ci, pass[i]*w, y));

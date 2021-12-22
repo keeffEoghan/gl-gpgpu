@@ -1,10 +1,10 @@
-# Index Pairs
+# Index Forms
 
-Helpers to count and index the vertex data entries needed for pairs of line segments linking each entry's states (using [`gl.LINES`](https://webglfundamentals.org/webgl/lessons/webgl-points-lines-triangles.html), for example).
+Helpers to count and index the vertex data entries needed for different forms covering each entry's steps of state (e.g: pairs of line segments using [`gl.LINES`](https://webglfundamentals.org/webgl/lessons/webgl-points-lines-triangles.html)).
 
-This approach is intended to link lines across each of an entry's states, but could be adapted in other ways (e.g: if a data-texture conotains more than one state, or entries are organised differently in a data-texture).
+This approach is intended to link lines between or a point at each entry's steps of state, but could be adapted in other ways (e.g: if a data-texture contains more than one state, or entries are organised differently in a data-texture).
 
-Some examples illustrating the mappings:
+Some examples illustrating the mappings; for `index-states`, for a form of 2 (pairs of line segments), iterates entries-then-steps:
 ```javascript
 // 2 entries, 3 steps, 8 indexes:
 [0, 1, 2, 3, 4, 5, 6, 7]

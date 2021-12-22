@@ -8,31 +8,29 @@
  * @see https://www.shaderific.com/glsl-functions#modulo
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Remainder
  *
- * @param {float|int} `x` The first modulo/division operand, expect `x >= 0`.
- * @param {float|int} `y` The second modulo/division operand, expect `y >= 0`.
+ * @param {float|int} `x` The first remainder/divide operand, expect `x >= 0`.
+ * @param {float|int} `y` The second remainder/divide operand, expect `y >= 0`.
  *
- * @returns {vec2|ivec2} The modulo/division result: `[x%y, floor(x/y)]`; always
- *     a `vec2` if any operand is a `float`.
+ * @returns {vec2|ivec2} The result as `[(remainder), (truncated division)]`;
+ *     always a `vec2` if any operand is a `float`.
  */
+
+ivec2 remainDiv(int x, int y) {
+    // Careful handling integer maths; decimals truncated, works like a
+    // _remainder_ operator, rather than `mod`.
+    int d = x/y;
+
+    return ivec2(x-(y*d), d);
+}
 
 vec2 remainDiv(float x, int y) {
     int d = int(x)/y;
 
-    // Remainder, similar to `mod`, reuses `d`.
+    // Remainder; like `mod` but with truncated `d` not floored, reuses `d`.
     // @see https://www.shaderific.com/glsl-functions#modulo
     // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Remainder
     // return vec2(mod(x, y), d);
     return vec2(x-float(y*d), d);
-}
-
-/**
- * Careful handling integer maths; decimals truncated, works like a
- * _remainder_ operator, rather than `mod`.
- */
-ivec2 remainDiv(int x, int y) {
-    int d = x/y;
-
-    return ivec2(x-(y*d), d);
 }
 
 /**

@@ -20,7 +20,8 @@ import { boundDef, preDef } from './const';
  * current step to access states by texture sampling.
  *
  * @example
- *     const state = { steps: 2, maps: getMaps({ values: [1, 2, 3] }) };
+ *     const state =
+ *         { pre: '', steps: 2, maps: getMaps({ values: [1, 2, 3] }) };
  *
  *     getUniforms(getState({}, state)); // =>
  *     {
