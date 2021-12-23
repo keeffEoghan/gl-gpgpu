@@ -8,15 +8,10 @@ precision highp float;
 
 attribute vec2 position;
 
-uniform vec2 dataShape;
-
 varying vec2 uv;
 
-#pragma glslify: offsetUV = require(./sample/offset-uv)
-
 void main() {
-    // Transform UV NDC to texture coordinates.
-    // Offset UV to sample at the texel center and avoid errors.
-    uv = offsetUV((position*0.5)+0.5, dataShape);
+    // Texture coordinates, range `[0, 1]`, y-axis points upwards.
+    uv = (position*0.5)+0.5;
     gl_Position = vec4(position, 0, 1);
 }

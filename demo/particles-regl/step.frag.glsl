@@ -45,6 +45,7 @@ useSamples
     useReads_1
     #define motionReadMotion reads_1_0
     #define motionReadLife reads_1_1
+    #define motionReadPosition reads_1_2
 #endif
 #ifdef output_2
     #define lifeOutput output_2
@@ -55,16 +56,27 @@ useSamples
 
 // The main shader.
 
-// States from `gl-gpgpu`.
-uniform sampler2D states[stepsPast*textures];
-uniform vec2 dataShape;
+// States from `gl-gpgpu`; in separate textures or merged.
+#ifdef mergedStates
+    uniform sampler2D states;
+#else
+    uniform sampler2D states[stepsPast*textures];
+#endif
+
+uniform float stepNow;
+
 // Custom inputs for this demo.
+
 uniform float dt0;
 uniform float dt1;
 uniform float loop;
 uniform vec2 lifetime;
 uniform float useVerlet;
-uniform vec3 g;
+// Constant acceleration due to gravity.
+// uniform vec3 g;
+// Gravitation position and universal gravitational constant.
+uniform vec4 g;
+uniform float epsilon;
 uniform vec3 source;
 uniform vec2 scale;
 uniform float spout;
@@ -106,23 +118,25 @@ varying vec2 uv;
 
 void main() {
     // Sample the desired state values - creates the `data` array.
-    tapSamples(states, uv, textures)
+    tapState(uv)
 
     // Read values.
 
     #ifdef positionOutput
         vec3 position0 = data[positionReadPosition0].positionChannels;
-        vec3 position1 = data[positionReadPosition1].positionChannels;
     #endif
 
     // If reads all map to the same value sample, any of them will do.
     #if defined(positionOutput) || defined(motionOutput)
         #if defined(positionOutput)
             #define readMotion positionReadMotion
+            #define readPosition positionReadPosition1
         #elif defined(motionOutput)
             #define readMotion motionReadMotion
+            #define readPosition motionReadPosition
         #endif
 
+        vec3 position1 = data[readPosition].positionChannels;
         vec3 motion = data[readMotion].motionChannels;
     #endif
 
@@ -145,8 +159,8 @@ void main() {
     // Note that the update/output logic components within each `#if` macro
     // block from `gpgpu` are independent modules, as the `gpgpu` macros
     // determine whether they're executed across one or more passes - they could
-    // also be coded in separate files called from here, however for brevity and
-    // easy access to shared variables they're coded inline.
+    // also be coded in separate files called from here, however they're coded
+    // inline here for brevity, relevance, and easy access to shared variables.
 
     // Whether the particle is ready to respawn.
     float spawn = le(life, 0.0);
@@ -172,10 +186,18 @@ void main() {
         positionOutput = mix(positionTo, source, spawn);
     #endif
     #ifdef motionOutput
-        // The new acceleration is just constant acceleration due to gravity.
-        acceleration = g;
+        // Gravitate towards the gravitation point (simplified).
+        // @see https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation
+
+        vec3 gravity = g.xyz-position1;
+
+        gravity *= g.w/max(dot(gravity, gravity), epsilon);
+        acceleration = gravity;
+
+        // Constant acceleration due to gravity.
+        // acceleration = g;
         // Can also combine other forces, e.g: drag.
-        // acceleration = g+
+        // acceleration +=
         //     dragAcc(mix(velocity, acceleration*dt1, useVerlet), drag);
 
         vec3 motionTo = mix(velocity+(acceleration*dt1), acceleration,

@@ -322,10 +322,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@epok.tech/fn-lists@npm:^0.1.2":
-  version: 0.1.2
-  resolution: "@epok.tech/fn-lists@npm:0.1.2"
-  checksum: 75ede990b817866c90121d24d55b4e5dba1b642cd0d1c02135ce009adc96573a6458344fab1e331c1c190563ba4341a0a2495e8df4a344389f61d3f67d165206
+"@epok.tech/fn-lists@npm:^0.1.4":
+  version: 0.1.4
+  resolution: "@epok.tech/fn-lists@npm:0.1.4"
+  checksum: a09750e1711578803aa099ee9c71414b16d87d337e229c967ce9942f033144d4d40262af8eb06d5804636d61663a2e8a6983c8d98b2d044df8336d724817d277
   languageName: node
   linkType: hard
 
@@ -340,7 +340,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@epok.tech/gl-gpgpu@workspace:."
   dependencies:
-    "@epok.tech/fn-lists": ^0.1.2
+    "@epok.tech/fn-lists": ^0.1.4
     "@epok.tech/fn-time": ^0.2.1
     "@epok.tech/gl-screen-triangle": ^1.2.1
     "@epok.tech/glsl-aspect": ^1.0.3

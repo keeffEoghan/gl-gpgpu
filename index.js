@@ -35,18 +35,18 @@ export * from './const';
  * @param {object} [state.maps] How values are grouped per-texture per-pass
  *     per-step. Sets up new maps if not given or missing its mapped properties.
  *     See `mapGroups`.
- * @param {number} [state.maps.texturesMax=api.limits.maxDrawbuffers] The
+ * @param {number} [state.maps.buffersMax=api.limits.maxDrawbuffers] The
  *     maximum number of textures to use per draw pass. Uses more passes above
  *     this limit.
  * @param {object} [to=state] The state object to set up. Modifies the given
  *     `state` object by default.
  */
 export function gpgpu(api, state = {}, to = state) {
-    const { maxDrawbuffers: texturesMax, glsl } = (api.limits ?? api);
+    const { maxDrawbuffers: buffersMax, glsl } = (api.limits ?? api);
     const { maps = {} } = state;
 
     to.glsl = parseFloat(glsl.match(/[0-9\.]+/)[0]);
-    maps.texturesMax ??= texturesMax;
+    maps.buffersMax ??= buffersMax;
     to.maps = getMaps(maps);
     getState(api, state, to).step = getStep(api, state);
 

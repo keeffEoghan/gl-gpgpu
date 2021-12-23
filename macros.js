@@ -6,7 +6,13 @@
  * So, as few unique macros as possible should be created for a given set of
  * inputs, for efficiency.
  *
+ * @todo Redo examples, especially `macroTaps` and `macroPass`.
  * @todo Allow passes into or across textures; separate data and texture shapes.
+ * @todo Make everything function-like macro taking variable names? Makes
+ *     variable names explicit (e.g: `useSamples(samples)`, `useReads_0(reads)`,
+ *     `tapStateBy(data, st, stepPast, 0)`, `tapState(data, st)`), but makes
+ *     interconnections harder (e.g: `macroValues`, `macroOutput`, `macroTaps`);
+ *     probably impossible without concatenation macro anyway, namespace is OK.
  */
 
 import reduce from '@epok.tech/fn-lists/reduce';
@@ -15,8 +21,14 @@ import { type } from '@epok.tech/is-type/type';
 
 import { preDef, boundDef } from './const';
 
+/** Escaped carriage return for easier reading. */
+export const cr = ' \\\n';
+/** The channels denoted for texture input/output. */
 export const rgba = 'rgba';
+/** Simple cache for temporary or reusable objects. */
 export const cache = {};
+/** Get cache keys without having to create new objects for `stringify`. */
+export const id = (v) => JSON.stringify(v);
 
 // Keys for each part of the macro handling process available to hooks.
 export const hooks = {
@@ -24,7 +36,7 @@ export const hooks = {
     macroPass: '',
     // Each part of the set of macros.
     macroValues: 'values', macroOutput: 'output',
-    macroSamples: 'samples', macroSamplesTap: 'tap'
+    macroSamples: 'samples', macroTaps: 'taps'
 };
 
 /**
@@ -96,9 +108,9 @@ export function hasMacros(props, key, on = '', macros = props?.macros) {
  *
  * @example
  *     getGLSLListBase('float', 'list', [0, 1, 2], 'const'); // =>
- *     'const int list_l = 3; '+
- *     'const int list_0 = float(0); '+
- *     'const int list_1 = float(1); '+
+ *     'const int list_l = 3;'+cr+
+ *     'const int list_0 = float(0);'+cr+
+ *     'const int list_1 = float(1);'+cr+
  *     'const int list_2 = float(2);';
  *
  * @param {string} type The GLSL list data-type.
@@ -112,7 +124,7 @@ export function hasMacros(props, key, on = '', macros = props?.macros) {
 export const getGLSLListBase = (type, name, a, qualify = '', init = type) =>
     `const int ${name}_l = ${a.length};`+
     reduce((s, v, i) =>
-            `${s} ${(qualify && qualify+' ')+type} ${name}_${i} = ${
+            s+cr+(qualify && qualify+' ')+type+` ${name}_${i} = ${
                 init}(${v.join?.(', ') ?? v});`,
         a, '');
 
@@ -123,12 +135,12 @@ export const getGLSLListBase = (type, name, a, qualify = '', init = type) =>
  *
  * @example
  *     getGLSL1ListLike('float', 'list', [0, 1, 2], 'const'); // =>
- *     'const int list_l = 3; '+
- *     'const int list_0 = float(0); '+
- *     'const int list_1 = float(1); '+
+ *     'const int list_l = 3;'+cr+
+ *     'const int list_0 = float(0);'+cr+
+ *     'const int list_1 = float(1);'+cr+
  *     'const int list_2 = float(2);\n'+
- *     '// `list_i` index macro (e.g: `list_i(0)`) may be slow, `+
- *         'prefer direct reference (e.g: `list_0`) where possible.\n'+
+ *     '// Index macro `list_i` (e.g: `list_i(0)`) may be slow, `+
+ *         'use name (e.g: `list_0`) if possible.\n'+
  *     '#define list_i(i) ((i == 2)? list_2 : ((i == 1)? list_1 : list_0))\n';
  *
  * @param {string} type The GLSL list data-type.
@@ -143,8 +155,8 @@ export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
     getGLSLListBase(type, name, a, qualify, init)+'\n'+
     // @todo Would ideally use the concatenation macro, but can't in GLSL 1.
     // `#define ${name}_i(i) ${name}_##i`;
-    `// \`${name}_i\` index macro (e.g: \`${name}_i(0)\`) may be slow, `+
-        `prefer direct reference (e.g: \`${name}_0\`) where possible.\n`+
+    `// Index macro \`${name}_i\` (e.g: \`${name}_i(0)\`) may be slow, `+
+        `use name (e.g: \`${name}_0\`) if possible.\n`+
     `#define ${name}_i(i) ${reduce((s, v, i) =>
             ((i)? `((i == ${i})? ${name}_${i} : ${s})` : `${name}_${i}`),
         a, '')}\n`;
@@ -156,13 +168,13 @@ export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
  * @example
  *     getGLSL1ListArray('vec3', 'list', [[1, 0, 0], [0, 2, 0], [0, 0, 3]]);
  *     // =>
- *     'const int list_l = 3; '+
- *     'vec3 list_0 = vec3(1, 0, 0); '+
- *     'vec3 list_1 = vec3(0, 2, 0); '+
- *     'vec3 list_2 = vec3(0, 0, 3); '+
- *     'vec3 list[list_l]; '+
- *     'list[0] = list_0; '+
- *     'list[1] = list_1; '+
+ *     'const int list_l = 3;'+cr+
+ *     'vec3 list_0 = vec3(1, 0, 0);'+cr+
+ *     'vec3 list_1 = vec3(0, 2, 0);'+cr+
+ *     'vec3 list_2 = vec3(0, 0, 3);'+cr+
+ *     'vec3 list[list_l];'+cr+
+ *     'list[0] = list_0;'+cr+
+ *     'list[1] = list_1;'+cr+
  *     'list[2] = list_2;\n'+
  *     '#define list_i(i) list[i]\n';
  *
@@ -175,9 +187,9 @@ export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
  * @returns {string} The GLSL 1 array declaration string.
  */
 export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
-    getGLSLListBase(type, name, a, qualify, init)+' '+
-    (qualify && qualify+' ')+`${type} ${name}[${name}_l];`+
-    reduce((s, _, i) => `${s} ${name}[${i}] = ${name}_${i};`, a, '')+'\n'+
+    getGLSLListBase(type, name, a, qualify, init)+cr+
+    (qualify && qualify+' ')+type+` ${name}[${name}_l];`+
+    reduce((s, _, i) => s+cr+name+`[${i}] = ${name}_${i};`, a, '')+'\n'+
     `#define ${name}_i(i) ${name}[i]\n`;
 
 /**
@@ -186,10 +198,10 @@ export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
  *
  * @example
  *     getGLSL3List('int', 'list', [0, 1, 2], 'const'); // =>
- *     'const int list_l = 3; '+
- *     'const int list_0 = int(0); '+
- *     'const int list_1 = int(1); '+
- *     'const int list_2 = int(2); '+
+ *     'const int list_l = 3;'+cr+
+ *     'const int list_0 = int(0);'+cr+
+ *     'const int list_1 = int(1);'+cr+
+ *     'const int list_2 = int(2);'+cr+
  *     'const int list[list_l] = int[list_l](list_0, list_1, list_2);\n'+
  *     '#define list_i(i) list[i]\n';
  *
@@ -202,8 +214,8 @@ export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
  * @returns {string} The GLSL 3 array declaration string.
  */
 export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
-    getGLSLListBase(type, name, a, qualify, init)+' '+
-    `${(qualify && qualify+' ')+type} ${name}[${name}_l] = ${init}[${name}_l](${
+    getGLSLListBase(type, name, a, qualify, init)+cr+
+    (qualify && qualify+' ')+type+` ${name}[${name}_l] = ${init}[${name}_l](${
         reduce((s, _, i) => (s && s+', ')+name+'_'+i, a, '')});\n`+
     `#define ${name}_i(i) ${name}[i]\n`;
 
@@ -219,27 +231,27 @@ export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
  *
  * @example
  *     getGLSLList('int', 'test', [0, 1]); // =>
- *     'const int test_l = 2; '+
- *     'int test_0 = int(0); '+
- *     'int test_1 = int(1); '+
- *     'int test[test_l]; '+
- *     'test[0] = test_0; '+
+ *     'const int test_l = 2;'+cr+
+ *     'int test_0 = int(0);'+cr+
+ *     'int test_1 = int(1);'+cr+
+ *     'int test[test_l];'+cr+
+ *     'test[0] = test_0;'+cr+
  *     'test[1] = test_1;\n'+
  *     '#define test_i(i) test[i]\n';
  *
  *     getGLSLList('ivec2', 'vecs', [[1, 0], [0, 1]], 'const', 3); // =>
- *     'const int vecs_l = 2; '+
- *     'ivec2 vecs_0 = ivec2(1, 0); '+
- *     'ivec2 vecs_1 = ivec2(0, 1); '+
+ *     'const int vecs_l = 2;'+cr+
+ *     'ivec2 vecs_0 = ivec2(1, 0);'+cr+
+ *     'ivec2 vecs_1 = ivec2(0, 1);'+cr+
  *     'const ivec2 vecs[vecs_l] = ivec2[vecs_l](vecs_0, vecs_1);\n'+
  *     '#define vecs_i(i) vecs[i]\n';
  *
  *     getGLSLList('int', 'listLike', [0, 1], 'const', 1); // =>
- *     'const int listLike_l = 2; '+
- *     'const int listLike_0 = int(0); '+
+ *     'const int listLike_l = 2;'+cr+
+ *     'const int listLike_0 = int(0);'+cr+
  *     'const int listLike_1 = int(1);\n'+
- *     '// `listLike_i` index macro (e.g: `listLike_i(0)`) may be slow, `+
- *         'prefer direct reference (e.g: `listLike_0`) where possible.\n'+
+ *     '// Index macro `listLike_i` (e.g: `listLike_i(0)`) may be slow, `+
+ *         'use name (e.g: `listLike_0`) if possible.\n'+
  *     '#define listLike_i(i) ((i == 1)? listLike_1 : listLike_0)\n';
  *
  * @param {string} type The GLSL list data-type.
@@ -253,8 +265,8 @@ export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
  */
 export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
     ((glsl >= 3)? getGLSL3List
-    : ((qualify.trim() === 'const')? getGLSL1ListLike
-    :   getGLSL1ListArray))(type, name, a, qualify, init);
+    : ((qualify.trim() === 'const')?
+        getGLSL1ListLike : getGLSL1ListArray))(type, name, a, qualify, init);
 
 /**
  * Defines the values within textures per-step, as GLSL preprocessor macros.
@@ -270,7 +282,8 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  *
  *     // No optimisations - values not packed, single texture output per pass.
  *     const state = {
- *         steps: 2, maps: mapGroups({ ...maps, texturesMax: 1, packed: 0 })
+ *          pre: '', steps: 2,
+ *          maps: mapGroups({ ...maps, buffersMax: 1, packed: 0 })
  *     };
  *
  *     macroValues(state); // =>
@@ -286,10 +299,11 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  *     '#define textures 3\n'+
  *     '#define passes 3\n'+
  *     '#define stepsPast 1\n'+
- *     '#define steps 2\n';
+ *     '#define steps 2\n'+
+ *     '\n';
  *
  *     // Automatically packed values - values across fewer textures/passes.
- *     state.maps = mapGroups({ ...maps, texturesMax: 1 });
+ *     state.maps = mapGroups({ ...maps, buffersMax: 1 });
  *     state.size = { count: 2**5 };
  *     macroValues(state); // =>
  *     '#define texture_1 0\n'+
@@ -305,10 +319,11 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  *     '#define textures 2\n'+
  *     '#define passes 2\n'+
  *     '#define stepsPast 1\n'+
- *     '#define steps 2\n';
+ *     '#define steps 2\n'+
+ *     '\n';
  *
  *     // Can bind more texture outputs per pass - values across fewer passes.
- *     state.maps = mapGroups({ ...maps, texturesMax: 4 });
+ *     state.maps = mapGroups({ ...maps, buffersMax: 4 });
  *     macroValues(state); // =>
  *     '#define texture_1 0\n'+
  *     '#define channels_1 rgba\n'+
@@ -323,7 +338,8 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  *     '#define textures 2\n'+
  *     '#define passes 1\n'+
  *     '#define stepsPast 1\n'+
- *     '#define steps 2\n';
+ *     '#define steps 2\n'+
+ *     '\n';
  *
  * @param {object} state Properties used to generate the macros. See `getState`.
  * @param {string} [on] Any further macro `hooks` specifier; if given, both
@@ -359,8 +375,8 @@ export function macroValues(state, on) {
     const stepsL = (steps.length ?? steps);
     const count = size?.count;
 
-    const c = key+':'+
-        JSON.stringify({ n, bound, values, textures, stepsL, passesL, count });
+    const c = `${key}:${n},${bound},${id(values)},${id(textures)},${stepsL},${
+            passesL},${count}`;
 
     return (cache[c] ??=
         reduce((s, texture, t, _, i = 0) => reduce((s, v) => s+
@@ -373,7 +389,8 @@ export function macroValues(state, on) {
         `#define ${n}textures ${textures.length}\n`+
         `#define ${n}passes ${passesL}\n`+
         `#define ${n}stepsPast ${stepsL-bound}\n`+
-        `#define ${n}steps ${stepsL}\n`);
+        `#define ${n}steps ${stepsL}\n`+
+        `#define ${n}bound ${bound}\n\n`);
 }
 
 /**
@@ -390,7 +407,8 @@ export function macroValues(state, on) {
  *
  *     // No optimisations - values not packed, single texture output per pass.
  *     const state = {
- *         passNow: 0, maps: mapGroups({ ...maps, texturesMax: 1, packed: 0 })
+ *          pre: '', passNow: 0,
+ *          maps: mapGroups({ ...maps, buffersMax: 1, packed: 0 })
  *     };
  *
  *     macroOutput(state); // =>
@@ -398,16 +416,18 @@ export function macroValues(state, on) {
  *     '\n'+
  *     '#define bound_0 0\n'+
  *     '#define attach_0 0\n'+
- *     '#define output_0 gl_FragData[attach_0].rg\n';
+ *     '#define output_0 gl_FragData[attach_0].rg\n'+
+ *     '\n';
  *
  *     // Automatically packed values - values across fewer textures/passes.
- *     state.maps = mapGroups({ ...maps, texturesMax: 1 });
+ *     state.maps = mapGroups({ ...maps, buffersMax: 1 });
  *     macroOutput(state); // =>
  *     '#define passNow 0\n'+
  *     '\n'+
  *     '#define bound_1 0\n'+
  *     '#define attach_1 0\n'+
- *     '#define output_1 gl_FragData[attach_1].rgba\n';
+ *     '#define output_1 gl_FragData[attach_1].rgba\n'+
+ *     '\n';
  *
  *     // Next pass in this step.
  *     ++state.passNow;
@@ -420,10 +440,11 @@ export function macroValues(state, on) {
  *     '\n'+
  *     '#define bound_2 1\n'+
  *     '#define attach_2 0\n'+
- *     '#define output_2 gl_FragData[attach_2].b\n';
+ *     '#define output_2 gl_FragData[attach_2].b\n'+
+ *     '\n';
  *
  *     // Can bind more texture outputs per pass - values across fewer passes.
- *     state.maps = mapGroups({ ...maps, texturesMax: 4 });
+ *     state.maps = mapGroups({ ...maps, buffersMax: 4 });
  *     state.passNow = 0;
  *     macroOutput(state); // =>
  *     '#define passNow 0\n'+
@@ -438,7 +459,8 @@ export function macroValues(state, on) {
  *     '\n'+
  *     '#define bound_2 1\n'+
  *     '#define attach_2 1\n'+
- *     '#define output_2 gl_FragData[attach_2].b\n';
+ *     '#define output_2 gl_FragData[attach_2].b\n'+
+ *     '\n';
  *
  * @param {object} state Properties for generating the macros. See `getState`:
  * @param {string} [on] Any further macro `hooks` specifier; if given, both
@@ -467,7 +489,7 @@ export function macroOutput(state, on) {
     const { passNow: p, maps, pre: n = preDef } = state;
     const { values, textures, passes } = maps;
     const pass = passes[p];
-    const c = key+':'+JSON.stringify({ n, p, values, textures, passes });
+    const c = `${key}:${n},${p},${id(values)},${id(textures)},${id(passes)}`;
 
     return (cache[c] ??=
         `#define ${n}passNow ${p}\n`+
@@ -477,17 +499,20 @@ export function macroOutput(state, on) {
                     `#define ${n}output_${v} gl_FragData[${n}attach_${v}].${
                         rgba.slice(i, (i += values[v]))}\n`,
                 textures[texture], s),
-            pass, ''));
+            pass, '')+'\n');
 }
 
 /**
  * Defines the texture samples/reads per-pass, as GLSL preprocessor macros.
- * The macros define the mapping between the values and the minimum texture
- * samples for the data they derive from. They're set up as function-like macros
- * that may be called from the shader to initialise the mappings arrays with a
- * given name.
+ * The macros define the mapping between the values and those they derive from,
+ * as step/texture locations in a `samples` list, and indexes to read values
+ * from sampled data in a `reads` list (once sampled into a `data` list, as in
+ * `macroTaps` or similar).
+ * They're set up as function-like macros that may be called from the shader to
+ * initialise the mappings arrays with a given name.
  * Caches the result if `macros` generation is enabled, to help reuse shaders.
  *
+ * @see macroTaps
  * @see hasMacros
  * @see getGLSLList
  * @see [getMaps]{@link ./maps.js#getMaps}
@@ -499,118 +524,53 @@ export function macroOutput(state, on) {
  *     const maps = { values, derives, channelsMax: 4 };
  *
  *     // No optimisations - values not packed, single texture output per pass.
- *     const state = { maps: getMaps({ ...maps, texturesMax: 1, packed: 0 }) };
+ *     const state =
+ *         { pre: '', maps: getMaps({ ...maps, buffersMax: 1, packed: 0 }) };
  *
- *     state.passNow = 0;
+ *     // USes the first pass by default.
  *     macroSamples(state); // =>
- *     '#define useSamples '+
- *         'const int samples_l = 1; '+
+ *     '#define useSamples'+cr+
+ *         'const int samples_l = 1;'+cr+
  *         'const ivec2 samples_0 = ivec2(0, 2);\n'+
- *     '// `samples_i` index macro (e.g: `samples_i(0)`) may be slow, '+
- *         'prefer direct reference (e.g: `samples_0`) where possible.\n'+
+ *     '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
+ *         'use name (e.g: `samples_0`) if possible.\n'+
  *     '#define samples_i(i) samples_0\n'+
  *     '\n'+
- *     '#define tapSamples(states, uv, textures) '+
- *         'const int data_l = 1; '+
- *         'vec4 data_0 = vec4(texture2D('+
- *             'states[(int(samples_0.s)*int(textures))+int(samples_0.t)], '+
- *             'vec2(uv))); '+
- *         'vec4 data[data_l]; '+
- *         'data[0] = data_0;\n'+
- *     '#define data_i(i) data[i]\n'+
- *     '\n'+
- *     '#define tapSamplesShift(states, uv, textures, byS, byT) '+
- *         'const int data_l = 1; '+
- *         'vec4 data_0 = vec4(texture2D('+
- *             'states[((int(samples_0.s)+int(byS))*int(textures))+'+
- *                 'int(samples_0.t)+int(byT)], '+
- *             'vec2(uv))); '+
- *         'vec4 data[data_l]; '+
- *         'data[0] = data_0;\n'+
- *     '#define data_i(i) data[i]\n'+
- *     '\n'+
- *     '\n'+
- *     '#define useReads_0 '+
- *         'const int reads_0_l = 1; '+
+ *     '#define useReads_0'+cr+
+ *         'const int reads_0_l = 1;'+cr+
  *         'const int reads_0_0 = int(0);\n'+
- *     '// `reads_0_i` index macro (e.g: `reads_0_i(0)`) may be slow, '+
- *         'prefer direct reference (e.g: `reads_0_0`) where possible.\n'+
- *     '#define reads_0_i(i) reads_0_0\n';
+ *     '// Index macro `reads_0_i` (e.g: `reads_0_i(0)`) may be slow, '+
+ *         'use name (e.g: `reads_0_0`) if possible.\n'+
+ *     '#define reads_0_i(i) reads_0_0\n'+
+ *     '\n';
  *
  *     // Next pass in this step - no derives, no samples nor reads.
- *     ++state.passNow;
+ *     state.passNow = 1;
  *     macroSamples(state); // =>
  *     '';
  *
  *     // Next pass in this step.
  *     ++state.passNow;
  *     macroSamples(state); // =>
- *     '#define useSamples '+
- *         'const int samples_l = 4; '+
- *         'const ivec2 samples_0 = ivec2(1, 0); '+
- *         'const ivec2 samples_1 = ivec2(0, 0); '+
- *         'const ivec2 samples_2 = ivec2(0, 1); '+
+ *     '#define useSamples'+cr+
+ *         'const int samples_l = 4;'+cr+
+ *         'const ivec2 samples_0 = ivec2(1, 0);'+cr+
+ *         'const ivec2 samples_1 = ivec2(0, 0);'+cr+
+ *         'const ivec2 samples_2 = ivec2(0, 1);'+cr+
  *         'const ivec2 samples_3 = ivec2(0, 2);\n'+
- *     '// `samples_i` index macro (e.g: `samples_i(0)`) may be slow, '+
- *         'prefer direct reference (e.g: `samples_0`) where possible.\n'+
+ *     '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
+ *         'use name (e.g: `samples_0`) if possible.\n'+
  *     '#define samples_i(i) ((i == 3)? samples_3 : ((i == 2)? samples_2 '+
  *         ': ((i == 1)? samples_1 : samples_0)))\n'+
  *     '\n'+
- *     '#define tapSamples(states, uv, textures) '+
- *         'const int data_l = 4; '+
- *         'vec4 data_0 = vec4(texture2D('+
- *             'states[(int(samples_0.s)*int(textures))+int(samples_0.t)], '+
- *             'vec2(uv))); '+
- *         'vec4 data_1 = vec4(texture2D('+
- *             'states[(int(samples_1.s)*int(textures))+int(samples_1.t)], '+
- *             'vec2(uv))); '+
- *         'vec4 data_2 = vec4(texture2D('+
- *             'states[(int(samples_2.s)*int(textures))+int(samples_2.t)], '+
- *             'vec2(uv))); '+
- *         'vec4 data_3 = vec4(texture2D('+
- *             'states[(int(samples_3.s)*int(textures))+int(samples_3.t)], '+
- *             'vec2(uv))); '+
- *         'vec4 data[data_l]; '+
- *         'data[0] = data_0; '+
- *         'data[1] = data_1; '+
- *         'data[2] = data_2; '+
- *         'data[3] = data_3;\n'+
- *     '#define data_i(i) data[i]\n'+
- *     '\n'+
- *     '#define tapSamplesShift(states, uv, textures, byS, byT) '+
- *         'const int data_l = 4; '+
- *         'vec4 data_0 = vec4(texture2D('+
- *             'states[((int(samples_0.s)+int(byS))*int(textures))+'+
- *                 'int(samples_0.t)+int(byT)], '+
- *             'vec2(uv))); '+
- *         'vec4 data_1 = vec4(texture2D('+
- *             'states[((int(samples_1.s)+int(byS))*int(textures))+'+
- *                 'int(samples_1.t)+int(byT)], '+
- *             'vec2(uv))); '+
- *         'vec4 data_2 = vec4(texture2D('+
- *             'states[((int(samples_2.s)+int(byS))*int(textures))+'+
- *                 'int(samples_2.t)+int(byT)], '+
- *             'vec2(uv))); '+
- *         'vec4 data_3 = vec4(texture2D('+
- *             'states[((int(samples_3.s)+int(byS))*int(textures))+'+
- *                 'int(samples_3.t)+int(byT)], '+
- *             'vec2(uv))); '+
- *         'vec4 data[data_l]; '+
- *         'data[0] = data_0; '+
- *         'data[1] = data_1; '+
- *         'data[2] = data_2; '+
- *         'data[3] = data_3;\n'+
- *     '#define data_i(i) data[i]\n'+
- *     '\n'+
- *     '\n'+
- *     '#define useReads_2 '+
- *         'const int reads_2_l = 4; '+
- *         'const int reads_2_0 = int(0); '+
- *         'const int reads_2_1 = int(1); '+
- *         'const int reads_2_2 = int(2); '+
+ *     '#define useReads_2'+cr+
+ *         'const int reads_2_l = 4;'+cr+
+ *         'const int reads_2_0 = int(0);'+cr+
+ *         'const int reads_2_1 = int(1);'+cr+
+ *         'const int reads_2_2 = int(2);'+cr+
  *         'const int reads_2_3 = int(3);\n'+
- *     '// `reads_2_i` index macro (e.g: `reads_2_i(0)`) may be slow, '+
- *         'prefer direct reference (e.g: `reads_2_0`) where possible.\n'+
+ *     '// Index macro `reads_2_i` (e.g: `reads_2_i(0)`) may be slow, '+
+ *         'use name (e.g: `reads_2_0`) if possible.\n'+
  *     '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+
  *         ': ((i == 1)? reads_2_1 : reads_2_0)))\n'+
  *     '\n';
@@ -618,72 +578,34 @@ export function macroOutput(state, on) {
  *     // Automatically packed values - values across fewer textures/passes.
  *     // Can bind more texture outputs per pass - values across fewer passes.
  *     // Also fewer samples where values share derives or textures.
- *     state.maps = mapGroups({ ...maps, texturesMax: 4 });
+ *     state.maps = mapGroups({ ...maps, buffersMax: 4 });
  *     state.passNow = 0;
  *     macroSamples(state); // =>
- *     '#define useSamples '+
- *         'const int samples_l = 3; '+
- *         'const ivec2 samples_0 = ivec2(0, 1); '+
- *         'const ivec2 samples_1 = ivec2(1, 1); '+
+ *     '#define useSamples'+cr+
+ *         'const int samples_l = 3;'+cr+
+ *         'const ivec2 samples_0 = ivec2(0, 1);'+cr+
+ *         'const ivec2 samples_1 = ivec2(1, 1);'+cr+
  *         'const ivec2 samples_2 = ivec2(0, 0);\n'+
- *     '// `samples_i` index macro (e.g: `samples_i(0)`) may be slow, '+
- *         'prefer direct reference (e.g: `samples_0`) where possible.\n'+
+ *     '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
+ *         'use name (e.g: `samples_0`) if possible.\n'+
  *     '#define samples_i(i) '+
  *         '((i == 2)? samples_2 : ((i == 1)? samples_1 : samples_0))\n'+
  *     '\n'+
- *     '#define tapSamples(states, uv, textures) '+
- *         'const int data_l = 3; '+
- *         'vec4 data_0 = vec4(texture2D('+
- *             'states[(int(samples_0.s)*int(textures))+int(samples_0.t)], '+
- *             'vec2(uv))); '+
- *         'vec4 data_1 = vec4(texture2D('+
- *             'states[(int(samples_1.s)*int(textures))+int(samples_1.t)], '+
- *             'vec2(uv))); '+
- *         'vec4 data_2 = vec4(texture2D('+
- *             'states[(int(samples_2.s)*int(textures))+int(samples_2.t)], '+
- *             'vec2(uv))); '+
- *         'vec4 data[data_l]; '+
- *         'data[0] = data_0; '+
- *         'data[1] = data_1; '+
- *         'data[2] = data_2;\n'+
- *     '#define data_i(i) data[i]\n'+
- *     '\n'+
- *     '#define tapSamplesShift(states, uv, textures, byS, byT) '+
- *         'const int data_l = 3; '+
- *         'vec4 data_0 = vec4(texture2D('+
- *             'states[((int(samples_0.s)+int(byS))*int(textures))+'+
- *                 'int(samples_0.t)+int(byT)], '+
- *             'vec2(uv))); '+
- *         'vec4 data_1 = vec4(texture2D('+
- *             'states[((int(samples_1.s)+int(byS))*int(textures))+'+
- *                 'int(samples_1.t)+int(byT)], '+
- *             'vec2(uv))); '+
- *         'vec4 data_2 = vec4(texture2D('+
- *             'states[((int(samples_2.s)+int(byS))*int(textures))+'+
- *                 'int(samples_2.t)+int(byT)], '+
- *             'vec2(uv))); '+
- *         'vec4 data[data_l]; '+
- *         'data[0] = data_0; '+
- *         'data[1] = data_1; '+
- *         'data[2] = data_2;\n'+
- *     '#define data_i(i) data[i]\n'+
- *     '\n'+
- *     '\n'+
- *     '#define useReads_0 '+
- *         'const int reads_0_l = 1; '+
+ *     '#define useReads_0'+cr+
+ *         'const int reads_0_l = 1;'+cr+
  *         'const int reads_0_0 = int(0);\n'+
- *     '// `reads_0_i` index macro (e.g: `reads_0_i(0)`) may be slow, '+
- *         'prefer direct reference (e.g: `reads_0_0`) where possible.\n'+
+ *     '// Index macro `reads_0_i` (e.g: `reads_0_i(0)`) may be slow, '+
+ *         'use name (e.g: `reads_0_0`) if possible.\n'+
  *     '#define reads_0_i(i) reads_0_0\n'+
  *     '\n'+
- *     '#define useReads_2 '+
- *         'const int reads_2_l = 4; '+
- *         'const int reads_2_0 = int(1); '+
- *         'const int reads_2_1 = int(0); '+
- *         'const int reads_2_2 = int(2); '+
+ *     '#define useReads_2'+cr+
+ *         'const int reads_2_l = 4;'+cr+
+ *         'const int reads_2_0 = int(1);'+cr+
+ *         'const int reads_2_1 = int(0);'+cr+
+ *         'const int reads_2_2 = int(2);'+cr+
  *         'const int reads_2_3 = int(0);\n'+
- *     '// `reads_2_i` index macro (e.g: `reads_2_i(0)`) may be slow, '+
- *         'prefer direct reference (e.g: `reads_2_0`) where possible.\n'+
+ *     '// Index macro `reads_2_i` (e.g: `reads_2_i(0)`) may be slow, '+
+ *         'use name (e.g: `reads_2_0`) if possible.\n'+
  *     '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+
  *         ': ((i == 1)? reads_2_1 : reads_2_0)))\n'+
  *     '\n';
@@ -694,7 +616,8 @@ export function macroOutput(state, on) {
  * @param {string|function|object|false} [state.macros] How macros are handled.
  *     See `hasMacros`.
  * @param {string} [state.pre=preDef] Macros prefix; `preDef` if not given.
- * @param {number} state.passNow The index of the currently active pass.
+ * @param {number} [state.passNow=0] The index of the currently active pass;
+ *     uses the first pass if not given.
  * @param {object} state.maps  How `values` are grouped per-texture per-pass
  *     per-step. See `mapGroups`.
  * @param {array<array<array<number>>>} [state.maps.samples] The minimal set of
@@ -716,73 +639,286 @@ export function macroSamples(state, on) {
     const { samples, reads } = maps;
     const passSamples = samples?.[p];
     const passReads = reads?.[p];
-    // Whether to generate GLSL preprocessor macros for the lookup logic.
-    const tap = hasMacros(state, hooks.macroSamplesTap, on);
-
-    const c = key+':'+
-        JSON.stringify({ n, p, passSamples, passReads, glsl, tap });
+    const c = `${key}:${n},${p},${id(passSamples)},${id(passReads)},${glsl}`;
 
     return (cache[c] ??=
         ((!passSamples)? ''
-        :   `#define ${n}useSamples ${
+        :   `#define ${n}useSamples${cr+
                 getGLSLList('ivec2', n+'samples', passSamples, 'const', glsl)
-            }\n`+
-            // The texture-sampling logic.
-            /**
-             * @todo Fix GLSL3/D3D error "sampler array index must be a literal
-             *     expression".
-             *     Caused by need for vertex attribute to look up sampler array;
-             *     as it's a non-constant expression; this is also a limitation
-             *     in the GLSL3 spec:
-             *     (a) Combine texture steps into one map would work around it,
-             *     avoiding sampler arrays entirely; maybe usage-specific/heavy;
-             *     could have 1 framebuffer, copy pixels into its offset in
-             *     1 big past states texture (merge the current sampler array);
-             *     analogous to GLSL3 `sampler2DArray` and `sampler3D`.
-             *     (b) Maybe `gl_VertexID` could work around this; only GLSL 3+.
-             *     (c) Maybe try a list-like instead of a sampler array; e.g:
-             *     `uniform sampler2D state_0;` etc; instead of the current
-             *     `uniform sampler2D states[stepsPast*textures];`; updates to
-             *     both inputs and macros; how can lookups be quick without loop
-             *     or nested `((i == 1)? state_1 : state_0)`?
-             *     Of these options, (a) seems to be the best, most future-proof
-             *     and in line with the specs, cross-platform, while avoiding
-             *     awkward workarounds.
-             *
-             * @see https://stackoverflow.com/a/60110986/716898
-             * @see https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_2d_array.html
-             * @see https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_3d.html
-             */
-            (tap ??
-                `#define ${n}tapSamples(states, uv, textures) `+
-                    // 2D-to-1D indexing, as textures are a flat array.
-                    getGLSLList('vec4', n+'data',
-                            map((_, s) =>
-                                'texture2D(states['+
-                                    `(int(${n}samples_${s}.s)*int(textures))+`+
-                                    `int(${n}samples_${s}.t)`+
-                                '], vec2(uv))',
-                            passSamples),
-                        '', glsl)+'\n'+
-                // Data may also be sampled by adding step/texture lookup shift.
-                `#define ${n}tapSamplesShift(states, uv, textures, byS, byT) `+
-                    // 2D-to-1D indexing, as textures are a flat array.
-                    getGLSLList('vec4', n+'data',
-                            map((_, s) =>
-                                'texture2D(states['+
-                                    `((int(${n}samples_${s}.s)+int(byS))*`+
-                                        'int(textures))+'+
-                                    `int(${n}samples_${s}.t)+int(byT)`+
-                                '], vec2(uv))',
-                            passSamples),
-                        '', glsl)+'\n'+
-                '\n'))+
+            }\n`)+
         ((!passReads)? ''
         :   reduce((s, reads, v) =>
-                    `${s}#define ${n}useReads_${v} ${
+                    `${s}#define ${n}useReads_${v}${cr+
                         getGLSLList('int', n+'reads_'+v, reads, 'const', glsl)
                     }\n`,
                 passReads, '')));
+}
+
+/**
+ * Defines the samples of textures per-pass, as GLSL preprocessor macros.
+ * The macros define the minimal sampling of textures for the data the active
+ * pass's values derive from; creates a `data` list containing the samples; the
+ * `samples` list names are required, as created by `macroSamples` or similar.
+ * Handles sampling states in a flat array of textures, or merged in one texture
+ * (in both `sampler2D`, and `sampler3D`/`sampler2DArray` where supported).
+ * Merging allows shaders to access past steps by non-constant lookups; e.g:
+ * attributes cause "sampler array index must be a literal expression" on GLSL3
+ * spec and some platforms (e.g: D3D); note these need texture repeat wrapping.
+ * They're set up as function-like macros that may be called from the shader to
+ * initialise the mappings arrays with a given name.
+ * Caches the result if `macros` generation is enabled, to help reuse shaders.
+ *
+ * @todo Combine texture steps into one map would work around it, avoiding
+ *     sampler arrays entirely; maybe usage-specific/heavy; could have 1
+ *     framebuffer, copy pixels into its offset in 1 big past states texture
+ *     (merge the current sampler array); analogous to GLSL3
+ *     `sampler3D`/`sampler2DArray`.
+ *
+ * @see https://stackoverflow.com/a/60110986/716898
+ * @see https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_2d_array.html
+ * @see https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_3d.html
+ *
+ * @see macroSamples
+ * @see hasMacros
+ * @see getGLSLList
+ * @see [getMaps]{@link ./maps.js#getMaps}
+ * @see [getState]{@link ./state.js#getState}
+ * @see [getUniforms]{@link ./inputs.js#getUniforms}
+ *
+ * @example
+ *     const values = [2, 4, 1];
+ *     const derives = [2, , [[1, 0], true]];
+ *     const maps = { values, derives, channelsMax: 4 };
+ *
+ *     // No optimisations - values not packed, single texture output per pass.
+ *     const state =
+ *         { pre: '', maps: getMaps({ ...maps, buffersMax: 1, packed: 0 }) };
+ *
+ *     // Uses the first pass by default.
+ *     macroTaps(state); // =>
+ *     '@todo';
+ *
+ *     // Next pass in this step - no derives, no samples nor reads.
+ *     state.passNow = 1;
+ *     macroTaps(state); // =>
+ *     '';
+ *
+ *     // Next pass in this step.
+ *     ++state.passNow;
+ *     macroTaps(state); // =>
+ *     '@todo';
+ *
+ *     // Automatically packed values - values across fewer textures/passes.
+ *     // Can bind more texture outputs per pass - values across fewer passes.
+ *     // Also fewer samples where values share derives or textures.
+ *     state.maps = mapGroups({ ...maps, buffersMax: 4 });
+ *     state.passNow = 0;
+ *     macroTaps(state); // =>
+ *     '@todo';
+ *
+ * @param {object} state Properties used to generate the macros. See `getState`.
+ * @param {string} [on] Any further macro `hooks` specifier; if given, both
+ *     the hook key and this specifier are checked (e.g: `key` and `key_on`).
+ * @param {string|function|object|false} [state.macros] How macros are handled.
+ *     See `hasMacros`.
+ * @param {string} [state.pre=preDef] Macros prefix; `preDef` if not given.
+ * @param {number} [state.passNow=0] The index of the currently active pass;
+ *     uses the first pass if not given.
+ * @param {object} state.maps  How `values` are grouped per-texture per-pass
+ *     per-step. See `mapGroups`.
+ * @param {array<array<array<number>>>} [state.maps.samples] The minimal set of
+ *     texture samples to use. See `mapSamples`.
+ * @param {object} [state.merge] Any merged state texture; uses separate state
+ *     textures if not given. See `getState`.
+ * @param {number} [state.glsl=1] The GLSL language version. See `getGLSLList`.
+ *
+ * @returns {string} The GLSL preprocessor macros defining the minimal sampling
+ *     of textures, to suit how states are stored (flat array of textures, or
+ *     all merged into one texture) and supported GLSL language features.
+ */
+export function macroTaps(state, on) {
+    const key = hooks.macroTaps;
+    const hook = hasMacros(state, key, on);
+
+    if(hook !== null) { return hook; }
+
+    const { passNow: p = 0, maps, merge, glsl, pre: n = preDef } = state;
+    const passSamples = maps.samples?.[p];
+    const index = !merge;
+    const c = `${key}:${n},${p},${id(passSamples)},${index},${glsl}`;
+
+    if(c in cache) { return cache[c]; }
+
+    // Which texture sampling function is available.
+    const glsl3 = (glsl >= 3);
+    const texture = 'texture'+((glsl3)? '' : '2D');
+    // Short and common names for functions and parameters.
+    const f = n+'tapState';
+    const tap = '#define '+f;
+    // The full ordered parameters can be up to:
+    // (uv, states, stepNow, steps, textures, stepBy, textureBy)
+    const by = `stepBy, textureBy`;
+    // Aliases use default names for brevity, main functions offer more control.
+    const aka = `#define ${f}(uv)${cr+f}`;
+    const akaBy = `#define ${f}By(uv, ${by})${cr+f}`;
+    // The current `sample`, as `[step, texture]`.
+    const st = n+'samples_';
+    // Prefix for private temporary variables.
+    const t = '_'+n;
+    // A temporary array to pass to `getGLSLList`.
+    const tapsSamples = cache[key+'Samples'] ??= [];
+    const tapsL = tapsSamples.length = passSamples?.length ?? 0;
+
+    // The texture-sampling logic.
+    return (cache[c] = ((index)? '' : `#define ${n}mergedStates\n\n`)+
+        ((!tapsL)? ''
+        : ((index)?
+            /** Separate un-merged textures accessed by constant index. */
+            '// States in a `sampler2D[]`; looks up 1D index and 2D `uv`; '+cr+
+                'past steps go later in the list.\n'+
+            `// Pass constant array index values; \`textures\`.\n`+
+            `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+            tap+`s(uv, states, textures)`+cr+
+                // Compute before the loop for lighter work.
+                `const int ${t}tlI = int(textures);`+cr+
+                `vec2 ${t}uvI = vec2(uv);`+cr+
+                // Sample into the `data` output list.
+                getGLSLList('vec4', n+'data',
+                    map((_, i) => texture+'(states['+
+                                // Offset step, texture.
+                                `(int(${st+i}.s)*${t}tlI)+int(${st+i}.t)`+
+                            `], ${t}uvI)`,
+                        passSamples, tapsSamples),
+                    '', glsl)+'\n'+
+            '// States may also be sampled by shifted step/texture.\n'+
+            `// Pass constant array index values; \`textures, ${by}\`.\n`+
+            `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+            tap+`sBy(uv, states, textures, ${by})`+cr+
+                // Compute before the loop for lighter work.
+                `const int ${t}tlIB = int(textures);`+cr+
+                `ivec2 ${t}byIB = ivec2(${by});`+cr+
+                `vec2 ${t}uvIB = vec2(uv);`+cr+
+                // Sample into the `data` output list.
+                getGLSLList('vec4', n+'data',
+                    map((_, i) => texture+'(states['+
+                                // Offset step.
+                                `((int(${st+i}.s)+${t}byIB.s)*${t}tlIB)+`+
+                                // Offset texture.
+                                `int(${st+i}.t)+${t}byIB.t`+
+                            `], ${t}uvIB)`,
+                        passSamples, tapsSamples),
+                    '', glsl)+'\n'+
+            '// Preferred aliases: index suits states array constant access.\n'+
+            aka+`s(uv, ${n}states, ${n}textures)\n`+
+            akaBy+`sBy(uv, ${n}states, ${n}textures, ${by})\n`
+        :   /** Merged 2D texture. */
+            '// States merged to a `sampler2D`, scales 2D `uv` over '+
+                '`[textures, steps]`.\n'+
+            '// Step from now into the past going upwards in the texture.\n'+
+            `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+            tap+`2(uv, states, stepNow, steps, textures)`+cr+
+                // Compute before the loop for lighter work.
+                `vec2 ${t}l2 = vec2(textures, steps);`+cr+
+                `vec2 ${t}uv2 = vec2(uv)/${t}l2;`+cr+
+                // Steps advance in reverse, top-to-bottom.
+                `vec2 ${t}s2 = vec2(1, -1)/${t}l2;`+cr+
+                // Offset texture, step.
+                // Each step stored in texture top downward at `-stepNow`.
+                // Most recent step to look up is at `-stepNow+1`.
+                `vec2 ${t}i2 = vec2(0, 1)-vec2(0, stepNow);`+cr+
+                // Sample into the `data` output list.
+                getGLSLList('vec4', n+'data',
+                    // Would repeat wrap; but WebGL1 needs power-of-2.
+                    map((_, i) => texture+`(states, fract(${t}uv2+`+
+                                // Offset texture, step.
+                                `((vec2(${st+i}).ts+${t}i2)*${t}s2)))`,
+                            passSamples, tapsSamples),
+                        '', glsl)+'\n'+
+            '// States may also be sampled by shifted step/texture.\n'+
+            `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+            tap+`2By(uv, states, stepNow, steps, textures, ${by})`+cr+
+                // Compute before the loop for lighter work.
+                `vec2 ${t}l2B = vec2(textures, steps);`+cr+
+                `vec2 ${t}uv2B = vec2(uv)/${t}l2B;`+cr+
+                // Steps advance in reverse, top-to-bottom.
+                `vec2 ${t}s2B = vec2(1, -1)/${t}l2B;`+cr+
+                // Offset texture, step.
+                // Each step stored in texture top downward at `-stepNow`.
+                // Most recent step to look up is at `-stepNow+1`.
+                `vec2 ${t}i2B = vec2(${by}).ts+vec2(0, 1)-vec2(0, stepNow);`+cr+
+                // Sample into the `data` output list.
+                getGLSLList('vec4', n+'data',
+                    // Would repeat wrap; but WebGL1 needs power-of-2.
+                    map((_, i) => texture+`(states, fract(${t}uv2B+`+
+                                // Offset texture, step.
+                                `((vec2(${st+i}).ts+${t}i2B)*${t}s2B)))`,
+                            passSamples, tapsSamples),
+                        '', glsl)+'\n'+
+            ((!glsl3)?
+                '// Preferred aliases: 2D suits merged texture in GLSL < 1.\n'+
+                aka+`2(uv, ${n}states, ${n}stepNow, ${n}steps, ${n}textures)\n`+
+                akaBy+`2By(uv, ${
+                    n}states, ${n}stepNow, ${n}steps, ${n}textures, ${by})\n`
+            :   /**
+                 * Merged 3D texture types, supported from GLSL3.
+                 * @todo Check and finish this.
+                 */
+                '// States merged to `sampler3D` or `sampler2DArray`; 2D `uv` '+
+                    'to 3D; scales `x` over `textures`, `z` over `steps` as:\n'+
+                '// - `sampler3D`: the number of steps; depth, `[0, 1]`.\n'+
+                '// - `sampler2DArray`: `1` or less; layer, `[0, steps-1]`.\n'+
+                `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+                tap+`3(uv, states, stepNow, steps, textures)`+cr+
+                    // @see `...2()` above.
+                    // Compute before the loop for lighter work.
+                    `vec2 ${t}l3 = vec2(textures, steps);`+cr+
+                    `vec2 ${t}uv3 = vec2(uv)/${t}l3;`+cr+
+                    // Offset texture.
+                    `float ${t}sx3 = 1.0/${t}l3.x;`+cr+
+                    // Offset step.
+                    `float ${t}s3 = -float(stepNow);`+cr+
+                    `float ${t}sz3 = -1.0/${t}l3;`+cr+
+                    // Sample into the `data` output list.
+                    getGLSLList('vec4', n+'data',
+                        // Would repeat wrap; but `sampler2DArray` layer can't.
+                        map((_, i) => texture+'(states, fract(vec3('+
+                                // Offset texture.
+                                `${t}uv3.x+(float(${st+i}.t)*${t}sx3), `+
+                                `${t}uv3.y, `+
+                                // Offset step: `sampler3D` depth, `[0, 1]`;
+                                // `sampler2DArray` layer, `[0, steps-1]`.
+                                `(float(${st+i}.s)+${t}s3)*${t}sz3)))`,
+                            passSamples, tapsSamples),
+                        '', glsl)+'\n'+
+                '// States may also be sampled by shifted step/texture.\n'+
+                `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+                tap+`3By(uv, states, stepNow, steps, textures, ${by})`+cr+
+                    // @see `...2By()` above.
+                    // Compute before the loop for lighter work.
+                    `vec2 ${t}l3B = vec2(textures, steps);`+cr+
+                    `vec2 ${t}uv3B = (vec2(uv)+vec2(textureBy, 0))/${t}l3B;`+cr+
+                    // Offset texture.
+                    `float ${t}sx3B = 1.0/${t}l3B.x;`+cr+
+                    // Offset step.
+                    `float ${t}s3B = float(stepBy)-float(stepNow);`+cr+
+                    `float ${t}sz3B = -1.0/${t}l3B;`+cr+
+                    // Sample into the `data` output list.
+                    getGLSLList('vec4', n+'data',
+                        // Would repeat wrap; but `sampler2DArray` layer can't.
+                        map((_, i) => texture+'(states, fract(vec3('+
+                                // Offset texture.
+                                `${t}uv3B.x+(float(${st+i}.t)*${t}sx3B), `+
+                                `${t}uv3B.y, `+
+                                // Offset step: `sampler3D` depth, `[0, 1]`;
+                                // `sampler2DArray` layer, `[0, steps-1]`.
+                                `(float(${st+i}.s)+${t}s3B)*${t}sz3B)))`,
+                            passSamples, tapsSamples),
+                        '', glsl)+'\n'+
+                '// Preferred aliases: 3D suits merged texture in GLSL 3+.\n'+
+                aka+`3(uv, ${n}states, ${n}stepNow, ${n}steps, ${n}textures)\n`+
+                akaBy+`3By(uv, ${
+                    n}states, ${n}stepNow, ${n}steps, ${n}textures, ${by})\n`))+
+        '\n'));
 }
 
 /**
@@ -795,6 +931,7 @@ export function macroSamples(state, on) {
  * @see hasMacros
  * @see macroValues
  * @see macroOutput
+ * @see macroTaps
  * @see macroSamples
  * @see [getMaps]{@link ./maps.js#getMaps}
  * @see [getState]{@link ./state.js#getState}
@@ -806,8 +943,8 @@ export function macroSamples(state, on) {
  *     // Automatically packed values - values across fewer textures/passes.
  *     // Only a single texture output per pass - values across more passes.
  *     const state = {
- *         passNow: 0, steps: 2, size: { count: 2**5 }, pre: 'gpgpu_',
- *         maps: getMaps({ values, derives, channelsMax: 4, texturesMax: 1 })
+ *         passNow: 0, steps: 2, size: { count: 2**5 },
+ *         maps: getMaps({ values, derives, channelsMax: 4, buffersMax: 1 })
  *     };
  *
  *     macroPass(state); // =>
@@ -863,72 +1000,36 @@ export function macroSamples(state, on) {
  *     '#define attach_2 0\n'+
  *     '#define output_2 gl_FragData[attach_2].b\n'+
  *     '\n'+
- *     '#define useSamples '+
- *         'const int samples_l = 3; '+
- *         'const ivec2 samples_0 = ivec2(0, 1); '+
- *         'const ivec2 samples_1 = ivec2(1, 1); '+
+ *     '#define useSamples'+cr+
+ *         'const int samples_l = 3;'+cr+
+ *         'const ivec2 samples_0 = ivec2(0, 1);'+cr+
+ *         'const ivec2 samples_1 = ivec2(1, 1);'+cr+
  *         'const ivec2 samples_2 = ivec2(0, 0);\n'+
- *     '// `samples_i` index macro (e.g: `samples_i(0)`) may be slow, '+
- *         'prefer direct reference (e.g: `samples_0`) where possible.\n'+
- *     '#define samples_i(i) '+
+ *     '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
+ *         'use name (e.g: `samples_0`) if possible.\n'+
+ *     '#define samples_i(i)'+cr+
  *         '((i == 2)? samples_2 : ((i == 1)? samples_1 : samples_0))\n'+
  *     '\n'+
- *     '#define tapSamples(states, uv, textures) '+
- *         'const int data_l = 3; '+
- *         'vec4 data_0 = vec4(texture2D('+
- *             'states[(int(samples_0.s)*int(textures))+int(samples_0.t)], '+
- *             'vec2(uv))); '+
- *         'vec4 data_1 = vec4(texture2D('+
- *             'states[(int(samples_1.s)*int(textures))+int(samples_1.t)], '+
- *             'vec2(uv))); '+
- *         'vec4 data_2 = vec4(texture2D('+
- *             'states[(int(samples_2.s)*int(textures))+int(samples_2.t)], '+
- *             'vec2(uv))); '+
- *         'vec4 data[data_l]; '+
- *         'data[0] = data_0; '+
- *         'data[1] = data_1; '+
- *         'data[2] = data_2;\n'+
- *     '#define data_i(i) data[i]\n'+
- *     '\n'+
- *     '#define tapSamplesShift(states, uv, textures, byS, byT) '+
- *         'const int data_l = 3; '+
- *         'vec4 data_0 = vec4(texture2D('+
- *             'states[((int(samples_0.s)+int(byS))*int(textures))+'+
- *                 'int(samples_0.t)+int(byT)], '+
- *             'vec2(uv))); '+
- *         'vec4 data_1 = vec4(texture2D('+
- *             'states[((int(samples_1.s)+int(byS))*int(textures))+'+
- *                 'int(samples_1.t)+int(byT)], '+
- *             'vec2(uv))); '+
- *         'vec4 data_2 = vec4(texture2D('+
- *             'states[((int(samples_2.s)+int(byS))*int(textures))+'+
- *                 'int(samples_2.t)+int(byT)], '+
- *             'vec2(uv))); '+
- *         'vec4 data[data_l]; '+
- *         'data[0] = data_0; '+
- *         'data[1] = data_1; '+
- *         'data[2] = data_2;\n'+
- *     '#define data_i(i) data[i]\n'+
- *     '\n'+
- *     '\n'+
- *     '#define useReads_0 '+
- *         'const int reads_0_l = 1; '+
+ *     '#define useReads_0'+cr+
+ *         'const int reads_0_l = 1;'+cr+
  *         'const int reads_0_0 = int(0);\n'+
- *     '// `reads_0_i` index macro (e.g: `reads_0_i(0)`) may be slow, '+
- *         'prefer direct reference (e.g: `reads_0_0`) where possible.\n'+
+ *     '// Index macro `reads_0_i` (e.g: `reads_0_i(0)`) may be slow, '+
+ *         'use name (e.g: `reads_0_0`) if possible.\n'+
  *     '#define reads_0_i(i) reads_0_0\n'+
  *     '\n'+
- *     '#define useReads_2 '+
- *         'const int reads_2_l = 4; '+
- *         'const int reads_2_0 = int(1); '+
- *         'const int reads_2_1 = int(0); '+
- *         'const int reads_2_2 = int(2); '+
+ *     '#define useReads_2'+cr+
+ *         'const int reads_2_l = 4;'+cr+
+ *         'const int reads_2_0 = int(1);'+cr+
+ *         'const int reads_2_1 = int(0);'+cr+
+ *         'const int reads_2_2 = int(2);'+cr+
  *         'const int reads_2_3 = int(0);\n'+
- *     '// `reads_2_i` index macro (e.g: `reads_2_i(0)`) may be slow, '+
- *         'prefer direct reference (e.g: `reads_2_0`) where possible.\n'+
+ *     '// Index macro `reads_2_i` (e.g: `reads_2_i(0)`) may be slow, '+
+ *         'use name (e.g: `reads_2_0`) if possible.\n'+
  *     '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+
  *         ': ((i == 1)? reads_2_1 : reads_2_0)))\n'+
- *     '\n';
+ *     '\n'+
+ *     '// States in a `sampler2D[]`; looks up 1D index and 2D `uv`.\n'+
+ *     '@todo';
  *
  * @param {object} state Properties for generating the macros. See `getState`
  *     and `mapGroups`.
@@ -941,6 +1042,7 @@ export function macroSamples(state, on) {
  */
 export const macroPass = (state, on) =>
     (hasMacros(state, hooks.macroPass, on) ??
-        macroValues(state)+'\n'+macroOutput(state)+'\n'+macroSamples(state));
+        macroValues(state)+macroOutput(state)+
+        macroSamples(state)+macroTaps(state));
 
 export default macroPass;

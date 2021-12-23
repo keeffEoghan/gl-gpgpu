@@ -4,6 +4,7 @@ GPGPU state-stepping: maps minimal draw passes, shaders, GL resources, inputs, o
 
 Aims to have loose drawing dependencies - for easier compatibility with any renderer which may rely on tracking the WebGL state (e.g: [`regl`](https://github.com/regl-project/regl/)).
 To handle resource creation and rendering, pass an API object for the needed callbacks (parameters match the `regl` API, but you may mix in whatever library you like).
+Choose to use distinct data textures for each part of state, or one data texture all states are merged into upon each pass; depending on needs and platform support.
 
 The modules and many hooks may be used as given, or piecemeal, or overridden.
 

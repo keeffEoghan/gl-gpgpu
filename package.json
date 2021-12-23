@@ -1,7 +1,7 @@
 {
   "name": "@epok.tech/gl-gpgpu",
-  "version": "0.3.3",
-  "description": "GPGPU current/past state-stepping - map minimal passes of shaders, GL resources, inputs, outputs - BYORenderer.",
+  "version": "0.5.0",
+  "description": "GPGPU state-stepping - map minimal passes of shaders, GL resources, inputs, outputs - BYORenderer.",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
   "author": "Eoghan O'Keeffe <epok.tech@gmail.com> (https://epok.tech)",
   "license": "MIT",
@@ -22,7 +22,7 @@
     "docs:safe": "yarn docs --no-cache"
   },
   "dependencies": {
-    "@epok.tech/fn-lists": "^0.1.2",
+    "@epok.tech/fn-lists": "^0.1.4",
     "@epok.tech/gl-screen-triangle": "^1.2.1",
     "@epok.tech/is-type": "^0.1.0",
     "@thi.ng/vectors": "^7.1.1"
@@ -55,18 +55,20 @@
     "maps.js",
     "state.js",
     "step.js",
+    "size.js",
     "index.vert.js",
-    "index-pairs/index.js",
-    "index-pairs/index.glsl.js",
-    "sample/index-uv.glsl.js",
-    "sample/offset-uv.glsl.js",
-    "util/mod-div.glsl.js"
+    "index-forms/index.js",
+    "index-forms/index-entries.glsl.js",
+    "index-forms/index-states.glsl.js",
+    "lookup/index-uv.glsl.js",
+    "lookup/offset-uv.glsl.js",
+    "util/remain-div.glsl.js"
   ],
   "files": [
     "*.js",
     "dist/**/*",
-    "index-pairs/**/*",
-    "sample/**/*",
+    "index-forms/**/*",
+    "lookup/**/*",
     "util/**/*",
     "docs/**/*",
     "demo/**/*"
@@ -95,7 +97,7 @@
       "engines": {
         "browsers": "last 2 versions, > 0.5%, not dead"
       },
-      "source": "demo/particles/index.html",
+      "source": "demo/particles-regl/index.html",
       "distDir": "docs/",
       "publicUrl": "./"
     }
