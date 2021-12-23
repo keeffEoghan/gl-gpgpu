@@ -385,9 +385,11 @@ let pressHold;
 
 canvas.addEventListener((('onpointerdown' in self)? 'pointerdown'
         :   (('ontouchstart' in self)? 'touchstart' : 'mousedown')),
-    () => {
+    (e) => {
         clearTimeout(pressHold);
         pressHold = setTimeout(() => state.props.lifetime[2] = +false, 5e2);
+
+        e.stopPropagation();
     });
 
 canvas.addEventListener((('onpointermove' in self)? 'pointermove'
