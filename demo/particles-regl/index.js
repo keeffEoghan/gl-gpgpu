@@ -209,17 +209,28 @@ const state = gpgpu(regl, {
         // Loop time over this period to avoid instability of parts of the demo.
         loop: 3e3,
         // Range of how long a particle lives, and whether it can respawn.
-        lifetime: [5e2, 5e3, +true],
+        lifetime: [3e2, 4e3, +true],
         // Whether to use Verlet (midpoint) or Euler (forward) integration.
-        useVerlet: canVerlet,
-        // Constant acceleration due to gravity.
-        // g: [0, -9.80665, 0],
-        // Gravitation position and universal gravitational constant; scaled.
-        g: [0, 0, 0.6, 6.674e-11*5e10],
+        useVerlet: +canVerlet,
         // A small number greater than 0; avoids speeds exploding.
         epsilon: 1e-5,
         // The position particles respawn from.
         source: [0, 0, 0.4],
+        // Gravitation position, and universal constant.
+        gravitation: [
+            // Gravitation position.
+            0, 0, 0.6,
+            // Universal gravitational constant (scaled).
+            6.674e-11*5e10
+        ],
+        // Constant acceleration due to gravity; and whether to use it, uses
+        // gravitation if not.
+        g: [
+            // Constant acceleration due to gravity.
+            0, -9.80665, 0,
+            // Whether to use it, uses gravitation if not.
+            +false
+        ],
         // For numeric accuracy, encoded as exponent `[b, p] => b*(10**p)`.
         scale: [1, -7],
 
@@ -243,11 +254,11 @@ const state = gpgpu(regl, {
                 Math.sin(t/l*Math.PI)*l,
 
             lifetime: regl.prop('props.lifetime'),
-            useVerlet: (_, { props: { useVerlet: u } }) => +u,
-            g: regl.prop('props.g'),
+            useVerlet: regl.prop('props.useVerlet'),
             epsilon: regl.prop('props.epsilon'),
             source: regl.prop('props.source'),
-            // For numeric accuracy, encoded as exponent `[b, e] => b*(10**e)`.
+            gravitation: regl.prop('props.gravitation'),
+            g: regl.prop('props.g'),
             scale: regl.prop('props.scale'),
 
             // One option in these arrays is used, by Euler/Verlet respectively.
@@ -405,7 +416,7 @@ canvas.addEventListener('click', () => {
     // Switch between physics/drawing modes if this wasn't press-held.
 
     const { props: p, drawProps: d } = drawState;
-    const v = (canVerlet && (p.useVerlet = !p.useVerlet));
+    const v = (canVerlet && (p.useVerlet = +(!p.useVerlet)));
     const f = (form || (d.form = 1+(canLines && ((canVerlet)? v : d.form%2))));
 
     console.log('useVerlet', v, 'form', f,

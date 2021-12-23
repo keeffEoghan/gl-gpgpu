@@ -72,15 +72,16 @@ uniform float dt1;
 uniform float loop;
 uniform vec3 lifetime;
 uniform float useVerlet;
-// Constant acceleration due to gravity.
-// uniform vec3 g;
-// Gravitation position and universal gravitational constant.
-uniform vec4 g;
 uniform float epsilon;
 uniform vec3 source;
 uniform vec2 scale;
 uniform float spout;
 // uniform vec3 drag;
+// Gravitation position, and universal constant.
+uniform vec4 gravitation;
+// Constant acceleration due to gravity; and whether to use it, uses
+// gravitation if not.
+uniform vec4 g;
 
 varying vec2 uv;
 
@@ -188,14 +189,13 @@ void main() {
     #ifdef motionOutput
         // Gravitate towards the gravitation point (simplified).
         // @see https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation
+        vec3 gravity = gravitation.xyz-position1;
 
-        vec3 gravity = g.xyz-position1;
+        gravity *= gravitation.w/max(dot(gravity, gravity), epsilon);
 
-        gravity *= g.w/max(dot(gravity, gravity), epsilon);
-        acceleration = gravity;
+        // Use gravitation point, or constant acceleration due to gravity.
+        acceleration = mix(gravity, g.xyz, g.w);
 
-        // Constant acceleration due to gravity.
-        // acceleration = g;
         // Can also combine other forces, e.g: drag.
         // acceleration +=
         //     dragAcc(mix(velocity, acceleration*dt1, useVerlet), drag);
