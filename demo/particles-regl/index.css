@@ -12,7 +12,10 @@ html {
 
 body { margin: 0; }
 
-.view { cursor: pointer; }
+.view {
+    cursor: pointer;
+    user-select: noselect;
+}
 
 .links {
     display: flex;

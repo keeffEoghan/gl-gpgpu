@@ -380,40 +380,41 @@ regl.frame(() => {
     draw(drawState);
 });
 
+function stopEvent(e) {
+    e.stopPropagation();
+    e.preventDefault();
+}
 // Pause the spawning while pointer is held down.
 let pressHold;
 
 canvas.addEventListener((('onpointerdown' in self)? 'pointerdown'
-        :   (('ontouchstart' in self)? 'touchstart' : 'mousedown')),
-    (e) => {
-        clearTimeout(pressHold);
-        pressHold = setTimeout(() => state.props.lifetime[2] = +false, 5e2);
-
-        e.stopPropagation();
-    });
+        :   (('ontouchstart' in self)? 'touchstart' : 'mousedown')), (e) => {
+    clearTimeout(pressHold);
+    pressHold = setTimeout(() => state.props.lifetime[2] = +false, 5e2);
+    stopEvent(e);
+});
 
 canvas.addEventListener((('onpointermove' in self)? 'pointermove'
-        :   (('ontouchmove' in self)? 'touchmove' : 'mousemove')),
-    (e) => {
-        const { clientX: x, clientY: y } = e;
-        const { source } = state.props;
-        const size = Math.min(innerWidth, innerHeight);
+        :   (('ontouchmove' in self)? 'touchmove' : 'mousemove')), (e) => {
+    const { clientX: x, clientY: y } = e;
+    const { source } = state.props;
+    const size = Math.min(innerWidth, innerHeight);
 
-        source[0] = ((((x-((innerWidth-size)*0.5))/size)*2)-1);
-        source[1] = -((((y-((innerHeight-size)*0.5))/size)*2)-1);
-
-        e.stopPropagation();
-        e.preventDefault();
-    });
+    source[0] = ((((x-((innerWidth-size)*0.5))/size)*2)-1);
+    source[1] = -((((y-((innerHeight-size)*0.5))/size)*2)-1);
+    stopEvent(e);
+});
 
 // Toggle Verlet integration, if there are enough past steps.
-canvas.addEventListener('click', () => {
+canvas.addEventListener((('onpointerup' in self)? 'pointerup'
+        :   (('ontouchend' in self)? 'touchend' : 'mouseup')), (e) => {
     const { lifetime } = state.props;
     const pressHeld = !lifetime[2];
 
     // Unpause the spawning when pointer is released.
     clearTimeout(pressHold);
     lifetime[2] = +true;
+    stopEvent(e);
 
     if(pressHeld) { return; }
 
@@ -429,9 +430,6 @@ canvas.addEventListener('click', () => {
         'primitive', drawCommand.primitive(0, drawState));
 });
 
-canvas.addEventListener('touchmove', (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-});
+canvas.addEventListener('touchmove', stopEvent);
 
 module?.hot?.accept?.(() => location.reload());
