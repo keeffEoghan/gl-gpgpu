@@ -102,9 +102,9 @@ function setQuery(entries, query = getQuery()) {
 
 let query = getQuery();
 
-// 1 active state, as many others as can be bound; at least 2 past states needed
-// for Verlet integration, 1 for Euler integration.
-const steps = clamp((parseInt(query.get('steps'), 10) || 1+bound),
+// 2 active states, as many others as can be bound; at least 2 past states
+// needed for Verlet integration, 1 for Euler integration.
+const steps = clamp((parseInt(query.get('steps'), 10) || 2+bound),
     ...limits.steps);
 
 // How many past steps (not bound to outputs) are in the GPGPU state.
@@ -127,10 +127,8 @@ const timestepDef = 1e3/60;
 const timestep = (hasTimestep &&
     (parseFloat(query.get('timestep'), 10) || timestepDef));
 
-// Whether to merge states into a texture; only to draw Verlet lines by default.
-let merge = query.get('merge');
-
-merge = ((merge === 'true') || ((merge === 'false')? false : canVerlet));
+// Whether to merge states into a texture.
+const merge = (query.get('merge') !== 'false');
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
     'steps:', steps, 'scale:', scale, 'form:', form,
@@ -138,12 +136,12 @@ console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
 
 // Set up the links.
 
-document.querySelector('#default').href =
-    `?${setQuery([['steps'], ['scale']])}#default`;
+document.querySelector('#verlet').href =
+    `?${setQuery([['steps'], ['scale']])}#verlet`;
 
-document.querySelector('#verlet').href = `?${setQuery([
-        ['steps', 2+bound], ['scale', niceScale]
-    ])}#verlet`;
+document.querySelector('#euler').href = `?${setQuery([
+        ['steps', 1+bound], ['scale', niceScale]
+    ])}#euler`;
 
 document.querySelector('#long').href = `?${setQuery([
         ['steps', limits.steps[1]],
@@ -160,6 +158,9 @@ document.querySelector('#trails').href =
 
 document.querySelector('#timestep').href =
     `?${setQuery([['timestep', ((timestep)? null : timestepDef)]])}#timestep`;
+
+document.querySelector('#merge').href =
+    `?${setQuery([['merge', ((merge)? false : null)]])}#merge`;
 
 // How values/channels map to their derivations.
 
@@ -207,8 +208,8 @@ const state = gpgpu(regl, {
         rate: 1,
         // Loop time over this period to avoid instability of parts of the demo.
         loop: 3e3,
-        // Range of how long a particle lives before respawning.
-        lifetime: [5e2, 5e3],
+        // Range of how long a particle lives, and whether it can respawn.
+        lifetime: [5e2, 5e3, +true],
         // Whether to use Verlet (midpoint) or Euler (forward) integration.
         useVerlet: canVerlet,
         // Constant acceleration due to gravity.
@@ -271,12 +272,14 @@ console.groupEnd();
 // @todo Errors without `merge`; why, if the framebuffer isn't bound?
 const drawBound = +(!merge);
 const drawSteps = steps-drawBound;
+const canLines = (merge && (drawSteps > 1));
+
+console.log('drawSteps', drawSteps, 'canLines', canLines);
 
 // Vertex counts by form; how many steps a form covers, for all entries;
 // respectively for: none, points, lines.
 // Note `state.size.count` will equal the value returned by `countDrawIndexes`.
-const drawCounts = map((_, form) =>
-        indexForms(drawSteps, form, state.size.count),
+const drawCounts = map((_, f) => indexForms(drawSteps, f, state.size.count),
     range(3), 0);
 
 const drawState = {
@@ -286,7 +289,7 @@ const drawState = {
     macros: { 'output': 0, 'frag': 0 },
     drawProps: {
         // How many vertexes per form.
-        form: (form || 1+(drawSteps > 1)),
+        form: (form || 1+canLines),
         // Vertex counts by form; how many steps a form covers, for all entries.
         count: null,
         counts: drawCounts,
@@ -364,23 +367,15 @@ regl.frame(() => {
     draw(drawState);
 });
 
-// Toggle Verlet integration, if there are enough past steps.
-canvas.addEventListener('click', () => {
-    const { props: p, drawProps: d } = drawState;
-    const c = canVerlet;
-    const v = (c && (p.useVerlet = !p.useVerlet));
-    const f = (form || (d.form = 1+((c)? v : ((drawSteps > 1) && d.form%2))));
+// Pause the spawning while pointer is held down.
+let pressHold;
 
-    console.log('useVerlet', v, 'form', f,
-        // See how this derives other properties.
-        'count', drawCommand.count(0, drawState),
-        'primitive', drawCommand.primitive(0, drawState));
-});
-
-canvas.addEventListener('touchmove', (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-});
+canvas.addEventListener((('onpointerdown' in self)? 'pointerdown'
+        :   (('ontouchdown' in self)? 'touchdown' : 'mousedown')),
+    () => {
+        clearTimeout(pressHold);
+        pressHold = setTimeout(() => state.props.lifetime[2] = +false, 5e2);
+    });
 
 canvas.addEventListener((('onpointermove' in self)? 'pointermove'
         :   (('ontouchmove' in self)? 'touchmove' : 'mousemove')),
@@ -395,5 +390,33 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
         e.stopPropagation();
         e.preventDefault();
     });
+
+// Toggle Verlet integration, if there are enough past steps.
+canvas.addEventListener('click', () => {
+    const { lifetime } = state.props;
+    const pressHeld = !lifetime[2];
+
+    // Unpause the spawning when pointer is released.
+    clearTimeout(pressHold);
+    lifetime[2] = +true;
+
+    if(pressHeld) { return; }
+
+    // Switch between physics/drawing modes if this wasn't press-held.
+
+    const { props: p, drawProps: d } = drawState;
+    const v = (canVerlet && (p.useVerlet = !p.useVerlet));
+    const f = (form || (d.form = 1+(canLines && ((canVerlet)? v : d.form%2))));
+
+    console.log('useVerlet', v, 'form', f,
+        // See how this derives other properties.
+        'count', drawCommand.count(0, drawState),
+        'primitive', drawCommand.primitive(0, drawState));
+});
+
+canvas.addEventListener('touchmove', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+});
 
 module?.hot?.accept?.(() => location.reload());

@@ -29,6 +29,9 @@ body { margin: 0; }
     transition: opacity 800ms ease-out;
     will-change: opacity;
     overflow: auto;
+    font-family: sans-serif;
+    color: #fff;
+    text-align: center;
 
     &:hover,
     &:focus {
@@ -37,14 +40,18 @@ body { margin: 0; }
     }
 }
 
+.info {
+    flex: 1 0 100%;
+}
+
 .link {
     flex: 1 0 auto;
     position: relative;
-    font-family: sans-serif;
     font-weight: 900;
-    margin: 1em;
-    padding: 0.5em;
-    color: #fff;
+    margin: 0.5em;
+    padding: 0.6em;
+    color: inherit;
+    background: #0003;
     text-decoration: none;
     text-align: center;
     cursor: pointer;

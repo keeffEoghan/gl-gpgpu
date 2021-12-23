@@ -70,7 +70,7 @@ uniform float stepNow;
 uniform float dt0;
 uniform float dt1;
 uniform float loop;
-uniform vec2 lifetime;
+uniform vec3 lifetime;
 uniform float useVerlet;
 // Constant acceleration due to gravity.
 // uniform vec3 g;
@@ -216,6 +216,6 @@ void main() {
 
         // Only spawn life once the oldest step reaches the end of its lifetime
         // (past and current life are both 0).
-        lifeOutput = mix(lifeTo, lifeNew, spawn*faded);
+        lifeOutput = mix(lifeTo, lifeNew, spawn*faded*lifetime.z);
     #endif
 }

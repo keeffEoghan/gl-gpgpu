@@ -39,7 +39,7 @@ uniform vec4 dataShape;
 uniform vec2 viewShape;
 uniform float pointSize;
 uniform float dt;
-uniform vec2 lifetime;
+uniform vec3 lifetime;
 uniform vec2 pace;
 uniform float useVerlet;
 uniform float form;
