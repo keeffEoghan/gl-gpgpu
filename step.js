@@ -37,6 +37,8 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
  * into the merged texture, from each of its attachments one by one (to support
  * multiple draw buffers). Matches the lookup logic defined in `macroTaps`.
  *
+ * @todo Update docs.
+ *
  * @see https://stackoverflow.com/a/34160982/716898
  * @see getPass
  * @see [texture]{@link ./state.js#texture}
@@ -55,10 +57,9 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
  * @returns {texture} The merged `texture`, updated by the active pass's output;
  *     matches the lookup logic defined in `macroTaps`.
  */
- export const updateMerge = (state) => {
+ export function updateMerge(state) {
     const { color, map: pass } = getPass(state);
-    const { merge, stepNow: s, size } = state;
-    const { texture: to, copier } = merge;
+    const { merge: { texture: to, copier }, stepNow: s, size } = state;
     const f = copier?.framebuffer;
 
     // Silent exit if there's not enough info ready now to perform the update.
@@ -67,57 +68,15 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
     const { steps: sl, shape: [w, h] } = size;
     // Start at the top of the texture, move down row-per-step and wrap.
     const y = (s%sl)*h;
-    // const y = wrap(-s-1, sl)*h;
     const { copyFrame: cf, copyImage: ci } = cache;
 
-    // const test = true;
-    const test = false;
-    const [wl, hl] = size.merge.shape;
-    const { channels } = merge;
-    const tl = state.maps.textures.length;
-
-    // @todo Try this test.
-    (test && f({ color: to })
-        .use(() => console.warn(Array.prototype.reduce.call(regl.read(),
-            (o, v, i) =>
-                o+((i)? ',\t' : '')+
-                ((!i)? ''
-                : ((i%(tl*w*h*channels) === 0)?
-                    '\n'+'='.repeat(100)+'step'+'='.repeat(100)+'\n'
-                : ((i%(tl*w*channels) === 0)? '\n'
-                : ((i%(w*channels) === 0)? ' || \t'
-                : ((i%channels === 0)? ' / \t' : '')))))+
-                (i*1e-3).toFixed(3).slice(2)+': '+((v)? v.toFixed(2) : '___'),
-            '\n'))));
-
-    /** Reusable framebuffer to copy the pass's pixels to the merged texture. */
-    each((c, i) => {
-            if(test) {
-                const x = pass[i]*w;
-                const lc = (x*h)+(y*tl*w);
-
-                console.warn(s, i, pass[i], ':');
-                console.warn('- l', x, 'r', x+w, 'w', w, 'wl', wl);
-                console.warn('- t', y, 'b', y+h, 'h', h, 'hl', hl);
-                console.warn('- c', channels, 'lc', lc*channels,
-                    'rc', (lc+(w*h))*channels,
-                    'sc', w*h*channels, 'slc', wl*hl*channels);
-            }
-
-            cf.color = c;
-            ci.width = w;
-            ci.height = h;
-            // ci.x = pass[i]*w;
-            // ci.y = y;
-            f(cf).use(() => to.subimage(ci, pass[i]*w, y));
-            // f(cf).use(() => to.subimage(ci));
-        },
+    each((c, i) =>
+            // Reusable framebuffer copies pass's pixels to the merged texture.
+            ((cf.color = c) && f(cf).use(() => to.subimage(ci, pass[i]*w, y))),
         color);
 
-    if(test && s && (s%(sl*4) === 0)) { debugger; }
-
     return to;
-};
+}
 
 /**
  * Creates a GPGPU update step function, for use with a GPGPU state object.
@@ -418,5 +377,42 @@ export function getStep(api, state, to = (state.step ?? {})) {
  * @returns {object} A `passProps` to use for the render `command` call; or
  *     nullish to use the given `stepProps`.
  */
+
+/** A wrapper around `updateMerge` that's handy for testing. */
+export function updateMergeTest(state, update = updateMerge, after = 2) {
+    const { color, map: pass } = getPass(state);
+    const { merge, stepNow: s, passNow: p, size, maps } = state;
+    const { channels, copier } = merge;
+    const { steps: sl, shape: [w, h], merge: { shape: [wl, hl] } } = size;
+    const tl = maps.textures.length;
+    const y = (s%sl)*h;
+    const lc = y*tl*w;
+    const f = copier?.framebuffer;
+    const to = update(state);
+
+    console.warn(s, p, pass, ':');
+    console.warn('- l', 0, 'r', tl*w, 'w', w, 'wl', wl);
+    console.warn('- t', y, 'b', y+h, 'h', h, 'hl', hl);
+    console.warn('- c', channels, 'lc', lc*channels,
+        'rc', (lc+(w*h))*channels,
+        'sc', w*h*channels, 'slc', wl*hl*channels);
+
+    f({ color: to }).use(() =>
+        console.warn(Array.prototype.reduce.call(regl.read(),
+            (o, v, i) =>
+                o+((i)? ',\t' : '')+
+                ((!i)? ''
+                : ((i%(tl*w*h*channels) === 0)?
+                    '\n'+'='.repeat(100)+'step'+'='.repeat(100)+'\n'
+                : ((i%(tl*w*channels) === 0)? '\n'
+                : ((i%(w*channels) === 0)? ' || \t'
+                : ((i%channels === 0)? ' / \t' : '')))))+
+                (i*1e-3).toFixed(3).slice(2)+': '+((v)? v.toFixed(2) : '___'),
+            '\n')));
+
+    if(s && after && (s%(sl*after) === 0)) { debugger; }
+
+    return to;
+}
 
 export default getStep;

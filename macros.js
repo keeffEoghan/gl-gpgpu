@@ -782,6 +782,7 @@ export function macroTaps(state, on) {
                 // Compute before the loop for lighter work.
                 `const int ${t}tlI = int(textures);`+cr+
                 `vec2 ${t}uvI = vec2(uv);`+cr+
+                // Sample into the `data` output list.
                 getGLSLList('vec4', n+'data',
                     map((_, i) => texture+'(states['+
                                 // Offset step, texture.
@@ -797,6 +798,7 @@ export function macroTaps(state, on) {
                 `const int ${t}tlIB = int(textures);`+cr+
                 `ivec2 ${t}byIB = ivec2(${by});`+cr+
                 `vec2 ${t}uvIB = vec2(uv);`+cr+
+                // Sample into the `data` output list.
                 getGLSLList('vec4', n+'data',
                     map((_, i) => texture+'(states['+
                                 // Offset step.
@@ -816,67 +818,40 @@ export function macroTaps(state, on) {
             `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
             tap+`2(uv, states, stepNow, steps, textures)`+cr+
                 // Compute before the loop for lighter work.
-                // `vec2 ${t}s2 = 1.0/vec2(textures, -steps);`+cr+
-
                 `vec2 ${t}l2 = vec2(textures, steps);`+cr+
-                // `vec2 ${t}s2 = vec2(1, -1)/(${t}l2-1.0);`+cr+
-                // `vec2 ${t}s2 = 1.0/${t}l2;`+cr+
-                `vec2 ${t}s2 = vec2(1, -1)/${t}l2;`+cr+
-                // `vec2 ${t}i2 = vec2(1, -1);`+cr+
-                // `vec2 ${t}s2 = 1.0/vec2(textures, steps);`+cr+
-                // Offset texture, step.
-                // Each step stored in texture top downward at `-stepNow-1`.
-                // Most recent step to look up is at `-stepNow-1+1 = -stepNow`.
-                // `vec2 ${t}uv2 = vec2(uv)-vec2(0, stepNow);`+cr+
-
                 `vec2 ${t}uv2 = vec2(uv)/${t}l2;`+cr+
-                // `vec2 ${t}ts2 = -vec2(0, stepNow);`+cr+
-                `vec2 ${t}ts2 = -vec2(0, stepNow)+vec2(0, 1);`+cr+
-                // `vec2 ${t}uv2 = vec2(uv)+(vec2(0, stepNow+1)*${t}i2);`+cr+
+                // Steps advance in reverse, top-to-bottom.
+                `vec2 ${t}s2 = vec2(1, -1)/${t}l2;`+cr+
+                // Offset texture, step.
+                // Each step stored in texture top downward at `-stepNow`.
+                // Most recent step to look up is at `-stepNow+1`.
+                `vec2 ${t}i2 = vec2(0, 1)-vec2(0, stepNow);`+cr+
+                // Sample into the `data` output list.
                 getGLSLList('vec4', n+'data',
                     // Would repeat wrap; but WebGL1 needs power-of-2.
-                    map((_, i) => texture+'(states, '+
+                    map((_, i) => texture+`(states, fract(${t}uv2+`+
                                 // Offset texture, step.
-                                // `fract((vec2(${st+i}).ts+${t}uv2)*${t}s2))`,
-
-                                // `fract((vec2(${st+i}).ts+${t}ts2)*${t}s2)+${t}uv2)`,
-                                `fract(fract((vec2(${st+i}).ts+${t}ts2)*${t}s2)+${t}uv2))`,
-                                // `fract(((vec2(${st+i}).ts*${t}i2)+${t}uv2)*`+
-                                //     `${t}s2))`,
+                                `((vec2(${st+i}).ts+${t}i2)*${t}s2)))`,
                             passSamples, tapsSamples),
                         '', glsl)+'\n'+
             '// States may also be sampled by shifted step/texture.\n'+
             `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
             tap+`2By(uv, states, stepNow, steps, textures, ${by})`+cr+
                 // Compute before the loop for lighter work.
-                // `vec2 ${t}s2B = 1.0/vec2(textures, -steps);`+cr+
-
                 `vec2 ${t}l2B = vec2(textures, steps);`+cr+
-                // `vec2 ${t}s2B = vec2(1, -1)/(${t}l2B-1.0);`+cr+
-                // `vec2 ${t}s2B = 1.0/${t}l2B;`+cr+
-                `vec2 ${t}s2B = vec2(1, -1)/${t}l2B;`+cr+
-                // `vec2 ${t}i2B = vec2(1, -1);`+cr+
-                // `vec2 ${t}s2B = 1.0/vec2(textures, steps);`+cr+
-                // Offset texture, step.
-                // Each step stored in texture top downward at `-stepNow-1`.
-                // Most recent step to look up is at `-stepNow-1+1 = -stepNow`.
-                // `vec2 ${t}uv2B = vec2(uv)-vec2(0, stepNow)+vec2(${by}).ts;`+cr+
-
                 `vec2 ${t}uv2B = vec2(uv)/${t}l2B;`+cr+
-                // `vec2 ${t}ts2B = -vec2(0, stepNow)+vec2(${by}).ts;`+cr+
-                `vec2 ${t}ts2B = -vec2(0, stepNow)+vec2(0, 1)+vec2(${by}).ts;`+cr+
-                // `vec2 ${t}uv2B = vec2(uv)+(${t}i2*(vec2(0, stepNow+1)+`+
-                //     `vec2(${by}).ts));`+cr+
+                // Steps advance in reverse, top-to-bottom.
+                `vec2 ${t}s2B = vec2(1, -1)/${t}l2B;`+cr+
+                // Offset texture, step.
+                // Each step stored in texture top downward at `-stepNow`.
+                // Most recent step to look up is at `-stepNow+1`.
+                `vec2 ${t}i2B = vec2(${by}).ts+vec2(0, 1)-vec2(0, stepNow);`+cr+
+                // Sample into the `data` output list.
                 getGLSLList('vec4', n+'data',
-                // Would repeat wrap; but WebGL1 needs power-of-2.
-                    map((_, i) => texture+'(states, '+
+                    // Would repeat wrap; but WebGL1 needs power-of-2.
+                    map((_, i) => texture+`(states, fract(${t}uv2B+`+
                                 // Offset texture, step.
-                                // `fract((vec2(${st+i}).ts+${t}uv2B)*${t}s2B))`,
-
-                                // `fract((vec2(${st+i}).ts+${t}ts2B)*${t}s2B)+${t}uv2B)`,
-                                `fract(fract((vec2(${st+i}).ts+${t}ts2B)*${t}s2B)+${t}uv2B))`,
-                                // `fract(((vec2(${st+i}).ts*${t}i2B)+${t}uv2B)*`+
-                                //     `${t}s2B))`,
+                                `((vec2(${st+i}).ts+${t}i2B)*${t}s2B)))`,
                             passSamples, tapsSamples),
                         '', glsl)+'\n'+
             ((!glsl3)?
@@ -884,25 +859,31 @@ export function macroTaps(state, on) {
                 aka+`2(uv, ${n}states, ${n}stepNow, ${n}steps, ${n}textures)\n`+
                 akaBy+`2By(uv, ${
                     n}states, ${n}stepNow, ${n}steps, ${n}textures, ${by})\n`
-            :   /** Merged 3D texture types, supported from GLSL3. */
+            :   /**
+                 * Merged 3D texture types, supported from GLSL3.
+                 * @todo Check and finish this.
+                 */
                 '// States merged to `sampler3D` or `sampler2DArray`; 2D `uv` '+
                     'to 3D; scales `x` over `textures`, `z` over `steps` as:\n'+
                 '// - `sampler3D`: the number of steps; depth, `[0, 1]`.\n'+
                 '// - `sampler2DArray`: `1` or less; layer, `[0, steps-1]`.\n'+
                 `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
                 tap+`3(uv, states, stepNow, steps, textures)`+cr+
+                    // @see `...2()` above.
                     // Compute before the loop for lighter work.
+                    `vec2 ${t}l3 = vec2(textures, steps);`+cr+
+                    `vec2 ${t}uv3 = vec2(uv)/${t}l3;`+cr+
                     // Offset texture.
-                    `float ${t}sx3 = 1.0/float(textures);`+cr+
-                    `float ${t}s3 = -float(stepNow);`+cr+
+                    `float ${t}sx3 = 1.0/${t}l3.x;`+cr+
                     // Offset step.
-                    `float ${t}sz3 = -1.0/max(float(steps)-1.0, 1.0);`+cr+
-                    `vec2 ${t}uv3 = vec2(uv);`+cr+
+                    `float ${t}s3 = -float(stepNow);`+cr+
+                    `float ${t}sz3 = -1.0/${t}l3;`+cr+
+                    // Sample into the `data` output list.
                     getGLSLList('vec4', n+'data',
                         // Would repeat wrap; but `sampler2DArray` layer can't.
                         map((_, i) => texture+'(states, fract(vec3('+
                                 // Offset texture.
-                                `(float(${st+i}.t)+${t}uv3.x)*${t}sx3, `+
+                                `${t}uv3.x+(float(${st+i}.t)*${t}sx3), `+
                                 `${t}uv3.y, `+
                                 // Offset step: `sampler3D` depth, `[0, 1]`;
                                 // `sampler2DArray` layer, `[0, steps-1]`.
@@ -912,18 +893,21 @@ export function macroTaps(state, on) {
                 '// States may also be sampled by shifted step/texture.\n'+
                 `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
                 tap+`3By(uv, states, stepNow, steps, textures, ${by})`+cr+
+                    // @see `...2By()` above.
                     // Compute before the loop for lighter work.
+                    `vec2 ${t}l3B = vec2(textures, steps);`+cr+
+                    `vec2 ${t}uv3B = (vec2(uv)+vec2(textureBy, 0))/${t}l3B;`+cr+
                     // Offset texture.
-                    `float ${t}sx3B = 1.0/float(textures);`+cr+
-                    `float ${t}s3B = -float(stepNow)+float(stepBy);`+cr+
+                    `float ${t}sx3B = 1.0/${t}l3B.x;`+cr+
                     // Offset step.
-                    `float ${t}sz3B = -1.0/max(float(steps)-1.0, 1.0);`+cr+
-                    `vec2 ${t}uv3B = vec2(uv)+vec2(textureBy, 0);`+cr+
+                    `float ${t}s3B = float(stepBy)-float(stepNow);`+cr+
+                    `float ${t}sz3B = -1.0/${t}l3B;`+cr+
+                    // Sample into the `data` output list.
                     getGLSLList('vec4', n+'data',
                         // Would repeat wrap; but `sampler2DArray` layer can't.
                         map((_, i) => texture+'(states, fract(vec3('+
                                 // Offset texture.
-                                `(float(${st+i}.t)+${t}uv3B.x)*${t}sx3B, `+
+                                `${t}uv3B.x+(float(${st+i}.t)*${t}sx3B), `+
                                 `${t}uv3B.y, `+
                                 // Offset step: `sampler3D` depth, `[0, 1]`;
                                 // `sampler2DArray` layer, `[0, steps-1]`.

@@ -1,7 +1,7 @@
 {
   "name": "@epok.tech/gl-gpgpu",
-  "version": "0.4.0",
-  "description": "GPGPU current/past state-stepping - map minimal passes of shaders, GL resources, inputs, outputs - BYORenderer.",
+  "version": "0.5.0",
+  "description": "GPGPU state-stepping - map minimal passes of shaders, GL resources, inputs, outputs - BYORenderer.",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
   "author": "Eoghan O'Keeffe <epok.tech@gmail.com> (https://epok.tech)",
   "license": "MIT",
@@ -60,15 +60,15 @@
     "index-forms/index.js",
     "index-forms/index-entries.glsl.js",
     "index-forms/index-states.glsl.js",
-    "sample/index-uv.glsl.js",
-    "sample/offset-uv.glsl.js",
+    "lookup/index-uv.glsl.js",
+    "lookup/offset-uv.glsl.js",
     "util/remain-div.glsl.js"
   ],
   "files": [
     "*.js",
     "dist/**/*",
     "index-forms/**/*",
-    "sample/**/*",
+    "lookup/**/*",
     "util/**/*",
     "docs/**/*",
     "demo/**/*"

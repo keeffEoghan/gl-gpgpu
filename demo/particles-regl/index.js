@@ -1,6 +1,4 @@
-/**
- * Demo implementation of 3D particle Verlet/Euler integration simulation.
- */
+/** Demo implementation of 3D particle Verlet/Euler integration simulation. */
 
 import getRegl from 'regl';
 import clamp from 'clamp';
@@ -111,7 +109,7 @@ const steps = clamp((parseInt(query.get('steps'), 10) || 1+bound),
 
 // How many past steps (not bound to outputs) are in the GPGPU state.
 const stepsPast = steps-bound;
-// Whether to allow Verlet integration.
+// Whether to allow Verlet integration; according to available resource limits.
 const canVerlet = (stepsPast > 1);
 
 const scale = clamp((parseInt(query.get('scale'), 10) || niceScale),
@@ -129,7 +127,7 @@ const timestepDef = 1e3/60;
 const timestep = (hasTimestep &&
     (parseFloat(query.get('timestep'), 10) || timestepDef));
 
-// Whether to merge states into one texture; only for drawing Verlet by default.
+// Whether to merge states into a texture; only to draw Verlet lines by default.
 let merge = query.get('merge');
 
 merge = ((merge === 'true') || ((merge === 'false')? false : canVerlet));
@@ -149,7 +147,7 @@ document.querySelector('#verlet').href = `?${setQuery([
 
 document.querySelector('#long').href = `?${setQuery([
         ['steps', limits.steps[1]],
-        ['scale', clamp(limits.scale[0]+6, ...limits.scale)]
+        ['scale', clamp(limits.scale[0]+8, ...limits.scale)]
     ])}#long`;
 
 document.querySelector('#max').href = `?${setQuery([
@@ -189,15 +187,11 @@ derives[valuesIndex.life] = [
     valuesIndex.life
 ];
 
-// const testGPGPU = '#define testGPGPU 1e-2\n';
-const testGPGPU = '';
-
 // The main GPGPU state.
 const state = gpgpu(regl, {
-    // Prefix usually recommended, but none here to check for naming clashes.
+    // Prefix usually recommended; none here to check for naming clashes.
     pre: '',
     bound, steps, scale, merge, maps: { values, derives },
-    // Ensure th draw shader can variably access past steps.
     // Data type according to support.
     type: ((extend.float.every(regl.hasExtension))? 'float' : 'half float'),
     // Per-shader macro hooks, no macros needed for the `vert` shader.
@@ -214,20 +208,21 @@ const state = gpgpu(regl, {
         // Loop time over this period to avoid instability of parts of the demo.
         loop: 3e3,
         // Range of how long a particle lives before respawning.
-        lifetime: [1e3, 4e3],
+        lifetime: [5e2, 5e3],
         // Whether to use Verlet (midpoint) or Euler (forward) integration.
         useVerlet: canVerlet,
-        // Acceleration due to gravity.
+        // Constant acceleration due to gravity.
         // g: [0, -9.80665, 0],
         // Gravitation position and universal gravitational constant; scaled.
         g: [0, 0, 0.6, 6.674e-11*5e10],
+        // A small number greater than 0; avoids speeds exploding.
         epsilon: 1e-5,
         // The position particles respawn from.
         source: [0, 0, 0.4],
         // For numeric accuracy, encoded as exponent `[b, p] => b*(10**p)`.
         scale: [1, -7],
 
-        // One option in these arrays chosen by Euler/Verlet, respectively.
+        // One option in these arrays is used, by Euler/Verlet respectively.
 
         // The motion particles respawn with.
         spout: [3e3, 2e2],
@@ -236,7 +231,7 @@ const state = gpgpu(regl, {
     },
     step: {
         // Per-pass macros will prepend to `frag` shader and cache in `frags`.
-        frag: testGPGPU+stepFrag, frags: [],
+        frag: stepFrag, frags: [],
         uniforms: {
             dt: (_, { props: { timer: { dt }, rate: r } }) => dt*r,
             dt0: (_, { props: { timer: { dts: { 0: dt } }, rate: r } }) => dt*r,
@@ -254,7 +249,7 @@ const state = gpgpu(regl, {
             // For numeric accuracy, encoded as exponent `[b, e] => b*(10**e)`.
             scale: regl.prop('props.scale'),
 
-            // One option in these arrays chosen by Euler/Verlet, respectively.
+            // One option in these arrays is used, by Euler/Verlet respectively.
             spout: (_, { props: { spout: ss, useVerlet: u } }) => ss[+u],
             // drag: (_, { props: { drag: ds, useVerlet: u } }) => ds[+u]
         }
@@ -273,14 +268,13 @@ console.groupEnd();
 // Set up rendering.
 
 // Draw all states with none bound as outputs.
-// @todo Errors without `merge`.
-// const drawBound = +(!merge);
-const drawBound = 1;
+// @todo Errors without `merge`; why, if the framebuffer isn't bound?
+const drawBound = +(!merge);
 const drawSteps = steps-drawBound;
 
 // Vertex counts by form; how many steps a form covers, for all entries;
 // respectively for: none, points, lines.
-// Note `state.size.count` equals `countDrawIndexes`.
+// Note `state.size.count` will equal the value returned by `countDrawIndexes`.
 const drawCounts = map((_, form) =>
         indexForms(drawSteps, form, state.size.count),
     range(3), 0);
@@ -302,7 +296,7 @@ const drawState = {
         // How wide the form is.
         wide: 2**3,
         // Speed-to-colour scaling, as `[multiply, power]`.
-        // One option in these arrays chosen by Euler/Verlet, respectively.
+        // One option in these arrays is used, by Euler/Verlet respectively.
         pace: [[1e-3, 0.6], [3e2, 0.6]]
     },
     // Everything mapped the same way.
@@ -326,8 +320,7 @@ const drawState = {
 
 const drawCommand = {
     // Use GPGPU macro mappings by prepending macros from a single pass.
-    vert: macroPass(drawState)+testGPGPU+drawVert,
-    frag: drawFrag,
+    vert: macroPass(drawState)+drawVert, frag: drawFrag,
     // Maximum count here to set up buffers, can be partly used later.
     attributes: { index: getDrawIndexes(Math.max(...drawCounts)) },
     // Hook up GPGPU uniforms by adding them here.
@@ -373,11 +366,13 @@ regl.frame(() => {
 
 // Toggle Verlet integration, if there are enough past steps.
 canvas.addEventListener('click', () => {
-    const v = (canVerlet && (state.props.useVerlet = !state.props.useVerlet));
-    const f = (form || (drawState.drawProps.form = 1+v));
+    const { props: p, drawProps: d } = drawState;
+    const c = canVerlet;
+    const v = (c && (p.useVerlet = !p.useVerlet));
+    const f = (form || (d.form = 1+((c)? v : ((drawSteps > 1) && d.form%2))));
 
     console.log('useVerlet', v, 'form', f,
-        // Check how this derives other properties.
+        // See how this derives other properties.
         'count', drawCommand.count(0, drawState),
         'primitive', drawCommand.primitive(0, drawState));
 });

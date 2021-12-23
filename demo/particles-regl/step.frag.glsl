@@ -64,7 +64,9 @@ useSamples
 #endif
 
 uniform float stepNow;
+
 // Custom inputs for this demo.
+
 uniform float dt0;
 uniform float dt1;
 uniform float loop;
@@ -114,13 +116,6 @@ varying vec2 uv;
 //     return clamp(-0.5*sign(velocity)*dot(velocity, velocity)*drag, -l, l);
 // }
 
-#ifdef testGPGPU
-    const float testPosition = 1.0;
-    const float testMotion = 2.0;
-    const float testLife = 3.0;
-    #pragma glslify: gt = require(glsl-conditionals/when_gt)
-#endif
-
 void main() {
     // Sample the desired state values - creates the `data` array.
     tapState(uv)
@@ -160,34 +155,12 @@ void main() {
         float lifeLast = data[lifeReadLifeLast].lifeChannels;
     #endif
 
-    #ifdef testGPGPU
-        float test = gt(float(stepNow), 0.0);
-
-        #ifdef positionOutput
-            // positionOutput = vec3(testPosition+fract(position1+(test*testGPGPU)));
-            // positionOutput = vec3(testPosition+fract(position0+(test*testGPGPU)));
-            // positionOutput = vec3(testPosition+fract(position0+position1+(test*testGPGPU)));
-            positionOutput = vec3(uv,
-                testPosition+fract(position1.z+mix(uv.x+uv.y, testGPGPU, test)));
-        #endif
-        #ifdef motionOutput
-            // motionOutput = vec3(testMotion+fract(motion+(test*testGPGPU)));
-            // motionOutput = vec3(uv,
-            //     testMotion+fract(motion.z+mix(uv.x+uv.y, testGPGPU, test)));
-        #endif
-        #ifdef lifeOutput
-            // lifeOutput = float(testLife+fract(life+(test*testGPGPU)));
-        #endif
-
-        return;
-    #endif
-
     // Update and output values.
     // Note that the update/output logic components within each `#if` macro
     // block from `gpgpu` are independent modules, as the `gpgpu` macros
     // determine whether they're executed across one or more passes - they could
-    // also be coded in separate files called from here, however for brevity and
-    // easy access to shared variables they're coded inline.
+    // also be coded in separate files called from here, however they're coded
+    // inline here for brevity, relevance, and easy access to shared variables.
 
     // Whether the particle is ready to respawn.
     float spawn = le(life, 0.0);

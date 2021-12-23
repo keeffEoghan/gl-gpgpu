@@ -21,8 +21,8 @@
 
 #pragma glslify: remainDiv = require(../util/remain-div)
 
+// Careful handling integer maths - decimals truncated.
 ivec2 indexForms(int index, int states, int form) {
-    // Careful handling integer maths - decimals truncated.
     int f = form-1;
     ivec2 stepEntry = remainDiv(index, (states-f)*form);
 

@@ -484,8 +484,6 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
     // Use any size info available in `merge`, as with `state` above.
     const mScaled = getScaled(merge.scale);
     // Use any given size info, or arrange merges along `[texture, step]` axes.
-    // const mw = getWidth(merge) ?? mScaled ?? size.textures*width;
-    // @todo Is this correct?
     const mw = getWidth(merge) ?? mScaled ?? maps.textures.length*width;
     const mh = getHeight(merge) ?? mScaled ?? size.steps*height;
 

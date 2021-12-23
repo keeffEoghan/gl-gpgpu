@@ -4,6 +4,11 @@
  * `indexForms` JS function.
  * Takes vertex index and entries count as input; iterates steps-then-entries.
  *
+ * Works out as 2 `remainDiv`:
+ * `[(index%form)+floor(floor(index/form)/entries), floor(index/form)%entries]`
+ * `[entryForm.s+floor(entryForm.t/entries), entryForm.t%entries]`
+ * `[entryForm.s+stepEntry.t, stepEntry.s]`
+ *
  * @see [readme]{@link ./readme.md}
  * @see [indexForms]{@link ./index.js#indexForms}
  * @see [remainDiv]{@link ../util/remain-div.glsl}
@@ -21,12 +26,8 @@
 
 #pragma glslify: remainDiv = require(../util/remain-div)
 
-// [(index%form)+floor(floor(index/form)/entries), floor(index/form)%entries]
-// [if.s+floor(if.t/entries), if.t%entries]
-// [if.s+ifc.t, ifc.s]
-
+// Careful handling integer maths - decimals truncated.
 ivec2 indexForms(int index, int entries, int form) {
-    // Careful handling integer maths - decimals truncated.
     ivec2 entryForm = remainDiv(index, form);
     ivec2 stepEntry = remainDiv(entryForm.t, entries).ts;
 
