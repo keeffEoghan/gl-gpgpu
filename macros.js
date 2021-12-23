@@ -829,9 +829,9 @@ export function macroTaps(state, on) {
                 // Sample into the `data` output list.
                 getGLSLList('vec4', n+'data',
                     // Would repeat wrap; but WebGL1 needs power-of-2.
-                    map((_, i) => texture+`(states, fract(${t}uv2+`+
+                    map((_, i) => texture+`(states, fract(${t}uv2+fract(`+
                                 // Offset texture, step.
-                                `((vec2(${st+i}).ts+${t}i2)*${t}s2)))`,
+                                `(vec2(${st+i}).ts+${t}i2)*${t}s2)))`,
                             passSamples, tapsSamples),
                         '', glsl)+'\n'+
             '// States may also be sampled by shifted step/texture.\n'+
@@ -849,9 +849,9 @@ export function macroTaps(state, on) {
                 // Sample into the `data` output list.
                 getGLSLList('vec4', n+'data',
                     // Would repeat wrap; but WebGL1 needs power-of-2.
-                    map((_, i) => texture+`(states, fract(${t}uv2B+`+
+                    map((_, i) => texture+`(states, fract(${t}uv2B+fract(`+
                                 // Offset texture, step.
-                                `((vec2(${st+i}).ts+${t}i2B)*${t}s2B)))`,
+                                `(vec2(${st+i}).ts+${t}i2B)*${t}s2B)))`,
                             passSamples, tapsSamples),
                         '', glsl)+'\n'+
             ((!glsl3)?

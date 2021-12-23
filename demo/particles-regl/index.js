@@ -128,7 +128,9 @@ const timestep = (hasTimestep &&
     (parseFloat(query.get('timestep'), 10) || timestepDef));
 
 // Whether to merge states into a texture.
-const merge = (query.get('merge') !== 'false');
+let merge = query.get('merge');
+
+merge = ((merge)? (merge !== 'false') : (form !== 1));
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
     'steps:', steps, 'scale:', scale, 'form:', form,
@@ -140,18 +142,18 @@ document.querySelector('#verlet').href =
     `?${setQuery([['steps'], ['scale']])}#verlet`;
 
 document.querySelector('#euler').href = `?${setQuery([
-        ['steps', 1+bound], ['scale', niceScale]
+        ['steps', 1+bound], ['scale', Math.min(niceScale+1, limits.scale[1])]
     ])}#euler`;
 
 document.querySelector('#long').href = `?${setQuery([
         ['steps', limits.steps[1]],
-        ['scale', clamp(limits.scale[0]+8, ...limits.scale)]
+        ['scale', Math.max(niceScale-1, limits.scale[0])]
     ])}#long`;
 
-document.querySelector('#max').href = `?${setQuery([
+document.querySelector('#high').href = `?${setQuery([
         ['steps', Math.max(limits.steps[0], limits.steps[1]-3)],
         ['scale', Math.max(niceScale, limits.scale[1]-5)]
-    ])}#max`;
+    ])}#high`;
 
 document.querySelector('#trails').href =
     `?${setQuery([['form', ((form)? 0 : 1)]])}#trails`;
@@ -382,7 +384,7 @@ regl.frame(() => {
 let pressHold;
 
 canvas.addEventListener((('onpointerdown' in self)? 'pointerdown'
-        :   (('ontouchdown' in self)? 'touchdown' : 'mousedown')),
+        :   (('ontouchstart' in self)? 'touchstart' : 'mousedown')),
     () => {
         clearTimeout(pressHold);
         pressHold = setTimeout(() => state.props.lifetime[2] = +false, 5e2);
