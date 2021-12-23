@@ -10,12 +10,12 @@ html {
     font-size: 0.9em;
 }
 
-body { margin: 0; }
-
-.view {
-    cursor: pointer;
-    user-select: noselect;
+body {
+    margin: 0;
+    user-select: none;
 }
+
+.view { cursor: pointer; }
 
 .links {
     display: flex;

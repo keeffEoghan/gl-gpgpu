@@ -394,17 +394,6 @@ canvas.addEventListener((('onpointerdown' in self)? 'pointerdown'
     stopEvent(e);
 });
 
-canvas.addEventListener((('onpointermove' in self)? 'pointermove'
-        :   (('ontouchmove' in self)? 'touchmove' : 'mousemove')), (e) => {
-    const { clientX: x, clientY: y } = e;
-    const { source } = state.props;
-    const size = Math.min(innerWidth, innerHeight);
-
-    source[0] = ((((x-((innerWidth-size)*0.5))/size)*2)-1);
-    source[1] = -((((y-((innerHeight-size)*0.5))/size)*2)-1);
-    stopEvent(e);
-});
-
 // Toggle Verlet integration, if there are enough past steps.
 canvas.addEventListener((('onpointerup' in self)? 'pointerup'
         :   (('ontouchend' in self)? 'touchend' : 'mouseup')), (e) => {
@@ -428,6 +417,17 @@ canvas.addEventListener((('onpointerup' in self)? 'pointerup'
         // See how this derives other properties.
         'count', drawCommand.count(0, drawState),
         'primitive', drawCommand.primitive(0, drawState));
+});
+
+canvas.addEventListener((('onpointermove' in self)? 'pointermove'
+        :   (('ontouchmove' in self)? 'touchmove' : 'mousemove')), (e) => {
+    const { clientX: x, clientY: y } = e;
+    const { source } = state.props;
+    const size = Math.min(innerWidth, innerHeight);
+
+    source[0] = ((((x-((innerWidth-size)*0.5))/size)*2)-1);
+    source[1] = -((((y-((innerHeight-size)*0.5))/size)*2)-1);
+    stopEvent(e);
 });
 
 canvas.addEventListener('touchmove', stopEvent);
