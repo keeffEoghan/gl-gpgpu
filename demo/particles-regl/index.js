@@ -427,6 +427,13 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
 
     source[0] = ((((x-((innerWidth-size)*0.5))/size)*2)-1);
     source[1] = -((((y-((innerHeight-size)*0.5))/size)*2)-1);
+
+    // For touch devices, don't press-hold if moving.
+    if((e.type === 'touchmove') || (e.pointerType === 'touch')) {
+        clearTimeout(pressHold);
+        state.props.lifetime[2] = +true;
+    }
+
     stopEvent(e);
 });
 
