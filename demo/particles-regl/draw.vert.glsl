@@ -108,10 +108,10 @@ void main() {
 
     float alive = gt(life, 0.0);
     vec2 ar = aspect(viewShape);
-    vec4 vertex = vec4(position1.xy*ar, position1.z, 1.0);
+    vec4 vertex = vec4(position1.xy*ar, position1.z, 1);
     float depth = clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
 
-    gl_Position = alive*vertex;
+    gl_Position = mix(vec4(0, 0, -1, 0), vertex, alive);
     gl_PointSize = alive*pointSize*depth*mix(0.1, 1.0, ratioNow);
 
     float a = pow(life/lifetime.t, 0.3)*pow(ratioNow, 0.3);

@@ -353,6 +353,7 @@ const drawCommand = {
     count: (_, { drawProps: { count: c, counts: cs, form: f } }) => c ?? cs[f],
     depth: { enable: true },
     blend: { enable: true, func: { src: 'one', dst: 'one minus src alpha' } },
+
     primitive: (_, { drawProps: { primitive: p, primitives: ps, form: f } }) =>
         p ?? ps[f]
 };
@@ -384,33 +385,46 @@ function stopEvent(e) {
     e.stopPropagation();
     e.preventDefault();
 }
+
 // Pause the spawning while pointer is held down.
 let pressHold;
 
+function pauseSpawn() {
+    (pressHold && clearTimeout(pressHold));
+
+    return (pressHold = setTimeout(() => {
+            state.props.lifetime[2] = +false;
+            pressHold = false;
+        }, 5e2));
+}
+
+function startSpawn(hold) {
+    (pressHold && clearTimeout(pressHold));
+    state.props.lifetime[2] = +true;
+
+    return (pressHold = hold);
+}
+
 canvas.addEventListener((('onpointerdown' in self)? 'pointerdown'
         :   (('ontouchstart' in self)? 'touchstart' : 'mousedown')), (e) => {
-    clearTimeout(pressHold);
-    pressHold = setTimeout(() => state.props.lifetime[2] = +false, 5e2);
+    pauseSpawn();
     stopEvent(e);
 });
 
 // Toggle Verlet integration, if there are enough past steps.
 canvas.addEventListener((('onpointerup' in self)? 'pointerup'
         :   (('ontouchend' in self)? 'touchend' : 'mouseup')), (e) => {
-    const { lifetime } = state.props;
-    const pressHeld = !lifetime[2];
-
     // Unpause the spawning when pointer is released.
-    clearTimeout(pressHold);
-    lifetime[2] = +true;
     stopEvent(e);
 
-    if(pressHeld) { return; }
+    if((pressHold === true) || !state.props.lifetime[2]) {
+        return startSpawn();
+    }
 
     // Switch between physics/drawing modes if this wasn't press-held.
 
     const { props: p, drawProps: d } = drawState;
-    const v = (canVerlet && (p.useVerlet = +(!p.useVerlet)));
+    const v = (canVerlet && (p.useVerlet = 1-p.useVerlet));
     const f = (form || (d.form = 1+(canLines && ((canVerlet)? v : d.form%2))));
 
     console.log('useVerlet', v, 'form', f,
@@ -428,11 +442,8 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
     source[0] = ((((x-((innerWidth-size)*0.5))/size)*2)-1);
     source[1] = -((((y-((innerHeight-size)*0.5))/size)*2)-1);
 
-    // For touch devices, don't press-hold if moving.
-    if((e.type === 'touchmove') || (e.pointerType === 'touch')) {
-        clearTimeout(pressHold);
-        state.props.lifetime[2] = +true;
-    }
+    // For touch devices, don't pause spawn if touch moves.
+    (((e.type === 'touchmove') || (e.pointerType === 'touch')) && startSpawn(true));
 
     stopEvent(e);
 });
