@@ -285,9 +285,9 @@ console.groupEnd();
 // @todo Errors without `merge`; why, if the framebuffer isn't bound?
 const drawBound = +(!merge);
 const drawSteps = steps-drawBound;
-const canLines = (merge && (drawSteps > 1));
+const useLines = (merge && (drawSteps > 1));
 
-console.log('drawSteps', drawSteps, 'canLines', canLines);
+console.log('drawSteps', drawSteps, 'useLines', useLines);
 
 // Vertex counts by form; how many steps a form covers, for all entries;
 // respectively for: none, points, lines.
@@ -302,7 +302,7 @@ const drawState = {
     macros: { 'output': 0, 'frag': 0 },
     drawProps: {
         // How many vertexes per form.
-        form: (form || 1+canLines),
+        form: (form || 1+useLines),
         // Vertex counts by form; how many steps a form covers, for all entries.
         count: null,
         counts: drawCounts,
@@ -333,9 +333,6 @@ const drawState = {
         derives: [[true, [wrap(1, drawSteps), valuesIndex.position]]]
     })
 };
-
-alert('drawCounts: ['+drawCounts.join()+']; canLines: '+canLines+'; '+
-'drawProps.form: '+drawState.drawProps.form+'; form: '+form);
 
 const drawCommand = {
     // Use GPGPU macro mappings by prepending macros from a single pass.
@@ -393,7 +390,7 @@ function stopEvent(e) {
 let held;
 
 function pauseSpawn() {
-    (held && clearTimeout(held));
+    clearTimeout(held);
 
     return (held = setTimeout(() => {
             state.props.lifetime[2] = +false;
@@ -402,7 +399,7 @@ function pauseSpawn() {
 }
 
 function startSpawn(hold) {
-    (held && clearTimeout(held));
+    clearTimeout(held);
     state.props.lifetime[2] = +true;
 
     return (held = hold);
@@ -420,15 +417,16 @@ canvas.addEventListener((('onpointerup' in self)? 'pointerup'
     // Unpause the spawning when pointer is released.
     stopEvent(e);
 
-    if((held === true) || !state.props.lifetime[2]) {
-        return startSpawn();
-    }
+    // if((held === true) || !state.props.lifetime[2]) {
+    //     return startSpawn();
+    // }
+    if(held || !state.props.lifetime[2]) { return startSpawn(); }
 
     // Switch between physics/drawing modes if this wasn't press-held.
 
     const { props: p, drawProps: d } = drawState;
     const v = (canVerlet && (p.useVerlet = 1-p.useVerlet));
-    const f = (form || (d.form = 1+(canLines && ((canVerlet)? v : d.form%2))));
+    const f = (form || (d.form = 1+(useLines && ((canVerlet)? v : d.form%2))));
 
     console.log('useVerlet', v, 'form', f,
         // See how this derives other properties.
