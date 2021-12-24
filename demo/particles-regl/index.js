@@ -117,7 +117,7 @@ const scale = clamp((parseInt(query.get('scale'), 10) || niceScale),
 
 // Form vertexes to draw; if not given, uses trails of 'lines' if there are
 // enough steps, or 'points' if not.
-const form = parseInt(query.get('form'), 10);
+const form = (parseInt(query.get('form'), 10) || 0);
 
 // Constant-step (add time-step), if given; if not given, uses real-time
 // (variable delta-time).
@@ -135,6 +135,10 @@ merge = ((merge)? (merge !== 'false') : (form !== 1));
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
     'steps:', steps, 'scale:', scale, 'form:', form,
     'timestep:', timestep, 'merge:', merge);
+
+alert(location.search+':\n'+[...query.entries()].flat().join()+'\n'+
+    'steps: '+steps+' ('+(typeof steps)+'); scale: '+scale+' ('+(typeof scale)+'); form: '+form+' ('+(typeof form)+'); '+
+    'timestep: '+timestep+' ('+(typeof timestep)+'); merge: '+merge+' ('+(typeof merge)+')');
 
 // Set up the links.
 
@@ -387,37 +391,37 @@ function stopEvent(e) {
 }
 
 // Pause the spawning while pointer is held down.
-let pressHold;
+let held;
 
 function pauseSpawn() {
-    (pressHold && clearTimeout(pressHold));
+    (held && clearTimeout(held));
 
-    return (pressHold = setTimeout(() => {
+    return (held = setTimeout(() => {
             state.props.lifetime[2] = +false;
-            pressHold = false;
+            held = false;
         }, 5e2));
 }
 
 function startSpawn(hold) {
-    (pressHold && clearTimeout(pressHold));
+    (held && clearTimeout(held));
     state.props.lifetime[2] = +true;
 
-    return (pressHold = hold);
+    return (held = hold);
 }
 
 canvas.addEventListener((('onpointerdown' in self)? 'pointerdown'
-        :   (('ontouchstart' in self)? 'touchstart' : 'mousedown')), (e) => {
+        : (('ontouchstart' in self)? 'touchstart' : 'mousedown')), (e) => {
     pauseSpawn();
     stopEvent(e);
 });
 
 // Toggle Verlet integration, if there are enough past steps.
 canvas.addEventListener((('onpointerup' in self)? 'pointerup'
-        :   (('ontouchend' in self)? 'touchend' : 'mouseup')), (e) => {
+        : (('ontouchend' in self)? 'touchend' : 'mouseup')), (e) => {
     // Unpause the spawning when pointer is released.
     stopEvent(e);
 
-    if((pressHold === true) || !state.props.lifetime[2]) {
+    if((held === true) || !state.props.lifetime[2]) {
         return startSpawn();
     }
 
@@ -434,7 +438,7 @@ canvas.addEventListener((('onpointerup' in self)? 'pointerup'
 });
 
 canvas.addEventListener((('onpointermove' in self)? 'pointermove'
-        :   (('ontouchmove' in self)? 'touchmove' : 'mousemove')), (e) => {
+        : (('ontouchmove' in self)? 'touchmove' : 'mousemove')), (e) => {
     const { clientX: x, clientY: y } = e;
     const { source } = state.props;
     const size = Math.min(innerWidth, innerHeight);
@@ -443,11 +447,13 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
     source[1] = -((((y-((innerHeight-size)*0.5))/size)*2)-1);
 
     // For touch devices, don't pause spawn if touch moves.
-    (((e.type === 'touchmove') || (e.pointerType === 'touch')) && startSpawn(true));
+    (((e.type === 'touchmove') || (e.pointerType === 'touch')) &&
+        startSpawn(true));
 
     stopEvent(e);
 });
 
 canvas.addEventListener('touchmove', stopEvent);
+canvas.addEventListener('contextmenu', stopEvent);
 
-module?.hot?.accept?.(() => location.reload());
+module?.hot?.accept?.(location.reload);
