@@ -395,8 +395,7 @@ function pauseSpawn() {
     return (held = setTimeout(() => {
             state.props.lifetime[2] = +false;
             held = false;
-        },
-        5e2));
+        }, 5e2));
 }
 
 function startSpawn(hold) {
@@ -406,19 +405,20 @@ function startSpawn(hold) {
     return (held = hold);
 }
 
-canvas.addEventListener('mousedown', (e) => {
+canvas.addEventListener((('onpointerdown' in self)? 'pointerdown'
+        : (('ontouchstart' in self)? 'touchstart' : 'mousedown')), (e) => {
     pauseSpawn();
-    // stopEvent(e);
+    stopEvent(e);
 });
 
 // Toggle Verlet integration, if there are enough past steps.
-canvas.addEventListener('mouseup', (e) => {
+canvas.addEventListener((('onpointerup' in self)? 'pointerup'
+        : (('ontouchend' in self)? 'touchend' : 'mouseup')), (e) => {
     // Unpause the spawning when pointer is released.
     startSpawn();
-    // stopEvent(e);
+    stopEvent(e);
 
     if((held === true) || !state.props.lifetime[2]) { return; }
-    // if(held || !state.props.lifetime[2]) { return startSpawn(); }
 
     // Switch between physics/drawing modes if this wasn't press-held.
 
@@ -432,7 +432,8 @@ canvas.addEventListener('mouseup', (e) => {
         'primitive', drawCommand.primitive(0, drawState));
 });
 
-canvas.addEventListener('mousemove', (e) => {
+canvas.addEventListener((('onpointermove' in self)? 'pointermove'
+        : (('ontouchmove' in self)? 'touchmove' : 'mousemove')), (e) => {
     const { clientX: x, clientY: y } = e;
     const { source } = state.props;
     const size = Math.min(innerWidth, innerHeight);
@@ -440,15 +441,14 @@ canvas.addEventListener('mousemove', (e) => {
     source[0] = ((((x-((innerWidth-size)*0.5))/size)*2)-1);
     source[1] = -((((y-((innerHeight-size)*0.5))/size)*2)-1);
 
-    // stopEvent(e);
-});
-
-canvas.addEventListener('touchmove', (e) => {
     // For touch devices, don't pause spawn if touch moves.
-    startSpawn(true);
+    (((e.type === 'touchmove') || (e.pointerType === 'touch')) &&
+        startSpawn(true));
+
     stopEvent(e);
 });
 
+canvas.addEventListener('touchmove', stopEvent);
 canvas.addEventListener('contextmenu', stopEvent);
 
 module?.hot?.accept?.(location.reload);
