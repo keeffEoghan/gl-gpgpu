@@ -136,10 +136,6 @@ console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
     'steps:', steps, 'scale:', scale, 'form:', form,
     'timestep:', timestep, 'merge:', merge);
 
-alert(location.search+':\n'+[...query.entries()].flat().join()+'\n'+
-    'steps: '+steps+' ('+(typeof steps)+'); scale: '+scale+' ('+(typeof scale)+'); form: '+form+' ('+(typeof form)+'); '+
-    'timestep: '+timestep+' ('+(typeof timestep)+'); merge: '+merge+' ('+(typeof merge)+')');
-
 // Set up the links.
 
 document.querySelector('#verlet').href =
@@ -337,6 +333,9 @@ const drawState = {
         derives: [[true, [wrap(1, drawSteps), valuesIndex.position]]]
     })
 };
+
+alert('drawCounts: ['+drawCounts.join()+']; canLines: '+canLines+'; '+
+'drawProps.form: '+drawState.drawProps.form+'; form: '+form);
 
 const drawCommand = {
     // Use GPGPU macro mappings by prepending macros from a single pass.
