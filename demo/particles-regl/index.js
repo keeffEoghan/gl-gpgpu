@@ -415,10 +415,13 @@ canvas.addEventListener((('onpointerdown' in self)? 'pointerdown'
 canvas.addEventListener((('onpointerup' in self)? 'pointerup'
         : (('ontouchend' in self)? 'touchend' : 'mouseup')), (e) => {
     // Unpause the spawning when pointer is released.
+    const h = held;
+    const spawn = state.props.lifetime[2];
+
     startSpawn();
     stopEvent(e);
 
-    if((held === true) || !state.props.lifetime[2]) { return; }
+    if((h === true) || !spawn) { return; }
 
     // Switch between physics/drawing modes if this wasn't press-held.
 
