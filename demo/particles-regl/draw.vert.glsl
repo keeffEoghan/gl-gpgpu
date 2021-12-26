@@ -114,7 +114,7 @@ void main() {
     gl_Position = mix(vec4(0, 0, -1, 0), vertex, alive);
     gl_PointSize = alive*pointSize*depth*mix(0.1, 1.0, ratioNow);
 
-    float a = pow(life/lifetime.t, 0.3)*pow(ratioNow, 0.3);
+    float a = clamp(pow(life/lifetime.t, 0.3)*pow(ratioNow, 0.3), 0.0, 1.0);
     float speed = length(mix(motion, position1-position0, useVerlet)/dt);
 
     color = a*vec4(mix(0.2, 1.0, ratioNow), mix(0.2, 1.0, entry/float(count)),
