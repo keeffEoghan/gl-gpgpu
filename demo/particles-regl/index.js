@@ -293,7 +293,7 @@ console.log('drawSteps', drawSteps, 'useLines', useLines);
 // respectively for: none, points, lines.
 // Note `state.size.count` will equal the value returned by `countDrawIndexes`.
 const drawCounts = map((_, f) => indexForms(drawSteps, f, state.size.count),
-    range(3), 0);
+    range(2+useLines), 0);
 
 const drawState = {
     ...state,
@@ -308,7 +308,7 @@ const drawState = {
         counts: drawCounts,
         // Which primitives can be drawn.
         primitive: null,
-        primitives: [0, 'points', 'lines'],
+        primitives: [, 'points', 'lines'],
         // How wide the form is.
         wide: 2**3,
         // Speed-to-colour scaling, as `[multiply, power]`.
@@ -358,7 +358,8 @@ const drawCommand = {
         p ?? ps[f]
 };
 
-alert('form? '+drawState.drawProps.form+'; count? '+drawCommand.count(0, drawState));
+// @todo Why doesn't specifying point `form` seem to work on Android mobile?
+// alert('form! '+drawState.drawProps.form+'; count! '+drawCommand.count(0, drawState)+'; useLines: '+useLines);
 console.log((self.drawState = drawState), (self.drawCommand = drawCommand));
 
 const draw = regl(drawCommand);
