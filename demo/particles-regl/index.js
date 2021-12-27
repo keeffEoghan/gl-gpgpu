@@ -358,7 +358,7 @@ const drawCommand = {
         p ?? ps[f]
 };
 
-alert('form? '+drawState.form);
+alert('form? '+drawState.drawProps.form);
 console.log((self.drawState = drawState), (self.drawCommand = drawCommand));
 
 const draw = regl(drawCommand);
