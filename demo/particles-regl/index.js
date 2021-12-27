@@ -308,7 +308,7 @@ const drawState = {
         counts: drawCounts,
         // Which primitives can be drawn.
         primitive: null,
-        primitives: [, 'points', 'lines'],
+        primitives: [0, 'points', 'lines'],
         // How wide the form is.
         wide: 2**3,
         // Speed-to-colour scaling, as `[multiply, power]`.
@@ -358,6 +358,7 @@ const drawCommand = {
         p ?? ps[f]
 };
 
+alert('form? '+drawState.form);
 console.log((self.drawState = drawState), (self.drawCommand = drawCommand));
 
 const draw = regl(drawCommand);
