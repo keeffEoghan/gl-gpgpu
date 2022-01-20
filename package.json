@@ -70,7 +70,6 @@
     "index-forms/**/*",
     "lookup/**/*",
     "util/**/*",
-    "docs/**/*",
     "demo/**/*"
   ],
   "targets": {
