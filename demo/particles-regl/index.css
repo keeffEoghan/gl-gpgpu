@@ -17,7 +17,7 @@ body {
 
 .view { cursor: pointer; }
 
-.links {
+.guide {
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-start;
@@ -45,6 +45,15 @@ body {
 
 .info {
     flex: 1 0 100%;
+    margin: 0;
+    padding: 1em;
+}
+
+.error {
+    color: #fff;
+    background-color: rgb(255, 60, 0);
+
+    &.hide { display: none; }
 }
 
 .link {

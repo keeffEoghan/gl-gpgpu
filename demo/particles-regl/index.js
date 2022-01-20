@@ -38,7 +38,11 @@ const extend = {
 const regl = self.regl = getRegl({
     pixelRatio: Math.max(Math.floor(devicePixelRatio), 1.5),
     extensions: extend.required = extend.halfFloat,
-    optionalExtensions: extend.optional = [...extend.float, ...extend.other]
+    optionalExtensions: extend.optional = [...extend.float, ...extend.other],
+
+    onDone: (e) =>
+        document.querySelector('.error')
+            .classList[(e)? 'remove' : 'add']('hide')
 });
 
 console.group('Extensions');
@@ -156,7 +160,7 @@ document.querySelector('#high').href = `?${setQuery([
     ])}#high`;
 
 document.querySelector('#trails').href =
-    `?${setQuery([['form', ((form)? 0 : 1)]])}#trails`;
+    `?${setQuery([['form', ((form)? (form+1)%3 : 1)]])}#trails`;
 
 document.querySelector('#timestep').href =
     `?${setQuery([['timestep', ((timestep)? null : timestepDef)]])}#timestep`;
