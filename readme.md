@@ -21,4 +21,4 @@ yarn add @epok.tech/gl-gpgpu
 
 ## Usage
 
-[See the demo](https://epok.tech/gl-gpgpu) and [its source code](https://github.com/keeffEoghan/gl-gpgpu/tree/master/demo-particles).
+[See the demo](https://epok.tech/gl-gpgpu) and [its source code](https://github.com/keeffEoghan/gl-gpgpu/tree/master/demo/particles-regl).
