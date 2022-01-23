@@ -220,21 +220,23 @@ const state = gpgpu(regl, {
         useVerlet: +canVerlet,
         // A small number greater than 0; avoids speeds exploding.
         epsilon: 1e-5,
-        // The position particles respawn from.
+        // Whether to invert particle flow towards rather than away from source.
+        invert: false,
+        // The position around which particles spawn.
         source: [0, 0, 0.4],
-        // Gravitation position, and universal constant.
-        gravitation: [
-            // Gravitation position.
+        // Sink position, and universal gravitational constant.
+        sink: [
+            // Sink position.
             0, 0, 0.6,
             // Universal gravitational constant (scaled).
             6.674e-11*5e10
         ],
         // Constant acceleration due to gravity; and whether to use it, uses
-        // gravitation if not.
+        // sink if not.
         g: [
             // Constant acceleration due to gravity.
             0, -9.80665, 0,
-            // Whether to use it, uses gravitation if not.
+            // Whether to use it, uses sink if not.
             +false
         ],
         // For numeric accuracy, encoded as exponent `[b, p] => b*(10**p)`.
@@ -242,8 +244,8 @@ const state = gpgpu(regl, {
 
         // One option in these arrays is used, by Euler/Verlet respectively.
 
-        // The motion particles respawn with.
-        spout: [3e3, 2e2],
+        // The distance from the `source`, and speed, that particles spawn with.
+        spout: [[0, 3e3], [0, 2e2]],
         // Drag coefficient.
         // drag: [range(3, 1e-3), range(3, 1e-1)]
     },
@@ -263,7 +265,7 @@ const state = gpgpu(regl, {
             useVerlet: regl.prop('props.useVerlet'),
             epsilon: regl.prop('props.epsilon'),
             source: regl.prop('props.source'),
-            gravitation: regl.prop('props.gravitation'),
+            sink: regl.prop('props.sink'),
             g: regl.prop('props.g'),
             scale: regl.prop('props.scale'),
 
@@ -443,12 +445,13 @@ canvas.addEventListener((('onpointerup' in self)? 'pointerup'
 
 canvas.addEventListener((('onpointermove' in self)? 'pointermove'
         : (('ontouchmove' in self)? 'touchmove' : 'mousemove')), (e) => {
-    const { clientX: x, clientY: y } = e;
-    const { source } = state.props;
+    const { clientX: x, clientY: y, isPrimary } = e;
+    const { source: i, sink: o, invert } = state.props;
+    const to = ((isPrimary)? ((invert)? o : i) : ((invert)? i : o));
     const size = Math.min(innerWidth, innerHeight);
 
-    source[0] = ((((x-((innerWidth-size)*0.5))/size)*2)-1);
-    source[1] = -((((y-((innerHeight-size)*0.5))/size)*2)-1);
+    to[0] = ((((x-((innerWidth-size)*0.5))/size)*2)-1);
+    to[1] = -((((y-((innerHeight-size)*0.5))/size)*2)-1);
 
     // For touch devices, don't pause spawn if touch moves.
     (((e.type === 'touchmove') || (e.pointerType === 'touch')) &&
@@ -459,5 +462,10 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
 
 canvas.addEventListener('touchmove', stopEvent);
 canvas.addEventListener('contextmenu', stopEvent);
+
+canvas.addEventListener('dblclick', (e) => {
+    state.props.invert = !state.props.invert;
+    stopEvent(e);
+});
 
 module?.hot?.accept?.(location.reload);

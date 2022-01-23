@@ -15,7 +15,12 @@ body {
     user-select: none;
 }
 
-.view { cursor: pointer; }
+.view {
+    cursor: pointer;
+    touch-action: none;
+    tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: transparent;
+}
 
 .guide {
     display: flex;

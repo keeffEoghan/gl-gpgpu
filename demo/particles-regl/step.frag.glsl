@@ -75,25 +75,26 @@ uniform float useVerlet;
 uniform float epsilon;
 uniform vec3 source;
 uniform vec2 scale;
-uniform float spout;
+uniform vec2 spout;
 // uniform vec3 drag;
-// Gravitation position, and universal constant.
-uniform vec4 gravitation;
+// Sink position, and universal gravitational constant.
+uniform vec4 sink;
 // Constant acceleration due to gravity; and whether to use it, uses
-// gravitation if not.
+// sink if not.
 uniform vec4 g;
 
 varying vec2 uv;
 
 #pragma glslify: map = require(glsl-map)
 #pragma glslify: le = require(glsl-conditionals/when_le)
+#pragma glslify: random = require(glsl-random)
 
 #ifdef positionOutput
     // @todo Try Velocity Verlet integration.
     #pragma glslify: verlet = require(@epok.tech/glsl-verlet/p-p-a)
 #endif
 
-#ifdef motionOutput
+#if defined(positionOutput) || defined(motionOutput)
     #pragma glslify: tau = require(glsl-constants/TWO_PI)
 
     // @see https://observablehq.com/@rreusser/equally-distributing-points-on-a-sphere
@@ -103,10 +104,6 @@ varying vec2 uv;
 
         return vec3(sqrt(1.0-(u*u))*vec2(cos(a), sin(a)), u);
     }
-#endif
-
-#if defined(motionOutput) || defined(lifeOutput)
-    #pragma glslify: random = require(glsl-random)
 #endif
 
 // Drag acceleration, constrained within the given velocity.
@@ -171,6 +168,10 @@ void main() {
         // acceleration/velocity, respectively.
         vec3 velocity = motion;
         vec3 acceleration = motion;
+
+        // Spawn randomly on a sphere around the source, move in that direction.
+        vec3 spoutSpawn = random(loop-(uv*dt0))*
+            randomOnSphere(random((uv+loop)/dt1), random((uv-loop)*dt0));
     #endif
 
     #ifdef positionOutput
@@ -184,16 +185,19 @@ void main() {
             // ... according to which is currently active.
             useVerlet);
 
-        positionOutput = mix(positionTo, source, spawn);
+        // Spawn around the source.
+        vec3 positionSpawn = source+(spout.x*spoutSpawn);
+
+        positionOutput = mix(positionTo, positionSpawn, spawn);
     #endif
     #ifdef motionOutput
-        // Gravitate towards the gravitation point (simplified).
+        // Gravitate towards the sink point (simplified).
         // @see https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation
-        vec3 gravity = gravitation.xyz-position1;
+        vec3 gravity = sink.xyz-position1;
 
-        gravity *= gravitation.w/max(dot(gravity, gravity), epsilon);
+        gravity *= sink.w/max(dot(gravity, gravity), epsilon);
 
-        // Use gravitation point, or constant acceleration due to gravity.
+        // Use sink point, or constant acceleration due to gravity.
         acceleration = mix(gravity, g.xyz, g.w);
 
         // Can also combine other forces, e.g: drag.
@@ -203,8 +207,7 @@ void main() {
         vec3 motionTo = mix(velocity+(acceleration*dt1), acceleration,
             useVerlet);
 
-        vec3 motionNew = spout*random(loop-(uv*dt0))*
-            randomOnSphere(random((uv+loop)/dt1), random((uv-loop)*dt0));
+        vec3 motionNew = spout.y*spoutSpawn;
 
         motionOutput = mix(motionTo, motionNew, spawn);
     #endif
