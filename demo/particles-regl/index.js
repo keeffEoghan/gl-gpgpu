@@ -132,9 +132,8 @@ const timestep = (hasTimestep &&
     (parseFloat(query.get('timestep'), 10) || timestepDef));
 
 // Whether to merge states into a texture.
-let merge = query.get('merge');
-
-merge = ((merge)? (merge !== 'false') : (form !== 1));
+const useMerge = query.get('merge');
+const merge = ((useMerge)? (useMerge !== 'false') : (form !== 1));
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
     'steps:', steps, 'scale:', scale, 'form:', form,
@@ -166,7 +165,8 @@ document.querySelector('#timestep').href =
     `?${setQuery([['timestep', ((timestep)? null : timestepDef)]])}#timestep`;
 
 document.querySelector('#merge').href =
-    `?${setQuery([['merge', ((merge)? false : null)]])}#merge`;
+    `?${setQuery([['merge',
+        ((!useMerge)? true : ((useMerge !== 'false')? false : null))]])}#merge`;
 
 // How values/channels map to their derivations.
 
