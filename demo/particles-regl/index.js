@@ -29,20 +29,22 @@ self.getUniforms = getUniforms;
 self.getDrawIndexes = getDrawIndexes;
 self.indexForms = indexForms;
 
+const toggleError = (on) =>
+    document.querySelector('.error').classList[(on)? 'remove' : 'add']('hide');
+
 const extend = {
     halfFloat: extensionsHalfFloat?.(),
     float: extensionsFloat?.(),
     other: optionalExtensions?.()
 };
 
+const pixelRatio = (Math.max(devicePixelRatio, 1.5) || 1.5);
+
 const regl = self.regl = getRegl({
-    pixelRatio: Math.max(Math.floor(devicePixelRatio), 1.5),
+    pixelRatio,
     extensions: extend.required = extend.halfFloat,
     optionalExtensions: extend.optional = [...extend.float, ...extend.other],
-
-    onDone: (e) =>
-        document.querySelector('.error')
-            .classList[(e)? 'remove' : 'add']('hide')
+    onDone: (e) => toggleError(e)
 });
 
 console.group('Extensions');
@@ -131,9 +133,13 @@ const timestepDef = 1e3/60;
 const timestep = (hasTimestep &&
     (parseFloat(query.get('timestep'), 10) || timestepDef));
 
-// Whether to merge states into a texture.
+// Whether to merge states into one texture.
 const useMerge = query.get('merge');
-const merge = ((useMerge)? (useMerge !== 'false') : (form !== 1));
+// Merge by default for maximum platform compatibility.
+// @todo Should work for `form=1` but breaks on Android:
+// `(regl) bad data or missing for uniform "states[1]"`
+// const merge = ((useMerge)? (useMerge !== 'false') : (form !== 1));
+const merge = (!useMerge || (useMerge !== 'false'));
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
     'steps:', steps, 'scale:', scale, 'form:', form,
@@ -301,6 +307,9 @@ console.log('drawSteps', drawSteps, 'useLines', useLines);
 const drawCounts = map((_, f) => indexForms(drawSteps, f, state.size.count),
     range(2+useLines), 0);
 
+const viewScale = ({ drawingBufferWidth: w, drawingBufferHeight: h }) =>
+    Math.min(w, h);
+
 const drawState = {
     ...state,
     bound: drawBound,
@@ -315,8 +324,8 @@ const drawState = {
         // Which primitives can be drawn.
         primitive: null,
         primitives: [, 'points', 'lines'],
-        // How wide the form is.
-        wide: 2**3,
+        // How wide the form is; to be scaled by `viewScale`.
+        wide: 2.5e-3*pixelRatio,
         // Speed-to-colour scaling, as `[multiply, power]`.
         // One option in these arrays is used, by Euler/Verlet respectively.
         pace: [[1e-3, 0.6], [3e2, 0.6]]
@@ -351,10 +360,14 @@ const drawCommand = {
         scale: regl.prop('props.scale'),
         // How many vertexes per form.
         form: regl.prop('drawProps.form'),
-        pace: (_, { drawProps: { pace }, props: { useVerlet: u } }) => pace[+u],
-        pointSize: (_, { drawProps: { wide: w } }) => clamp(w, ...pointSizeDims)
+        pace: (_, { drawProps: { pace: p }, props: { useVerlet: u } }) => p[+u],
+
+        pointSize: (c, { drawProps: { wide: w } }) =>
+            clamp(w*viewScale(c), ...pointSizeDims)
     }),
-    lineWidth: (_, { drawProps: { wide: w } }) => clamp(w, ...lineWidthDims),
+    lineWidth: (c, { drawProps: { wide: w } }) =>
+        clamp(w*viewScale(c), ...lineWidthDims),
+
     // Vertex counts by form; how many steps a form covers, for all entries.
     count: (_, { drawProps: { count: c, counts: cs, form: f } }) => c ?? cs[f],
     depth: { enable: true },
@@ -364,8 +377,6 @@ const drawCommand = {
         p ?? ps[f]
 };
 
-// @todo Why doesn't specifying point `form` seem to work on Android mobile?
-// alert('form! '+drawState.drawProps.form+'; count! '+drawCommand.count(0, drawState)+'; useLines: '+useLines);
 console.log((self.drawState = drawState), (self.drawCommand = drawCommand));
 
 const draw = regl(drawCommand);
@@ -382,11 +393,14 @@ function stepTime(state) {
 const clearView = { color: [0, 0, 0, 0], depth: 1 };
 
 regl.frame(() => {
-    stepTime(state.props.timer);
-    state.step.run();
-    drawState.stepNow = state.stepNow+1-drawBound;
-    regl.clear(clearView);
-    draw(drawState);
+    try {
+        stepTime(state.props.timer);
+        state.step.run();
+        drawState.stepNow = state.stepNow+1-drawBound;
+        regl.clear(clearView);
+        draw(drawState);
+    }
+    catch(e) { toggleError(e); }
 });
 
 function stopEvent(e) {
@@ -413,6 +427,7 @@ function startSpawn(hold) {
     return (held = hold);
 }
 
+// Press-hold pauses particles spawning.
 canvas.addEventListener((('onpointerdown' in self)? 'pointerdown'
         : (('ontouchstart' in self)? 'touchstart' : 'mousedown')), (e) => {
     pauseSpawn();
@@ -443,6 +458,7 @@ canvas.addEventListener((('onpointerup' in self)? 'pointerup'
         'primitive', drawCommand.primitive(0, drawState));
 });
 
+// Move either the source or the sink, according to primary pointer.
 canvas.addEventListener((('onpointermove' in self)? 'pointermove'
         : (('ontouchmove' in self)? 'touchmove' : 'mousemove')), (e) => {
     const { clientX: x, clientY: y, isPrimary } = e;
@@ -463,9 +479,10 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
 canvas.addEventListener('touchmove', stopEvent);
 canvas.addEventListener('contextmenu', stopEvent);
 
+// Switch primary pointer control between source and sink.
 canvas.addEventListener('dblclick', (e) => {
     state.props.invert = !state.props.invert;
     stopEvent(e);
 });
 
-module?.hot?.accept?.(location.reload);
+module?.hot?.accept?.(() => location.reload());

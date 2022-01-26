@@ -440,14 +440,16 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
 
         // Resources.
 
-        /** Map the pass's texture color attachments and their meta info. */
-        color ??= map(addTexture(channels, width, height, step, index), pass,
-            // Reuse any existing color attachments if merging; otherwise create
-            // dedicated color attachments for each pass.
-            ((merge)? (colorPool ??= []) : []));
-
         /** Properties passed for framebuffer creation, then meta info. */
-        const to = { depth, stencil, width, height, color };
+        const to = {
+            depth, stencil, width, height,
+            /** Map the pass's texture color attachments and their meta info. */
+            color: (color ??
+                map(addTexture(channels, width, height, step, index), pass,
+                    // Reuse any existing color attachments if merging;
+                    // otherwise make dedicated color attachments for each pass.
+                    ((merge)? (colorPool ??= []) : [])))
+        };
 
         /** The framebuffer for this pass. */
         to.framebuffer = framebuffer?.(to);

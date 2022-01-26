@@ -100,7 +100,7 @@ export function getUniforms(state, to = (state.uniforms ?? {})) {
     to[n+'dataShape'] = (_, { size: s }) => ((!(s?.shape))? set4(dataShape)
         :   setC4(dataShape, ...s.shape, ...(s.merge?.shape ?? s.shape)));
 
-    to[n+'viewShape'] = ({ viewportWidth: w, viewportHeight: h }) =>
+    to[n+'viewShape'] = ({ drawingBufferWidth: w, drawingBufferHeight: h }) =>
         setC2(viewShape, w, h);
 
     /** Past steps, all merged into one texture. */
@@ -133,8 +133,8 @@ export function getUniforms(state, to = (state.uniforms ?? {})) {
  * @callback getUniform
  *
  * @param {object} context General or global properties.
- * @param {number} context.viewportWidth Current viewport width in pixels.
- * @param {number} context.viewportHeight Current viewport height in pixels.
+ * @param {number} context.drawingBufferWidth Current view width in pixels.
+ * @param {number} context.drawingBufferHeight Current view height in pixels.
  * @param {object} props Local properties (e.g: the GPGPU `state`).
  * @param {number} props.stepNow The current step of the GPGPU `state`.
  * @param {number} props.bound Number of steps bound to output, cannot be input.

@@ -45,6 +45,8 @@ uniform float useVerlet;
 uniform float form;
 
 varying vec4 color;
+varying vec2 center;
+varying float radius;
 
 #pragma glslify: aspect = require(@epok.tech/glsl-aspect/contain)
 #pragma glslify: gt = require(glsl-conditionals/when_gt)
@@ -62,6 +64,8 @@ varying vec4 color;
         #pragma glslify: indexEntries = require(../../index-forms/index-entries)
     #endif
 #endif
+
+const vec4 noPosition = vec4(0, 0, -1, 0);
 
 void main() {
     #if stepsPast > 1
@@ -108,11 +112,22 @@ void main() {
 
     float alive = gt(life, 0.0);
     vec2 ar = aspect(viewShape);
-    vec4 vertex = vec4(position1.xy*ar, position1.z, 1);
+    vec4 vertex = mix(noPosition, vec4(position1.xy*ar, position1.z, 1), alive);
     float depth = clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
+    float size = alive*pointSize*depth*mix(0.1, 1.0, ratioNow);
 
-    gl_Position = mix(vec4(0, 0, -1, 0), vertex, alive);
-    gl_PointSize = alive*pointSize*depth*mix(0.1, 1.0, ratioNow);
+    gl_Position = vertex;
+    gl_PointSize = size;
+
+    /**
+     * Convert vertex position to `gl_FragCoord` window-space.
+     *
+     * @see https://stackoverflow.com/a/7158573
+     * @todo Might need the viewport `x` and `y` offset as well as `w` and `h`?
+     */
+    center = viewShape*((1.0+vertex.xy)/vertex.w)*0.5;
+
+    radius = size*0.5;
 
     float a = clamp(pow(life/lifetime.t, 0.3)*pow(ratioNow, 0.3), 0.0, 1.0);
     float speed = length(mix(motion, position1-position0, useVerlet)/dt);
