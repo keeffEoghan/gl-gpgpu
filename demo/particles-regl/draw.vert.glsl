@@ -45,7 +45,7 @@ uniform float useVerlet;
 uniform float form;
 
 varying vec4 color;
-varying vec2 center;
+varying vec3 center;
 varying float radius;
 
 #pragma glslify: aspect = require(@epok.tech/glsl-aspect/contain)
@@ -125,7 +125,7 @@ void main() {
      * @see https://stackoverflow.com/a/7158573
      * @todo Might need the viewport `x` and `y` offset as well as `w` and `h`?
      */
-    center = viewShape*((1.0+vertex.xy)/vertex.w)*0.5;
+    center = vec3(viewShape*((1.0+vertex.xy)/vertex.w)*0.5, vertex.z);
 
     radius = size*0.5;
 

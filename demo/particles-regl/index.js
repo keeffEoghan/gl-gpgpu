@@ -35,7 +35,8 @@ const toggleError = (on) =>
 const extend = {
     halfFloat: extensionsHalfFloat?.(),
     float: extensionsFloat?.(),
-    other: optionalExtensions?.()
+    other: optionalExtensions?.(),
+    depth: 'EXT_frag_depth'
 };
 
 const pixelRatio = (Math.max(devicePixelRatio, 1.5) || 1.5);
@@ -43,7 +44,8 @@ const pixelRatio = (Math.max(devicePixelRatio, 1.5) || 1.5);
 const regl = self.regl = getRegl({
     pixelRatio,
     extensions: extend.required = extend.halfFloat,
-    optionalExtensions: extend.optional = [...extend.float, ...extend.other],
+    optionalExtensions: extend.optional =
+        [...extend.float, ...extend.other, extend.depth],
     onDone: (e) => toggleError(e)
 });
 
@@ -136,10 +138,10 @@ const timestep = (hasTimestep &&
 // Whether to merge states into one texture.
 const useMerge = query.get('merge');
 // Merge by default for maximum platform compatibility.
-// @todo Should work for `form=1` but breaks on Android:
-// `(regl) bad data or missing for uniform "states[1]"`
-// const merge = ((useMerge)? (useMerge !== 'false') : (form !== 1));
 const merge = (!useMerge || (useMerge !== 'false'));
+// @todo Should work in one of these cases:
+// const merge = ((useMerge)? (useMerge !== 'false') : (stepsPast > 1));
+// const merge = ((useMerge)? (useMerge !== 'false') : (form !== 1));
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
     'steps:', steps, 'scale:', scale, 'form:', form,
@@ -325,7 +327,7 @@ const drawState = {
         primitive: null,
         primitives: [, 'points', 'lines'],
         // How wide the form is; to be scaled by `viewScale`.
-        wide: 2.5e-3*pixelRatio,
+        wide: 4e-3*pixelRatio,
         // Speed-to-colour scaling, as `[multiply, power]`.
         // One option in these arrays is used, by Euler/Verlet respectively.
         pace: [[1e-3, 0.6], [3e2, 0.6]]
