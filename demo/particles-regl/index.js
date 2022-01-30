@@ -127,6 +127,9 @@ const scale = clamp((parseInt(query.get('scale'), 10) || niceScale),
 // enough steps, or 'points' if not.
 const form = (parseInt(query.get('form'), 10) || 0);
 
+// How wide the form is; to be scaled by `viewScale`.
+const wide = (parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio);
+
 // Constant-step (add time-step), if given; if not given, uses real-time
 // (variable delta-time).
 const hasTimestep = query.has('timestep');
@@ -144,26 +147,31 @@ const merge = (!useMerge || (useMerge !== 'false'));
 // const merge = ((useMerge)? (useMerge !== 'false') : (form !== 1));
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
-    'steps:', steps, 'scale:', scale, 'form:', form,
+    'steps:', steps, 'scale:', scale, 'form:', form, 'wide:', wide,
     'timestep:', timestep, 'merge:', merge);
 
 // Set up the links.
 
 document.querySelector('#verlet').href =
-    `?${setQuery([['steps'], ['scale']])}#verlet`;
+    `?${setQuery([['steps'], ['scale'], ['wide']])}#verlet`;
 
 document.querySelector('#euler').href = `?${setQuery([
-        ['steps', 1+bound], ['scale', Math.min(niceScale+1, limits.scale[1])]
+        ['steps', 1+bound], ['scale', Math.min(niceScale+1, limits.scale[1])],
+        ['wide']
     ])}#euler`;
 
 document.querySelector('#long').href = `?${setQuery([
         ['steps', limits.steps[1]],
-        ['scale', Math.max(niceScale-1, limits.scale[0])]
+        ['scale', Math.max(niceScale-1, limits.scale[0])], ['wide']
     ])}#long`;
+
+document.querySelector('#bubbles').href = `?${setQuery([
+        ['steps', 2], ['scale', 3], ['form', 1], ['wide', 1]
+    ])}#bubbles`;
 
 document.querySelector('#high').href = `?${setQuery([
         ['steps', Math.max(limits.steps[0], limits.steps[1]-3)],
-        ['scale', Math.max(niceScale, limits.scale[1]-5)]
+        ['scale', Math.max(niceScale, limits.scale[1]-5)], ['wide']
     ])}#high`;
 
 document.querySelector('#trails').href =
@@ -327,7 +335,7 @@ const drawState = {
         primitive: null,
         primitives: [, 'points', 'lines'],
         // How wide the form is; to be scaled by `viewScale`.
-        wide: 4e-3*pixelRatio,
+        wide,
         // Speed-to-colour scaling, as `[multiply, power]`.
         // One option in these arrays is used, by Euler/Verlet respectively.
         pace: [[1e-3, 0.6], [3e2, 0.6]]

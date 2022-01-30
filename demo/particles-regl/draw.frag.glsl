@@ -6,9 +6,9 @@
  * @see [macroValues]{@link ../../macros.js#macroValues}
  */
 
-// #ifdef GL_EXT_frag_depth
+#ifdef GL_EXT_frag_depth
     #extension GL_EXT_frag_depth : enable
-// #endif
+#endif
 
 precision highp float;
 
@@ -28,8 +28,8 @@ void main() {
 
         gl_FragColor = vec4(color.rgb, mix(color.a, 0.0, d2));
 
-        // #ifdef GL_EXT_frag_depth
+        #ifdef GL_EXT_frag_depth
             gl_FragDepthEXT = center.z+d2;
-        // #endif
+        #endif
     }
 }
