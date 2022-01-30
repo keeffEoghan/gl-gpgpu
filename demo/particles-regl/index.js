@@ -32,11 +32,27 @@ self.indexForms = indexForms;
 const toggleError = (on) =>
     document.querySelector('.error').classList[(on)? 'remove' : 'add']('hide');
 
+// Handle query parameters.
+
+const getQuery = (search = location.search) => new URLSearchParams(search);
+
+function setQuery(entries, query = getQuery()) {
+    each(([k, v = null]) => ((v === null)? query.delete(k) : query.set(k, v)),
+        entries);
+
+    return query;
+}
+
+let query = getQuery();
+const fragDepth = (query.get('depth') === 'frag');
+
+// Set up GL.
+
 const extend = {
     halfFloat: extensionsHalfFloat?.(),
     float: extensionsFloat?.(),
     other: optionalExtensions?.(),
-    depth: 'EXT_frag_depth'
+    depth: (fragDepth && 'EXT_frag_depth')
 };
 
 const pixelRatio = (Math.max(devicePixelRatio, 1.5) || 1.5);
@@ -44,8 +60,11 @@ const pixelRatio = (Math.max(devicePixelRatio, 1.5) || 1.5);
 const regl = self.regl = getRegl({
     pixelRatio,
     extensions: extend.required = extend.halfFloat,
-    optionalExtensions: extend.optional =
-        [...extend.float, ...extend.other, extend.depth],
+
+    optionalExtensions: extend.optional = ((fragDepth)?
+            [...extend.float, ...extend.other, extend.depth]
+        :   [...extend.float, ...extend.other]),
+
     onDone: (e) => toggleError(e)
 });
 
@@ -97,19 +116,6 @@ const niceScale = clamp(8, ...limits.scale);
 
 console.log('limits', limits, regl.limits);
 
-// Handle query parameters.
-
-const getQuery = (search = location.search) => new URLSearchParams(search);
-
-function setQuery(entries, query = getQuery()) {
-    each(([k, v = null]) => ((v === null)? query.delete(k) : query.set(k, v)),
-        entries);
-
-    return query;
-}
-
-let query = getQuery();
-
 // 2 active states, as many others as can be bound; at least 2 past states
 // needed for Verlet integration, 1 for Euler integration.
 const steps = clamp((parseInt(query.get('steps'), 10) || 2+bound),
@@ -126,7 +132,6 @@ const scale = clamp((parseInt(query.get('scale'), 10) || niceScale),
 // Form vertexes to draw; if not given, uses trails of 'lines' if there are
 // enough steps, or 'points' if not.
 const form = (parseInt(query.get('form'), 10) || 0);
-
 // How wide the form is; to be scaled by `viewScale`.
 const wide = (parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio);
 
@@ -135,8 +140,8 @@ const wide = (parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio);
 const hasTimestep = query.has('timestep');
 const timestepDef = 1e3/60;
 
-const timestep = (hasTimestep &&
-    (parseFloat(query.get('timestep'), 10) || timestepDef));
+const timestep = ((hasTimestep)? (parseFloat(query.get('timestep'), 10) || null)
+    :   timestepDef);
 
 // Whether to merge states into one texture.
 const useMerge = query.get('merge');
@@ -148,37 +153,33 @@ const merge = (!useMerge || (useMerge !== 'false'));
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
     'steps:', steps, 'scale:', scale, 'form:', form, 'wide:', wide,
-    'timestep:', timestep, 'merge:', merge);
+    'depth:', fragDepth, 'timestep:', timestep, 'merge:', merge);
 
 // Set up the links.
 
 document.querySelector('#verlet').href =
-    `?${setQuery([['steps'], ['scale'], ['wide']])}#verlet`;
+    `?${setQuery([['steps'], ['scale'], ['wide'], ['depth']])}#verlet`;
 
 document.querySelector('#euler').href = `?${setQuery([
         ['steps', 1+bound], ['scale', Math.min(niceScale+1, limits.scale[1])],
-        ['wide']
+        ['wide'], ['depth']
     ])}#euler`;
 
 document.querySelector('#long').href = `?${setQuery([
         ['steps', limits.steps[1]],
-        ['scale', Math.max(niceScale-1, limits.scale[0])], ['wide']
+        ['scale', Math.max(niceScale-1, limits.scale[0])], ['wide'], ['depth']
     ])}#long`;
-
-document.querySelector('#bubbles').href = `?${setQuery([
-        ['steps', 2], ['scale', 3], ['form', 1], ['wide', 1]
-    ])}#bubbles`;
 
 document.querySelector('#high').href = `?${setQuery([
         ['steps', Math.max(limits.steps[0], limits.steps[1]-3)],
-        ['scale', Math.max(niceScale, limits.scale[1]-5)], ['wide']
+        ['scale', Math.max(niceScale, limits.scale[1]-5)], ['wide'], ['depth']
     ])}#high`;
 
 document.querySelector('#trails').href =
     `?${setQuery([['form', ((form)? (form+1)%3 : 1)]])}#trails`;
 
 document.querySelector('#timestep').href =
-    `?${setQuery([['timestep', ((timestep)? null : timestepDef)]])}#timestep`;
+    `?${setQuery([['timestep', ((hasTimestep)? null : 0)]])}#timestep`;
 
 document.querySelector('#merge').href =
     `?${setQuery([['merge',
