@@ -23,13 +23,12 @@ void main() {
     float r2 = radius*radius;
 
     if(vcl2 > r2) { discard; }
-    else {
-        float d2 = vcl2/r2;
 
-        gl_FragColor = vec4(color.rgb, mix(color.a, 0.0, d2));
+    float d2 = vcl2/r2;
 
-        #ifdef GL_EXT_frag_depth
-            gl_FragDepthEXT = center.z+d2;
-        #endif
-    }
+    gl_FragColor = vec4(color.rgb, mix(color.a, 0.0, d2));
+
+    #ifdef GL_EXT_frag_depth
+        gl_FragDepthEXT = center.z+d2;
+    #endif
 }

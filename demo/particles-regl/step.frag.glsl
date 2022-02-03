@@ -70,6 +70,7 @@ uniform float stepNow;
 uniform float dt0;
 uniform float dt1;
 uniform float loop;
+// // A particle's lifetime range, and whether it's allowed to respawn.
 uniform vec3 lifetime;
 uniform float useVerlet;
 uniform float epsilon;
@@ -218,7 +219,7 @@ void main() {
         float faded = le(lifeLast, 0.0);
 
         // Only spawn life once the oldest step reaches the end of its lifetime
-        // (past and current life are both 0).
+        // (past and current life are both 0), and if it's allowed to respawn.
         lifeOutput = mix(lifeTo, lifeNew, spawn*faded*lifetime.z);
     #endif
 }

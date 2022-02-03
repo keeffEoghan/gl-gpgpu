@@ -50,11 +50,16 @@ body {
 
 .info {
     flex: 1 0 100%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: flex-start;
     margin: 0;
     padding: 1em;
 }
 
 .error {
+    font-weight: 900;
     color: #fff;
     background-color: rgb(255, 60, 0);
 

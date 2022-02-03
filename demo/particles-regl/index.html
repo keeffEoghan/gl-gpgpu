@@ -6,15 +6,32 @@
     <body>
         <section class="guide">
             <p class="info error hide">
-                Couldn't set up the demo.
-                Check the console and this device's graphics feature support.
-                Try reloading or using a different link below.
+                <span>
+                    Couldn't set up the demo!&nbsp;
+                </span>
+                <span>
+                    Check developer console and graphics features support.&nbsp;
+                </span>
+                <span>
+                    Try reloading or using a different link below.&nbsp;
+                </span>
             </p>
             <p class="info">
-                Press to flip physics and graphics between modes.
-                Press-hold to stop spouting particles, lift to release.
-                Double-press moves source or sink, move both by 2 pointers.
-                Tweak settings using the below links or developer console.
+                <span>
+                    Press to flip physics and graphics between modes.&nbsp;
+                </span>
+                <span>
+                    Right-click or touch-hold to pause new particles.&nbsp;
+                </span>
+                <span>
+                    Multi-pointers each move either source or sink.&nbsp;
+                </span>
+                <span>
+                    Double-press to flip moving source or sink first.&nbsp;
+                </span>
+                <span>
+                    Tweak options by links below or developer console.&nbsp;
+                </span>
             </p>
             <a class="link" id="verlet" href="?steps=2&scale=99#verlet">
                 Verlet motion 2+1 states
@@ -27,21 +44,21 @@
             </a>
             <a class="link" id="bubbles"
                     href="?steps=2&scale=3&form=1&wide=1&depth=frag#bubbles">
-                Bubble points
+                Big point bubbles
             </a>
             <a class="link" id="million" href="?steps=2&scale=10&form=1#million"
                     title="Caution: heavy performance, try constant time-step">
-                A million particle points ⚠
+                A million points ⚠
             </a>
             <a class="link" id="high" href="?steps=99&scale=99#high"
                     title="Caution: heavy performance, try constant time-step">
-                High settings for this device ⚠
+                High for this device ⚠
             </a>
             <a class="link" id="trails" href="#trails">
                 Trails of lines / points
             </a>
             <a class="link" id="timestep" href="#timestep">
-                Time-step real-time / constant
+                Time-step variable / fixed
             </a>
             <a class="link" id="merge" href="#merge"
                     title="Caution: some devices don't support separate states">

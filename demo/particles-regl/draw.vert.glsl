@@ -114,7 +114,8 @@ void main() {
     vec2 ar = aspect(viewShape);
     vec4 vertex = mix(noPosition, vec4(position1.xy*ar, position1.z, 1), alive);
     float depth = clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
-    float size = alive*pointSize*depth*mix(0.1, 1.0, ratioNow);
+    float a = clamp(pow(life/lifetime.t, 0.3)*pow(ratioNow, 0.3), 0.0, 1.0);
+    float size = alive*pointSize*depth*mix(0.1, 1.0, a);
 
     gl_Position = vertex;
     gl_PointSize = size;
@@ -129,7 +130,6 @@ void main() {
 
     radius = size*0.5;
 
-    float a = clamp(pow(life/lifetime.t, 0.3)*pow(ratioNow, 0.3), 0.0, 1.0);
     float speed = length(mix(motion, position1-position0, useVerlet)/dt);
 
     color = a*vec4(mix(0.2, 1.0, ratioNow), mix(0.2, 1.0, entry/float(count)),

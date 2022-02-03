@@ -135,13 +135,12 @@ const form = (parseInt(query.get('form'), 10) || 0);
 // How wide the form is; to be scaled by `viewScale`.
 const wide = (parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio);
 
-// Constant-step (add time-step), if given; if not given, uses real-time
-// (variable delta-time).
+// Variable-step (delta-time), if given falsey/`NaN`; fixed-step (add-step),
+// if given another number; uses default fixed-step, if not given.
 const hasTimestep = query.has('timestep');
-const timestepDef = 1e3/60;
 
 const timestep = ((hasTimestep)? (parseFloat(query.get('timestep'), 10) || null)
-    :   timestepDef);
+    :   1e3/60);
 
 // Whether to merge states into one texture.
 const useMerge = query.get('merge');
@@ -223,7 +222,7 @@ const state = gpgpu(regl, {
     props: {
         // Set up the timer.
         timer: timer((timestep)?
-                // Constant-step (add time-step).
+                // Fixed-step (add-step).
                 { step: timestep, dts: range(2, 0) }
                 // Real-time (variable delta-time).
             :   { step: '-', now: () => regl.now()*1e3, dts: range(2, 0) }),
@@ -231,7 +230,7 @@ const state = gpgpu(regl, {
         rate: 1,
         // Loop time over this period to avoid instability of parts of the demo.
         loop: 3e3,
-        // Range of how long a particle lives, and whether it can respawn.
+        // A particle's lifetime range, and whether it's allowed to respawn.
         lifetime: [3e2, 4e3, +true],
         // Whether to use Verlet (midpoint) or Euler (forward) integration.
         useVerlet: +canVerlet,
@@ -420,28 +419,13 @@ function stopEvent(e) {
 }
 
 // Pause the spawning while pointer is held down.
-let held;
+let hold;
 
-function pauseSpawn() {
-    clearTimeout(held);
-
-    return (held = setTimeout(() => {
-            state.props.lifetime[2] = +false;
-            held = false;
-        }, 5e2));
-}
-
-function startSpawn(hold) {
-    clearTimeout(held);
-    state.props.lifetime[2] = +true;
-
-    return (held = hold);
-}
-
-// Press-hold pauses particles spawning.
-canvas.addEventListener((('onpointerdown' in self)? 'pointerdown'
-        : (('ontouchstart' in self)? 'touchstart' : 'mousedown')), (e) => {
-    pauseSpawn();
+// Context menu pauses particles spawning.
+canvas.addEventListener('contextmenu', (e) => {
+    // Whether a particle's allowed to respawn.
+    state.props.lifetime[2] = +false;
+    hold = false;
     stopEvent(e);
 });
 
@@ -449,13 +433,17 @@ canvas.addEventListener((('onpointerdown' in self)? 'pointerdown'
 canvas.addEventListener((('onpointerup' in self)? 'pointerup'
         : (('ontouchend' in self)? 'touchend' : 'mouseup')), (e) => {
     // Unpause the spawning when pointer is released.
-    const h = held;
-    const spawn = state.props.lifetime[2];
+    const spawned = state.props.lifetime[2];
+    const held = hold;
 
-    startSpawn();
+    // Whether a particle's allowed to respawn.
+    state.props.lifetime[2] = +true;
+    hold = false;
     stopEvent(e);
 
-    if((h === true) || !spawn) { return; }
+    // Don't switch modes if pointer was being held down, particles weren't
+    // allowed to spawn, or any non-primary button was released.
+    if(held || !spawned || (e.button !== 0)) { return; }
 
     // Switch between physics/drawing modes if this wasn't press-held.
 
@@ -472,23 +460,20 @@ canvas.addEventListener((('onpointerup' in self)? 'pointerup'
 // Move either the source or the sink, according to primary pointer.
 canvas.addEventListener((('onpointermove' in self)? 'pointermove'
         : (('ontouchmove' in self)? 'touchmove' : 'mousemove')), (e) => {
-    const { clientX: x, clientY: y, isPrimary } = e;
+    const { clientX: x, clientY: y, type, pointerType, isPrimary = true } = e;
     const { source: i, sink: o, invert } = state.props;
+    const touch = ((type === 'touchmove') || (pointerType === 'touch'));
+    // Move either source/sink, switch by primary/other pointers or inverting.
     const to = ((isPrimary)? ((invert)? o : i) : ((invert)? i : o));
     const size = Math.min(innerWidth, innerHeight);
 
     to[0] = ((((x-((innerWidth-size)*0.5))/size)*2)-1);
     to[1] = -((((y-((innerHeight-size)*0.5))/size)*2)-1);
-
-    // For touch devices, don't pause spawn if touch moves.
-    (((e.type === 'touchmove') || (e.pointerType === 'touch')) &&
-        startSpawn(true));
+    // For touch devices, don't pause spawn if touch moves while held down.
+    (touch && (hold = true));
 
     stopEvent(e);
 });
-
-canvas.addEventListener('touchmove', stopEvent);
-canvas.addEventListener('contextmenu', stopEvent);
 
 // Switch primary pointer control between source and sink.
 canvas.addEventListener('dblclick', (e) => {
