@@ -68,7 +68,7 @@ However, [transform-feedback handles similar features natively](https://webgl2fu
 `JavaScript` setup `index.js`:
 
 ```javascript
-import gpgpu from `@epok.tech/gl-gpgpu';
+import gpgpu from '@epok.tech/gl-gpgpu';
 
 import frag from './step.frag.glsl';
 
