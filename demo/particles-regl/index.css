@@ -48,18 +48,19 @@ a {
 .guide {
     display: flex;
     flex-flow: row wrap;
-    justify-content: flex-start;
-    align-items: center;
+    justify-content: center;
+    align-items: stretch;
+    align-content: stretch;
     position: absolute;
     z-index: 1;
     bottom: 0;
     left: 0;
     right: 0;
+    max-height: 100%;
     overflow-y: auto;
     opacity: 0.5;
     transition: opacity 800ms ease-out;
     will-change: opacity;
-    overflow: auto;
     font-family: sans-serif;
     color: #fff;
     background-color: #333;
@@ -91,7 +92,7 @@ a {
 }
 
 .link {
-    flex: 1 0 auto;
+    flex: 0 0 auto;
     position: relative;
     font-weight: 900;
     margin: 0.5em;

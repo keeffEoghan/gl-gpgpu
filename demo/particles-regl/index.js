@@ -187,7 +187,7 @@ document.querySelector('#long').href = `?${setQuery([
     ])}#long`;
 
 document.querySelector('#trace').href = `?${setQuery([
-        ['steps', limits.steps[1]], ['scale', clamp(4, ...limits.scale)],
+        ['steps', limits.steps[1]], ['scale', clamp(3, ...limits.scale)],
         ['wide'], ['depth']
     ])}#trace`;
 
