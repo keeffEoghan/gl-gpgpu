@@ -135,9 +135,8 @@ const scale = clamp((parseFloat(query.get('scale'), 10) || niceScale),
 limits.steps = [
     1+bound,
     ((merge)?
-        // Maximum steps must fit the maximum total texture size if merging; and
-        // within a sane arbitrary limit.
-        clamp(Math.floor(maxTextureSize/scale), 2, 1e2)
+        // Maximum steps must fit the maximum total texture size if merging.
+        Math.max(Math.floor(maxTextureSize/(2**scale)), 1+bound)
         // Maximum steps must fit the maximum total texture units if separate.
     :   Math.floor((maxTextureUnits-bound)/reduce((s, v) => s+v, values)*4))
 ];
@@ -146,8 +145,8 @@ console.log('limits', limits, regl.limits);
 
 // 2 active states, as many others as can be bound; at least 2 past states
 // needed for Verlet integration, 1 for Euler integration.
-const steps = clamp((parseInt(query.get('steps'), 10) || 2+bound),
-    ...limits.steps);
+const steps = Math.floor(clamp((parseFloat(query.get('steps'), 10) || 2+bound),
+    ...limits.steps));
 
 // How many past steps (not bound to outputs) are in the GPGPU state.
 const stepsPast = steps-bound;
@@ -156,7 +155,7 @@ const canVerlet = (stepsPast > 1);
 
 // Form vertexes to draw; if not given, uses trails of 'lines' if there are
 // enough steps, or 'points' if not.
-const form = (parseInt(query.get('form'), 10) || 0);
+const form = Math.floor(parseFloat(query.get('form'), 10) || 0);
 // How wide the form is; to be scaled by `viewScale`.
 const wide = (parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio);
 
@@ -187,8 +186,8 @@ document.querySelector('#long').href = `?${setQuery([
     ])}#long`;
 
 document.querySelector('#trace').href = `?${setQuery([
-        ['steps', limits.steps[1]], ['scale', clamp(3, ...limits.scale)],
-        ['wide'], ['depth']
+        ['steps', Math.min(3e2, limits.steps[1])],
+        ['scale', clamp(2, ...limits.scale)], ['wide'], ['depth']
     ])}#trace`;
 
 document.querySelector('#high').href = `?${setQuery([
