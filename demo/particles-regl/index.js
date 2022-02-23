@@ -326,7 +326,7 @@ const state = gpgpu(regl, {
         // A small number greater than 0; avoids speeds exploding.
         epsilon: 1e-5,
         // How faar a particle can move in any frame.
-        moveCap: 1.5e-3,
+        moveCap: 4e-2,
         // Whether to invert particle flow towards rather than away from source.
         invert: false,
         // The position around which particles spawn.

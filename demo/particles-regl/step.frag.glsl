@@ -183,12 +183,10 @@ void main() {
         float size = scale.s*pow(10.0, scale.t);
 
         // Constrain Verlet movement; handle here for better numerical accuracy.
-        vec3 back = position1-position0;
-        float backL2 = dot(back, back);
-
-        // Position changes below the movement cap remain the same; any bigger
-        // clamped towards current position, by the ratio over the limit.
-        back = mix(position0, position1, clamp((backL2/moveCap)-1.0, 0.0, 1.0));
+        // Any position changes below the movement cap remain the same; any
+        // bigger clamped towards current position, by the ratio over the limit.
+        vec3 back = mix(position0, position1,
+            clamp((distance(position1, position0)/moveCap)-1.0, 0.0, 1.0));
 
         // Use either Euler integration...
         vec3 positionTo = mix(position1+(velocity*dt1*size),
