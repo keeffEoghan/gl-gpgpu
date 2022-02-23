@@ -17,7 +17,7 @@ yarn add @epok.tech/gl-gpgpu
 
 ## Usage
 
-[See the demo](https://epok.tech/gl-gpgpu) and [its source code](https://github.com/keeffEoghan/gl-gpgpu/tree/master/demo/particles-regl) - below is shown a [partial example of GPGPU logic setup](#partial-example).
+[See the demo](https://epok.tech/gl-gpgpu) and [its source code](https://github.com/keeffEoghan/gl-gpgpu/tree/master/demo/particles-regl) or [video](https://youtu.be/ddt3YA2J1ys) - below is shown a [partial example of GPGPU logic setup](#partial-example).
 
 ## GPGPU State-Stepping
 
