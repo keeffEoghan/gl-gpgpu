@@ -1,5 +1,7 @@
 /**
  * GPGPU inputs (uniforms, attributes, indexes, etc).
+ *
+ * @module inputs
  */
 
 import { setC2, setC4 } from '@thi.ng/vectors/setc';
@@ -21,7 +23,7 @@ import { boundDef, preDef } from './const';
  *
  * @example
  *     const state =
- *         { pre: '', steps: 2, maps: getMaps({ values: [1, 2, 3] }) };
+ *         { pre: '', steps: 2, maps: mapFlow({ values: [1, 2, 3] }) };
  *
  *     getUniforms(getState({}, state)); // =>
  *     {
@@ -145,3 +147,10 @@ export function getUniforms(state, to = (state.uniforms ?? {})) {
  *
  * @returns {number|array<number>|*} A GL uniform to be bound via a GL API.
  */
+
+/**
+ * @alias module:inputs.default
+ * @function
+ * @see {@link module:inputs.getUniforms}
+ */
+export default getUniforms;

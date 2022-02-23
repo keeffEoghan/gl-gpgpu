@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" type="text/css" href="./index.css">
     </head>
     <body>
-        <section class="guide">
+        <aside class="guide">
+            <input id="flip-guide" type="checkbox" checked />
+            <label class="flip-guide" for="flip-guide">gl-gpgpu</label>
             <p class="info error hide">
                 <span>
                     Couldn't set up the demo!&nbsp;
@@ -13,7 +16,7 @@
                     Check developer console and graphics features support.&nbsp;
                 </span>
                 <span>
-                    Try reloading or using a different link below.&nbsp;
+                    Try reloading or using a different link below.
                 </span>
             </p>
             <p class="info">
@@ -32,6 +35,9 @@
                 <span>
                     Tweak options by links below or developer console.&nbsp;
                 </span>
+                <span>
+                    Press menu bar to toggle, scroll for <a href="#fallback">video demo</a>.
+                </span>
             </p>
             <a class="link" id="verlet" href="?steps=2&scale=99#verlet">
                 Verlet motion 2+1 states
@@ -39,19 +45,22 @@
             <a class="link" id="euler" href="?steps=1&scale=99#euler">
                 Euler motion 1+1 states
             </a>
-            <a class="link" id="long" href="?steps=99&scale=8#long">
-                Long trails along states
+            <a class="link" id="long" href="?steps=10&scale=8#long">
+                Trails along states
+            </a>
+            <a class="link" id="trace" href="?steps=100&scale=4#trace">
+                Tracers along states
             </a>
             <a class="link" id="bubbles"
                     href="?steps=2&scale=3&form=1&wide=1&depth=frag#bubbles">
                 Big point bubbles
             </a>
             <a class="link" id="million" href="?steps=2&scale=10&form=1#million"
-                    title="Caution: heavy performance, try constant time-step">
+                    title="Caution: heavy performance, try fixed time-step">
                 A million points ⚠
             </a>
             <a class="link" id="high" href="?steps=99&scale=99#high"
-                    title="Caution: heavy performance, try constant time-step">
+                    title="Caution: heavy performance, try fixed time-step">
                 High for this device ⚠
             </a>
             <a class="link" id="trails" href="#trails">
@@ -64,7 +73,13 @@
                     title="Caution: some devices don't support separate states">
                 States merged / separate ⚠
             </a>
-        </section>
+        </aside>
+        <canvas class="view" width="0" height="0"></canvas>
+        <iframe id="fallback" class="fallback" src="https://www.youtube.com/embed/ddt3YA2J1ys"
+            title="GPGPU state-stepping" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+        </iframe>
         <script src="./index.js" type="module"></script>
     </body>
 </html>

@@ -7,6 +7,8 @@
  * Possibly useful for other forms too.
  * Corresponds to the indexing logic in the `indexForms` GLSL function.
  *
+ * @module index-forms
+ *
  * @see [readme]{@link ./readme.md}
  * @see [indexForms]{@link ./index-states.glsl#indexForms}
  * @see [indexForms]{@link ./index-entries.glsl#indexForms}
@@ -24,4 +26,9 @@
 export const indexForms = (states = 1, form = 2, entries = 1) =>
     Math.max(1, states-form+1)*form*entries;
 
+/**
+ * @alias module:index-forms.default
+ * @function
+ * @see {@link module:index-forms.indexForms}
+ */
 export default indexForms;

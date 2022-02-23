@@ -1,7 +1,7 @@
 {
   "name": "@epok.tech/gl-gpgpu",
-  "version": "0.6.4",
-  "description": "GPGPU state-stepping: maps optimal draw passes, shaders, GL resources, inputs, outputs; lets you focus on your logic. BYORenderer.",
+  "version": "0.6.5",
+  "description": "GPGPU state-stepping - maps optimal draw passes, shaders, GL resources, inputs, outputs; lets you focus on your logic - BYORenderer.",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
   "author": "Eoghan O'Keeffe <epok.tech@gmail.com> (https://epok.tech)",
   "license": "MIT",
@@ -13,11 +13,16 @@
   "scripts": {
     "start": "yarn docs",
     "dev": "parcel --log-level verbose --target docs",
-    "dist": "yarn build && yarn docs",
+    "dist": "yarn build & yarn docs & wait",
     "build": "rm -rf ./dist/ && parcel build --target esm --target cjs",
-    "docs": "rm -rf ./docs/ && parcel build --target docs",
+    "docs": "rm -rf ./docs/ && (yarn run docs:demo & yarn run docs:info & wait)",
+    "docs:demo": "parcel build --target docs",
+    "docs:info": "yarn docs:info:jsdoc & yarn docs:info:jsdoc2md & yarn docs:info:dox & wait",
+    "docs:info:jsdoc": "mkdir -p ./docs/ && jsdoc $(ls ./{package.json,{*,{index-forms,lookup,util}/**/*}.{js,glsl}} | xargs) -d ./docs/readme-jsdoc",
+    "docs:info:jsdoc2md": "mkdir -p ./docs/ && jsdoc2md --files='./{*,{index-forms,lookup,util}/**/*}.{js,glsl}' package.json --no-cache --name-format --separators -m grouped -g grouped > ./docs/readme-jsdoc2md.md",
+    "docs:info:dox": "mkdir -p ./docs/ && doxdox './{package.json,{*,{index-forms,lookup,util}/**/*}.{js,glsl}}' --layout markdown --output ./docs/readme-dox.md",
     "dev:safe": "yarn dev --no-cache",
-    "dist:safe": "yarn build:safe && yarn docs:safe",
+    "dist:safe": "yarn build:safe & yarn docs:safe & wait",
     "build:safe": "yarn build --no-cache",
     "docs:safe": "yarn docs --no-cache"
   },
@@ -34,10 +39,13 @@
     "@parcel/transformer-glsl": "^2.0.1",
     "autoprefixer": "^10.4.0",
     "clamp": "^1.0.1",
+    "doxdox": "^3",
     "glsl-conditionals": "^1.0.0",
     "glsl-constants": "^1.0.0",
     "glsl-map": "^1.0.1",
     "glsl-random": "^0.0.5",
+    "jsdoc": "^3.6.10",
+    "jsdoc-to-markdown": "^7.1.1",
     "parcel": "^2.0.1",
     "postcss": "^8.0.0",
     "postcss-import": "^14.0.2",
@@ -69,8 +77,7 @@
     "dist/**/*",
     "index-forms/**/*",
     "lookup/**/*",
-    "util/**/*",
-    "demo/**/*"
+    "util/**/*"
   ],
   "targets": {
     "cjs": {

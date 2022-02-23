@@ -1,6 +1,8 @@
 /**
  * GPGPU state and GL resources: framebuffers, textures; and meta information.
  *
+ * @module state
+ *
  * @todo Allow passes into or across textures; separate data and texture shapes.
  * @todo In-place updates of complex resources and meta info.
  * @todo Use transform feedback instead of data textures, if supported (WebGL2)?
@@ -189,21 +191,21 @@ const { isInteger } = Number;
  *         ]
  *     };
  *
- * @see texture
- * @see framebuffer
- * @see [mapGroups]{@link ./maps.js#mapGroups}
- * @see [mapSamples]{@link ./maps.js#mapSamples}
- * @see [getStep]{@link ./step.js#getStep}
- * @see [macroSamples]{@link ./macros.js#macroSamples}
- * @see [macroTaps]{@link ./macros.js#macroTaps}
- * @see [macroPass]{@link ./macros.js#macroPass}
- * @see [getWidth]{@link ./size.js#getWidth}
- * @see [getHeight]{@link ./size.js#getHeight}
- * @see [getScaled]{@link ./size.js#getScaled}
+ * @see {@link texture}
+ * @see {@link framebuffer}
+ * @see {@link module:maps.mapGroups}
+ * @see {@link module:maps.mapSamples}
+ * @see {@link module:step.getStep}
+ * @see {@link module:macros.macroSamples}
+ * @see {@link module:macros.macroTaps}
+ * @see {@link module:macros.macroPass}
+ * @see {@link module:size.getWidth}
+ * @see {@link module:size.getHeight}
+ * @see {@link module:size.getScaled}
  *
- * @see https://stackoverflow.com/a/60110986/716898
- * @see https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_2d_array.html
- * @see https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_3d.html
+ * @see {@link https://stackoverflow.com/a/60110986/716898}
+ * @see {@link https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_2d_array.html}
+ * @see {@link https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_3d.html}
  *
  * @param {object} api The API for GL resources.
  * @param {texture} [api.texture] Function to create a GL texture.
@@ -337,8 +339,8 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
         } = state;
 
     const scaled = getScaled(scale);
-    const width = getWidth(state) ?? scaled ?? widthDef;
-    const height = getHeight(state) ?? scaled ?? heightDef;
+    const width = Math.floor(getWidth(state) ?? scaled ?? widthDef);
+    const height = Math.floor(getHeight(state) ?? scaled ?? heightDef);
 
     to.maps = maps;
     to.stepNow = stepNow;
@@ -378,7 +380,7 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
     const textures = to.textures = [];
     /** The passes created for the `step`/`pass` render flow. */
     const passes = to.passes = [];
-    /** The textures bound to the next pass; reused if merging. */
+    // The textures bound to the next pass; reused if merging.
     let colorPool;
 
     /**
@@ -386,7 +388,7 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
      * return its new `texture` or a reused one to bind to a pass in `passes`.
      */
     const addTexture = (channels, w, h, step, pass) => (index, c, _, color) => {
-        /** Properties passed for texture creation, then meta info. */
+        // Properties passed for texture creation, then meta info.
         const to = { channels, width: w, height: h, type, min, mag, wrap };
 
         // Resources.
@@ -405,7 +407,7 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
 
         // Add meta info.
 
-        /** Check if this is bound to a pass. */
+        // Check if this is bound to a pass.
         const bind = (isInteger(pass) || null);
 
         /** Denotes attached texture; if merging, textures are reused. */
@@ -529,4 +531,9 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
  * @returns {*} A GL framebuffer, or an object serving that purpose.
  */
 
+/**
+ * @alias module:state.default
+ * @function
+ * @see {@link module:state.getState}
+ */
 export default getState;

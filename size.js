@@ -1,3 +1,5 @@
+/** @module size */
+
 import map from '@epok.tech/fn-lists/map';
 import range from '@epok.tech/fn-lists/range';
 
@@ -83,10 +85,10 @@ export const getDrawIndexes = (size) => map((_, i) => i,
     range(Number.isInteger(size)? size : countDrawIndexes(size)), 0);
 
 /**
- * 2 raised to the given numeric power, or null if not given.
+ * 2 raised to the given numeric power, or `null` if not given.
  *
  * @param {number} [scale] The power to raise 2 to.
  *
- * @returns 2 raised to the given numeric power, or null if not given.
+ * @returns 2 raised to the given numeric power, or `null` if not given.
  */
 export const getScaled = (scale) => ((Number.isFinite(scale))? 2**scale : null);

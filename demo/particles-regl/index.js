@@ -13,7 +13,7 @@ import { gpgpu, extensionsFloat, extensionsHalfFloat, optionalExtensions }
     from '../../index';
 
 import { macroPass } from '../../macros';
-import { getMaps } from '../../maps';
+import { mapFlow } from '../../maps';
 import { getUniforms } from '../../inputs';
 import { getDrawIndexes } from '../../size';
 import indexForms from '../../index-forms';
@@ -24,13 +24,23 @@ import drawFrag from './draw.frag.glsl';
 
 self.gpgpu = gpgpu;
 self.macroPass = macroPass;
-self.getMaps = getMaps;
+self.mapFlow = mapFlow;
 self.getUniforms = getUniforms;
 self.getDrawIndexes = getDrawIndexes;
 self.indexForms = indexForms;
 
-const toggleError = (on) =>
-    document.querySelector('.error').classList[(on)? 'remove' : 'add']('hide');
+const canvas = document.querySelector('canvas');
+
+// Scroll to the top.
+const scroll = () => setTimeout(() => canvas.scrollIntoView(true), 0);
+
+scroll();
+
+function toggleError(e) {
+    document.querySelector('.error').classList[(e)? 'remove' : 'add']('hide');
+    canvas.classList[(e)? 'add' : 'remove']('hide');
+    scroll();
+}
 
 // Handle query parameters.
 
@@ -58,7 +68,7 @@ const extend = {
 const pixelRatio = (Math.max(devicePixelRatio, 1.5) || 1.5);
 
 const regl = self.regl = getRegl({
-    pixelRatio,
+    canvas, pixelRatio,
     extensions: extend.required = extend.halfFloat,
 
     optionalExtensions: extend.optional = ((fragDepth)?
@@ -80,39 +90,57 @@ console.log('optional', (extend.optional &&
 
 console.groupEnd();
 
-const canvas = document.querySelector('canvas');
-
-canvas.classList.add('view');
-
 // How many frame-buffers are bound at a given time.
 const bound = 1;
 
-// How many values/channels each property independently tracks.
-// The order here corresponds to the order in the shaders and generated macros,
-// though these may be `packed` across channels/textures/passes differently.
+// How many state values (channels) are tracked independently of others.
+// The order here is the order used in the shaders and generated macros, but for
+// optimal lookups may be `packed` into channels/textures/passes differently.
 
 const valuesMap = (new Map())
-    .set('position', 3).set('motion', 3).set('life', 1);
+    // Position, uses 3 channels.
+    .set('position', 3)
+    // Motion, uses 3 channels.
+    .set('motion', 3)
+    // Life, uses 1 channel.
+    .set('life', 1);
 
 const values = [];
 const valuesIndex = {};
 
 valuesMap.forEach((v, k) => valuesIndex[k] = values.push(v)-1);
 
+console.log(values, '`values`');
+
 // Limits of this device and these `values`.
 const { maxTextureUnits, maxTextureSize, lineWidthDims, pointSizeDims } =
     regl.limits;
 
-const limits = {
-    steps: [
-        1+bound,
-        Math.floor((maxTextureUnits-bound)/(reduce((s, v) => s+v, values, 0)/4))
-    ],
-    // Better stay farther under maximum texture size, or errors/crashes.
-    scale: [0, Math.log2(maxTextureSize)]
-};
+// Whether to merge states into one texture; separate textures if not given.
+const useMerge = query.get('merge');
+// Merge by default for maximum platform compatibility.
+const merge = (!useMerge || (useMerge !== 'false'));
+// @todo Should work in one of these cases:
+// const merge = ((useMerge)? (useMerge !== 'false') : (stepsPast > 1));
+// const merge = ((useMerge)? (useMerge !== 'false') : (form !== 1));
+
+// Better stay farther under maximum texture size, or errors/crashes.
+const limits = { scale: [0, Math.log2(maxTextureSize)] };
 
 const niceScale = clamp(8, ...limits.scale);
+
+const scale = clamp((parseFloat(query.get('scale'), 10) || niceScale),
+    ...limits.scale);
+
+limits.steps = [
+    1+bound,
+    ((merge)?
+        // Maximum steps must fit the maximum total texture size if merging; and
+        // within a sane arbitrary limit.
+        clamp(Math.floor(maxTextureSize/scale), 2, 1e2)
+        // Maximum steps must fit the maximum total texture units if separate.
+    :   Math.floor((maxTextureUnits-bound)/reduce((s, v) => s+v, values)*4))
+];
 
 console.log('limits', limits, regl.limits);
 
@@ -126,29 +154,18 @@ const stepsPast = steps-bound;
 // Whether to allow Verlet integration; according to available resource limits.
 const canVerlet = (stepsPast > 1);
 
-const scale = clamp((parseInt(query.get('scale'), 10) || niceScale),
-    ...limits.scale);
-
 // Form vertexes to draw; if not given, uses trails of 'lines' if there are
 // enough steps, or 'points' if not.
 const form = (parseInt(query.get('form'), 10) || 0);
 // How wide the form is; to be scaled by `viewScale`.
 const wide = (parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio);
 
-// Variable-step (delta-time), if given falsey/`NaN`; fixed-step (add-step),
-// if given another number; uses default fixed-step, if not given.
+// Variable-step (delta-time) if given falsey/`NaN`; fixed-step (add-step)
+// if given another number; uses default fixed-step if not given.
 const hasTimestep = query.has('timestep');
 
 const timestep = ((hasTimestep)? (parseFloat(query.get('timestep'), 10) || null)
     :   1e3/60);
-
-// Whether to merge states into one texture.
-const useMerge = query.get('merge');
-// Merge by default for maximum platform compatibility.
-const merge = (!useMerge || (useMerge !== 'false'));
-// @todo Should work in one of these cases:
-// const merge = ((useMerge)? (useMerge !== 'false') : (stepsPast > 1));
-// const merge = ((useMerge)? (useMerge !== 'false') : (form !== 1));
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
     'steps:', steps, 'scale:', scale, 'form:', form, 'wide:', wide,
@@ -165,9 +182,14 @@ document.querySelector('#euler').href = `?${setQuery([
     ])}#euler`;
 
 document.querySelector('#long').href = `?${setQuery([
-        ['steps', limits.steps[1]],
+        ['steps', Math.min(10, limits.steps[1])],
         ['scale', Math.max(niceScale-1, limits.scale[0])], ['wide'], ['depth']
     ])}#long`;
+
+document.querySelector('#trace').href = `?${setQuery([
+        ['steps', limits.steps[1]], ['scale', clamp(4, ...limits.scale)],
+        ['wide'], ['depth']
+    ])}#trace`;
 
 document.querySelector('#high').href = `?${setQuery([
         ['steps', Math.max(limits.steps[0], limits.steps[1]-3)],
@@ -175,7 +197,7 @@ document.querySelector('#high').href = `?${setQuery([
     ])}#high`;
 
 document.querySelector('#trails').href =
-    `?${setQuery([['form', ((form)? (form+1)%3 : 1)]])}#trails`;
+    `?${setQuery([['form', ((form)? ((form+1)%3 || null) : 1)]])}#trails`;
 
 document.querySelector('#timestep').href =
     `?${setQuery([['timestep', ((hasTimestep)? null : 0)]])}#timestep`;
@@ -184,25 +206,37 @@ document.querySelector('#merge').href =
     `?${setQuery([['merge',
         ((!useMerge)? true : ((useMerge !== 'false')? false : null))]])}#merge`;
 
-// How values/channels map to their derivations.
+// How state values map to any past state values they derive from.
+// Denoted as an array, nested 1-3 levels deep:
+// 1. In `values` order, indexes `values` to derive from, 1 step past.
+// 2. Indexes `values` to derive from, 1 step past.
+// 3. Shows how many steps past, then indexes `values` to derive from.
 
 const derives = [];
 
+// Position value derives from:
 derives[valuesIndex.position] = [
     // Position, 2 steps past.
     [wrap(1, stepsPast), valuesIndex.position],
     // Position, 1 step past.
     valuesIndex.position,
+    // Motion, 1 step past.
     valuesIndex.motion,
+    // Life, 1 step past.
     valuesIndex.life
 ];
 
+// Motion value derives from:
 derives[valuesIndex.motion] = [
+    // Motion, 1 step past.
     valuesIndex.motion,
+    // Life, 1 step past.
     valuesIndex.life,
+    // Position, 1 step past.
     valuesIndex.position
 ];
 
+// Life value derives from:
 derives[valuesIndex.life] = [
     // Life, last step past.
     [wrap(-1, stepsPast), valuesIndex.life],
@@ -210,15 +244,69 @@ derives[valuesIndex.life] = [
     valuesIndex.life
 ];
 
-// The main GPGPU state.
+console.log(derives, '`derives`');
+
+// The main `gl-gpgpu` state.
 const state = gpgpu(regl, {
-    // Prefix usually recommended; none here to check for naming clashes.
-    pre: '',
-    bound, steps, scale, merge, maps: { values, derives },
-    // Data type according to support.
+    // Logic given as state values, `gl-gpgpu` maps optimal inputs and outputs.
+    maps: {
+        // How many state values (channels) are tracked independently of others.
+        values,
+        // How state values map to any past state values they derive from.
+        derives
+    },
+    // How many steps of state to track.
+    steps,
+    // How many states are bound to frame-buffer outputs at any step.
+    bound,
+    // How many entries to track, here encoded as the power-of-2 size per side
+    // of the data texture: `(2**scale)**2`; can also be given in other ways.
+    scale,
+    // Whether to merge states into one texture; separate textures if not given.
+    merge,
+    // Data type according to platform capabilities.
+    // @todo Seems to move differently with `'half float'` Verlet integration.
     type: ((extend.float.every(regl.hasExtension))? 'float' : 'half float'),
-    // Per-shader macro hooks, no macros needed for the `vert` shader.
-    macros: { vert: false },
+    // Configure macro hooks, global or per-shader.
+    macros: {
+        // No macros needed for the `vert` shader; all other macros generated.
+        vert: false
+    },
+    // Prefix is usually recommended; use none here to check for naming clashes.
+    pre: '',
+    // Properties for each step of state, and each pass of each step.
+    step: {
+        // A fragment shader to compute each state step, with `gl-gpgpu` macros.
+        // Vertex shaders can also be given.
+        frag: stepFrag,
+        // Macros are prepended to `frag` shader per-pass, cached in `frags`.
+        frags: [],
+        // Custom uniforms in addition to those `gl-gpgpu` provides.
+        uniforms: {
+            dt: (_, { props: { timer: { dt }, rate: r } }) => dt*r,
+            dt0: (_, { props: { timer: { dts: { 0: dt } }, rate: r } }) => dt*r,
+            dt1: (_, { props: { timer: { dts: { 1: dt } }, rate: r } }) => dt*r,
+            time: (_, { props: { timer: { time: t }, rate: r } }) => t*r,
+
+            loop: (_, { props: { timer: { time: t }, loop: l } }) =>
+                Math.sin(t/l*Math.PI)*l,
+
+            lifetime: regl.prop('props.lifetime'),
+            useVerlet: regl.prop('props.useVerlet'),
+            epsilon: regl.prop('props.epsilon'),
+            moveCap: regl.prop('props.moveCap'),
+            source: regl.prop('props.source'),
+            sink: regl.prop('props.sink'),
+            g: regl.prop('props.g'),
+            scale: regl.prop('props.scale'),
+
+            // One option in these arrays is used, by Euler/Verlet respectively.
+            spout: (_, { props: { spout: ss, useVerlet: u } }) => ss[+u],
+            // drag: (_, { props: { drag: ds, useVerlet: u } }) => ds[+u]
+        }
+    },
+
+    // Custom properties to be passed to shaders mixed in with `gl-gpgpu` ones.
     props: {
         // Set up the timer.
         timer: timer((timestep)?
@@ -226,16 +314,19 @@ const state = gpgpu(regl, {
                 { step: timestep, dts: range(2, 0) }
                 // Real-time (variable delta-time).
             :   { step: '-', now: () => regl.now()*1e3, dts: range(2, 0) }),
+
         // Speed up or slow down the passage of time.
         rate: 1,
         // Loop time over this period to avoid instability of parts of the demo.
         loop: 3e3,
-        // A particle's lifetime range, and whether it's allowed to respawn.
+        // A particle's lifetime range, and whether it's allowed to spawn.
         lifetime: [3e2, 4e3, +true],
         // Whether to use Verlet (midpoint) or Euler (forward) integration.
         useVerlet: +canVerlet,
         // A small number greater than 0; avoids speeds exploding.
         epsilon: 1e-5,
+        // How faar a particle can move in any frame.
+        moveCap: 1.5e-3,
         // Whether to invert particle flow towards rather than away from source.
         invert: false,
         // The position around which particles spawn.
@@ -264,31 +355,6 @@ const state = gpgpu(regl, {
         spout: [[0, 3e3], [0, 2e2]],
         // Drag coefficient.
         // drag: [range(3, 1e-3), range(3, 1e-1)]
-    },
-    step: {
-        // Per-pass macros will prepend to `frag` shader and cache in `frags`.
-        frag: stepFrag, frags: [],
-        uniforms: {
-            dt: (_, { props: { timer: { dt }, rate: r } }) => dt*r,
-            dt0: (_, { props: { timer: { dts: { 0: dt } }, rate: r } }) => dt*r,
-            dt1: (_, { props: { timer: { dts: { 1: dt } }, rate: r } }) => dt*r,
-            time: (_, { props: { timer: { time: t }, rate: r } }) => t*r,
-
-            loop: (_, { props: { timer: { time: t }, loop: l } }) =>
-                Math.sin(t/l*Math.PI)*l,
-
-            lifetime: regl.prop('props.lifetime'),
-            useVerlet: regl.prop('props.useVerlet'),
-            epsilon: regl.prop('props.epsilon'),
-            source: regl.prop('props.source'),
-            sink: regl.prop('props.sink'),
-            g: regl.prop('props.g'),
-            scale: regl.prop('props.scale'),
-
-            // One option in these arrays is used, by Euler/Verlet respectively.
-            spout: (_, { props: { spout: ss, useVerlet: u } }) => ss[+u],
-            // drag: (_, { props: { drag: ds, useVerlet: u } }) => ds[+u]
-        }
     }
 });
 
@@ -320,6 +386,7 @@ const drawCounts = map((_, f) => indexForms(drawSteps, f, state.size.count),
 const viewScale = ({ drawingBufferWidth: w, drawingBufferHeight: h }) =>
     Math.min(w, h);
 
+// Reuse the GPGPU state, mix in drawing-specific state.
 const drawState = {
     ...state,
     bound: drawBound,
@@ -327,7 +394,7 @@ const drawState = {
     macros: { 'output': 0, 'frag': 0 },
     drawProps: {
         // How many vertexes per form.
-        form: (form || 1+useLines),
+        form: clamp((form || 2), 1, 1+useLines),
         // Vertex counts by form; how many steps a form covers, for all entries.
         count: null,
         counts: drawCounts,
@@ -336,17 +403,20 @@ const drawState = {
         primitives: [, 'points', 'lines'],
         // How wide the form is; to be scaled by `viewScale`.
         wide,
-        // Speed-to-colour scaling, as `[multiply, power]`.
+
         // One option in these arrays is used, by Euler/Verlet respectively.
+
+        // Speed-to-colour scaling, as `[multiply, power]`.
         pace: [[1e-3, 0.6], [3e2, 0.6]]
     },
-    // Everything mapped the same way.
-    maps: getMaps({
+    // Map everything similarly to the GPGPU step, `mapFlow` can be reused to
+    // create new mappings with some additions for drawing.
+    maps: mapFlow({
         ...state.maps,
         // This one pass can bind textures for input; not output across passes.
         texturesMax: maxTextureUnits,
         /**
-         * One set of reads of all values in one pass.
+         * One set of lookups/reads of all values in one pass.
          * Passing `true` adds all values at that level of nesting:
          * `pass|[values|[value|[step, value]]]`
          * Thus, this example means that the _first_ value derives from:
@@ -405,6 +475,7 @@ const clearView = { color: [0, 0, 0, 0], depth: 1 };
 regl.frame(() => {
     try {
         stepTime(state.props.timer);
+        // Compute the next step of state.
         state.step.run();
         drawState.stepNow = state.stepNow+1-drawBound;
         regl.clear(clearView);
@@ -421,25 +492,24 @@ function stopEvent(e) {
 // Pause the spawning while pointer is held down.
 let hold;
 
-// Context menu pauses particles spawning.
+// Pause particles spawning.
 canvas.addEventListener('contextmenu', (e) => {
-    // Whether a particle's allowed to respawn.
+    // Whether a particle's allowed to spawn.
     state.props.lifetime[2] = +false;
     hold = false;
     stopEvent(e);
 });
 
-// Toggle Verlet integration, if there are enough past steps.
+// Toggle physics and graphics modes.
 canvas.addEventListener((('onpointerup' in self)? 'pointerup'
         : (('ontouchend' in self)? 'touchend' : 'mouseup')), (e) => {
     // Unpause the spawning when pointer is released.
     const spawned = state.props.lifetime[2];
     const held = hold;
 
-    // Whether a particle's allowed to respawn.
+    // Whether a particle's allowed to spawn.
     state.props.lifetime[2] = +true;
     hold = false;
-    stopEvent(e);
 
     // Don't switch modes if pointer was being held down, particles weren't
     // allowed to spawn, or any non-primary button was released.
@@ -467,12 +537,10 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
     const to = ((isPrimary)? ((invert)? o : i) : ((invert)? i : o));
     const size = Math.min(innerWidth, innerHeight);
 
-    to[0] = ((((x-((innerWidth-size)*0.5))/size)*2)-1);
+    to[0] = (((x-((innerWidth-size)*0.5))/size)*2)-1;
     to[1] = -((((y-((innerHeight-size)*0.5))/size)*2)-1);
     // For touch devices, don't pause spawn if touch moves while held down.
     (touch && (hold = true));
-
-    stopEvent(e);
 });
 
 // Switch primary pointer control between source and sink.
@@ -480,5 +548,14 @@ canvas.addEventListener('dblclick', (e) => {
     state.props.invert = !state.props.invert;
     stopEvent(e);
 });
+
+// Resize the canvas.
+function resize() {
+    canvas.width = innerWidth*pixelRatio;
+    canvas.height = innerHeight*pixelRatio;
+}
+
+addEventListener('resize', resize);
+resize();
 
 module?.hot?.accept?.(() => location.reload());

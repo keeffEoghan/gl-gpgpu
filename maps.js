@@ -11,6 +11,8 @@
  * efficient mappings available with the least I/O when it comes to drawing
  * (draw passes, texture samples, etc).
  *
+ * @module maps
+ *
  * @todo Allow passes within/across textures; separate data and texture shapes.
  */
 
@@ -22,8 +24,20 @@ import { valuesDef, channelsMaxDef, buffersMaxDef } from './const';
 
 const { isInteger } = Number;
 
+/** Cache for optimisation. */
 export const cache = { packed: [] };
 
+/**
+ * Determines whether a given value is valid and can be stored within the
+ * channels available.
+ *
+ * @function
+ *
+ * @param {number} value A value to validate.
+ * @param {number} [channelsMax] The maximum channels available to store values.
+ *
+ * @returns {boolean} Whether the given `value` is valid.
+ */
 export const validValue = (value, channelsMax = channelsMaxDef) =>
     ((1 <= value) || (value <= channelsMax) ||
         !!console.error(`\`gl-gpgpu\`: the given value (${value}) exceeds the `+
@@ -47,7 +61,7 @@ export const validValue = (value, channelsMax = channelsMaxDef) =>
  *     packValues([1, 1, 4, 2], 4, []); // =>
  *     [2, 3, 0, 1];
  *
- * @see mapGroups
+ * @see {@link module:maps.mapGroups}
  *
  * @param {array<number>} values Each entry is how many interdependent channels
  *     are grouped into one texture in one pass, separate entries may be across
@@ -165,7 +179,7 @@ export function packValues(values, channelsMax = channelsMaxDef, to = []) {
  *         textureToPass: [0, 0]
  *     };
  *
- * @see packValues
+ * @see {@link module:maps.packValues}
  *
  * @param {object} [maps={}] Maps and initial settings; new object if not given.
  * @param {array<number>} [maps.values=valuesDef()] An array where each number
@@ -310,20 +324,25 @@ export function mapGroups(maps = {}, to = maps) {
  *         ]
  *     };
  *
- * @see mapGroups
+ * @see {@link module:maps.mapGroups}
  *
  * @param {object} maps How values are grouped per-texture, per-pass, per-step.
  *     See `mapGroups`.
- * @param {true|array<null,true,number,array<true,number,array<true,number>>>}
- *     [maps.derives] How values derive from others.
- *     If given as an array, each entry relates the corresponding value to
+ * @param {true|array} [maps.derives] How `values` map to any past `values` they
+ *     derive from. If given falsey, creates no maps to derive values; .
+ * @param {true|number|array} [maps.derives.[]] L1
+ * @param {true|number|array} [maps.derives.[].[]] L2
+ * @param {true|number} [maps.derives.[].[].[]] L3
+ * @param {true|array<true,number,array<true,number,array<true,number>>>} [maps.derives]
+ *     How values derive from past values.
+ *     If given as a sparse array, each entry relates the corresponding value to
  *     any past value steps/indexes it derives from - a value not derived from
  *     past values may have an empty/null entry; a value derives from past
  *     values where its entry has:
  *     - Numbers; deriving from the most recent state at the given value index.
  *     - Lists of numbers; deriving from the given past state index (1st number
  *         denotes how many steps ago), at the given value index (2nd number).
- *     The nested hierarchy is thus `pass|[values|[value|[step, value]]]`.
+ *     The nested hierarchy thus has any `pass,[values,[value,[step, value]]]`.
  *     If any level is given as `true`, maps to sample all values, at the given
  *     step (or most recent step, if none given).
  *     If no `derives` given, no samples are mapped, `to` is returned unchanged.
@@ -342,10 +361,10 @@ export function mapGroups(maps = {}, to = maps) {
  *     set of indexes into `maps.textures` that need to be sampled per-pass,
  *     to get all `derives` needed for each value of `maps.values` of each
  *     pass of `maps.passes`.
- * @returns {array<array<null,array<number>>>} `[to.reads]` Sparse map from
+ * @returns {array<array<array<number>>>} `[to.reads]` Sparse map from
  *     each value of `derives` to its step and texture indexes in `to.samples`.
- * @returns {true|array<null,true,number,array<true,number,array<true,number>>>}
- *     `[to.derives]` How values are derived, as given.
+ * @returns {true|array<true,number,array<true,number,array<true,number>>>}
+ *     `[to.derives]` How values derive from past values, as given.
  */
 export function mapSamples(maps, to = maps) {
     const derives = maps?.derives;
@@ -412,8 +431,10 @@ export function mapSamples(maps, to = maps) {
  * Main function, creates maps for a given set of values and settings, as well
  * as maps for minimal samples and reads if new values derive from past ones.
  *
- * @see mapGroups
- * @see mapSamples
+ * @see {@link module:maps.mapGroups}
+ * @see {@link module:maps.mapSamples}
+ *
+ * @function
  *
  * @param {object} [maps] Maps and initial settings.
  * @param {object} [to=maps] An object to contain the results; modifies `maps`
@@ -423,7 +444,12 @@ export function mapSamples(maps, to = maps) {
  *     per-texture per-pass per-step, meta information, and given parameters;
  *     and minimal samples and reads for any given `maps.derives`.
  */
-export const getMaps = (maps, to = maps) =>
+export const mapFlow = (maps, to = maps) =>
     mapSamples(maps, mapGroups(maps, to));
 
-export default getMaps;
+/**
+ * @alias module:maps.default
+ * @function
+ * @see {@link module:maps.mapFlow}
+ */
+export default mapFlow;

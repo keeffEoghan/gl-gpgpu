@@ -1,5 +1,7 @@
 /**
  * Default properties for GPGPU and GL capabilities and resources.
+ *
+ * @module const
  */
 
 import { positions } from '@epok.tech/gl-screen-triangle';

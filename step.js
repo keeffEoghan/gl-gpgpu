@@ -1,5 +1,7 @@
 /**
  * GPGPU update step.
+ *
+ * @module step
  */
 
 import each from '@epok.tech/fn-lists/each';
@@ -415,4 +417,9 @@ export function updateMergeTest(state, update = updateMerge, after = 2) {
     return to;
 }
 
+/**
+ * @alias module:step.default
+ * @function
+ * @see {@link module:step.getStep}
+ */
 export default getStep;

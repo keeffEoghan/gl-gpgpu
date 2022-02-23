@@ -6,6 +6,8 @@
  * So, as few unique macros as possible should be created for a given set of
  * inputs, for efficiency.
  *
+ * @module macros
+ *
  * @todo Redo examples, especially `macroTaps` and `macroPass`.
  * @todo Allow passes into or across textures; separate data and texture shapes.
  * @todo Make everything function-like macro taking variable names? Makes
@@ -515,7 +517,7 @@ export function macroOutput(state, on) {
  * @see macroTaps
  * @see hasMacros
  * @see getGLSLList
- * @see [getMaps]{@link ./maps.js#getMaps}
+ * @see [mapFlow]{@link ./maps.js#mapFlow}
  * @see [getState]{@link ./state.js#getState}
  *
  * @example
@@ -525,7 +527,7 @@ export function macroOutput(state, on) {
  *
  *     // No optimisations - values not packed, single texture output per pass.
  *     const state =
- *         { pre: '', maps: getMaps({ ...maps, buffersMax: 1, packed: 0 }) };
+ *         { pre: '', maps: mapFlow({ ...maps, buffersMax: 1, packed: 0 }) };
  *
  *     // USes the first pass by default.
  *     macroSamples(state); // =>
@@ -681,7 +683,7 @@ export function macroSamples(state, on) {
  * @see macroSamples
  * @see hasMacros
  * @see getGLSLList
- * @see [getMaps]{@link ./maps.js#getMaps}
+ * @see [mapFlow]{@link ./maps.js#mapFlow}
  * @see [getState]{@link ./state.js#getState}
  * @see [getUniforms]{@link ./inputs.js#getUniforms}
  *
@@ -692,7 +694,7 @@ export function macroSamples(state, on) {
  *
  *     // No optimisations - values not packed, single texture output per pass.
  *     const state =
- *         { pre: '', maps: getMaps({ ...maps, buffersMax: 1, packed: 0 }) };
+ *         { pre: '', maps: mapFlow({ ...maps, buffersMax: 1, packed: 0 }) };
  *
  *     // Uses the first pass by default.
  *     macroTaps(state); // =>
@@ -933,7 +935,7 @@ export function macroTaps(state, on) {
  * @see macroOutput
  * @see macroTaps
  * @see macroSamples
- * @see [getMaps]{@link ./maps.js#getMaps}
+ * @see [mapFlow]{@link ./maps.js#mapFlow}
  * @see [getState]{@link ./state.js#getState}
  *
  * @example
@@ -944,7 +946,7 @@ export function macroTaps(state, on) {
  *     // Only a single texture output per pass - values across more passes.
  *     const state = {
  *         passNow: 0, steps: 2, size: { count: 2**5 },
- *         maps: getMaps({ values, derives, channelsMax: 4, buffersMax: 1 })
+ *         maps: mapFlow({ values, derives, channelsMax: 4, buffersMax: 1 })
  *     };
  *
  *     macroPass(state); // =>
@@ -1045,4 +1047,9 @@ export const macroPass = (state, on) =>
         macroValues(state)+macroOutput(state)+
         macroSamples(state)+macroTaps(state));
 
+/**
+ * @alias module:macros.default
+ * @function
+ * @see {@link module:macros.macroPass}
+ */
 export default macroPass;

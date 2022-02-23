@@ -115,20 +115,16 @@ void main() {
     vec4 vertex = mix(noPosition, vec4(position1.xy*ar, position1.z, 1), alive);
     float depth = clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
     float a = clamp(pow(life/lifetime.t, 0.3)*pow(ratioNow, 0.3), 0.0, 1.0);
-    float size = alive*pointSize*depth*mix(0.1, 1.0, a);
+    float size = pointSize*depth*a;
 
     gl_Position = vertex;
     gl_PointSize = size;
 
-    /**
-     * Convert vertex position to `gl_FragCoord` window-space.
-     *
-     * @see https://stackoverflow.com/a/7158573
-     * @todo Might need the viewport `x` and `y` offset as well as `w` and `h`?
-     */
-    center = vec3(viewShape*((1.0+vertex.xy)/vertex.w)*0.5, vertex.z);
-
     radius = size*0.5;
+    // Convert vertex position to `gl_FragCoord` window-space.
+    // @see https://stackoverflow.com/a/7158573
+    // @todo Might need the viewport `x` and `y` offset as well as `w` and `h`?
+    center = vec3(viewShape*((1.0+vertex.xy)/vertex.w)*0.5, vertex.z);
 
     float speed = length(mix(motion, position1-position0, useVerlet)/dt);
 

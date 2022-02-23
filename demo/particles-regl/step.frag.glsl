@@ -16,17 +16,18 @@
 
 precision highp float;
 
-// Setting up the macros and aliases.
-// Note that these `texture_i`/`channels_i`/`reads_i_j` indexes correspond to
-// the value at that index in the `values`/`derives` arrays provided to `gpgpu`;
-// they are defined here to match the arrangement in `./index.js`.
+// Setting up the macros and aliases `gl-gpgpu` provides.
+
+// Note that these `texture_i`/`channels_i`/`reads_i_j` indexes correspond to a
+// value at that index in the `values`/`derives` arrays provided to `gl-gpgpu`;
+// they are defined here to match that arrangement.
 
 // The texture channels each of the `values` is stored in.
 #define positionChannels channels_0
 #define motionChannels channels_1
 #define lifeChannels channels_2
 
-// Set up sampling logic.
+// Set up sampling logic via `gl-gpgpu` macro.
 useSamples
 
 // Set up minimal texture reads logic; only read what a value with a currently
@@ -63,6 +64,7 @@ useSamples
     uniform sampler2D states[stepsPast*textures];
 #endif
 
+// The current step from `gl-gpgpu`.
 uniform float stepNow;
 
 // Custom inputs for this demo.
@@ -74,15 +76,16 @@ uniform float loop;
 uniform vec3 lifetime;
 uniform float useVerlet;
 uniform float epsilon;
-uniform vec3 source;
+uniform float moveCap;
 uniform vec2 scale;
 uniform vec2 spout;
-// uniform vec3 drag;
+uniform vec3 source;
 // Sink position, and universal gravitational constant.
 uniform vec4 sink;
 // Constant acceleration due to gravity; and whether to use it, uses
 // sink if not.
 uniform vec4 g;
+// uniform vec3 drag;
 
 varying vec2 uv;
 
@@ -179,16 +182,25 @@ void main() {
         // For numeric accuracy, encoded as exponent `[b, p] => b*(10**p)`.
         float size = scale.s*pow(10.0, scale.t);
 
+        // Constrain Verlet movement; handle here for better numerical accuracy.
+        vec3 back = position1-position0;
+        float backL2 = dot(back, back);
+
+        // Position changes below the movement cap remain the same; any bigger
+        // clamped towards current position, by the ratio over the limit.
+        back = mix(position0, position1, clamp((backL2/moveCap)-1.0, 0.0, 1.0));
+
         // Use either Euler integration...
         vec3 positionTo = mix(position1+(velocity*dt1*size),
             // ... or Verlet integration...
-            verlet(position0, position1, acceleration*size, dt0, dt1),
+            verlet(back, position1, acceleration*size, dt0, dt1),
             // ... according to which is currently active.
             useVerlet);
 
         // Spawn around the source.
         vec3 positionSpawn = source+(spout.x*spoutSpawn);
 
+        // Output the next position value to its channels in the state texture.
         positionOutput = mix(positionTo, positionSpawn, spawn);
     #endif
     #ifdef motionOutput
@@ -210,6 +222,7 @@ void main() {
 
         vec3 motionNew = spout.y*spoutSpawn;
 
+        // Output the next motion value to its channels in the state texture.
         motionOutput = mix(motionTo, motionNew, spawn);
     #endif
     #ifdef lifeOutput
@@ -218,6 +231,7 @@ void main() {
         // Whether the oldest of this trail has faded.
         float faded = le(lifeLast, 0.0);
 
+        // Output the next life value to its channels in the state texture.
         // Only spawn life once the oldest step reaches the end of its lifetime
         // (past and current life are both 0), and if it's allowed to respawn.
         lifeOutput = mix(lifeTo, lifeNew, spawn*faded*lifetime.z);
