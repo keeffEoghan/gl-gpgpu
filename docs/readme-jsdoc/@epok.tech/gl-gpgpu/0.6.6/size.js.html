@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: size.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: size.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module size */
+
+import map from '@epok.tech/fn-lists/map';
+import range from '@epok.tech/fn-lists/range';
+
+/**
+ * Returns the given width, for various parameters in order of precedence.
+ *
+ * @see [getState]{@link ./state.js#getState}
+ *
+ * @param {number|object&lt;number>|array&lt;number>} size Numeric size (width), or
+ *     an object or array containing it.
+ * @param {number} [size.width] Width; supersedes following arguments.
+ * @param {number} [size.w] Alias of width; supersedes following arguments.
+ * @param {number} [size.x] Alias of width; supersedes following arguments.
+ * @param {object&lt;number>|array&lt;number>|number} [size.shape] The shape, of size
+ *     (width) information; supersedes following arguments.
+ * @param {object&lt;number>|array&lt;number>|number} [size.size] The size, of size
+ *     (width) information; supersedes following arguments.
+ * @param {number} [size.side] Width and height; supersedes following arguments.
+ * @param {number} [size.0] Alias of width (index 0); supersedes giving `size`.
+ *
+ * @returns {number} The width as given in one of the expected ways.
+ */
+export const getWidth = ({ width, w, x, shape, size, side, 0: a }) =>
+    (width ?? w ?? x ??
+    (shape &amp;&amp; getWidth(shape)) ?? (size &amp;&amp; getWidth(size)) ??
+    side ?? a ?? size);
+
+/**
+ * Returns the given height, for various parameters in order of precedence.
+ *
+ * @see [getState]{@link ./state.js#getState}
+ *
+ * @param {number|object&lt;number>|array&lt;number>} size Numeric size (height), or
+ *     an object or array containing it.
+ * @param {number} [size.height] Height; supersedes following arguments.
+ * @param {number} [size.h] Height; supersedes following arguments.
+ * @param {number} [size.y] Height; supersedes following arguments.
+ * @param {object&lt;number>|array&lt;number>|number} [size.shape] The shape, of size
+ *     (height) information; supersedes following arguments.
+ * @param {object&lt;number>|array&lt;number>|number} [size.size] The size, of size
+ *     (height) information; supersedes following arguments.
+ * @param {number} [size.side] Width and height; supersedes following arguments.
+ * @param {number} [size.1] Alias of height (index 1); supersedes giving `size`.
+ *
+ * @returns {number} The height as given in one of the expected ways.
+ */
+export const getHeight = ({ height, h, y, shape, size, side, 1: a }) =>
+    (height ?? h ?? y ??
+    (shape &amp;&amp; getHeight(shape)) ?? (size &amp;&amp; getHeight(size)) ??
+    side ?? a ?? size);
+
+/**
+ * Gives the number of indexes to draw a full state, for various parameters.
+ * Effectively equivalent to `gl_VertexID` in WebGL2.
+ *
+ * @see getWidth
+ * @see getHeight
+ * @see [getState]{@link ./state.js#getState}
+ *
+ * @param {number|object&lt;number>|array&lt;number>} size Numeric size information of
+ *     data resources, or an object or array containing it; or width if
+ *     height is given as a second parameter. See `getWidth` and `getHeight`.
+ * @param {number} [size.count] The number of entries of each data-texture.
+ *
+ * @param {number} [height=1] The height of each data-texture.
+ *
+ * @returns {number} The number of indexes needed to draw a full state; each
+ *     entry of a data-texture (its area, equivalent to `state.size.count`).
+ */
+export const countDrawIndexes = (size, height) =>
+    (size.count ?? getWidth(size)*getHeight(height ?? 1));
+
+/**
+ * Gives the array of indexes needed to draw a full state.
+ *
+ * @param {number|object&lt;number>} size The number of entries in each
+ *     data-texture; or an object of size/type information on data resources.
+ *
+ * @returns {array&lt;number>} An array of indexes for drawing all data-texture
+ *     entries, numbered `0` to `size-1`.
+ */
+export const getDrawIndexes = (size) => map((_, i) => i,
+    range(Number.isInteger(size)? size : countDrawIndexes(size)), 0);
+
+/**
+ * 2 raised to the given numeric power, or `null` if not given.
+ *
+ * @param {number} [scale] The power to raise 2 to.
+ *
+ * @returns 2 raised to the given numeric power, or `null` if not given.
+ */
+export const getScaled = (scale) => ((Number.isFinite(scale))? 2**scale : null);
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-const.html">const</a></li><li><a href="module-gl-gpgpu.html">gl-gpgpu</a></li><li><a href="module-index-forms.html">index-forms</a></li><li><a href="module-index-forms_index-entries.html">index-forms/index-entries</a></li><li><a href="module-index-forms_index-states.html">index-forms/index-states</a></li><li><a href="module-inputs.html">inputs</a></li><li><a href="module-lookup_index-uv.html">lookup/index-uv</a></li><li><a href="module-lookup_offset-uv.html">lookup/offset-uv</a></li><li><a href="module-macros.html">macros</a></li><li><a href="module-maps.html">maps</a></li><li><a href="module-size.html">size</a></li><li><a href="module-state.html">state</a></li><li><a href="module-step.html">step</a></li><li><a href="module-util_remain-div.html">util/remain-div</a></li><li><a href="module-vert.html">vert</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon Feb 28 2022 14:05:20 GMT+0000 (Greenwich Mean Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

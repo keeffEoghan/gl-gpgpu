@@ -1,0 +1,2391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Module: maps</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Module: maps</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        
+            
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">GPGPU mappings for step/draw shaders input/output.
+
+These maps show shaders how to make use of a system's supported features, how
+to pack/unpack their data from framebuffers/textures, perform only minimal
+needed samples to retrieve any past values they must derive from, etc.
+Shaders may declare values they output, values they derive from, groupings of
+in/dependent values - without handling how these concerns map to the
+particular system resources they're using.
+System limits/features/extensions are accounted for, to produce the most
+efficient mappings available with the least I/O when it comes to drawing
+(draw passes, texture samples, etc).</div>
+        
+
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="maps.js.html">maps.js</a>, <a href="maps.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+    <dt class="tag-todo">To Do:</dt>
+    <dd class="tag-todo">
+        <ul>
+            <li>Allow passes within/across textures; separate data and texture shapes.</li>
+        </ul>
+    </dd>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id=".cache"><span class="type-signature">(static, constant) </span>cache<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Cache for optimisation.
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="maps.js.html">maps.js</a>, <a href="maps.js.html#line28">line 28</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".default"><span class="type-signature">(static) </span>default<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="maps.js.html">maps.js</a>, <a href="maps.js.html#line455">line 455</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-maps.html#.mapFlow">module:maps.mapFlow</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".mapFlow"><span class="type-signature">(static) </span>mapFlow<span class="signature">(maps<span class="signature-attributes">opt</span>, to<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Main function, creates maps for a given set of values and settings, as well
+as maps for minimal samples and reads if new values derive from past ones.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>maps</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">Maps and initial settings.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>to</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    maps
+                
+                </td>
+            
+
+            <td class="description last">An object to contain the results; modifies `maps`
+    if not given.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="maps.js.html">maps.js</a>, <a href="maps.js.html#line447">line 447</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-maps.html#.mapGroups">module:maps.mapGroups</a></li>
+        
+            <li><a href="module-maps.html#.mapSamples">module:maps.mapSamples</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    `to` The given `to` object; how `values` are grouped
+    per-texture per-pass per-step, meta information, and given parameters;
+    and minimal samples and reads for any given `maps.derives`.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".mapGroups"><span class="type-signature">(static) </span>mapGroups<span class="signature">(maps<span class="signature-attributes">opt</span>, to<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {object|array.&lt;array.&lt;number>>|array.&lt;array.&lt;number>>|array.&lt;number>|number|number|array.&lt;number>|array.&lt;number>|array.&lt;number>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Groups the `values` of GPGPU data items across draw passes and data textures.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>maps</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    {}
+                
+                </td>
+            
+
+            <td class="description last">Maps and initial settings; new object if not given.
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>values</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array.&lt;number></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    valuesDef()
+                
+                </td>
+            
+
+            <td class="description last">An array where each number
+    denotes how many value channels are grouped into one data texture in one
+    draw pass (where any value map logic isn't handled here); each separate
+    number may be computed across one or more data textures/passes.
+    Each value denotes the number of dependent channels to compute together;
+    separate values denote channels that are independent, and may be drawn in
+    the same or separate passes, depending on settings/support.
+    The order may affect the number of passes/textures needed; can maintain
+    order as-is, or use a more efficient `packed` order. See `packValues`.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>channelsMax</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    channelsMaxDef
+                
+                </td>
+            
+
+            <td class="description last">Maximum channels per
+    texture.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>buffersMax</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    buffersMaxDef
+                
+                </td>
+            
+
+            <td class="description last">Maximum textures bound per
+    pass.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>packed</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array.&lt;number></span>
+|
+
+<span class="param-type">false</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">An array of indexes into `values`
+    packed into an order that best fits into blocks of `channelsMax` to
+    minimise resources; or false-y to use `values` in their given order;
+    uses `packValues` if not given.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>to</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    maps
+                
+                </td>
+            
+
+            <td class="description last">An object to contain the results; modifies `maps`
+    if not given.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="maps.js.html">maps.js</a>, <a href="maps.js.html#line223">line 223</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-maps.html#.packValues">module:maps.packValues</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+<ul>
+        <li>
+<div class="param-desc">
+    `to` The given `to` object; how `values` are grouped
+    per-texture per-pass per-step, meta information, and given parameters.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    `to.passes` Textures grouped into passes, as
+    arrays corresponding to framebuffers in separate draw passes; whose
+    values are indexes into `to.textures`.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">array.&lt;array.&lt;number>></span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    `to.textures` Values grouped into
+    textures, as arrays corresponding to framebuffer attachments, into which
+    `values` are drawn; whose values are indexes into `to.values`.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">array.&lt;array.&lt;number>></span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    `to.values` The `values`, as given.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">array.&lt;number></span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    `to.buffersMax` The max textures per pass, as given.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    `to.channelsMax` The max channels per texture, as given.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    `to.valueToTexture` Inverse map from each index of
+    `to.values` to the index of the data texture containing it.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">array.&lt;number></span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    `to.valueToPass` Inverse map from each index of
+    `to.values` to the index of the pass containing it.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">array.&lt;number></span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    `to.textureToPass` Inverse map from each index of
+    `to.textures` to the index of the pass containing it.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">array.&lt;number></span>
+
+
+    </dd>
+</dl>
+</li>
+    </ul>
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>const x = 2;
+    const y = 4;
+    const z = 1;
+    const maps = { values: [x, y, z], channelsMax: 4 };
+
+    // No optimisations - values not packed, single texture output per pass.
+    mapGroups({ ...maps, buffersMax: 1, packed: false }); // =>
+    {
+        ...maps, packed: false,
+        textures: [[0], [1], [2]], // length === 3
+        passes: [[0], [1], [2]], // length === 3
+        valueToTexture: [0, 1, 2], valueToPass: [0, 1, 2],
+        textureToPass: [0, 1, 2]
+    };
+
+    // Automatically packed values - values across fewer textures/passes.
+    mapGroups({ ...maps, buffersMax: 1 }); // =>
+    {
+        ...maps, packed: [1, 0, 2],
+        textures: [[1], [0, 2]], // length === 2
+        passes: [[0], [1]], // length === 2
+        valueToTexture: [1, 0, 1], valueToPass: [1, 0, 1],
+        textureToPass: [0, 1]
+    };
+
+    // Can bind more texture outputs per pass - values across fewer passes.
+    mapGroups({ ...maps, buffersMax: 4 }); // =>
+    {
+        ...maps, packed: [1, 0, 2],
+        textures: [[1], [0, 2]], // length === 2
+        passes: [[0, 1]], // length === 1
+        valueToTexture: [1, 0, 1], valueToPass: [0, 0, 0],
+        textureToPass: [0, 0]
+    };
+
+    // Custom packed values - fuller control.
+    mapGroups({ ...maps, buffersMax: 4, packed: [0, 2, 1] }); // =>
+    {
+        ...maps, packed: [0, 2, 1],
+        textures: [[0, 2], [1]], // length === 2
+        passes: [[0, 1]], // length === 1
+        valueToTexture: [0, 1, 0], valueToPass: [0, 0, 0],
+        textureToPass: [0, 0]
+    };
+
+    // Merge dependent values - fuller control, but no map for merged values.
+    mapGroups({ ...maps, values: [x+z, y], buffersMax: 4 }); // =>
+    {
+        ...maps, packed: [1, 0],
+        textures: [[1], [0]], // length === 2
+        passes: [[0, 1]], // length === 1
+        valueToTexture: [1, 0], valueToPass: [0, 0],
+        textureToPass: [0, 0]
+    };</code></pre>
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".mapSamples"><span class="type-signature">(static) </span>mapSamples<span class="signature">(maps, to<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {object|array.&lt;array.&lt;array.&lt;number>>>|array.&lt;array.&lt;array.&lt;number>>>|true|array.&lt;true, number, array.&lt;true, number, array.&lt;true, number>>>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Maps the minimal set of texture reads to derive the next state of values from
+a past state of values they depend upon.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>maps</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">How values are grouped per-texture, per-pass, per-step.
+    See `mapGroups`.
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>derives</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">true</span>
+|
+
+<span class="param-type">array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">How `values` map to any past `values` they
+    derive from. If given falsey, creates no maps to derive values; .
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>[]</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">true</span>
+|
+
+<span class="param-type">number</span>
+|
+
+<span class="param-type">array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">L1</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>[].[]</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">true</span>
+|
+
+<span class="param-type">number</span>
+|
+
+<span class="param-type">array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">L2</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>[].[].[]</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">true</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">L3</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>derives</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">true</span>
+|
+
+<span class="param-type">array.&lt;true, number, array.&lt;true, number, array.&lt;true, number>>></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">How values derive from past values.
+    If given as a sparse array, each entry relates the corresponding value to
+    any past value steps/indexes it derives from - a value not derived from
+    past values may have an empty/null entry; a value derives from past
+    values where its entry has:
+    - Numbers; deriving from the most recent state at the given value index.
+    - Lists of numbers; deriving from the given past state index (1st number
+        denotes how many steps ago), at the given value index (2nd number).
+    The nested hierarchy thus has any `pass,[values,[value,[step, value]]]`.
+    If any level is given as `true`, maps to sample all values, at the given
+    step (or most recent step, if none given).
+    If no `derives` given, no samples are mapped, `to` is returned unchanged.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>passes</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array.&lt;array.&lt;number>></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Textures grouped into passes. See
+    `mapGroups`.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>textures</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array.&lt;array.&lt;number>></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Values grouped into textures. See
+    `mapGroups`.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>valueToTexture</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array.&lt;number></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Inverse map from each value index
+    to the data texture index containing it.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>to</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    maps
+                
+                </td>
+            
+
+            <td class="description last">The object to store the result in; `maps` if not
+    given.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="maps.js.html">maps.js</a>, <a href="maps.js.html#line369">line 369</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-maps.html#.mapGroups">module:maps.mapGroups</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+<ul>
+        <li>
+<div class="param-desc">
+    `to` The given `to` object, with resulting maps added for
+    any given `maps.derives`.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    `[to.samples]` Map of the minimum
+    set of indexes into `maps.textures` that need to be sampled per-pass,
+    to get all `derives` needed for each value of `maps.values` of each
+    pass of `maps.passes`.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">array.&lt;array.&lt;array.&lt;number>>></span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    `[to.reads]` Sparse map from
+    each value of `derives` to its step and texture indexes in `to.samples`.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">array.&lt;array.&lt;array.&lt;number>>></span>
+
+
+    </dd>
+</dl>
+</li>
+    
+        <li>
+<div class="param-desc">
+    `[to.derives]` How values derive from past values, as given.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">true</span>
+|
+
+<span class="param-type">array.&lt;true, number, array.&lt;true, number, array.&lt;true, number>>></span>
+
+
+    </dd>
+</dl>
+</li>
+    </ul>
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>const maps = mapGroups({
+        // See `mapGroups` examples for resulting maps.
+        values: [2, 4, 1], channelsMax: 4, buffersMax: 1, packed: false,
+        // Derived step/value indexes, per-value; sample entries include:
+        derives: [
+            // Single...
+            2,
+            // Empty...
+            ,
+            // Multiple...
+            [
+                // Defined step...
+                [1, 0],
+                // All values at any given level/step...
+                true
+            ]
+        ]
+    });
+
+    mapSamples(maps); // =>
+    {
+        ...maps,
+        // Minimum texture samples for values; nested per-pass, per-value.
+        // Deepest arrays are step/texture index pairs into `maps.textures`.
+        samples: [
+            [[0, 2]],
+            null,
+            [[1, 0], [0, 0], [0, 1], [0, 2]]
+        ],
+        // Value indexes into `to.samples`; nested per-pass, per-value.
+        // Map from a value index to data it needs in the minimal samples.
+        reads: [
+            [[0]],
+            null,
+            [null, null, [0, 1, 2, 3]]
+        ]
+    };</code></pre>
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".packValues"><span class="type-signature">(static) </span>packValues<span class="signature">(values, channelsMax<span class="signature-attributes">opt</span>, to<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {array.&lt;number>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Minimise resource usage, order `values` to pack into blocks of `channelsMax`;
+interpreted as indexes into the given `values`.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>values</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array.&lt;number></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">Each entry is how many interdependent channels
+    are grouped into one texture in one pass, separate entries may be across
+    one or more textures/passes. See `mapGroups`.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>channelsMax</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    channelsMaxDef
+                
+                </td>
+            
+
+            <td class="description last">The maximum number of channels
+    per texture. See `mapGroups`.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>to</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    []
+                
+                </td>
+            
+
+            <td class="description last">An array to store the result; a new array by default.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="maps.js.html">maps.js</a>, <a href="maps.js.html#line77">line 77</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-maps.html#.mapGroups">module:maps.mapGroups</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    `to` The indexes of the given `values`, reordered
+    to pack into the fewest buckets of `channelsMax` size or less; stored in
+    the given `to` array.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">array.&lt;number></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>packValues([1, 2, 3], 4, []); // =>
+    [2, 0, 1];
+
+    packValues([3, 2, 1], 4, []); // =>
+    [0, 2, 1];
+
+    packValues([4, 3, 2], 4, []); // =>
+    [0, 1, 2];
+
+    packValues([1, 1, 4, 2], 4, []); // =>
+    [2, 3, 0, 1];</code></pre>
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".validValue"><span class="type-signature">(static) </span>validValue<span class="signature">(value, channelsMax<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Determines whether a given value is valid and can be stored within the
+channels available.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">A value to validate.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>channelsMax</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The maximum channels available to store values.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="maps.js.html">maps.js</a>, <a href="maps.js.html#line41">line 41</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Whether the given `value` is valid.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-const.html">const</a></li><li><a href="module-gl-gpgpu.html">gl-gpgpu</a></li><li><a href="module-index-forms.html">index-forms</a></li><li><a href="module-index-forms_index-entries.html">index-forms/index-entries</a></li><li><a href="module-index-forms_index-states.html">index-forms/index-states</a></li><li><a href="module-inputs.html">inputs</a></li><li><a href="module-lookup_index-uv.html">lookup/index-uv</a></li><li><a href="module-lookup_offset-uv.html">lookup/offset-uv</a></li><li><a href="module-macros.html">macros</a></li><li><a href="module-maps.html">maps</a></li><li><a href="module-size.html">size</a></li><li><a href="module-state.html">state</a></li><li><a href="module-step.html">step</a></li><li><a href="module-util_remain-div.html">util/remain-div</a></li><li><a href="module-vert.html">vert</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon Feb 28 2022 14:05:20 GMT+0000 (Greenwich Mean Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

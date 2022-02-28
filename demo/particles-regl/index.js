@@ -90,9 +90,6 @@ console.log('optional', (extend.optional &&
 
 console.groupEnd();
 
-// How many frame-buffers are bound at a given time.
-const bound = 1;
-
 // How many state values (channels) are tracked independently of others.
 // The order here is the order used in the shaders and generated macros, but for
 // optimal lookups may be `packed` into channels/textures/passes differently.
@@ -124,7 +121,11 @@ const merge = (!useMerge || (useMerge !== 'false'));
 // const merge = ((useMerge)? (useMerge !== 'false') : (stepsPast > 1));
 // const merge = ((useMerge)? (useMerge !== 'false') : (form !== 1));
 
+// How many steps are used for output at a given time.
+const bound = 1;
+
 // Better stay farther under maximum texture size, or errors/crashes.
+// @todo Drawing issues with `scale` and `steps` both over 10.
 const limits = { scale: [0, Math.log2(maxTextureSize)] };
 
 const niceScale = clamp(8, ...limits.scale);
@@ -136,7 +137,7 @@ limits.steps = [
     1+bound,
     ((merge)?
         // Maximum steps must fit the maximum total texture size if merging.
-        Math.max(Math.floor(maxTextureSize/(2**scale)), 1+bound)
+        Math.floor(maxTextureSize/(2**scale))
         // Maximum steps must fit the maximum total texture units if separate.
     :   Math.floor((maxTextureUnits-bound)/reduce((s, v) => s+v, values)*4))
 ];
@@ -172,28 +173,17 @@ console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
 
 // Set up the links.
 
-document.querySelector('#verlet').href =
-    `?${setQuery([['steps'], ['scale'], ['wide'], ['depth']])}#verlet`;
+document.querySelector('#verlet').href = `?${
+    setQuery([['steps', 2+bound], ['scale', 9], ['wide'], ['depth']])}#verlet`;
 
-document.querySelector('#euler').href = `?${setQuery([
-        ['steps', 1+bound], ['scale', Math.min(niceScale+1, limits.scale[1])],
-        ['wide'], ['depth']
-    ])}#euler`;
+document.querySelector('#euler').href = `?${
+    setQuery([['steps', 1+bound], ['scale', 9], ['wide'], ['depth']])}#euler`;
 
-document.querySelector('#long').href = `?${setQuery([
-        ['steps', Math.min(10, limits.steps[1])],
-        ['scale', Math.max(niceScale-1, limits.scale[0])], ['wide'], ['depth']
-    ])}#long`;
+document.querySelector('#long').href = `?${
+    setQuery([['steps', 9+bound], ['scale', 8], ['wide'], ['depth']])}#long`;
 
-document.querySelector('#trace').href = `?${setQuery([
-        ['steps', Math.min(3e2, limits.steps[1])],
-        ['scale', clamp(2, ...limits.scale)], ['wide'], ['depth']
-    ])}#trace`;
-
-document.querySelector('#high').href = `?${setQuery([
-        ['steps', Math.max(limits.steps[0], limits.steps[1]-3)],
-        ['scale', Math.max(niceScale, limits.scale[1]-5)], ['wide'], ['depth']
-    ])}#high`;
+document.querySelector('#trace').href = `?${
+    setQuery([['steps', 3e2], ['scale', 2], ['wide'], ['depth']])}#trace`;
 
 document.querySelector('#trails').href =
     `?${setQuery([['form', ((form)? ((form+1)%3 || null) : 1)]])}#trails`;

@@ -1,4 +1,4 @@
-# @epok.tech/gl-gpgpu *0.6.5*
+# @epok.tech/gl-gpgpu *0.6.6*
 
 > GPGPU state-stepping - maps optimal draw passes, shaders, GL resources, inputs, outputs; lets you focus on your logic - BYORenderer.
 
