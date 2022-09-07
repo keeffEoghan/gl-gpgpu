@@ -74,84 +74,86 @@ import frag from './step.frag.glsl';
 
 // The main `gl-gpgpu` state.
 const state = gpgpu(regl, {
-    // Logic given as state values, `gl-gpgpu` maps optimal inputs and outputs.
-    maps: {
-        // How many state values (channels) are tracked independently of others.
-        // The order here is the order used in the shaders and generated macros,
-        // but for optimal lookups may be `packed` into channels/textures/passes
-        // differently.
-        values: [
-            // Position value, uses 3 channels.
-            3,
-            // Motion value, uses 3 channels.
-            3,
-            // Life value, uses 1 channel.
-            1
-        ],
-        // How state values map to any past state values they derive from.
-        // Denoted as an array, nested 1-3 levels deep:
-        // 1. In `values` order, indexes `values` to derive from, 1 step past.
-        // 2. Indexes `values` to derive from, 1 step past.
-        // 3. Shows how many steps past, then indexes `values` to derive from.
-        derives: [
-            // Position value derives from:
-            [
-                // Position, 2 steps past.
-                [1, 0],
-                // Position, 1 step past.
-                0,
-                // Motion, 1 step past.
-                1,
-                // Life, 1 step past.
-                2
-            ],
-            // Motion value derives from:
-            [
-                // Motion, 1 step past.
-                1,
-                // Life, 1 step past.
-                2,
-                // Position, 1 step past.
-                0
-            ],
-            // Life value derives from:
-            [
-                // Life, last step past.
-                [1, 2],
-                // Life, 1 step past.
-                2
-            ]
-        ]
-    },
-    // How many steps of state to track.
-    steps: 5,
-    // How many states are bound to frame-buffer outputs at any step.
-    bound: 1,
-    // How many entries to track, here encoded as the power-of-2 size per side
-    // of the data texture: `(2**scale)**2`; can also be given in other ways.
-    scale: 10,
-    // Whether to merge states into one texture; separate textures if not given.
-    merge: true,
-    // Data type according to platform capabilities.
-    type: 'float',
-    // Configure macro hooks, global or per-shader.
-    macros: {
-        // No macros needed for the `vert` shader; all other macros generated.
-        vert: false
-    },
-    // Prefix is usually recommended; use none here to check for naming clashes.
-    pre: '',
-    // Properties for each step of state, and each pass of each step.
-    step: {
-        // A fragment shader to compute each state step, with `gl-gpgpu` macros.
-        // Vertex shaders can also be given.
-        frag,
-        // Macros are prepended to `frag` shader per-pass, cached in `frags`.
-        frags: [],
-        // Custom uniforms in addition to those `gl-gpgpu` provides.
-        uniforms: {}
-    }
+  // Logic given as state values, `gl-gpgpu` maps optimal inputs and outputs.
+  maps: {
+    // How many state values (channels) are tracked independently of others.
+    // The order here is the order used in the shaders and generated macros, but
+    // for optimal lookups may be `packed` into channels/textures/passes
+    // differently.
+    values: [
+      // Position value, uses 3 channels.
+      3,
+      // Motion value, uses 3 channels.
+      3,
+      // Life value, uses 1 channel.
+      1
+    ],
+    // How state values map to any past state values they derive from.
+    // Denoted as an array, nested 1-3 levels deep:
+    // 1. In `values` order, indexes `values` to derive from, 1 step past.
+    // 2. Indexes `values` to derive from, 1 step past.
+    // 3. Shows how many steps past, then indexes `values` to derive from.
+    derives: [
+      // Position value derives from:
+      [
+        // Position, 2 steps past.
+        [1, 0],
+        // Position, 1 step past.
+        0,
+        // Motion, 1 step past.
+        1,
+        // Life, 1 step past.
+        2
+      ],
+      // Motion value derives from:
+      [
+        // Motion, 1 step past.
+        1,
+        // Life, 1 step past.
+        2,
+        // Position, 1 step past.
+        0
+      ],
+      // Life value derives from:
+      [
+        // Life, last step past.
+        [1, 2],
+        // Life, 1 step past.
+        2
+      ]
+    ]
+  },
+  // How many steps of state to track.
+  steps: 5,
+  // How many states are bound to frame-buffer outputs at any step.
+  bound: 1,
+  // How many entries to track, here encoded as the power-of-2 size per side
+  // of the data texture: `(2**scale)**2`; can also be given in other ways.
+  scale: 10,
+  // Whether to merge states into one texture; separate textures if not given.
+  merge: true,
+  // Data type according to platform capabilities.
+  type: 'float',
+  // Configure macro hooks, global or per-shader.
+  macros: {
+    // No macros needed for the `vert` shader; all other macros generated.
+    vert: false
+  },
+  // Prefix is usually recommended; use none here to check for naming clashes.
+  pre: '',
+  // Properties for each step of state, and each pass of each step.
+  step: {
+    // A fragment shader to compute each state step, with `gl-gpgpu` macros.
+    // Vertex shaders can also be given.
+    frag,
+    // Prepended macros to `frag` shader per-pass and cache in `frags`.
+    frags: [],
+    // Custom uniforms in addition to those `gl-gpgpu` provides.
+    uniforms: {}
+  }
 });
+
+// Output of this example test:
 
 const s = JSON.stringify;
 
@@ -167,9 +169,9 @@ s(state.maps.valueToTexture) === s([0, 1, 0]);
 
 // `valueToTexture` (indexes `textures`)
 ((state.size.count === 1048576) &&
-    (state.size.count === (2**10)**2) &&
-    (state.size.count === (2**state.scale)**2) &&
-    (state.size.count === state.size.width*state.size.height));
+  (state.size.count === (2**10)**2) &&
+  (state.size.count === (2**state.scale)**2) &&
+  (state.size.count === state.size.width*state.size.height));
 
 // Compute the next step of state.
 state.step.run();
@@ -198,34 +200,34 @@ useSamples
 // bound output `derives` from other `values` for its next state.
 // See `derives` for indexing `reads_${bound value index}_${derives index}`.
 #ifdef output_0
-    #define positionOutput output_0
-    useReads_0
-    #define positionReadPosition0 reads_0_0
-    #define positionReadPosition1 reads_0_1
-    #define positionReadMotion reads_0_2
-    #define positionReadLife reads_0_3
+  #define positionOutput output_0
+  useReads_0
+  #define positionReadPosition0 reads_0_0
+  #define positionReadPosition1 reads_0_1
+  #define positionReadMotion reads_0_2
+  #define positionReadLife reads_0_3
 #endif
 #ifdef output_1
-    #define motionOutput output_1
-    useReads_1
-    #define motionReadMotion reads_1_0
-    #define motionReadLife reads_1_1
-    #define motionReadPosition reads_1_2
+  #define motionOutput output_1
+  useReads_1
+  #define motionReadMotion reads_1_0
+  #define motionReadLife reads_1_1
+  #define motionReadPosition reads_1_2
 #endif
 #ifdef output_2
-    #define lifeOutput output_2
-    useReads_2
-    #define lifeReadLifeLast reads_2_0
-    #define lifeReadLife1 reads_2_1
+  #define lifeOutput output_2
+  useReads_2
+  #define lifeReadLifeLast reads_2_0
+  #define lifeReadLife1 reads_2_1
 #endif
 
 // The main shader.
 
 // States from `gl-gpgpu`; in separate textures or merged.
 #ifdef mergedStates
-    uniform sampler2D states;
+  uniform sampler2D states;
 #else
-    uniform sampler2D states[stepsPast*textures];
+  uniform sampler2D states[stepsPast*textures];
 #endif
 
 // The current step from `gl-gpgpu`.
@@ -234,67 +236,67 @@ uniform float stepNow;
 // Any custom input logic...
 
 void main() {
-    // Sample the desired state values - creates the `data` array.
-    tapState(uv)
+  // Sample the desired state values - creates the `data` array.
+  tapState(uv)
 
-    // Read values.
+  // Read values.
 
-    #ifdef positionOutput
-        vec3 position0 = data[positionReadPosition0].positionChannels;
-    #endif
+  #ifdef positionOutput
+    vec3 position0 = data[positionReadPosition0].positionChannels;
+  #endif
 
-    // If reads all map to the same value sample, any of them will do.
-    #if defined(positionOutput) || defined(motionOutput)
-        #if defined(positionOutput)
-            #define readMotion positionReadMotion
-            #define readPosition positionReadPosition1
-        #elif defined(motionOutput)
-            #define readMotion motionReadMotion
-            #define readPosition motionReadPosition
-        #endif
-
-        vec3 position1 = data[readPosition].positionChannels;
-        vec3 motion = data[readMotion].motionChannels;
-    #endif
-
-    // If reads all map to the same value sample, any of them will do.
+  // If reads all map to the same value sample, any of them will do.
+  #if defined(positionOutput) || defined(motionOutput)
     #if defined(positionOutput)
-        #define readLife positionReadLife
-    #elif defined(lifeOutput)
-        #define readLife lifeReadLife
+      #define readMotion positionReadMotion
+      #define readPosition positionReadPosition1
     #elif defined(motionOutput)
-        #define readLife motionReadLife
+      #define readMotion motionReadMotion
+      #define readPosition motionReadPosition
     #endif
 
-    float life = data[readLife].lifeChannels;
+    vec3 position1 = data[readPosition].positionChannels;
+    vec3 motion = data[readMotion].motionChannels;
+  #endif
 
-    #ifdef lifeOutput
-        float lifeLast = data[lifeReadLifeLast].lifeChannels;
-    #endif
+  // If reads all map to the same value sample, any of them will do.
+  #if defined(positionOutput)
+    #define readLife positionReadLife
+  #elif defined(lifeOutput)
+    #define readLife lifeReadLife
+  #elif defined(motionOutput)
+    #define readLife motionReadLife
+  #endif
 
-    // Update and output values.
-    // Note that the update/output logic components within each `#if` macro
-    // block from `gpgpu` are independent modules, as the `gpgpu` macros
-    // determine whether they're executed across one or more passes - they could
-    // also be coded in separate files called from here, however they're coded
-    // inline here for brevity, relevance, and easy access to shared variables.
-    #ifdef positionOutput
-        // Any custom position logic...
+  float life = data[readLife].lifeChannels;
 
-        // Output the next position value to its channels in the state texture.
-        positionOutput = vec3();
-    #endif
-    #ifdef motionOutput
-        // Any custom motion logic...
+  #ifdef lifeOutput
+    float lifeLast = data[lifeReadLifeLast].lifeChannels;
+  #endif
 
-        // Output the next motion value to its channels in the state texture.
-        motionOutput = vec3();
-    #endif
-    #ifdef lifeOutput
-        // Any custom life logic...
+  // Update and output values.
+  // Note that the update/output logic components within each `#if` macro
+  // block from `gpgpu` are independent modules, as the `gpgpu` macros
+  // determine whether they're executed across one or more passes - they could
+  // also be coded in separate files called from here, however they're coded
+  // inline here for brevity, relevance, and easy access to shared variables.
+  #ifdef positionOutput
+    // Any custom position logic...
 
-        // Output the next life value to its channels in the state texture.
-        lifeOutput = float();
-    #endif
+    // Output the next position value to its channels in the state texture.
+    positionOutput = vec3();
+  #endif
+  #ifdef motionOutput
+    // Any custom motion logic...
+
+    // Output the next motion value to its channels in the state texture.
+    motionOutput = vec3();
+  #endif
+  #ifdef lifeOutput
+    // Any custom life logic...
+
+    // Output the next life value to its channels in the state texture.
+    lifeOutput = float();
+  #endif
 }
 ```

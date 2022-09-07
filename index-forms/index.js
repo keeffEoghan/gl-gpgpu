@@ -17,14 +17,14 @@
  * @param {number} [states=1] How many steps of state each entry has.
  * @param {number} [form=2] How many steps of state each form covers.
  * @param {number} [entries=1] How many entries, if any; result to be multiplied
- *     externally if not given.
+ *   externally if not given.
  *
  * @returns {number} The number of vertexes needed for the given `form` to cover
- *     all steps of `states`; over all `entries` if given, to be multiplied
- *     externally if not given.
+ *   all steps of `states`; over all `entries` if given, to be multiplied
+ *   externally if not given.
  */
 export const indexForms = (states = 1, form = 2, entries = 1) =>
-    Math.max(1, states-form+1)*form*entries;
+  Math.max(1, (states-form)+1)*form*entries;
 
 /**
  * @alias module:index-forms.default

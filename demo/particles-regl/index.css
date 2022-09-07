@@ -3,168 +3,173 @@
 *:after { box-sizing: inherit; }
 
 html {
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
-    background-color: #000;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 body {
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: stretch;
-    align-items: flex-start;
-    min-height: 100%;
-    margin: 0;
-    user-select: none;
-    font-size: 1em;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: stretch;
+  align-items: flex-start;
+  min-height: 100%;
+  margin: 0;
+  user-select: none;
+  font-size: 1em;
+  animation: 500ms ease-out 700ms 1 backwards fadeIn;
+  will-change: opacity;
 }
 
 video,
 canvas,
 img {
-    max-width: 100%;
-    max-height: 100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 a {
-    color: inherit;
-    text-decoration: none;
-    font-weight: 900;
-    cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+  font-weight: 900;
+  cursor: pointer;
 }
 
 .view {
-    position: relative;
-    background-color: #000;
-    cursor: pointer;
-    touch-action: none;
-    tap-highlight-color: transparent;
-    -webkit-tap-highlight-color: transparent;
+  position: relative;
+  background-color: #000;
+  cursor: pointer;
+  touch-action: none;
+  tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: transparent;
 
-    &.hide { display: none; }
+  &.hide { display: none; }
 }
 
 .guide {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: center;
-    align-items: stretch;
-    align-content: stretch;
-    position: absolute;
-    z-index: 1;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    max-height: 100%;
-    overflow-y: auto;
-    opacity: 0.5;
-    transition: opacity 800ms ease-out;
-    will-change: opacity;
-    font-family: sans-serif;
-    color: #fff;
-    background-color: #333;
-    text-align: center;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: stretch;
+  align-content: stretch;
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  opacity: 0.5;
+  transition: opacity 800ms ease-out;
+  will-change: opacity;
+  font-family: sans-serif;
+  color: #fff;
+  background-color: #333;
+  text-align: center;
 
-    &:hover,
-    &:focus {
-        opacity: 1;
-        transition: opacity 200ms ease-in;
-    }
+  &:hover,
+  &:focus,
+  &:focus-within {
+    opacity: 1;
+    transition: opacity 200ms ease-in;
+  }
 }
 
 .info {
-    flex: 1 0 100%;
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: center;
-    align-items: flex-start;
-    margin: 0;
-    padding: 1em;
+  flex: 1 0 100%;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: flex-start;
+  margin: 0;
+  padding: 1em;
 }
 
 .error {
-    font-weight: 900;
-    color: #fff;
-    background-color: rgb(255, 60, 0);
+  font-weight: 900;
+  color: #fff;
+  background-color: rgb(255, 60, 0);
 
-    &.hide { display: none; }
+  &.hide { display: none; }
 }
 
 .link {
-    flex: 0 0 auto;
-    position: relative;
-    font-weight: 900;
-    margin: 0.5em;
-    padding: 0.6em;
-    font-size: 1em;
-    color: inherit;
-    background: #0003;
-    text-decoration: none;
-    text-align: center;
-    cursor: pointer;
+  flex: 0 0 auto;
+  font-weight: 900;
+  margin: 0.2em;
+  padding: 0.3em 0.6em;
+  font-size: 1em;
+  line-height: 1.3;
+  color: inherit;
+  background: #0003;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: color 200ms ease-out,
+    background-color 200ms ease-out;
+  will-change: color, background-color;
 
-    &::after {
-        content: '';
-        display: block;
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 0.13em;
-        background-color: currentColor;
-        transform-origin: top center;
-        transition: transform 800ms ease-out;
-        will-change: transform;
-    }
+  &:hover,
+  &:focus {
+    color: #000e;
+    background-color: #fffa;
+  }
 
-    &:hover::after,
-    &:focus::after {
-        transform: translateY(-200%) scaleY(2);
-        transition: transform 200ms ease-in;
-    }
-
-    &:active::after,
-    &:target::after {
-        transform: translateY(100%) scaleY(0.1);
-        transition: transform 100ms ease-in;
-    }
+  &:active,
+  &:target {
+    color: #000;
+    background-color: #fff;
+  }
 }
 
 .flip-guide {
-    display: block;
-    width: 100%;
-    flex: 1 0 100%;
-    padding: 0.4em;
-    text-align: center;
-    font-size: 1.2em;
-    font-weight: 900;
-    font-family: monospace;
-    cursor: pointer;
-    color: #333;
-    background-color: #fff;
+  display: block;
+  width: 100%;
+  flex: 1 0 100%;
+  padding: 0.4em;
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: 900;
+  font-family: monospace;
+  cursor: pointer;
+  color: #333;
+  background-color: #fff;
+  outline-offset: -3px;
 
-    &::before,
-    &::after {
-        content: '⇳';
-        display: inline-block;
-        margin: 0 1em;
-        transform: scale(1.7);
-    }
+  &::before,
+  &::after {
+    content: '⇳';
+    display: inline-block;
+    margin: 0 1em;
+    transform: scale(1.7);
+  }
 }
 
 #flip-guide {
-    display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0;
 
-    &:not(:checked) {
-        & ~ .info,
-        & ~ .link { display: none; }
-    }
+  &:focus + .flip-guide { outline: 2px solid #33f; }
+
+  &:not(:checked) {
+    & ~ .info,
+    & ~ .link { display: none; }
+  }
 }
 
 .fallback {
-    position: relative;
-    width: 100%;
-    height: 720px;
-    margin: auto;
+  position: relative;
+  width: 100%;
+  height: 720px;
+  margin: auto;
 }

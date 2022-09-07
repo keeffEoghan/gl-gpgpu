@@ -14,35 +14,35 @@
  * @see [remainDiv]{@link ../util/remain-div.glsl}
  *
  * @param {float|int} `index` The index of a vertex; expects simple sequential
- *     index attribute.
+ *   index attribute.
  * @param {float|int} `entries` How many entries are in each step of state.
  * @param {float|int} [`form`] How many steps of state each form covers.
  *
  * @returns {vec2|ivec2} The step and entry index, respectively, to look up the
- *     correct data to draw the given `form` along each entry's steps of state;
- *     always a `vec2` if any operand is a `float`, an `ivec2` if all are `int`;
- *     iterates with `index` by steps-then-entries.
+ *   correct data to draw the given `form` along each entry's steps of state;
+ *   always a `vec2` if any operand is a `float`, an `ivec2` if all are `int`;
+ *   iterates with `index` by steps-then-entries.
  */
 
 #pragma glslify: remainDiv = require(../util/remain-div)
 
 // Careful handling integer maths - decimals truncated.
 ivec2 indexForms(int index, int entries, int form) {
-    ivec2 entryForm = remainDiv(index, form);
-    ivec2 stepEntry = remainDiv(entryForm.t, entries).ts;
+  ivec2 entryForm = remainDiv(index, form);
+  ivec2 stepEntry = remainDiv(entryForm.t, entries).ts;
 
-    stepEntry.s += entryForm.s;
+  stepEntry.s += entryForm.s;
 
-    return stepEntry;
+  return stepEntry;
 }
 
 vec2 indexForms(float index, float entries, float form) {
-    vec2 entryForm = remainDiv(index, form);
-    vec2 stepEntry = remainDiv(entryForm.t, entries).ts;
+  vec2 entryForm = remainDiv(index, form);
+  vec2 stepEntry = remainDiv(entryForm.t, entries).ts;
 
-    stepEntry.s += entryForm.s;
+  stepEntry.s += entryForm.s;
 
-    return stepEntry;
+  return stepEntry;
 }
 
 // Mixed-type overloads assume higher accuracy is desired; if less computation
@@ -50,27 +50,27 @@ vec2 indexForms(float index, float entries, float form) {
 // `vec2(indexForms(int(index), int(entries), int(form)))` instead.
 
 vec2 indexForms(int index, float entries, float form) {
-    return indexForms(float(index), entries, form);
+  return indexForms(float(index), entries, form);
 }
 
 vec2 indexForms(float index, int entries, float form) {
-    return indexForms(index, float(entries), form);
+  return indexForms(index, float(entries), form);
 }
 
 vec2 indexForms(float index, float entries, int form) {
-    return indexForms(index, entries, float(form));
+  return indexForms(index, entries, float(form));
 }
 
 vec2 indexForms(float index, int entries, int form) {
-    return indexForms(index, float(entries), float(form));
+  return indexForms(index, float(entries), float(form));
 }
 
 vec2 indexForms(int index, float entries, int form) {
-    return indexForms(float(index), entries, float(form));
+  return indexForms(float(index), entries, float(form));
 }
 
 vec2 indexForms(int index, int entries, float form) {
-    return indexForms(float(index), float(entries), form);
+  return indexForms(float(index), float(entries), form);
 }
 
 // Expects pairs by default, though also works for single points and possibly
@@ -80,19 +80,19 @@ vec2 indexForms(int index, int entries, float form) {
 // `vec2(indexForms(int(index), int(entries)))` instead.
 
 ivec2 indexForms(int index, int entries) {
-    return indexForms(index, entries, 2);
+  return indexForms(index, entries, 2);
 }
 
 vec2 indexForms(float index, float entries) {
-    return indexForms(index, entries, 2.0);
+  return indexForms(index, entries, 2.0);
 }
 
 vec2 indexForms(int index, float entries) {
-    return indexForms(float(index), entries, 2.0);
+  return indexForms(float(index), entries, 2.0);
 }
 
 vec2 indexForms(float index, int entries) {
-    return indexForms(index, float(entries), 2.0);
+  return indexForms(index, float(entries), 2.0);
 }
 
 #pragma glslify: export(indexForms);

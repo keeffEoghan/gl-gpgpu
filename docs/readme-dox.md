@@ -20,11 +20,11 @@ Each component may also be used individually, see their documentation.
 | ---- | ---- | ----------- | -------- |
 | api | `object`  | An API for GL resources. See `getState` and `getStep`. | &nbsp; |
 | api.limits&#x3D;api | `object`  | A map of GL resource limits. | *Optional* |
-| api.limits.maxDrawbuffers | `number`  | The maximum number of GL textures     a framebuffer can bind in a single draw call. | *Optional* |
-| state&#x3D;{} | `object`  | State properties to set up; a new object by     default. See `getState`, `getUniforms`, and `getStep`. | *Optional* |
-| state.maps | `object`  | How values are grouped per-texture per-pass     per-step. Sets up new maps if not given or missing its mapped properties.<br>    See `mapGroups`. | *Optional* |
-| state.maps.buffersMax&#x3D;api.limits.maxDrawbuffers | `number`  | The     maximum number of textures to use per draw pass. Uses more passes above<br>    this limit. | *Optional* |
-| to&#x3D;state | `object`  | The state object to set up. Modifies the given     `state` object by default. | *Optional* |
+| api.limits.maxDrawbuffers | `number`  | The maximum number of GL textures   a framebuffer can bind in a single draw call. | *Optional* |
+| state&#x3D;{} | `object`  | State properties to set up; a new object by   default. See `getState`, `getUniforms`, and `getStep`. | *Optional* |
+| state.maps | `object`  | How values are grouped per-texture per-pass   per-step. Sets up new maps if not given or missing its mapped properties.<br>  See `mapGroups`. | *Optional* |
+| state.maps.buffersMax&#x3D;api.limits.maxDrawbuffers | `number`  | Maximum   number of textures to use per draw pass. Uses more passes above this limit. | *Optional* |
+| to&#x3D;state | `object`  | The state object to set up. Modifies the given   `state` object by default. | *Optional* |
 
 
 
@@ -63,12 +63,12 @@ current step to access states by texture sampling.
 | state.pre&#x3D;preDef | `string`  | Namespace prefix; `preDef` if not given. | *Optional* |
 | state.size | `object`  | Size information of the `state`. See `getState`. | *Optional* |
 | state.size.shape | `array.<number>`  | The data's shape. See `getState`. | *Optional* |
-| state.steps | `array` `number`  | The array of steps, or number of steps.     See `getState`. | &nbsp; |
-| state.merge | `object`  | Any merged state texture; uses separate state     textures if not given. See `getState`. | *Optional* |
-| state.maps | `object`  | How values are grouped per-texture per-pass     per-step. See `mapGroups`. | &nbsp; |
-| state.maps.textures | `array.<array.<number>>`  | How values are grouped into     textures. See `mapGroups`. | &nbsp; |
-| state.bound&#x3D;boundDef | `number`  | Number of steps bound to output,     cannot be input; for platforms forbidding read/write of same buffer. | *Optional* |
-| to&#x3D;(state.uniforms | `object`  | ?? {})] The object to contain the     uniforms; `state.uniforms` or a new object if not given. | *Optional* |
+| state.steps | `array` `number`  | The array of steps, or number of steps.   See `getState`. | &nbsp; |
+| state.merge | `object`  | Any merged state texture; uses separate state   textures if not given. See `getState`. | *Optional* |
+| state.maps | `object`  | How values are grouped per-texture per-pass   per-step. See `mapGroups`. | &nbsp; |
+| state.maps.textures | `array.<array.<number>>`  | How values are grouped into   textures. See `mapGroups`. | &nbsp; |
+| state.bound&#x3D;boundDef | `number`  | Number of steps bound to output,   cannot be input; for platforms forbidding read/write of same buffer. | *Optional* |
+| to&#x3D;(state.uniforms | `object`  | ?? {})] The object to contain the   uniforms; `state.uniforms` or a new object if not given. | *Optional* |
 
 
 
@@ -76,52 +76,51 @@ current step to access states by texture sampling.
 ##### Examples
 
 ```javascript
-    const state =
-        { pre: '', steps: 2, maps: mapFlow({ values: [1, 2, 3] }) };
+  const state = { pre: '', steps: 2, maps: mapFlow({ values: [1, 2, 3] }) };
 
-    getUniforms(getState({}, state)); // =>
-    {
-        stepNow: (context, state) => {},
-        dataShape: (context, state) => {},
-        viewShape: (context, state) => {},
-        // Data textures kept separate in a `sampler2D[]`.
-        // Data textures for the 1st step ago not bound as an output.
-        'states[0]': (context, state) => {},
-        'states[1]': (context, state) => {}
-    };
+  getUniforms(getState({}, state)); // =>
+  {
+    stepNow: (context, state) => {},
+    dataShape: (context, state) => {},
+    viewShape: (context, state) => {},
+    // Data textures kept separate in a `sampler2D[]`.
+    // Data textures for the 1st step ago not bound as an output.
+    'states[0]': (context, state) => {},
+    'states[1]': (context, state) => {}
+  };
 
-    getUniforms(getState({}, { ...state, steps: 3 })); // =>
-    {
-        stepNow: (context, state) => {},
-        dataShape: (context, state) => {},
-        viewShape: (context, state) => {},
-        // Data textures kept separate in a `sampler2D[]`.
-        // Data textures for the 1st step ago not bound as an output.
-        'states[0]': (context, state) => {},
-        'states[1]': (context, state) => {}
-        // Data textures for the 2nd step ago not bound as an output.
-        'states[2]': (context, state) => {},
-        'states[3]': (context, state) => {}
-    };
+  getUniforms(getState({}, { ...state, steps: 3 })); // =>
+  {
+    stepNow: (context, state) => {},
+    dataShape: (context, state) => {},
+    viewShape: (context, state) => {},
+    // Data textures kept separate in a `sampler2D[]`.
+    // Data textures for the 1st step ago not bound as an output.
+    'states[0]': (context, state) => {},
+    'states[1]': (context, state) => {}
+    // Data textures for the 2nd step ago not bound as an output.
+    'states[2]': (context, state) => {},
+    'states[3]': (context, state) => {}
+  };
 
-    getUniforms(getState({}, { ...state, merge: true })); // =>
-    {
-        stepNow: (context, state) => {},
-        dataShape: (context, state) => {},
-        viewShape: (context, state) => {},
-        // All states merged into one data texture upon every pass; for
-        // `sampler2D`, or `sampler3D` or `sampler2DArray` where supported.
-        states: (context, state) => {}
-    };
+  getUniforms(getState({}, { ...state, merge: true })); // =>
+  {
+    stepNow: (context, state) => {},
+    dataShape: (context, state) => {},
+    viewShape: (context, state) => {},
+    // All states merged into one data texture upon every pass; for
+    // `sampler2D`, or `sampler3D` or `sampler2DArray` where supported.
+    states: (context, state) => {}
+  };
 ```
 
 
 ##### Returns
 
 
-- `object.&lt;number, array.&lt;number&gt;, *, getUniform&gt;`  `to` The uniform hooks     for the given `state`. Each is a static number or array of numbers; or a
-    GL object such as a texture; or a `getUniform` function returning one, to
-    be called on each pass.
+- `object.&lt;number, array.&lt;number&gt;, *, getUniform&gt;`  `to` The uniform hooks   for the given `state`. Each is a static number or array of numbers; or a GL
+  object such as a texture; or a `getUniform` function returning one, to be
+  called on each pass.
 
 
 
@@ -146,6 +145,38 @@ Past steps, each some steps `ago`, from the current active step at `0`
 ### macros.js
 
 
+#### macroPass() 
+
+The full set of macros.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### macroValues() 
+
+Each part of the set of macros.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
 #### hasMacros([props, key, on&#x3D;&#x27;&#x27;]) 
 
 Whether macros should be handled here; or the result of handling them by a
@@ -162,8 +193,8 @@ replace any part of the functionality here.
 | ---- | ---- | ----------- | -------- |
 | props | `object`  | The properties handling macros. | *Optional* |
 | key | `string`  | The name for which macros should be handled. | *Optional* |
-| on&#x3D;&#x27;&#x27; | `string`  | Any further macro `hooks` specifier; if given, both     the hook key and this specifier are checked (e.g: `key` and `key_on`). | *Optional* |
-| macros&#x3D;props.macros | `string` `function` `object` `false`  | Whether and how     GLSL preprocessor macros should be handled:<br>    - If it's false-y and non-nullish, no macros are handled here.<br>    - If it's a string, no macros are handled here as it's used instead.<br>    - If it's a function, it's passed the given `props`, `key`, `macros`, and<br>        the returned result is used.<br>    - If it's an object, any value at the given `key` is entered recursively,<br>        with the given `props`, `key`, and `macros[key]`.<br>    - Otherwise, returns `null` to indicate macros should be handled here. | *Optional* |
+| on&#x3D;&#x27;&#x27; | `string`  | Any further macro `hooks` specifier; if given, both   the hook key and this specifier are checked (e.g: `key` and `key_on`). | *Optional* |
+| macros&#x3D;props.macros | `string` `function` `object` `false`  | Whether and how   GLSL preprocessor macros should be handled:<br>  - If it's false-y and non-nullish, no macros are handled here.<br>  - If it's a string, no macros are handled here as it's used instead.<br>  - If it's a function, it's passed the given `props`, `key`, `macros`, and<br>    the returned result is used.<br>  - If it's an object, any value at the given `key` is entered recursively,<br>    with the given `props`, `key`, and `macros[key]`.<br>  - Otherwise, returns `null` to indicate macros should be handled here. | *Optional* |
 
 
 
@@ -171,34 +202,34 @@ replace any part of the functionality here.
 ##### Examples
 
 ```javascript
-    // Macros to be handled here, the default.
-    [hasMacros(), hasMacros({}), hasMacros({ macros: true })]]
-        .every((m) => m === null);
+  // Macros to be handled here, the default.
+  [hasMacros(), hasMacros({}), hasMacros({ macros: true })]]
+    .every((m) => m === null);
 
-    // Macros to be handled here, with prefix `'pre_'` instead of `'preDef'`.
-    hasMacros({ pre: 'pre_' }) === null;
+  // Macros to be handled here, with prefix `'pre_'` instead of `'preDef'`.
+  hasMacros({ pre: 'pre_' }) === null;
 
-    // Macros not created.
-    [hasMacros({ macros: false }), hasMacros({ macros: 0 })]
-        .every((m) => m === '');
+  // Macros not created.
+  [hasMacros({ macros: false }), hasMacros({ macros: 0 })]
+    .every((m) => m === '');
 
-    // Macros for 'a' handled by external static hook, not here.
-    hasMacros({ macros: { a: '//A\n', b: () => '//B\n' } }, 'a') === '//A\n';
-    // Macros for 'b' handled by external function hook, not here.
-    hasMacros({ macros: { a: '//A\n', b: () => '//B\n' } }, 'b') === '//B\n';
-    // Macros specified `on` a 'frag' not created.
-    hasMacros({ macros: { frag: 0 } }, '', 'frag') === '';
-    // Macros specified `on` a 'vert' handled here.
-    hasMacros({ macros: { frag: 0, a_vert: 0 } }, '', 'vert') === null;
-    // Macros for hook `'a'` specified `on` a 'vert' not created.
-    hasMacros({ macros: { frag: 0, a_vert: 0 } }, 'a', 'vert') === '';
+  // Macros for 'a' handled by external static hook, not here.
+  hasMacros({ macros: { a: '//A\n', b: () => '//B\n' } }, 'a') === '//A\n';
+  // Macros for 'b' handled by external function hook, not here.
+  hasMacros({ macros: { a: '//A\n', b: () => '//B\n' } }, 'b') === '//B\n';
+  // Macros specified `on` a 'frag' not created.
+  hasMacros({ macros: { frag: 0 } }, '', 'frag') === '';
+  // Macros specified `on` a 'vert' handled here.
+  hasMacros({ macros: { frag: 0, a_vert: 0 } }, '', 'vert') === null;
+  // Macros for hook `'a'` specified `on` a 'vert' not created.
+  hasMacros({ macros: { frag: 0, a_vert: 0 } }, 'a', 'vert') === '';
 ```
 
 
 ##### Returns
 
 
-- `string`  Either the result of the macros handled elsewhere,     or `null` if macros should be handled here.
+- `string`  Either the result of the macros handled elsewhere,   or `null` if macros should be handled here.
 
 
 
@@ -216,17 +247,17 @@ Caches the result if `macros` generation is enabled, to help reuse shaders.
 | Name | Type | Description |  |
 | ---- | ---- | ----------- | -------- |
 | state | `object`  | Properties used to generate the macros. See `getState`. | &nbsp; |
-| on | `string`  | Any further macro `hooks` specifier; if given, both     the hook key and this specifier are checked (e.g: `key` and `key_on`). | *Optional* |
-| state.macros | `string` `function` `object` `false`  | How macros are handled     or prefixed. See `hasMacros`. | *Optional* |
+| on | `string`  | Any further macro `hooks` specifier; if given, both   the hook key and this specifier are checked (e.g: `key` and `key_on`). | *Optional* |
+| state.macros | `string` `function` `object` `false`  | How macros are handled   or prefixed. See `hasMacros`. | *Optional* |
 | state.pre&#x3D;preDef | `string`  | Macros prefix; `preDef` if not given. | *Optional* |
-| state.maps | `object`  | How values are grouped per-texture per-pass     per-step. | &nbsp; |
-| state.maps.values | `array.<number>`  | How values of each data item are     grouped into textures. See `mapGroups`. | &nbsp; |
-| state.maps.textures | `array.<array.<number>>`  | The groupings of values     into textures. See `mapGroups`. | &nbsp; |
+| state.maps | `object`  | How values are grouped per-texture per-pass   per-step. | &nbsp; |
+| state.maps.values | `array.<number>`  | How values of each data item are   grouped into textures. See `mapGroups`. | &nbsp; |
+| state.maps.textures | `array.<array.<number>>`  | The groupings of values   into textures. See `mapGroups`. | &nbsp; |
 | state.maps.passes | `array`  | Passes drawn per-step. See `mapGroups`. | &nbsp; |
 | state.steps | `array` `number`  | States drawn across frames. See `getState`. | &nbsp; |
-| state.bound&#x3D;boundDef | `number`  | How many steps are bound as outputs,     unavailable as inputs. | *Optional* |
+| state.bound&#x3D;boundDef | `number`  | How many steps are bound as outputs,   unavailable as inputs. | *Optional* |
 | state.size | `object`  | Any size information about the GL resources. | *Optional* |
-| state.size.count | `number`  | The number of data entries per texture     (the texture's area), if given. See `getState`. | *Optional* |
+| state.size.count | `number`  | The number of data entries per texture   (the texture's area), if given. See `getState`. | *Optional* |
 
 
 
@@ -234,75 +265,74 @@ Caches the result if `macros` generation is enabled, to help reuse shaders.
 ##### Examples
 
 ```javascript
-    const maps = { values: [2, 4, 1], channelsMax: 4 };
+  const maps = { values: [2, 4, 1], channelsMax: 4 };
 
-    // No optimisations - values not packed, single texture output per pass.
-    const state = {
-         pre: '', steps: 2,
-         maps: mapGroups({ ...maps, buffersMax: 1, packed: 0 })
-    };
+  // No optimisations - values not packed, single texture output per pass.
+  const state = {
+    pre: '', steps: 2, maps: mapGroups({ ...maps, buffersMax: 1, packed: 0 })
+  };
 
-    macroValues(state); // =>
-    '#define texture_0 0\n'+
-    '#define channels_0 rg\n'+
-    '\n'+
-    '#define texture_1 1\n'+
-    '#define channels_1 rgba\n'+
-    '\n'+
-    '#define texture_2 2\n'+
-    '#define channels_2 r\n'+
-    '\n'+
-    '#define textures 3\n'+
-    '#define passes 3\n'+
-    '#define stepsPast 1\n'+
-    '#define steps 2\n'+
-    '\n';
+  macroValues(state); // =>
+  '#define texture_0 0\n'+
+  '#define channels_0 rg\n'+
+  '\n'+
+  '#define texture_1 1\n'+
+  '#define channels_1 rgba\n'+
+  '\n'+
+  '#define texture_2 2\n'+
+  '#define channels_2 r\n'+
+  '\n'+
+  '#define textures 3\n'+
+  '#define passes 3\n'+
+  '#define stepsPast 1\n'+
+  '#define steps 2\n'+
+  '\n';
 
-    // Automatically packed values - values across fewer textures/passes.
-    state.maps = mapGroups({ ...maps, buffersMax: 1 });
-    state.size = { count: 2**5 };
-    macroValues(state); // =>
-    '#define texture_1 0\n'+
-    '#define channels_1 rgba\n'+
-    '\n'+
-    '#define texture_0 1\n'+
-    '#define channels_0 rg\n'+
-    '\n'+
-    '#define texture_2 1\n'+
-    '#define channels_2 b\n'+
-    '\n'+
-    '#define count 32\n'+
-    '#define textures 2\n'+
-    '#define passes 2\n'+
-    '#define stepsPast 1\n'+
-    '#define steps 2\n'+
-    '\n';
+  // Automatically packed values - values across fewer textures/passes.
+  state.maps = mapGroups({ ...maps, buffersMax: 1 });
+  state.size = { count: 2**5 };
+  macroValues(state); // =>
+  '#define texture_1 0\n'+
+  '#define channels_1 rgba\n'+
+  '\n'+
+  '#define texture_0 1\n'+
+  '#define channels_0 rg\n'+
+  '\n'+
+  '#define texture_2 1\n'+
+  '#define channels_2 b\n'+
+  '\n'+
+  '#define count 32\n'+
+  '#define textures 2\n'+
+  '#define passes 2\n'+
+  '#define stepsPast 1\n'+
+  '#define steps 2\n'+
+  '\n';
 
-    // Can bind more texture outputs per pass - values across fewer passes.
-    state.maps = mapGroups({ ...maps, buffersMax: 4 });
-    macroValues(state); // =>
-    '#define texture_1 0\n'+
-    '#define channels_1 rgba\n'+
-    '\n'+
-    '#define texture_0 1\n'+
-    '#define channels_0 rg\n'+
-    '\n'+
-    '#define texture_2 1\n'+
-    '#define channels_2 b\n'+
-    '\n'+
-    '#define count 32\n'+
-    '#define textures 2\n'+
-    '#define passes 1\n'+
-    '#define stepsPast 1\n'+
-    '#define steps 2\n'+
-    '\n';
+  // Can bind more texture outputs per pass - values across fewer passes.
+  state.maps = mapGroups({ ...maps, buffersMax: 4 });
+  macroValues(state); // =>
+  '#define texture_1 0\n'+
+  '#define channels_1 rgba\n'+
+  '\n'+
+  '#define texture_0 1\n'+
+  '#define channels_0 rg\n'+
+  '\n'+
+  '#define texture_2 1\n'+
+  '#define channels_2 b\n'+
+  '\n'+
+  '#define count 32\n'+
+  '#define textures 2\n'+
+  '#define passes 1\n'+
+  '#define stepsPast 1\n'+
+  '#define steps 2\n'+
+  '\n';
 ```
 
 
 ##### Returns
 
 
-- `string`  The GLSL preprocessor macros defining the mappings from     values to textures/channels.
+- `string`  The GLSL preprocessor macros defining the mappings from   values to textures/channels.
 
 
 
@@ -320,14 +350,14 @@ Caches the result if `macros` generation is enabled, to help reuse shaders.
 | Name | Type | Description |  |
 | ---- | ---- | ----------- | -------- |
 | state | `object`  | Properties for generating the macros. See `getState`: | &nbsp; |
-| on | `string`  | Any further macro `hooks` specifier; if given, both     the hook key and this specifier are checked (e.g: `key` and `key_on`). | *Optional* |
-| state.macros | `string` `function` `object` `false`  | How macros are handled.     See `hasMacros`. | *Optional* |
+| on | `string`  | Any further macro `hooks` specifier; if given, both   the hook key and this specifier are checked (e.g: `key` and `key_on`). | *Optional* |
+| state.macros | `string` `function` `object` `false`  | How macros are handled.   See `hasMacros`. | *Optional* |
 | state.pre&#x3D;preDef | `string`  | Macros prefix; `pre` if not given. | *Optional* |
 | state.passNow | `number`  | The index of the currently active pass. | &nbsp; |
-| state.maps | `object`  | How values are grouped per-texture per-pass     per-step. See `mapGroups`. | &nbsp; |
-| state.maps.values | `array.<number>`  | How values of each data item may be     grouped into textures across passes. See `mapGroups`. | &nbsp; |
-| state.maps.textures | `array.<array.<number>>`  | The groupings of values     into textures. See `mapGroups`. | &nbsp; |
-| state.maps.passes | `array.<array.<number>>`  | The groupings of textures     into passes. See `mapGroups`. | &nbsp; |
+| state.maps | `object`  | How values are grouped per-texture per-pass   per-step. See `mapGroups`. | &nbsp; |
+| state.maps.values | `array.<number>`  | How values of each data item may be   grouped into textures across passes. See `mapGroups`. | &nbsp; |
+| state.maps.textures | `array.<array.<number>>`  | The groupings of values   into textures. See `mapGroups`. | &nbsp; |
+| state.maps.passes | `array.<array.<number>>`  | The groupings of textures   into passes. See `mapGroups`. | &nbsp; |
 
 
 
@@ -335,64 +365,64 @@ Caches the result if `macros` generation is enabled, to help reuse shaders.
 ##### Examples
 
 ```javascript
-    const maps = { values: [2, 4, 1], channelsMax: 4 };
+  const maps = { values: [2, 4, 1], channelsMax: 4 };
 
-    // No optimisations - values not packed, single texture output per pass.
-    const state = {
-         pre: '', passNow: 0,
-         maps: mapGroups({ ...maps, buffersMax: 1, packed: 0 })
-    };
+  // No optimisations - values not packed, single texture output per pass.
+  const state = {
+    pre: '', passNow: 0,
+    maps: mapGroups({ ...maps, buffersMax: 1, packed: 0 })
+  };
 
-    macroOutput(state); // =>
-    '#define passNow 0\n'+
-    '\n'+
-    '#define bound_0 0\n'+
-    '#define attach_0 0\n'+
-    '#define output_0 gl_FragData[attach_0].rg\n'+
-    '\n';
+  macroOutput(state); // =>
+  '#define passNow 0\n'+
+  '\n'+
+  '#define bound_0 0\n'+
+  '#define attach_0 0\n'+
+  '#define output_0 gl_FragData[attach_0].rg\n'+
+  '\n';
 
-    // Automatically packed values - values across fewer textures/passes.
-    state.maps = mapGroups({ ...maps, buffersMax: 1 });
-    macroOutput(state); // =>
-    '#define passNow 0\n'+
-    '\n'+
-    '#define bound_1 0\n'+
-    '#define attach_1 0\n'+
-    '#define output_1 gl_FragData[attach_1].rgba\n'+
-    '\n';
+  // Automatically packed values - values across fewer textures/passes.
+  state.maps = mapGroups({ ...maps, buffersMax: 1 });
+  macroOutput(state); // =>
+  '#define passNow 0\n'+
+  '\n'+
+  '#define bound_1 0\n'+
+  '#define attach_1 0\n'+
+  '#define output_1 gl_FragData[attach_1].rgba\n'+
+  '\n';
 
-    // Next pass in this step.
-    ++state.passNow;
-    macroOutput(state); // =>
-    '#define passNow 1\n'+
-    '\n'+
-    '#define bound_0 1\n'+
-    '#define attach_0 0\n'+
-    '#define output_0 gl_FragData[attach_0].rg\n'+
-    '\n'+
-    '#define bound_2 1\n'+
-    '#define attach_2 0\n'+
-    '#define output_2 gl_FragData[attach_2].b\n'+
-    '\n';
+  // Next pass in this step.
+  ++state.passNow;
+  macroOutput(state); // =>
+  '#define passNow 1\n'+
+  '\n'+
+  '#define bound_0 1\n'+
+  '#define attach_0 0\n'+
+  '#define output_0 gl_FragData[attach_0].rg\n'+
+  '\n'+
+  '#define bound_2 1\n'+
+  '#define attach_2 0\n'+
+  '#define output_2 gl_FragData[attach_2].b\n'+
+  '\n';
 
-    // Can bind more texture outputs per pass - values across fewer passes.
-    state.maps = mapGroups({ ...maps, buffersMax: 4 });
-    state.passNow = 0;
-    macroOutput(state); // =>
-    '#define passNow 0\n'+
-    '\n'+
-    '#define bound_1 0\n'+
-    '#define attach_1 0\n'+
-    '#define output_1 gl_FragData[attach_1].rgba\n'+
-    '\n'+
-    '#define bound_0 1\n'+
-    '#define attach_0 1\n'+
-    '#define output_0 gl_FragData[attach_0].rg\n'+
-    '\n'+
-    '#define bound_2 1\n'+
-    '#define attach_2 1\n'+
-    '#define output_2 gl_FragData[attach_2].b\n'+
-    '\n';
+  // Can bind more texture outputs per pass - values across fewer passes.
+  state.maps = mapGroups({ ...maps, buffersMax: 4 });
+  state.passNow = 0;
+  macroOutput(state); // =>
+  '#define passNow 0\n'+
+  '\n'+
+  '#define bound_1 0\n'+
+  '#define attach_1 0\n'+
+  '#define output_1 gl_FragData[attach_1].rgba\n'+
+  '\n'+
+  '#define bound_0 1\n'+
+  '#define attach_0 1\n'+
+  '#define output_0 gl_FragData[attach_0].rg\n'+
+  '\n'+
+  '#define bound_2 1\n'+
+  '#define attach_2 1\n'+
+  '#define output_2 gl_FragData[attach_2].b\n'+
+  '\n';
 ```
 
 
@@ -422,13 +452,13 @@ Caches the result if `macros` generation is enabled, to help reuse shaders.
 | Name | Type | Description |  |
 | ---- | ---- | ----------- | -------- |
 | state | `object`  | Properties used to generate the macros. See `getState`. | &nbsp; |
-| on | `string`  | Any further macro `hooks` specifier; if given, both     the hook key and this specifier are checked (e.g: `key` and `key_on`). | *Optional* |
-| state.macros | `string` `function` `object` `false`  | How macros are handled.     See `hasMacros`. | *Optional* |
+| on | `string`  | Any further macro `hooks` specifier; if given, both the   hook key and this specifier are checked (e.g: `key` and `key_on`). | *Optional* |
+| state.macros | `string` `function` `object` `false`  | How macros are handled.   See `hasMacros`. | *Optional* |
 | state.pre&#x3D;preDef | `string`  | Macros prefix; `preDef` if not given. | *Optional* |
-| state.passNow&#x3D;0 | `number`  | The index of the currently active pass;     uses the first pass if not given. | *Optional* |
-| state.maps | `object`  | How `values` are grouped per-texture per-pass     per-step. See `mapGroups`. | &nbsp; |
-| state.maps.samples | `array.<array.<array.<number>>>`  | The minimal set of     texture samples to use. See `mapSamples`. | *Optional* |
-| state.maps.reads | `array.<array.<array.<number>>>`  | The mappings from     values to the corresponding `state.samples`. See `mapSamples`. | *Optional* |
+| state.passNow&#x3D;0 | `number`  | The index of the currently active pass;   uses the first pass if not given. | *Optional* |
+| state.maps | `object`  | How `values` are grouped per-texture per-pass   per-step. See `mapGroups`. | &nbsp; |
+| state.maps.samples | `array.<array.<array.<number>>>`  | The minimal set of   texture samples to use. See `mapSamples`. | *Optional* |
+| state.maps.reads | `array.<array.<array.<number>>>`  | The mappings from   values to the corresponding `state.samples`. See `mapSamples`. | *Optional* |
 | state.glsl&#x3D;1 | `number`  | The GLSL language version. See `getGLSLList`. | *Optional* |
 
 
@@ -437,103 +467,103 @@ Caches the result if `macros` generation is enabled, to help reuse shaders.
 ##### Examples
 
 ```javascript
-    const values = [2, 4, 1];
-    const derives = [2, , [[1, 0], true]];
-    const maps = { values, derives, channelsMax: 4 };
+  const values = [2, 4, 1];
+  const derives = [2, , [[1, 0], true]];
+  const maps = { values, derives, channelsMax: 4 };
 
-    // No optimisations - values not packed, single texture output per pass.
-    const state =
-        { pre: '', maps: mapFlow({ ...maps, buffersMax: 1, packed: 0 }) };
+  // No optimisations - values not packed, single texture output per pass.
+  const state =
+    { pre: '', maps: mapFlow({ ...maps, buffersMax: 1, packed: 0 }) };
 
-    // USes the first pass by default.
-    macroSamples(state); // =>
-    '#define useSamples'+cr+
-        'const int samples_l = 1;'+cr+
-        'const ivec2 samples_0 = ivec2(0, 2);\n'+
-    '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
-        'use name (e.g: `samples_0`) if possible.\n'+
-    '#define samples_i(i) samples_0\n'+
-    '\n'+
-    '#define useReads_0'+cr+
-        'const int reads_0_l = 1;'+cr+
-        'const int reads_0_0 = int(0);\n'+
-    '// Index macro `reads_0_i` (e.g: `reads_0_i(0)`) may be slow, '+
-        'use name (e.g: `reads_0_0`) if possible.\n'+
-    '#define reads_0_i(i) reads_0_0\n'+
-    '\n';
+  // Uses the first pass by default.
+  macroSamples(state); // =>
+  '#define useSamples'+cr+
+    'const int samples_l = 1;'+cr+
+    'const ivec2 samples_0 = ivec2(0, 2);\n'+
+  '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
+    'use name (e.g: `samples_0`) if possible.\n'+
+  '#define samples_i(i) samples_0\n'+
+  '\n'+
+  '#define useReads_0'+cr+
+    'const int reads_0_l = 1;'+cr+
+    'const int reads_0_0 = int(0);\n'+
+  '// Index macro `reads_0_i` (e.g: `reads_0_i(0)`) may be slow, '+
+    'use name (e.g: `reads_0_0`) if possible.\n'+
+  '#define reads_0_i(i) reads_0_0\n'+
+  '\n';
 
-    // Next pass in this step - no derives, no samples nor reads.
-    state.passNow = 1;
-    macroSamples(state); // =>
-    '';
+  // Next pass in this step - no derives, no samples nor reads.
+  state.passNow = 1;
+  macroSamples(state); // =>
+  '';
 
-    // Next pass in this step.
-    ++state.passNow;
-    macroSamples(state); // =>
-    '#define useSamples'+cr+
-        'const int samples_l = 4;'+cr+
-        'const ivec2 samples_0 = ivec2(1, 0);'+cr+
-        'const ivec2 samples_1 = ivec2(0, 0);'+cr+
-        'const ivec2 samples_2 = ivec2(0, 1);'+cr+
-        'const ivec2 samples_3 = ivec2(0, 2);\n'+
-    '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
-        'use name (e.g: `samples_0`) if possible.\n'+
-    '#define samples_i(i) ((i == 3)? samples_3 : ((i == 2)? samples_2 '+
-        ': ((i == 1)? samples_1 : samples_0)))\n'+
-    '\n'+
-    '#define useReads_2'+cr+
-        'const int reads_2_l = 4;'+cr+
-        'const int reads_2_0 = int(0);'+cr+
-        'const int reads_2_1 = int(1);'+cr+
-        'const int reads_2_2 = int(2);'+cr+
-        'const int reads_2_3 = int(3);\n'+
-    '// Index macro `reads_2_i` (e.g: `reads_2_i(0)`) may be slow, '+
-        'use name (e.g: `reads_2_0`) if possible.\n'+
-    '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+
-        ': ((i == 1)? reads_2_1 : reads_2_0)))\n'+
-    '\n';
+  // Next pass in this step.
+  ++state.passNow;
+  macroSamples(state); // =>
+  '#define useSamples'+cr+
+    'const int samples_l = 4;'+cr+
+    'const ivec2 samples_0 = ivec2(1, 0);'+cr+
+    'const ivec2 samples_1 = ivec2(0, 0);'+cr+
+    'const ivec2 samples_2 = ivec2(0, 1);'+cr+
+    'const ivec2 samples_3 = ivec2(0, 2);\n'+
+  '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
+    'use name (e.g: `samples_0`) if possible.\n'+
+  '#define samples_i(i) ((i == 3)? samples_3 : ((i == 2)? samples_2 '+
+    ': ((i == 1)? samples_1 : samples_0)))\n'+
+  '\n'+
+  '#define useReads_2'+cr+
+    'const int reads_2_l = 4;'+cr+
+    'const int reads_2_0 = int(0);'+cr+
+    'const int reads_2_1 = int(1);'+cr+
+    'const int reads_2_2 = int(2);'+cr+
+    'const int reads_2_3 = int(3);\n'+
+  '// Index macro `reads_2_i` (e.g: `reads_2_i(0)`) may be slow, '+
+    'use name (e.g: `reads_2_0`) if possible.\n'+
+  '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+
+    ': ((i == 1)? reads_2_1 : reads_2_0)))\n'+
+  '\n';
 
-    // Automatically packed values - values across fewer textures/passes.
-    // Can bind more texture outputs per pass - values across fewer passes.
-    // Also fewer samples where values share derives or textures.
-    state.maps = mapGroups({ ...maps, buffersMax: 4 });
-    state.passNow = 0;
-    macroSamples(state); // =>
-    '#define useSamples'+cr+
-        'const int samples_l = 3;'+cr+
-        'const ivec2 samples_0 = ivec2(0, 1);'+cr+
-        'const ivec2 samples_1 = ivec2(1, 1);'+cr+
-        'const ivec2 samples_2 = ivec2(0, 0);\n'+
-    '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
-        'use name (e.g: `samples_0`) if possible.\n'+
-    '#define samples_i(i) '+
-        '((i == 2)? samples_2 : ((i == 1)? samples_1 : samples_0))\n'+
-    '\n'+
-    '#define useReads_0'+cr+
-        'const int reads_0_l = 1;'+cr+
-        'const int reads_0_0 = int(0);\n'+
-    '// Index macro `reads_0_i` (e.g: `reads_0_i(0)`) may be slow, '+
-        'use name (e.g: `reads_0_0`) if possible.\n'+
-    '#define reads_0_i(i) reads_0_0\n'+
-    '\n'+
-    '#define useReads_2'+cr+
-        'const int reads_2_l = 4;'+cr+
-        'const int reads_2_0 = int(1);'+cr+
-        'const int reads_2_1 = int(0);'+cr+
-        'const int reads_2_2 = int(2);'+cr+
-        'const int reads_2_3 = int(0);\n'+
-    '// Index macro `reads_2_i` (e.g: `reads_2_i(0)`) may be slow, '+
-        'use name (e.g: `reads_2_0`) if possible.\n'+
-    '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+
-        ': ((i == 1)? reads_2_1 : reads_2_0)))\n'+
-    '\n';
+  // Automatically packed values - values across fewer textures/passes.
+  // Can bind more texture outputs per pass - values across fewer passes.
+  // Also fewer samples where values share derives or textures.
+  state.maps = mapGroups({ ...maps, buffersMax: 4 });
+  state.passNow = 0;
+  macroSamples(state); // =>
+  '#define useSamples'+cr+
+    'const int samples_l = 3;'+cr+
+    'const ivec2 samples_0 = ivec2(0, 1);'+cr+
+    'const ivec2 samples_1 = ivec2(1, 1);'+cr+
+    'const ivec2 samples_2 = ivec2(0, 0);\n'+
+  '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
+    'use name (e.g: `samples_0`) if possible.\n'+
+  '#define samples_i(i) '+
+    '((i == 2)? samples_2 : ((i == 1)? samples_1 : samples_0))\n'+
+  '\n'+
+  '#define useReads_0'+cr+
+    'const int reads_0_l = 1;'+cr+
+    'const int reads_0_0 = int(0);\n'+
+  '// Index macro `reads_0_i` (e.g: `reads_0_i(0)`) may be slow, '+
+    'use name (e.g: `reads_0_0`) if possible.\n'+
+  '#define reads_0_i(i) reads_0_0\n'+
+  '\n'+
+  '#define useReads_2'+cr+
+    'const int reads_2_l = 4;'+cr+
+    'const int reads_2_0 = int(1);'+cr+
+    'const int reads_2_1 = int(0);'+cr+
+    'const int reads_2_2 = int(2);'+cr+
+    'const int reads_2_3 = int(0);\n'+
+  '// Index macro `reads_2_i` (e.g: `reads_2_i(0)`) may be slow, '+
+    'use name (e.g: `reads_2_0`) if possible.\n'+
+  '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+
+    ': ((i == 1)? reads_2_1 : reads_2_0)))\n'+
+  '\n';
 ```
 
 
 ##### Returns
 
 
-- `string`  The GLSL preprocessor macros defining the mappings for     samples and reads, for each value.
+- `string`  The GLSL preprocessor macros defining the mappings for   samples and reads, for each value.
 
 
 
@@ -560,13 +590,13 @@ Caches the result if `macros` generation is enabled, to help reuse shaders.
 | Name | Type | Description |  |
 | ---- | ---- | ----------- | -------- |
 | state | `object`  | Properties used to generate the macros. See `getState`. | &nbsp; |
-| on | `string`  | Any further macro `hooks` specifier; if given, both     the hook key and this specifier are checked (e.g: `key` and `key_on`). | *Optional* |
-| state.macros | `string` `function` `object` `false`  | How macros are handled.     See `hasMacros`. | *Optional* |
+| on | `string`  | Any further macro `hooks` specifier; if given, both   the hook key and this specifier are checked (e.g: `key` and `key_on`). | *Optional* |
+| state.macros | `string` `function` `object` `false`  | How macros are handled.   See `hasMacros`. | *Optional* |
 | state.pre&#x3D;preDef | `string`  | Macros prefix; `preDef` if not given. | *Optional* |
-| state.passNow&#x3D;0 | `number`  | The index of the currently active pass;     uses the first pass if not given. | *Optional* |
-| state.maps | `object`  | How `values` are grouped per-texture per-pass     per-step. See `mapGroups`. | &nbsp; |
-| state.maps.samples | `array.<array.<array.<number>>>`  | The minimal set of     texture samples to use. See `mapSamples`. | *Optional* |
-| state.merge | `object`  | Any merged state texture; uses separate state     textures if not given. See `getState`. | *Optional* |
+| state.passNow&#x3D;0 | `number`  | The index of the currently active pass;   uses the first pass if not given. | *Optional* |
+| state.maps | `object`  | How `values` are grouped per-texture per-pass   per-step. See `mapGroups`. | &nbsp; |
+| state.maps.samples | `array.<array.<array.<number>>>`  | The minimal set of   texture samples to use. See `mapSamples`. | *Optional* |
+| state.merge | `object`  | Any merged state texture; uses separate state   textures if not given. See `getState`. | *Optional* |
 | state.glsl&#x3D;1 | `number`  | The GLSL language version. See `getGLSLList`. | *Optional* |
 
 
@@ -575,43 +605,172 @@ Caches the result if `macros` generation is enabled, to help reuse shaders.
 ##### Examples
 
 ```javascript
-    const values = [2, 4, 1];
-    const derives = [2, , [[1, 0], true]];
-    const maps = { values, derives, channelsMax: 4 };
+  const values = [2, 4, 1];
+  const derives = [2, , [[1, 0], true]];
+  const maps = { values, derives, channelsMax: 4 };
 
-    // No optimisations - values not packed, single texture output per pass.
-    const state =
-        { pre: '', maps: mapFlow({ ...maps, buffersMax: 1, packed: 0 }) };
+  // No optimisations - values not packed, single texture output per pass.
+  const state =
+    { pre: '', maps: mapFlow({ ...maps, buffersMax: 1, packed: 0 }) };
 
-    // Uses the first pass by default.
-    macroTaps(state); // =>
-    '@todo';
+  // Uses the first pass by default.
+  macroTaps(state); // =>
+  '@todo';
 
-    // Next pass in this step - no derives, no samples nor reads.
-    state.passNow = 1;
-    macroTaps(state); // =>
-    '';
+  // Next pass in this step - no derives, no samples nor reads.
+  state.passNow = 1;
+  macroTaps(state); // =>
+  '';
 
-    // Next pass in this step.
-    ++state.passNow;
-    macroTaps(state); // =>
-    '@todo';
+  // Next pass in this step.
+  ++state.passNow;
+  macroTaps(state); // =>
+  '@todo';
 
-    // Automatically packed values - values across fewer textures/passes.
-    // Can bind more texture outputs per pass - values across fewer passes.
-    // Also fewer samples where values share derives or textures.
-    state.maps = mapGroups({ ...maps, buffersMax: 4 });
-    state.passNow = 0;
-    macroTaps(state); // =>
-    '@todo';
+  // Automatically packed values - values across fewer textures/passes.
+  // Can bind more texture outputs per pass - values across fewer passes.
+  // Also fewer samples where values share derives or textures.
+  state.maps = mapGroups({ ...maps, buffersMax: 4 });
+  state.passNow = 0;
+  macroTaps(state); // =>
+  '@todo';
 ```
 
 
 ##### Returns
 
 
-- `string`  The GLSL preprocessor macros defining the minimal sampling     of textures, to suit how states are stored (flat array of textures, or
-    all merged into one texture) and supported GLSL language features.
+- `string`  The GLSL preprocessor macros defining the minimal sampling   of textures, to suit how states are stored (flat array of textures, or all
+  merged into one texture) and supported GLSL language features.
+
+
+
+#### texture() 
+
+Which texture sampling function is available.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### f() 
+
+Short and common names for functions and parameters.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### by() 
+
+Common parameters; the full ordered parameters can be up to:
+(uv, states, stepNow, steps, textures, stepBy, textureBy)
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### aka() 
+
+Aliases default names for brevity, main functions offer more control.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### st() 
+
+The current `sample`, as `[step, texture]`.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### t() 
+
+Prefix for private temporary variables.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### tapsSamples() 
+
+A temporary array to pass to `getGLSLList`.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### return() 
+
+The texture-sampling logic.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
 
 
 
@@ -861,23 +1020,23 @@ Set up the GPGPU resources and meta information for a state of a number data.
 | api.texture | `texture`  | Function to create a GL texture. | *Optional* |
 | api.framebuffer | `framebuffer`  | Function to create a GL framebuffer. | *Optional* |
 | state&#x3D;{} | `object`  | The state parameters. | *Optional* |
-| state.width&#x3D;widthDef | `number`  | Data width, aliases follow in order     of precedence. See `getWidth`. | *Optional* |
+| state.width&#x3D;widthDef | `number`  | Data width, aliases follow in order   of precedence. See `getWidth`. | *Optional* |
 | state.w | `number`  | Alias of `state.width`. See `getWidth`. | *Optional* |
 | state.x | `number`  | Alias of `state.width`. See `getWidth`. | *Optional* |
-| state.height&#x3D;heightDef | `number`  | Data height, aliases follow in order     of precedence. See `getHeight`. | *Optional* |
+| state.height&#x3D;heightDef | `number`  | Data height, aliases follow in order   of precedence. See `getHeight`. | *Optional* |
 | state.h | `number`  | Alias of `state.height`. See `getHeight`. | *Optional* |
 | state.y | `number`  | Alias of `state.height`. See `getHeight`. | *Optional* |
 | state.shape | `number`  | Data size. See `getWidth` and `getHeight`. | *Optional* |
 | state.size | `number`  | Data size. See `getWidth` and `getHeight`. | *Optional* |
-| state.side | `number`  | Data size of width/height.     See `getWidth` and `getHeight`. | *Optional* |
+| state.side | `number`  | Data size of width/height.   See `getWidth` and `getHeight`. | *Optional* |
 | state.0 | `number`  | Alias of `state.width` (index 0). See `getWidth`. | *Optional* |
 | state.1 | `number`  | Alias of `state.height` (index 1). See `getHeight`. | *Optional* |
-| state.scale&#x3D;scaleDef | `number`  | Data size of width/height as a square     power-of-two size, 2 raised to this power. See `getScaled`. | *Optional* |
-| state.steps&#x3D;stepsDef | `number` `array`  | How many steps of state to     track, or the list of states if already set up. | *Optional* |
-| state.maps | `object`  | How `state.maps.values` are grouped per-texture     per-pass per-step. See `mapGroups`. | *Optional* |
-| state.maps.values&#x3D;valuesDef() | `array.<number>`  | How values of each     data item may be grouped into textures across passes; set up here if not<br>    given. See `mapGroups`. | *Optional* |
-| state.maps.channelsMin&#x3D;channelsMinDef | `number`  | The minimum allowed     channels for framebuffer attachments; allocates unused channels as needed<br>    to reach this limit. | *Optional* |
-| state.maps.textures | `number`  | How values are grouped into textures.     See `mapGroups`. | *Optional* |
+| state.scale&#x3D;scaleDef | `number`  | Data size of width/height as a square   power-of-two size, 2 raised to this power. See `getScaled`. | *Optional* |
+| state.steps&#x3D;stepsDef | `number` `array`  | How many steps of state to   track, or the list of states if already set up. | *Optional* |
+| state.maps | `object`  | How `state.maps.values` are grouped per-texture   per-pass per-step. See `mapGroups`. | *Optional* |
+| state.maps.values&#x3D;valuesDef() | `array.<number>`  | How values of each   data item may be grouped into textures across passes; set up here if not<br>  given. See `mapGroups`. | *Optional* |
+| state.maps.channelsMin&#x3D;channelsMinDef | `number`  | The minimum allowed   channels for framebuffer attachments; allocates unused channels as needed<br>  to reach this limit. | *Optional* |
+| state.maps.textures | `number`  | How values are grouped into textures.   See `mapGroups`. | *Optional* |
 | state.stepNow | `number`  | The currently active state step, if any. | *Optional* |
 | state.passNow | `number`  | The currently active draw pass, if any. | *Optional* |
 | state.type&#x3D;typeDef | `string`  | Texture data type. | *Optional* |
@@ -886,20 +1045,20 @@ Set up the GPGPU resources and meta information for a state of a number data.
 | state.wrap&#x3D;wrapDef | `string`  | Texture wrap mode. | *Optional* |
 | state.depth&#x3D;depthDef | `boolean`  | Framebuffer depth attachment. | *Optional* |
 | state.stencil&#x3D;stencilDef | `boolean`  | Framebuffer stencil attachment. | *Optional* |
-| state.merge&#x3D;mergeDef | `boolean`  | Whether to merge states into one     texture; `true` handles merging here; any other truthy is used as-is (the<br>    merged texture already set up); falsey uses un-merged arrays of textures.<br>    Merging allows shaders to access past steps by non-constant lookups; e.g:<br>    attributes cause "sampler array index must be a literal expression" on<br>    GLSL3 spec and some platforms (e.g: D3D); but takes more work to copy the<br>    last pass's bound texture/s to merge into the past texture, so should be<br>    used to variably access past steps or avoid arrays of textures limits.<br>    Only this merged past texture and those bound in an active pass are<br>    created, as upon each pass the output will be copied to the past texture,<br>    and bound textures reused in the next pass.<br>    If not merging, all state is as output by its pass in its own one of the<br>    arrays of textures.<br>    The default merged texture is laid out as `[texture, step]` on the<br>    `[x, y]` axes, respectively; if other layouts are needed, the merge<br>    texture can be given here to be used as-is, and the merging/copying and<br>    lookup logic in their respective hooks. See `getStep` and `macroTaps`.<br>    If a merge texture is given, size information is interpreted in a similar<br>    way and precedence as it is from `state`. See `getWidth` and `getHeight`. | *Optional* |
-| state.merge.width | `number`  | Merged data width, aliases follow in     order of precedence. See `state`. | *Optional* |
+| state.merge&#x3D;mergeDef | `boolean`  | Whether to merge states into one   texture; `true` handles merging here; any other truthy is used as-is (the<br>  merged texture already set up); falsey uses un-merged arrays of textures.<br>  Merging allows shaders to access past steps by non-constant lookups; e.g:<br>  attributes cause "sampler array index must be a literal expression" on<br>  GLSL3 spec and some platforms (e.g: D3D); but takes more work to copy the<br>  last pass's bound texture/s to merge into the past texture, so should be<br>  used to variably access past steps or avoid arrays of textures limits.<br>  Only this merged past texture and those bound in an active pass are<br>  created, as upon each pass the output will be copied to the past texture,<br>  and bound textures reused in the next pass.<br>  If not merging, all state is as output by its pass in its own one of the<br>  arrays of textures.<br>  The default merged texture is laid out as `[texture, step]` on the<br>  `[x, y]` axes, respectively; if other layouts are needed, the merge<br>  texture can be given here to be used as-is, and the merging/copying and<br>  lookup logic in their respective hooks. See `getStep` and `macroTaps`.<br>  If a merge texture is given, size information is interpreted in a similar<br>  way and precedence as it is from `state`. See `getWidth` and `getHeight`. | *Optional* |
+| state.merge.width | `number`  | Merged data width, aliases follow in   order of precedence. See `state`. | *Optional* |
 | state.merge.w | `number`  | Alias of `state.merge.width`. See `state`. | *Optional* |
 | state.merge.x | `number`  | Alias of `state.merge.width`. See `state`. | *Optional* |
-| state.merge.height | `number`  | Merged data height, aliases follow in     order of precedence. See `state`. | *Optional* |
+| state.merge.height | `number`  | Merged data height, aliases follow in   order of precedence. See `state`. | *Optional* |
 | state.merge.h | `number`  | Alias of `state.merge.height`. See `state`. | *Optional* |
 | state.merge.y | `number`  | Alias of `state.merge.height`. See `state`. | *Optional* |
 | state.merge.shape | `number`  | Merged data size. See `state`. | *Optional* |
 | state.merge.size | `number`  | Merged data size. See `state`. | *Optional* |
-| state.merge.side | `number`  | Merged data size of width/height.     See `state`. | *Optional* |
-| state.merge.0 | `number`  | Alias of `state.merge.width` (index 0).     See `state`. | *Optional* |
-| state.merge.1 | `number`  | Alias of `state.merge.height` (index 1).     See `state`. | *Optional* |
-| state.merge.scale | `number`  | Merged data size of width/height as a     square power-of-two size, 2 raised to this power. See `state`. | *Optional* |
-| to&#x3D;state | `object`  | The state object to set up. Modifies the given     `state` object by default. | *Optional* |
+| state.merge.side | `number`  | Merged data size of width/height.   See `state`. | *Optional* |
+| state.merge.0 | `number`  | Alias of `state.merge.width` (index 0).   See `state`. | *Optional* |
+| state.merge.1 | `number`  | Alias of `state.merge.height` (index 1).   See `state`. | *Optional* |
+| state.merge.scale | `number`  | Merged data size of width/height as a   square power-of-two size, 2 raised to this power. See `state`. | *Optional* |
+| to&#x3D;state | `object`  | The state object to set up. Modifies the given   `state` object by default. | *Optional* |
 
 
 
@@ -907,190 +1066,184 @@ Set up the GPGPU resources and meta information for a state of a number data.
 ##### Examples
 
 ```javascript
-    const api = {
-        framebuffer: ({ depth, stencil, width, height, color }) => null,
-        texture: ({ type, min, mag, wrap, width, height, channels }) => null
-    };
+  const api = {
+    framebuffer: ({ depth, stencil, width, height, color }) => null,
+    texture: ({ type, min, mag, wrap, width, height, channels }) => null
+  };
 
-    // Example with `webgl_draw_buffers` extension support, for 4 buffers.
-    let maps = mapGroups({ values: [1, 2, 3], buffersMax: 4, packed: 0 });
-    let state = { steps: 2, side: 10, maps };
+  // Example with `webgl_draw_buffers` extension support, for 4 buffers.
+  let maps = mapGroups({ values: [1, 2, 3], buffersMax: 4, packed: 0 });
+  let state = { steps: 2, side: 10, maps };
 
-    const s0 = getState(api, state, {}); // =>
-    {
-        ...state, passNow: undefined, stepNow: undefined,
-        size: {
-            steps: 2, passes: 2, textures: 4,
-            width: 10, height: 10, shape: [10, 10], count: 100
+  const s0 = getState(api, state, {}); // =>
+  {
+    ...state, passNow: undefined, stepNow: undefined,
+    size: {
+      steps: 2, passes: 2, textures: 4,
+      width: 10, height: 10, shape: [10, 10], count: 100
+    },
+    steps: [[s0.passes[0][0].framebuffer], [s0.passes[1][0].framebuffer]],
+    // This setup results in fewer passes, as more buffers can be bound.
+    passes: [
+      [
+        {
+          framebuffer: api.framebuffer(s0.passes[0][0]),
+          color: [s0.textures[0][0].texture, s0.textures[0][1].texture],
+          map: [0, 1], // maps.passes[0]
+          entry: 0, index: 0, step: 0,
+          depth: false, stencil: false, width: 10, height: 10
+        }
+      ],
+      [
+        {
+          framebuffer: api.framebuffer(s0.passes[1][0]),
+          color: [s0.textures[1][0].texture, s0.textures[1][1].texture],
+          map: [0, 1], // maps.passes[0]
+          entry: 1, index: 0, step: 1,
+          depth: false, stencil: false, width: 10, height: 10
+        }
+      ]
+    ],
+    textures: [
+      [
+        {
+          texture: api.texture(s0.textures[0][0]),
+          map: [0, 1], // maps.textures[0]
+          entry: 0, index: 0, step: 0, pass: 0,
+          type: 'float', width: 10, height: 10, channels: 4,
+          min: 'nearest', mag: 'nearest', wrap: 'clamp'
         },
-        steps: [
-            [s0.passes[0][0].framebuffer], [s0.passes[1][0].framebuffer]
-        ],
-        // This setup results in fewer passes, as more buffers can be bound.
-        passes: [
-            [
-                {
-                    framebuffer: api.framebuffer(s0.passes[0][0]),
-                    color: [
-                        s0.textures[0][0].texture, s0.textures[0][1].texture
-                    ],
-                    map: [0, 1], // maps.passes[0]
-                    entry: 0, index: 0, step: 0,
-                    depth: false, stencil: false, width: 10, height: 10
-                }
-            ],
-            [
-                {
-                    framebuffer: api.framebuffer(s0.passes[1][0]),
-                    color: [
-                        s0.textures[1][0].texture, s0.textures[1][1].texture
-                    ],
-                    map: [0, 1], // maps.passes[0]
-                    entry: 1, index: 0, step: 1,
-                    depth: false, stencil: false, width: 10, height: 10
-                }
-            ]
-        ],
-        textures: [
-            [
-                {
-                    texture: api.texture(s0.textures[0][0]),
-                    map: [0, 1], // maps.textures[0]
-                    entry: 0, index: 0, step: 0, pass: 0,
-                    type: 'float', width: 10, height: 10, channels: 4,
-                    min: 'nearest', mag: 'nearest', wrap: 'clamp'
-                },
-                {
-                    texture: api.texture(s0.textures[0][1]),
-                    map: [2], // maps.textures[1]
-                    entry: 1, index: 1, step: 0, pass: 0,
-                    type: 'float', width: 10, height: 10, channels: 4,
-                    min: 'nearest', mag: 'nearest', wrap: 'clamp'
-                }
-            ],
-            [
-                {
-                    texture: api.texture(s0.textures[1][0]),
-                    map: [0, 1], // maps.textures[0]
-                    entry: 2, index: 0, step: 1, pass: 0,
-                    type: 'float', width: 10, height: 10, channels: 4,
-                    min: 'nearest', mag: 'nearest', wrap: 'clamp'
-                },
-                {
-                    texture: api.texture(s0.textures[1][1]),
-                    map: [2], // maps.textures[1]
-                    entry: 3, index: 1, step: 1, pass: 0,
-                    type: 'float', width: 10, height: 10, channels: 4,
-                    min: 'nearest', mag: 'nearest', wrap: 'clamp'
-                }
-            ]
-        ]
-    };
-
-    // Example with no `webgl_draw_buffers` extension support, only 1 buffer.
-    maps = mapGroups({ values: [1, 2, 3], buffersMax: 1, packed: 0 });
-    state = { type: 'uint8', steps: 2, scale: 5, maps, stepNow: 1 };
-
-    const s1 = getState(api, state, {}); // =>
-    {
-        ...state, passNow: undefined, stepNow: 1,
-        size: {
-            steps: 2, passes: 4, textures: 4,
-            width: 32, height: 32, shape: [32, 32], count: 1024
+        {
+          texture: api.texture(s0.textures[0][1]),
+          map: [2], // maps.textures[1]
+          entry: 1, index: 1, step: 0, pass: 0,
+          type: 'float', width: 10, height: 10, channels: 4,
+          min: 'nearest', mag: 'nearest', wrap: 'clamp'
+        }
+      ],
+      [
+        {
+          texture: api.texture(s0.textures[1][0]),
+          map: [0, 1], // maps.textures[0]
+          entry: 2, index: 0, step: 1, pass: 0,
+          type: 'float', width: 10, height: 10, channels: 4,
+          min: 'nearest', mag: 'nearest', wrap: 'clamp'
         },
-        steps: [
-            [s1.passes[0][0].framebuffer, s1.passes[0][1].framebuffer],
-            [s1.passes[1][0].framebuffer, s1.passes[1][1].framebuffer]
-        ],
-        // This setup results in more passes, as fewer buffers can be bound.
-        passes: [
-            [
-                {
-                    framebuffer: api.framebuffer(s1.passes[0][0]),
-                    color: [s1.textures[0][0].texture],
-                    map: [0], // maps.passes[0]
-                    entry: 0, index: 0, step: 0,
-                    depth: false, stencil: false, width: 32, height: 32
-                },
-                {
-                    framebuffer: api.framebuffer(s1.passes[0][1]),
-                    color: [s1.textures[0][1].texture],
-                    map: [1], // maps.passes[1]
-                    entry: 1, index: 1, step: 0,
-                    depth: false, stencil: false, width: 32, height: 32
-                }
-            ],
-            [
-                {
-                    framebuffer: api.framebuffer(s1.passes[1][0]),
-                    color: [s1.textures[1][0].texture],
-                    map: [0], // maps.passes[0]
-                    entry: 2, index: 0, step: 1,
-                    depth: false, stencil: false, width: 32, height: 32
-                },
-                {
-                    framebuffer: api.framebuffer(s1.passes[1][1]),
-                    color: [s1.textures[1][1].texture],
-                    map: [1], // maps.passes[1]
-                    entry: 3, index: 1, step: 1,
-                    depth: false, stencil: false, width: 32, height: 32
-                }
-            ]
-        ],
-        textures: [
-            [
-                {
-                    texture: api.texture(s1.textures[0][0]),
-                    map: [0, 1], // maps.textures[0]
-                    entry: 0, index: 0, step: 0, pass: 0,
-                    type: 'uint8', width: 32, height: 32, channels: 4,
-                    min: 'nearest', mag: 'nearest', wrap: 'clamp'
-                },
-                {
-                    texture: api.texture(s1.textures[0][1]),
-                    map: [2], // maps.textures[1]
-                    entry: 1, index: 1, step: 0, pass: 1,
-                    type: 'uint8', width: 32, height: 32, channels: 4,
-                    min: 'nearest', mag: 'nearest', wrap: 'clamp'
-                }
-            ],
-            [
-                {
-                    texture: api.texture(s1.textures[1][0]),
-                    map: [0, 1], // maps.textures[0]
-                    entry: 2, index: 0, step: 1, pass: 0,
-                    type: 'uint8', width: 32, height: 32, channels: 4,
-                    min: 'nearest', mag: 'nearest', wrap: 'clamp'
-                },
-                {
-                    texture: api.texture(s1.textures[1][1]),
-                    map: [2], // maps.textures[1]
-                    entry: 3, index: 1, step: 1, pass: 1,
-                    type: 'uint8', width: 32, height: 32, channels: 4,
-                    min: 'nearest', mag: 'nearest', wrap: 'clamp'
-                }
-            ]
-        ]
-    };
+        {
+          texture: api.texture(s0.textures[1][1]),
+          map: [2], // maps.textures[1]
+          entry: 3, index: 1, step: 1, pass: 0,
+          type: 'float', width: 10, height: 10, channels: 4,
+          min: 'nearest', mag: 'nearest', wrap: 'clamp'
+        }
+      ]
+    ]
+  };
+
+  // Example with no `webgl_draw_buffers` extension support, only 1 buffer.
+  maps = mapGroups({ values: [1, 2, 3], buffersMax: 1, packed: 0 });
+  state = { type: 'uint8', steps: 2, scale: 5, maps, stepNow: 1 };
+
+  const s1 = getState(api, state, {}); // =>
+  {
+    ...state, passNow: undefined, stepNow: 1,
+    size: {
+      steps: 2, passes: 4, textures: 4,
+      width: 32, height: 32, shape: [32, 32], count: 1024
+    },
+    steps: [
+      [s1.passes[0][0].framebuffer, s1.passes[0][1].framebuffer],
+      [s1.passes[1][0].framebuffer, s1.passes[1][1].framebuffer]
+    ],
+    // This setup results in more passes, as fewer buffers can be bound.
+    passes: [
+      [
+        {
+          framebuffer: api.framebuffer(s1.passes[0][0]),
+          color: [s1.textures[0][0].texture],
+          map: [0], // maps.passes[0]
+          entry: 0, index: 0, step: 0,
+          depth: false, stencil: false, width: 32, height: 32
+        },
+        {
+          framebuffer: api.framebuffer(s1.passes[0][1]),
+          color: [s1.textures[0][1].texture],
+          map: [1], // maps.passes[1]
+          entry: 1, index: 1, step: 0,
+          depth: false, stencil: false, width: 32, height: 32
+        }
+      ],
+      [
+        {
+          framebuffer: api.framebuffer(s1.passes[1][0]),
+          color: [s1.textures[1][0].texture],
+          map: [0], // maps.passes[0]
+          entry: 2, index: 0, step: 1,
+          depth: false, stencil: false, width: 32, height: 32
+        },
+        {
+          framebuffer: api.framebuffer(s1.passes[1][1]),
+          color: [s1.textures[1][1].texture],
+          map: [1], // maps.passes[1]
+          entry: 3, index: 1, step: 1,
+          depth: false, stencil: false, width: 32, height: 32
+        }
+      ]
+    ],
+    textures: [
+      [
+        {
+          texture: api.texture(s1.textures[0][0]),
+          map: [0, 1], // maps.textures[0]
+          entry: 0, index: 0, step: 0, pass: 0,
+          type: 'uint8', width: 32, height: 32, channels: 4,
+          min: 'nearest', mag: 'nearest', wrap: 'clamp'
+        },
+        {
+          texture: api.texture(s1.textures[0][1]),
+          map: [2], // maps.textures[1]
+          entry: 1, index: 1, step: 0, pass: 1,
+          type: 'uint8', width: 32, height: 32, channels: 4,
+          min: 'nearest', mag: 'nearest', wrap: 'clamp'
+        }
+      ],
+      [
+        {
+          texture: api.texture(s1.textures[1][0]),
+          map: [0, 1], // maps.textures[0]
+          entry: 2, index: 0, step: 1, pass: 0,
+          type: 'uint8', width: 32, height: 32, channels: 4,
+          min: 'nearest', mag: 'nearest', wrap: 'clamp'
+        },
+        {
+          texture: api.texture(s1.textures[1][1]),
+          map: [2], // maps.textures[1]
+          entry: 3, index: 1, step: 1, pass: 1,
+          type: 'uint8', width: 32, height: 32, channels: 4,
+          min: 'nearest', mag: 'nearest', wrap: 'clamp'
+        }
+      ]
+    ]
+  };
 ```
 
 
 ##### Returns
 
 
-- `object`  `to` The state object, set up with the data resources and     meta information, for use with `getStep` and drawing:
-- `object.&lt;number, array.&lt;number, array.&lt;number&gt;&gt;&gt;`  `to.maps` Any given     `state.maps`. See `mapGroups`.
-- `array.&lt;array.&lt;object.&lt;texture, string, number, array.&lt;number&gt;&gt;&gt;&gt;`      `to.textures` Textures per step, as arrays of objects of `texture`s and
-    meta info. See `to.maps.textures`.
-- `array.&lt;array.&lt;object.&lt;framebuffer, number, array.&lt;number&gt;&gt;&gt;&gt;`      `to.passes` Passes per step, as arrays of objects of `framebuffer`s,
-    referencing `to.textures`, and meta info. See `to.maps.passes`.
-- `array.&lt;framebuffer.&lt;array.&lt;texture&gt;&gt;&gt;`  `to.steps`     Hierarchy of steps of state, as an array of `framebuffer`s from
-    `to.passes`, with arrays of `texture`s from `to.textures`, and meta
-    information; set up here, or the given `state.steps` if it's an array.
-    State data may be drawn into the framebuffers accordingly.
-    See `mapGroups` and `getStep`.
-- `object.&lt;texture, string, number, array.&lt;number&gt;&gt;`  `to.merge`     Any created object of a merged `texture` and meta info, or the given
-    `state.merge` as-is if not handled here. See `getStep` and `macroTaps`.
+- `object`  `to` The state object, set up with the data resources and   meta information, for use with `getStep` and drawing:
+- `object.&lt;number, array.&lt;number, array.&lt;number&gt;&gt;&gt;`  `to.maps` Any given   `state.maps`. See `mapGroups`.
+- `array.&lt;array.&lt;object.&lt;texture, string, number, array.&lt;number&gt;&gt;&gt;&gt;`    `to.textures` Textures per step, as arrays of objects of `texture`s and
+  meta info. See `to.maps.textures`.
+- `array.&lt;array.&lt;object.&lt;framebuffer, number, array.&lt;number&gt;&gt;&gt;&gt;`    `to.passes` Passes per step, as arrays of objects of `framebuffer`s,
+  referencing `to.textures`, and meta info. See `to.maps.passes`.
+- `array.&lt;framebuffer.&lt;array.&lt;texture&gt;&gt;&gt;`  `to.steps`   Hierarchy of steps of state, as an array of `framebuffer`s from
+  `to.passes`, with arrays of `texture`s from `to.textures`, and meta
+  information; set up here, or the given `state.steps` if it's an array.
+  State data may be drawn into the framebuffers accordingly.
+  See `mapGroups` and `getStep`.
+- `object.&lt;texture, string, number, array.&lt;number&gt;&gt;`  `to.merge`   Any created object of a merged `texture` and meta info, or the given
+  `state.merge` as-is if not handled here. See `getStep` and `macroTaps`.
 - `object`  `to.size` Size/type information of the created resources.
 - `string`  `to.size.type` Data type of `framebuffer`s and `texture`s.
 - `boolean`  `to.size.depth` Whether `framebuffer`s attach depth.
@@ -1103,11 +1256,64 @@ Set up the GPGPU resources and meta information for a state of a number data.
 - `number`  `to.size.colors` Number of `texture`s created.
 - `number`  `to.size.width` Width of `framebuffer`s and `texture`s.
 - `number`  `to.size.height` Height of `framebuffer`s and `texture`s.
-- `array.&lt;number&gt;`  `to.size.shape` Shape of `framebuffer`s and     `texture`s, as `[to.size.width, to.size.height]`.
+- `array.&lt;number&gt;`  `to.size.shape` Shape of `framebuffer`s and   `texture`s, as `[to.size.width, to.size.height]`.
 - `number`  `to.size.count` Number of entries in each `texture`.
-- `object.&lt;number, string, array.&lt;number&gt;&gt;`  `to.size.merge`     Size/type information about any created or given merge texture.
+- `object.&lt;number, string, array.&lt;number&gt;&gt;`  `to.size.merge`   Size/type information about any created or given merge texture.
 - `number`  `to.stepNow` The currently active state step, as given.
 - `number`  `to.passNow` The currently active draw pass, as given.
+
+
+
+#### passChannels() 
+
+All framebuffer attachments need the same number of channels; enough to
+hold all values a pass holds, or all passes hold if merging and reusing.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### mergeChannels() 
+
+If merging past textures and reusing texture attachments in each pass's
+framebuffer, pre-compute the minimum channels for a reusable pool of
+texture attachments that can hold any pass's values; since all a
+framebuffer's attachments also need the same number of channels, this is
+also the same number of channels across all passes.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### size() 
+
+Size of the created resources.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
 
 
 
@@ -1147,6 +1353,56 @@ The passes created for the `step`/`pass` render flow.
 
 Add a texture attachment and meta info to `textures` if applicable; to
 return its new `texture` or a reused one to bind to a pass in `passes`.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### to() 
+
+Properties passed for texture creation, then meta info.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### entry() 
+
+Add/reuse texture color attachments as needed; add minimal textures.
+If merging, passes may reuse any pass's existing texture attachments;
+otherwise, each pass has its own dedicated texture attachments.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### bind() 
+
+Check if this is bound to a pass.
 
 
 
@@ -1322,6 +1578,55 @@ Denotes framebuffer attachments; .
 
 
 
+#### to.steps() 
+
+Set up resources needed to store data per-texture per-pass per-step.
+Use any given steps/passes or create new ones.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### mScaled() 
+
+Use any size info given in `merge`, as with `state` above.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### mw() 
+
+Use any given size info, or merge along `[texture, step]` axes.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
 
 ### step.js
 
@@ -1340,7 +1645,7 @@ multiple draw buffers). Matches the lookup logic defined in `macroTaps`.
 | Name | Type | Description |  |
 | ---- | ---- | ----------- | -------- |
 | state | `object`  | A GPGPU state of the active pass. | &nbsp; |
-| state.passes | `array.<object.<array.<texture>, array.<number>>>`  | Passes per     step; the active one is found via `getPass`, with a `color` array of<br>    `texture`s, and a `map` array of numbers showing how the textures are<br>    grouped into the pass. See `getState` and `mapGroups`. | &nbsp; |
+| state.passes | `array.<object.<array.<texture>, array.<number>>>`  | Passes per   step; the active one is found via `getPass`, with a `color` array of<br>  `texture`s, and a `map` array of numbers showing how the textures are<br>  grouped into the pass. See `getState` and `mapGroups`. | &nbsp; |
 | state.merge | `merge`  | The merged texture to update. | &nbsp; |
 | state.stepNow | `number`  | The currently active state step, if any. | *Optional* |
 
@@ -1350,7 +1655,39 @@ multiple draw buffers). Matches the lookup logic defined in `macroTaps`.
 ##### Returns
 
 
-- `texture`  The merged `texture`, updated by the active pass's output;     matches the lookup logic defined in `macroTaps`.
+- `texture`  The merged `texture`, updated by the active pass's output;   matches the lookup logic defined in `macroTaps`.
+
+
+
+#### y() 
+
+Start at the top of the texture, move down row-per-step and wrap.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
+
+
+
+#### each() 
+
+Reusable framebuffer copies pass's pixels to the merged texture.
+
+
+
+
+
+
+##### Returns
+
+
+- `Void`
 
 
 
@@ -1368,29 +1705,29 @@ Creates a GPGPU update step function, for use with a GPGPU state object.
 | api | `object`  | An API for GL resources. | &nbsp; |
 | api.buffer | `buffer`  | Function to set up a GL buffer. | *Optional* |
 | api.clear | `clear`  | Function to clear GL output view or `framebuffer`. | *Optional* |
-| api.command&#x3D;api | `command`  | Function to create a GL render pass, given     options, to be called later with options. | *Optional* |
+| api.command&#x3D;api | `command`  | Function to create a GL render pass, given   options, to be called later with options. | *Optional* |
 | state | `object`  | The GPGPU state to use. See `getState` and `mapGroups`. | &nbsp; |
-| state.maps | `object`  | How values are grouped per-texture per-pass     per-step. See `mapGroups`. | &nbsp; |
-| state.passes | `array.<array.<number>>`  | How textures are grouped into     passes. See `mapGroups`. | &nbsp; |
-| state.merge | `object`  | Any merged state texture; uses separate state     textures if not given. | *Optional* |
+| state.maps | `object`  | How values are grouped per-texture per-pass   per-step. See `mapGroups`. | &nbsp; |
+| state.passes | `array.<array.<number>>`  | How textures are grouped into   passes. See `mapGroups`. | &nbsp; |
+| state.merge | `object`  | Any merged state texture; uses separate state   textures if not given. | *Optional* |
 | state.merge.texture | `object`  | The GL texture object in `state.merge`. | *Optional* |
-| state.merge.texture.subimage | `subimage`  | A function to update part of     the merge GL texture object data. See `subimage`. | *Optional* |
-| state.merge.update | `function`  | Hook to update, if any; if not given,     `state.merge.texture` is updated here with active states upon each pass.<br>    The default merged texture is laid out as `[texture, step]` on the<br>    `[x, y]` axes, respectively; if other layouts are needed, this merge<br>    update hook can be given here to be used as-is, and the setup and<br>    lookup logic in their respective hooks. See `getState` and `macroTaps`. | *Optional* |
+| state.merge.texture.subimage | `subimage`  | A function to update part of   the merge GL texture object data. See `subimage`. | *Optional* |
+| state.merge.update | `function`  | Hook to update, if any; if not given,   `state.merge.texture` is updated here with active states upon each pass.<br>  The default merged texture is laid out as `[texture, step]` on the `[x, y]`<br>  axes, respectively; if other layouts are needed, this merge update hook can<br>  be given here to be used as-is, and the setup and lookup logic in their<br>  respective hooks. See `getState` and `macroTaps`. | *Optional* |
 | state.pre&#x3D;preDef | `string`  | The namespace prefix; `preDef` by default. | *Optional* |
 | state.step&#x3D;to | `object`  | The properties for the step GL command. | *Optional* |
-| state.step.vert&#x3D;vertDef | `string`  | The step vertex shader GLSL; a     simple flat screen shader if not given. | *Optional* |
+| state.step.vert&#x3D;vertDef | `string`  | The step vertex shader GLSL; a   simple flat screen shader if not given. | *Optional* |
 | state.step.frag | `string`  | The step fragment shader GLSL. | &nbsp; |
-| state.step.uniforms&#x3D;getUniforms(state) | `object`  | The step uniforms;     modifies any given. See `getUniforms`. | *Optional* |
-| state.step.positions&#x3D;positionsDef() | `array.<number>` `buffer`  | The step     position attributes; 3 points of a large flat triangle if not given. | *Optional* |
-| state.step.count&#x3D;state.step.positions.length*scale.vec2 | `number`  | The     number of elements/attributes to draw. | *Optional* |
-| state.step.passCommand | `object`  | Any GL command properties to mix in     over the default ones here, and passed to `api.command`. | *Optional* |
+| state.step.uniforms&#x3D;getUniforms(state) | `object`  | The step uniforms;   modifies any given. See `getUniforms`. | *Optional* |
+| state.step.positions&#x3D;positionsDef() | `array.<number>` `buffer`  | The step   position attributes; 3 points of a large flat triangle if not given. | *Optional* |
+| state.step.count&#x3D;state.step.positions.length*scale.vec2 | `number`  | The   number of elements/attributes to draw. | *Optional* |
+| state.step.passCommand | `object`  | Any GL command properties to mix in   over the default ones here, and passed to `api.command`. | *Optional* |
 | state.step.vert&#x3D;vertDef | `string`  | Vertex shader GLSL to add code to. | *Optional* |
-| state.step.verts | `array`  | Preprocesses and caches vertex GLSL code     per-pass if given, otherwise processes it just-in-time before each pass. | *Optional* |
+| state.step.verts | `array`  | Preprocesses and caches vertex GLSL code   per-pass if given, otherwise processes it just-in-time before each pass. | *Optional* |
 | state.step.frag | `string`  | Fragment shader GLSL to add code to. | *Optional* |
-| state.step.frags | `array`  | Preprocesses and caches fragment GLSL code     per-pass, otherwise processes it just-in-time before each pass. | *Optional* |
+| state.step.frags | `array`  | Preprocesses and caches fragment GLSL code   per-pass, otherwise processes it just-in-time before each pass. | *Optional* |
 | onStep | `onStep`  | Callback upon each step. | *Optional* |
 | onPass | `onPass`  | Callback upon each pass. | *Optional* |
-| to&#x3D;(state.step | `object`  | ?? {})] The results object; `state.step` or     a new object if not given. | *Optional* |
+| to&#x3D;(state.step | `object`  | ?? {})] The results object; `state.step` or a   new object if not given. | *Optional* |
 
 
 
@@ -1398,16 +1735,16 @@ Creates a GPGPU update step function, for use with a GPGPU state object.
 ##### Returns
 
 
-- `object`  `to` The given `to` object; containing a GPGPU update     step function and related properties, to be passed a GPGPU state.
+- `object`  `to` The given `to` object; containing a GPGPU update step   function and related properties, to be passed a GPGPU state.
 - `string`  `to.vert` The given/new `state.vert` vertex shader GLSL.
 - `string`  `to.frag` The given `state.frag` fragment shader GLSL.
-- `array.string`  `[to.verts]` Any cached pre-processed vertex shaders     GLSL, if `state.step.verts` was given.
-- `array.string`  `[to.frags]` Any cached pre-processed fragment     shaders GLSL, if `state.step.verts` was enabled.
+- `array.string`  `[to.verts]` Any cached pre-processed vertex shaders   GLSL, if `state.step.verts` was given.
+- `array.string`  `[to.frags]` Any cached pre-processed fragment   shaders GLSL, if `state.step.verts` was enabled.
 - `object`  `to.uniforms` The given `state.uniforms`.
 - `number`  `to.count` The given/new `state.count`.
-- `buffer`  `to.positions` The given/new `state.positions`; via     `api.buffer`.
-- `command`  `to.pass` A GL command function to draw a given pass; via     `api.command`.
-- `function`  `to.run` The main step function, which performs all the     draw pass GL commands for a given state step.
+- `buffer`  `to.positions` The given/new `state.positions`; via   `api.buffer`.
+- `command`  `to.pass` A GL command function to draw a given pass; via   `api.command`.
+- `function`  `to.run` The main step function, which performs all the   draw pass GL commands for a given state step.
 
 
 

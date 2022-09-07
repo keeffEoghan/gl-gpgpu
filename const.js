@@ -16,11 +16,11 @@ export const extensions = () => [];
 
 /** Default required extensions to draw to `float` buffers. */
 export const extensionsFloat = () =>
-    ['oes_texture_float', 'webgl_color_buffer_float'];
+  ['oes_texture_float', 'webgl_color_buffer_float'];
 
 /** Default required extensions to draw to `half float` buffers. */
 export const extensionsHalfFloat = () =>
-    ['oes_texture_half_float', 'ext_color_buffer_half_float'];
+  ['oes_texture_half_float', 'ext_color_buffer_half_float'];
 
 /** Default optional extensions; update more data in one render pass. */
 export const optionalExtensions = () => ['webgl_draw_buffers'];
@@ -35,6 +35,7 @@ export const preDef = 'gpgpu_';
  * @see https://bugzilla.mozilla.org/show_bug.cgi?id=1448632
  */
 export const channelsMinDef = 4;
+
 /**
  * Default minimum allowable channels for framebuffer attachments.
  * This avoids `RGB32F` framebuffer attachments, which errors on Firefox.
@@ -92,9 +93,5 @@ export const wrapDef = 'clamp';
 export const depthDef = false;
 /** Default framebuffer stencil attachment. */
 export const stencilDef = false;
-
-/**
- * Whether to merge states into one texture; un-merged arrays of textures by
- * default.
- */
-export const mergeDef = false;
+/** Whether states merge into one texture; one merged texture by default. */
+export const mergeDef = true;

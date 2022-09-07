@@ -42,9 +42,8 @@ import { vertDef, positionsDef, preDef } from './const';
 const scale = { vec2: 0.5 };
 
 export const cache = {
-    clearPass: { color: [0, 0, 0, 0], depth: 1, stencil: 0 },
-    copyFrame: { color: null },
-    copyImage: { copy: true }
+  clearPass: { color: [0, 0, 0, 0], depth: 1, stencil: 0 },
+  copyFrame: { color: null }, copyImage: { copy: true }
 };
 
 /**
@@ -60,7 +59,7 @@ export const cache = {
  * @returns {object} The active step's active pass object, if any.
  */
 export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
-    wrap(s, ps)?.[p];
+  wrap(s, ps)?.[p];
 
 /**
  * Merged texture update, called upon each pass. Copies the active pass's output
@@ -78,41 +77,39 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
  *
  * @param {object} state A GPGPU state of the active pass.
  * @param {array&lt;object&lt;array&lt;texture>,array&lt;number>>>} state.passes Passes per
- *     step; the active one is found via `getPass`, with a `color` array of
- *     `texture`s, and a `map` array of numbers showing how the textures are
- *     grouped into the pass. See `getState` and `mapGroups`.
+ *   step; the active one is found via `getPass`, with a `color` array of
+ *   `texture`s, and a `map` array of numbers showing how the textures are
+ *   grouped into the pass. See `getState` and `mapGroups`.
  * @param {merge} state.merge The merged texture to update.
  * @param {number} [state.stepNow] The currently active state step, if any.
  *
  * @returns {texture} The merged `texture`, updated by the active pass's output;
- *     matches the lookup logic defined in `macroTaps`.
+ *   matches the lookup logic defined in `macroTaps`.
  */
  export function updateMerge(state) {
-    const { color, map: pass } = getPass(state);
-    const { merge: { texture: to, copier }, stepNow: s, size } = state;
-    const f = copier?.framebuffer;
+  const { color, map: pass } = getPass(state);
+  const { merge: { texture: to, copier }, stepNow: s, size } = state;
+  const f = copier?.framebuffer;
 
-    // Silent exit if there's not enough info ready now to perform the update.
-    if(!(to &amp;&amp; f &amp;&amp; color &amp;&amp; pass &amp;&amp; (s || (s === 0)))) { return to; }
+  // Silent exit if there's not enough info ready now to perform the update.
+  if(!(to &amp;&amp; f &amp;&amp; color &amp;&amp; pass &amp;&amp; (s || (s === 0)))) { return to; }
 
-    const { steps: sl, shape: [w, h] } = size;
-    // Start at the top of the texture, move down row-per-step and wrap.
-    const y = (s%sl)*h;
-    const { copyFrame: cf, copyImage: ci } = cache;
+  const { steps: sl, shape: [w, h] } = size;
+  /** Start at the top of the texture, move down row-per-step and wrap. */
+  const y = (s%sl)*h;
+  const { copyFrame: cf, copyImage: ci } = cache;
 
-    each((c, i) =>
-            // Reusable framebuffer copies pass's pixels to the merged texture.
-            ((cf.color = c) &amp;&amp; f(cf).use(() => to.subimage(ci, pass[i]*w, y))),
-        color);
+  /** Reusable framebuffer copies pass's pixels to the merged texture. */
+  each((c, i) =>
+      ((cf.color = c) &amp;&amp; f(cf).use(() => to.subimage(ci, pass[i]*w, y))),
+    color);
 
-    return to;
+  return to;
 }
 
 /**
  * Creates a GPGPU update step function, for use with a GPGPU state object.
  *
- * @todo Optional transform feedback instead of GPGPU textures, where available
- *     (needs vertex draw, instead of texture draw).
  * @todo Make this fully extensible in state.
  * @todo @example
  *
@@ -132,159 +129,159 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
  * @param {buffer} [api.buffer] Function to set up a GL buffer.
  * @param {clear} [api.clear] Function to clear GL output view or `framebuffer`.
  * @param {command} [api.command=api] Function to create a GL render pass, given
- *     options, to be called later with options.
+ *   options, to be called later with options.
  * @param {object} state The GPGPU state to use. See `getState` and `mapGroups`.
  * @param {object} state.maps How values are grouped per-texture per-pass
- *     per-step. See `mapGroups`.
+ *   per-step. See `mapGroups`.
  * @param {array&lt;array&lt;number>>} state.passes How textures are grouped into
- *     passes. See `mapGroups`.
+ *   passes. See `mapGroups`.
  * @param {object} [state.merge] Any merged state texture; uses separate state
- *     textures if not given.
+ *   textures if not given.
  * @param {object} [state.merge.texture] The GL texture object in `state.merge`.
  * @param {subimage} [state.merge.texture.subimage] A function to update part of
- *     the merge GL texture object data. See `subimage`.
+ *   the merge GL texture object data. See `subimage`.
  * @param {function} [state.merge.update] Hook to update, if any; if not given,
- *     `state.merge.texture` is updated here with active states upon each pass.
- *     The default merged texture is laid out as `[texture, step]` on the
- *     `[x, y]` axes, respectively; if other layouts are needed, this merge
- *     update hook can be given here to be used as-is, and the setup and
- *     lookup logic in their respective hooks. See `getState` and `macroTaps`.
+ *   `state.merge.texture` is updated here with active states upon each pass.
+ *   The default merged texture is laid out as `[texture, step]` on the `[x, y]`
+ *   axes, respectively; if other layouts are needed, this merge update hook can
+ *   be given here to be used as-is, and the setup and lookup logic in their
+ *   respective hooks. See `getState` and `macroTaps`.
  * @param {string} [state.pre=preDef] The namespace prefix; `preDef` by default.
  * @param {object} [state.step=to] The properties for the step GL command.
  * @param {string} [state.step.vert=vertDef] The step vertex shader GLSL; a
- *     simple flat screen shader if not given.
+ *   simple flat screen shader if not given.
  * @param {string} state.step.frag The step fragment shader GLSL.
  * @param {object} [state.step.uniforms=getUniforms(state)] The step uniforms;
- *     modifies any given. See `getUniforms`.
+ *   modifies any given. See `getUniforms`.
  * @param {array&lt;number>|buffer} [state.step.positions=positionsDef()] The step
- *     position attributes; 3 points of a large flat triangle if not given.
+ *   position attributes; 3 points of a large flat triangle if not given.
  * @param {number} [state.step.count=state.step.positions.length*scale.vec2] The
- *     number of elements/attributes to draw.
+ *   number of elements/attributes to draw.
  * @param {object} [state.step.passCommand] Any GL command properties to mix in
- *     over the default ones here, and passed to `api.command`.
+ *   over the default ones here, and passed to `api.command`.
  * @param {string} [state.step.vert=vertDef] Vertex shader GLSL to add code to.
  * @param {array} [state.step.verts] Preprocesses and caches vertex GLSL code
- *     per-pass if given, otherwise processes it just-in-time before each pass.
+ *   per-pass if given, otherwise processes it just-in-time before each pass.
  * @param {string} [state.step.frag] Fragment shader GLSL to add code to.
  * @param {array} [state.step.frags] Preprocesses and caches fragment GLSL code
- *     per-pass, otherwise processes it just-in-time before each pass.
+ *   per-pass, otherwise processes it just-in-time before each pass.
  * @param {onStep} [onStep] Callback upon each step.
  * @param {onPass} [onPass] Callback upon each pass.
- * @param {object} [to=(state.step ?? {})] The results object; `state.step` or
- *     a new object if not given.
+ * @param {object} [to=(state.step ?? {})] The results object; `state.step` or a
+ *   new object if not given.
  *
- * @returns {object} `to` The given `to` object; containing a GPGPU update
- *     step function and related properties, to be passed a GPGPU state.
+ * @returns {object} `to` The given `to` object; containing a GPGPU update step
+ *   function and related properties, to be passed a GPGPU state.
  * @returns {string} `to.vert` The given/new `state.vert` vertex shader GLSL.
  * @returns {string} `to.frag` The given `state.frag` fragment shader GLSL.
  * @returns {array.string} `[to.verts]` Any cached pre-processed vertex shaders
- *     GLSL, if `state.step.verts` was given.
+ *   GLSL, if `state.step.verts` was given.
  * @returns {array.string} `[to.frags]` Any cached pre-processed fragment
- *     shaders GLSL, if `state.step.verts` was enabled.
+ *   shaders GLSL, if `state.step.verts` was enabled.
  * @returns {object} `to.uniforms` The given `state.uniforms`.
  * @returns {number} `to.count` The given/new `state.count`.
  * @returns {buffer} `to.positions` The given/new `state.positions`; via
- *     `api.buffer`.
+ *   `api.buffer`.
  * @returns {command} `to.pass` A GL command function to draw a given pass; via
- *     `api.command`.
+ *   `api.command`.
  * @returns {function} `to.run` The main step function, which performs all the
- *     draw pass GL commands for a given state step.
+ *   draw pass GL commands for a given state step.
  */
-export function getStep(api, state, to = (state.step ?? {})) {
-    const { buffer, clear, command = api } = api;
-    const { maps: { passes }, merge, pre: n = preDef, step = to } = state;
-    let { positions = positionsDef() } = step;
+export function getStep(api, state, to = state.step ?? {}) {
+  const { buffer, clear, command = api } = api;
+  const { maps: { passes }, merge, pre: n = preDef, step = to } = state;
+  let { positions = positionsDef() } = step;
 
-    const {
-            passCommand, vert = vertDef, verts, frag, frags, uniforms,
-            count = positions.count ?? positions.length*scale.vec2
-        } = step;
+  const {
+      passCommand, vert = vertDef, verts, frag, frags, uniforms,
+      count = positions.count ?? positions.length*scale.vec2
+    } = step;
 
-    to.vert = vert;
-    to.frag = frag;
-    to.uniforms = getUniforms(state, uniforms);
-    to.count = count;
-    positions = to.positions = buffer(positions);
+  to.vert = vert;
+  to.frag = frag;
+  to.uniforms = getUniforms(state, uniforms);
+  to.count = count;
+  positions = to.positions = buffer(positions);
 
-    // Whether to pre-process and keep the shaders for all passes in advance.
-    if(verts || frags) {
-        // Keep the current pass.
-        const { passNow } = state;
+  // May pre-process and keep the shaders for all passes in advance.
+  if(verts || frags) {
+    // Keep the current pass.
+    const { passNow } = state;
 
-        (verts &amp;&amp; (to.verts = verts));
-        (frags &amp;&amp; (to.frags = frags));
+    verts &amp;&amp; (to.verts = verts);
+    frags &amp;&amp; (to.frags = frags);
 
-        each((pass, p) => {
-                // Create macros for this pass in advance.
-                state.passNow = p;
-                // Specify the shader type, for per-shader macro hooks.
-                (verts &amp;&amp; (verts[p] ??= macroPass(state, 'vert')+vert));
-                (frags &amp;&amp; (frags[p] ??= macroPass(state, 'frag')+frag));
-            },
-            passes);
+    each((pass, p) => {
+        // Create macros for this pass in advance.
+        state.passNow = p;
+        // Specify the shader type, for per-shader macro hooks.
+        verts &amp;&amp; (verts[p] ??= macroPass(state, 'vert')+vert);
+        frags &amp;&amp; (frags[p] ??= macroPass(state, 'frag')+frag);
+      },
+      passes);
 
-        // Set the pass back to what it was.
-        state.passNow = passNow;
-    }
+    // Set the pass back to what it was.
+    state.passNow = passNow;
+  }
 
-    /** The render command describing a full GL state for a step. */
-    to.pass = command(to.passCommand = {
-        // Uses the full-screen vertex shader state by default.
-        vert(_, props) {
-            const { passNow: p, step } = props;
-            const { vert: v = vert, verts: vs = verts } = step;
+  /** The render command describing a full GL state for a step. */
+  to.pass = command(to.passCommand = {
+    // Uses the full-screen vertex shader state by default.
+    vert(_, s = state) {
+      const { passNow: p, step } = s;
+      const { vert: v = vert, verts: vs = verts } = step;
 
-            // Specify the shader type, for per-shader macro hooks.
-            return vs?.[p] ?? macroPass(props, 'vert')+v;
-        },
-        frag(_, props) {
-            const { passNow: p, step } = props;
-            const { frag: f = frag, frags: fs = frags } = step;
+      // Specify the shader type, for per-shader macro hooks.
+      return vs?.[p] ?? macroPass(s, 'vert')+v;
+    },
+    frag(_, s = state) {
+      const { passNow: p, step } = s;
+      const { frag: f = frag, frags: fs = frags } = step;
 
-            // Specify the shader type, for per-shader macro hooks.
-            return fs?.[p] ?? macroPass(props, 'frag')+f;
-        },
-        attributes: {
-            [n+'position']: (_, { step: { positions: p = positions } }) => p
-        },
-        uniforms, count,
-        depth: { enable: false },
-        /** Note that this may draw to the screen if there's no active pass. */
-        framebuffer: (_, props = state) => getPass(props)?.framebuffer,
-        ...passCommand
-    });
+      // Specify the shader type, for per-shader macro hooks.
+      return fs?.[p] ?? macroPass(s, 'frag')+f;
+    },
+    attributes: {
+      [n+'position']: (_, s = state) => s.step.positions ?? positions
+    },
+    uniforms, count,
+    depth: { enable: false },
+    /** Note that this may draw to the screen if there's no active pass. */
+    framebuffer: (_, s = state) => getPass(s)?.framebuffer,
+    ...passCommand
+  });
 
-    /** Any merged texture's update, set up if not already given. */
-    (merge &amp;&amp; (merge.update ??= updateMerge));
+  /** Any merged texture's update, set up if not already given. */
+  merge &amp;&amp; (merge.update ??= updateMerge);
 
-    /** Executes the next step and all its passes. */
-    to.run = (props = state) => {
-        const { steps, step, merge } = props;
-        const stepNow = props.stepNow = (props.stepNow+1 || 0);
-        const mergeUpdate = merge?.update;
-        const { pass, onPass, onStep } = step;
-        const stepProps = (onStep?.(props, wrap(stepNow, steps)) ?? props);
-        const { clearPass } = cache;
+  /** Executes the next step and all its passes. */
+  to.run = (s = state) => {
+    const { steps, step, merge } = s;
+    const stepNow = s.stepNow = s.stepNow+1 || 0;
+    const mergeUpdate = merge?.update;
+    const { pass, onPass, onStep } = step;
+    const stepProps = onStep?.(s, wrap(stepNow, steps)) ?? s;
+    const { clearPass } = cache;
 
-        each((p, i) => {
-                stepProps.passNow = i;
+    each((p, i) => {
+        stepProps.passNow = i;
 
-                const passProps = onPass?.(stepProps, p) ?? stepProps;
+        const passProps = onPass?.(stepProps, p) ?? stepProps;
 
-                // @todo Remove unnecessary `clear` call?
-                ((clearPass.framebuffer = getPass(passProps)?.framebuffer) &amp;&amp;
-                    clear(clearPass));
+        /** @todo Remove unnecessary `clear` call? */
+        ((clearPass.framebuffer = getPass(passProps)?.framebuffer) &amp;&amp;
+          clear(clearPass));
 
-                pass(passProps);
-                // Update any merged texture upon each pass.
-                mergeUpdate?.(passProps);
-            },
-            stepProps.maps.passes);
+        pass(passProps);
+        // Update any merged texture upon each pass.
+        mergeUpdate?.(passProps);
+      },
+      stepProps.maps.passes);
 
-        return props;
-    };
+    return s;
+  };
 
-    return to;
+  return to;
 }
 
 /**
@@ -297,7 +294,7 @@ export function getStep(api, state, to = (state.step ?? {})) {
  * @param {array&lt;number>|buffer} data The buffer data, as `array` or `buffer`.
  *
  * @returns {*} `buffer` A GL buffer to use for vertex attributes, or an object
- *     serving that purpose.
+ *   serving that purpose.
  * @returns {number} `[buffer.count]` The buffer element/vertex count.
  * @returns {number} `[buffer.length]` The length of the buffer data array.
  */
@@ -315,7 +312,7 @@ export function getStep(api, state, to = (state.step ?? {})) {
  * @param {number} [depth] The value to clear any depth buffer with.
  * @param {number} [stencil] The value to clear any stencil buffer with.
  * @param {framebuffer} [framebuffer] Any `framebuffer` to clear; if not given,
- *     clears any active `framebuffer` or the view.
+ *   clears any active `framebuffer` or the view.
  */
 
 /**
@@ -329,23 +326,23 @@ export function getStep(api, state, to = (state.step ?? {})) {
  * @callback command
  *
  * @param {object} passCommand The properties from which to create the GL render
- *     function for a given pass.
+ *   function for a given pass.
  * @param {function} [passCommand.vert] Function hook returning the vertex
- *     shader GLSL string for the next render pass.
+ *   shader GLSL string for the next render pass.
  * @param {function} [passCommand.frag] Function hook returning the fragment
- *     shader GLSL string for the next render pass.
+ *   shader GLSL string for the next render pass.
  * @param {object&lt;buffer>} [passCommand.attributes] The vertex attributes for
- *     the next render pass.
+ *   the next render pass.
  * @param {object&lt;function>} [passCommand.uniforms] The uniform hooks for the
- *     given `props`. See `getUniforms`.
+ *   given `props`. See `getUniforms`.
  * @param {number} [passCommand.count] The number of elements to draw.
  * @param {object&lt;boolean,*>} [passCommand.depth] An object describing the depth
- *     settings for the next render pass; e.g: `passCommand.depth.enable` flag.
+ *   settings for the next render pass; e.g: `passCommand.depth.enable` flag.
  * @param {function} [passCommand.framebuffer] Function hook returning the
- *     `framebuffer` to draw to in the next render pass. See `framebuffer`.
+ *   `framebuffer` to draw to in the next render pass. See `framebuffer`.
  *
- * @returns {function} Function to execute a GL render pass, with options, for
- *     a given render pass.
+ * @returns {function} Function to execute a GL render pass, with options, for a
+ *   given render pass.
  */
 
 /**
@@ -387,10 +384,10 @@ export function getStep(api, state, to = (state.step ?? {})) {
  *
  * @param {object} [props] The `props` passed to `run`.
  * @param {array&lt;framebuffer>} step The `framebuffer`s for `props.stepNow` from
- *     `props.steps`, where the next state step will be drawn. See `getState`.
+ *   `props.steps`, where the next state step will be drawn. See `getState`.
  *
  * @returns {object} A `stepProps` to use for each of the step's next passes; or
- *     nullish to use the given `props`.
+ *   `null`ish to use the given `props`.
  */
 
 /**
@@ -405,44 +402,43 @@ export function getStep(api, state, to = (state.step ?? {})) {
  * @param {array&lt;number>} pass The maps for the next pass. See `mapGroups`.
  *
  * @returns {object} A `passProps` to use for the render `command` call; or
- *     nullish to use the given `stepProps`.
+ *   `null`ish to use the given `stepProps`.
  */
 
 /** A wrapper around `updateMerge` that's handy for testing. */
 export function updateMergeTest(state, update = updateMerge, after = 2) {
-    const { color, map: pass } = getPass(state);
-    const { merge, stepNow: s, passNow: p, size, maps } = state;
-    const { channels, copier } = merge;
-    const { steps: sl, shape: [w, h], merge: { shape: [wl, hl] } } = size;
-    const tl = maps.textures.length;
-    const y = (s%sl)*h;
-    const lc = y*tl*w;
-    const f = copier?.framebuffer;
-    const to = update(state);
+  const { color, map: pass } = getPass(state);
+  const { merge, stepNow: s, passNow: p, size, maps } = state;
+  const { channels, copier } = merge;
+  const { steps: sl, shape: [w, h], merge: { shape: [wl, hl] } } = size;
+  const tl = maps.textures.length;
+  const y = (s%sl)*h;
+  const lc = y*tl*w;
+  const f = copier?.framebuffer;
+  const to = update(state);
 
-    console.warn(s, p, pass, ':');
-    console.warn('- l', 0, 'r', tl*w, 'w', w, 'wl', wl);
-    console.warn('- t', y, 'b', y+h, 'h', h, 'hl', hl);
-    console.warn('- c', channels, 'lc', lc*channels,
-        'rc', (lc+(w*h))*channels,
-        'sc', w*h*channels, 'slc', wl*hl*channels);
+  console.warn(s, p, pass, ':');
+  console.warn('- l', 0, 'r', tl*w, 'w', w, 'wl', wl);
+  console.warn('- t', y, 'b', y+h, 'h', h, 'hl', hl);
+  console.warn('- c', channels, 'lc', lc*channels,
+    'rc', (lc+(w*h))*channels,
+    'sc', w*h*channels, 'slc', wl*hl*channels);
 
-    f({ color: to }).use(() =>
-        console.warn(Array.prototype.reduce.call(regl.read(),
-            (o, v, i) =>
-                o+((i)? ',\t' : '')+
-                ((!i)? ''
-                : ((i%(tl*w*h*channels) === 0)?
-                    '\n'+'='.repeat(100)+'step'+'='.repeat(100)+'\n'
-                : ((i%(tl*w*channels) === 0)? '\n'
-                : ((i%(w*channels) === 0)? ' || \t'
-                : ((i%channels === 0)? ' / \t' : '')))))+
-                (i*1e-3).toFixed(3).slice(2)+': '+((v)? v.toFixed(2) : '___'),
-            '\n')));
+  f({ color: to }).use(() =>
+    console.warn(Array.prototype.reduce.call(regl.read(), (o, v, i) =>
+        o+((i)? ',\t' : '')+
+        ((!i)? ''
+        : ((i%(tl*w*h*channels) === 0)?
+            `\n${'='.repeat(100)}step${'='.repeat(100)}\n`
+        : ((i%(tl*w*channels) === 0)? '\n'
+        : ((i%(w*channels) === 0)? ' || \t'
+        : ((i%channels === 0)? ' / \t' : '')))))+
+        (i*1e-3).toFixed(3).slice(2)+': '+((v)? v.toFixed(2) : '___'),
+      '\n')));
 
-    if(s &amp;&amp; after &amp;&amp; (s%(sl*after) === 0)) { debugger; }
+  if(s &amp;&amp; after &amp;&amp; s%(sl*after) === 0) { debugger; }
 
-    return to;
+  return to;
 }
 
 /**
@@ -467,7 +463,7 @@ export default getStep;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon Feb 28 2022 14:05:20 GMT+0000 (Greenwich Mean Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.11</a> on Wed Sep 07 2022 17:43:32 GMT+0100 (British Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

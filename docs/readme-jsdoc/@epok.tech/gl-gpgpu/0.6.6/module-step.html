@@ -182,7 +182,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="step.js.html">step.js</a>, <a href="step.js.html#line34">line 34</a>
+        <a href="step.js.html">step.js</a>, <a href="step.js.html#line33">line 33</a>
     </li></ul></dd>
     
 
@@ -265,7 +265,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="step.js.html">step.js</a>, <a href="step.js.html#line425">line 425</a>
+        <a href="step.js.html">step.js</a>, <a href="step.js.html#line421">line 421</a>
     </li></ul></dd>
     
 
@@ -521,7 +521,7 @@
             
 
             <td class="description last">Function to create a GL render pass, given
-    options, to be called later with options.</td>
+  options, to be called later with options.</td>
         </tr>
 
     
@@ -622,7 +622,7 @@
             
 
             <td class="description last">How values are grouped per-texture per-pass
-    per-step. See `mapGroups`.</td>
+  per-step. See `mapGroups`.</td>
         </tr>
 
     
@@ -658,7 +658,7 @@
             
 
             <td class="description last">How textures are grouped into
-    passes. See `mapGroups`.</td>
+  passes. See `mapGroups`.</td>
         </tr>
 
     
@@ -696,7 +696,7 @@
             
 
             <td class="description last">Any merged state texture; uses separate state
-    textures if not given.
+  textures if not given.
                 <h6>Properties</h6>
                 
 
@@ -805,7 +805,7 @@
             
 
             <td class="description last">A function to update part of
-    the merge GL texture object data. See `subimage`.</td>
+  the merge GL texture object data. See `subimage`.</td>
         </tr>
 
     
@@ -846,11 +846,11 @@
             
 
             <td class="description last">Hook to update, if any; if not given,
-    `state.merge.texture` is updated here with active states upon each pass.
-    The default merged texture is laid out as `[texture, step]` on the
-    `[x, y]` axes, respectively; if other layouts are needed, this merge
-    update hook can be given here to be used as-is, and the setup and
-    lookup logic in their respective hooks. See `getState` and `macroTaps`.</td>
+  `state.merge.texture` is updated here with active states upon each pass.
+  The default merged texture is laid out as `[texture, step]` on the `[x, y]`
+  axes, respectively; if other layouts are needed, this merge update hook can
+  be given here to be used as-is, and the setup and lookup logic in their
+  respective hooks. See `getState` and `macroTaps`.</td>
         </tr>
 
     
@@ -998,7 +998,7 @@
             
 
             <td class="description last">The step vertex shader GLSL; a
-    simple flat screen shader if not given.</td>
+  simple flat screen shader if not given.</td>
         </tr>
 
     
@@ -1073,7 +1073,7 @@
             
 
             <td class="description last">The step uniforms;
-    modifies any given. See `getUniforms`.</td>
+  modifies any given. See `getUniforms`.</td>
         </tr>
 
     
@@ -1116,7 +1116,7 @@
             
 
             <td class="description last">The step
-    position attributes; 3 points of a large flat triangle if not given.</td>
+  position attributes; 3 points of a large flat triangle if not given.</td>
         </tr>
 
     
@@ -1156,7 +1156,7 @@
             
 
             <td class="description last">The
-    number of elements/attributes to draw.</td>
+  number of elements/attributes to draw.</td>
         </tr>
 
     
@@ -1194,7 +1194,7 @@
             
 
             <td class="description last">Any GL command properties to mix in
-    over the default ones here, and passed to `api.command`.</td>
+  over the default ones here, and passed to `api.command`.</td>
         </tr>
 
     
@@ -1271,7 +1271,7 @@
             
 
             <td class="description last">Preprocesses and caches vertex GLSL code
-    per-pass if given, otherwise processes it just-in-time before each pass.</td>
+  per-pass if given, otherwise processes it just-in-time before each pass.</td>
         </tr>
 
     
@@ -1346,7 +1346,7 @@
             
 
             <td class="description last">Preprocesses and caches fragment GLSL code
-    per-pass, otherwise processes it just-in-time before each pass.</td>
+  per-pass, otherwise processes it just-in-time before each pass.</td>
         </tr>
 
     
@@ -1473,8 +1473,8 @@
                 </td>
             
 
-            <td class="description last">The results object; `state.step` or
-    a new object if not given.</td>
+            <td class="description last">The results object; `state.step` or a
+  new object if not given.</td>
         </tr>
 
     
@@ -1515,7 +1515,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="step.js.html">step.js</a>, <a href="step.js.html#line165">line 165</a>
+        <a href="step.js.html">step.js</a>, <a href="step.js.html#line162">line 162</a>
     </li></ul></dd>
     
 
@@ -1554,9 +1554,6 @@
     <dt class="tag-todo">To Do:</dt>
     <dd class="tag-todo">
         <ul>
-            <li>Optional transform feedback instead of GPGPU textures, where available
-    (needs vertex draw, instead of texture draw).</li>
-        
             <li>Make this fully extensible in state.</li>
         
             <li>@example</li>
@@ -1583,8 +1580,8 @@
 <ul>
         <li>
 <div class="param-desc">
-    `to` The given `to` object; containing a GPGPU update
-    step function and related properties, to be passed a GPGPU state.
+    `to` The given `to` object; containing a GPGPU update step
+  function and related properties, to be passed a GPGPU state.
 </div>
 
 
@@ -1645,7 +1642,7 @@
         <li>
 <div class="param-desc">
     `[to.verts]` Any cached pre-processed vertex shaders
-    GLSL, if `state.step.verts` was given.
+  GLSL, if `state.step.verts` was given.
 </div>
 
 
@@ -1666,7 +1663,7 @@
         <li>
 <div class="param-desc">
     `[to.frags]` Any cached pre-processed fragment
-    shaders GLSL, if `state.step.verts` was enabled.
+  shaders GLSL, if `state.step.verts` was enabled.
 </div>
 
 
@@ -1727,7 +1724,7 @@
         <li>
 <div class="param-desc">
     `to.positions` The given/new `state.positions`; via
-    `api.buffer`.
+  `api.buffer`.
 </div>
 
 
@@ -1748,7 +1745,7 @@
         <li>
 <div class="param-desc">
     `to.pass` A GL command function to draw a given pass; via
-    `api.command`.
+  `api.command`.
 </div>
 
 
@@ -1769,7 +1766,7 @@
         <li>
 <div class="param-desc">
     `to.run` The main step function, which performs all the
-    draw pass GL commands for a given state step.
+  draw pass GL commands for a given state step.
 </div>
 
 
@@ -1913,9 +1910,9 @@ multiple draw buffers). Matches the lookup logic defined in `macroTaps`.
             
 
             <td class="description last">Passes per
-    step; the active one is found via `getPass`, with a `color` array of
-    `texture`s, and a `map` array of numbers showing how the textures are
-    grouped into the pass. See `getState` and `mapGroups`.</td>
+  step; the active one is found via `getPass`, with a `color` array of
+  `texture`s, and a `map` array of numbers showing how the textures are
+  grouped into the pass. See `getState` and `mapGroups`.</td>
         </tr>
 
     
@@ -2027,7 +2024,7 @@ multiple draw buffers). Matches the lookup logic defined in `macroTaps`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="step.js.html">step.js</a>, <a href="step.js.html#line62">line 62</a>
+        <a href="step.js.html">step.js</a>, <a href="step.js.html#line61">line 61</a>
     </li></ul></dd>
     
 
@@ -2081,7 +2078,7 @@ multiple draw buffers). Matches the lookup logic defined in `macroTaps`.
         
 <div class="param-desc">
     The merged `texture`, updated by the active pass's output;
-    matches the lookup logic defined in `macroTaps`.
+  matches the lookup logic defined in `macroTaps`.
 </div>
 
 
@@ -2162,7 +2159,7 @@ multiple draw buffers). Matches the lookup logic defined in `macroTaps`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="step.js.html">step.js</a>, <a href="step.js.html#line384">line 384</a>
+        <a href="step.js.html">step.js</a>, <a href="step.js.html#line381">line 381</a>
     </li></ul></dd>
     
 
@@ -2308,7 +2305,7 @@ multiple draw buffers). Matches the lookup logic defined in `macroTaps`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="step.js.html">step.js</a>, <a href="step.js.html#line262">line 262</a>
+        <a href="step.js.html">step.js</a>, <a href="step.js.html#line259">line 259</a>
     </li></ul></dd>
     
 
@@ -2345,7 +2342,7 @@ multiple draw buffers). Matches the lookup logic defined in `macroTaps`.
         <li>
 <div class="param-desc">
     `buffer` A GL buffer to use for vertex attributes, or an object
-    serving that purpose.
+  serving that purpose.
 </div>
 
 
@@ -2617,7 +2614,7 @@ multiple draw buffers). Matches the lookup logic defined in `macroTaps`.
             
 
             <td class="description last">Any `framebuffer` to clear; if not given,
-    clears any active `framebuffer` or the view.</td>
+  clears any active `framebuffer` or the view.</td>
         </tr>
 
     
@@ -2658,7 +2655,7 @@ multiple draw buffers). Matches the lookup logic defined in `macroTaps`.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="step.js.html">step.js</a>, <a href="step.js.html#line277">line 277</a>
+        <a href="step.js.html">step.js</a>, <a href="step.js.html#line274">line 274</a>
     </li></ul></dd>
     
 
@@ -2765,7 +2762,7 @@ options; from a GL API.
             
 
             <td class="description last">The properties from which to create the GL render
-    function for a given pass.
+  function for a given pass.
                 <h6>Properties</h6>
                 
 
@@ -2820,7 +2817,7 @@ options; from a GL API.
             
 
             <td class="description last">Function hook returning the vertex
-    shader GLSL string for the next render pass.</td>
+  shader GLSL string for the next render pass.</td>
         </tr>
 
     
@@ -2854,7 +2851,7 @@ options; from a GL API.
             
 
             <td class="description last">Function hook returning the fragment
-    shader GLSL string for the next render pass.</td>
+  shader GLSL string for the next render pass.</td>
         </tr>
 
     
@@ -2888,7 +2885,7 @@ options; from a GL API.
             
 
             <td class="description last">The vertex attributes for
-    the next render pass.</td>
+  the next render pass.</td>
         </tr>
 
     
@@ -2922,7 +2919,7 @@ options; from a GL API.
             
 
             <td class="description last">The uniform hooks for the
-    given `props`. See `getUniforms`.</td>
+  given `props`. See `getUniforms`.</td>
         </tr>
 
     
@@ -2989,7 +2986,7 @@ options; from a GL API.
             
 
             <td class="description last">An object describing the depth
-    settings for the next render pass; e.g: `passCommand.depth.enable` flag.</td>
+  settings for the next render pass; e.g: `passCommand.depth.enable` flag.</td>
         </tr>
 
     
@@ -3023,7 +3020,7 @@ options; from a GL API.
             
 
             <td class="description last">Function hook returning the
-    `framebuffer` to draw to in the next render pass. See `framebuffer`.</td>
+  `framebuffer` to draw to in the next render pass. See `framebuffer`.</td>
         </tr>
 
     
@@ -3071,7 +3068,7 @@ options; from a GL API.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="step.js.html">step.js</a>, <a href="step.js.html#line293">line 293</a>
+        <a href="step.js.html">step.js</a>, <a href="step.js.html#line290">line 290</a>
     </li></ul></dd>
     
 
@@ -3111,8 +3108,8 @@ options; from a GL API.
 
         
 <div class="param-desc">
-    Function to execute a GL render pass, with options, for
-    a given render pass.
+    Function to execute a GL render pass, with options, for a
+  given render pass.
 </div>
 
 
@@ -3265,7 +3262,7 @@ options; from a GL API.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="step.js.html">step.js</a>, <a href="step.js.html#line338">line 338</a>
+        <a href="step.js.html">step.js</a>, <a href="step.js.html#line335">line 335</a>
     </li></ul></dd>
     
 
@@ -3480,7 +3477,7 @@ options; from a GL API.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="step.js.html">step.js</a>, <a href="step.js.html#line368">line 368</a>
+        <a href="step.js.html">step.js</a>, <a href="step.js.html#line365">line 365</a>
     </li></ul></dd>
     
 
@@ -3519,7 +3516,7 @@ options; from a GL API.
         
 <div class="param-desc">
     A `passProps` to use for the render `command` call; or
-    nullish to use the given `stepProps`.
+  `null`ish to use the given `stepProps`.
 </div>
 
 
@@ -3652,7 +3649,7 @@ options; from a GL API.
             
 
             <td class="description last">The `framebuffer`s for `props.stepNow` from
-    `props.steps`, where the next state step will be drawn. See `getState`.</td>
+  `props.steps`, where the next state step will be drawn. See `getState`.</td>
         </tr>
 
     
@@ -3693,7 +3690,7 @@ options; from a GL API.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="step.js.html">step.js</a>, <a href="step.js.html#line351">line 351</a>
+        <a href="step.js.html">step.js</a>, <a href="step.js.html#line348">line 348</a>
     </li></ul></dd>
     
 
@@ -3734,7 +3731,7 @@ options; from a GL API.
         
 <div class="param-desc">
     A `stepProps` to use for each of the step's next passes; or
-    nullish to use the given `props`.
+  `null`ish to use the given `props`.
 </div>
 
 
@@ -3958,7 +3955,7 @@ options; from a GL API.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="step.js.html">step.js</a>, <a href="step.js.html#line323">line 323</a>
+        <a href="step.js.html">step.js</a>, <a href="step.js.html#line320">line 320</a>
     </li></ul></dd>
     
 
@@ -4039,7 +4036,7 @@ options; from a GL API.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon Feb 28 2022 14:05:20 GMT+0000 (Greenwich Mean Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.11</a> on Wed Sep 07 2022 17:43:32 GMT+0100 (British Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

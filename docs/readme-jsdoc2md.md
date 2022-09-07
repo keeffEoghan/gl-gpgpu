@@ -46,6 +46,7 @@
     * [`.rgba`](#module_macros.rgba)
     * [`.cache`](#module_macros.cache)
     * [`.id`](#module_macros.id)
+    * [`.hooks`](#module_macros.hooks)
     * [`.getGLSLListBase`](#module_macros.getGLSLListBase) ⇒ <code>string</code>
     * [`.getGLSL1ListLike`](#module_macros.getGLSL1ListLike) ⇒ <code>string</code>
     * [`.getGLSL1ListArray`](#module_macros.getGLSL1ListArray) ⇒ <code>string</code>
@@ -57,6 +58,13 @@
     * [`.macroOutput(state, [on])`](#module_macros.macroOutput) ⇒ <code>string</code>
     * [`.macroSamples(state, [on])`](#module_macros.macroSamples) ⇒ <code>string</code>
     * [`.macroTaps(state, [on])`](#module_macros.macroTaps) ⇒ <code>string</code>
+        * [`~texture`](#module_macros.macroTaps..texture)
+        * [`~f`](#module_macros.macroTaps..f)
+        * [`~by`](#module_macros.macroTaps..by)
+        * [`~aka`](#module_macros.macroTaps..aka)
+        * [`~st`](#module_macros.macroTaps..st)
+        * [`~t`](#module_macros.macroTaps..t)
+        * [`~tapsSamples`](#module_macros.macroTaps..tapsSamples)
     * [`.default()`](#module_macros.default)
 * [maps](#module_maps)
     * [`.cache`](#module_maps.cache)
@@ -75,8 +83,14 @@
 * [state](#module_state)
     * _static_
         * [`.getState(api, [state], [to])`](#module_state.getState) ⇒ <code>object</code> \| <code>object.&lt;number, array.&lt;number, array.&lt;number&gt;&gt;&gt;</code> \| <code>array.&lt;array.&lt;object.&lt;texture, string, number, array.&lt;number&gt;&gt;&gt;&gt;</code> \| <code>array.&lt;array.&lt;object.&lt;framebuffer, number, array.&lt;number&gt;&gt;&gt;&gt;</code> \| <code>array.&lt;framebuffer.&lt;array.&lt;texture&gt;&gt;&gt;</code> \| <code>undefined</code> \| <code>\*</code> \| <code>object.&lt;texture, string, number, array.&lt;number&gt;&gt;</code> \| <code>object</code> \| <code>string</code> \| <code>boolean</code> \| <code>boolean</code> \| <code>number</code> \| <code>number</code> \| <code>number</code> \| <code>number</code> \| <code>number</code> \| <code>number</code> \| <code>number</code> \| <code>number</code> \| <code>array.&lt;number&gt;</code> \| <code>number</code> \| <code>undefined</code> \| <code>object.&lt;number, string, array.&lt;number&gt;&gt;</code> \| <code>number</code> \| <code>number</code>
+            * [`~colorPool`](#module_state.getState..colorPool)
+            * [`~mergeChannels`](#module_state.getState..mergeChannels)
+            * [`~size`](#module_state.getState..size)
             * [`~textures`](#module_state.getState..textures)
             * [`~passes`](#module_state.getState..passes)
+            * [`~mScaled`](#module_state.getState..mScaled)
+            * [`~mw`](#module_state.getState..mw)
+            * [`~passChannels()`](#module_state.getState..passChannels)
             * [`~addTexture()`](#module_state.getState..addTexture)
             * [`~addPass()`](#module_state.getState..addPass)
         * [`.default()`](#module_state.default)
@@ -87,27 +101,11 @@
     * _static_
         * [`.getPass`](#module_step.getPass) ⇒ <code>object</code>
         * [`.updateMerge(state)`](#module_step.updateMerge) ⇒ <code>texture</code>
+            * [`~y`](#module_step.updateMerge..y)
         * [`.getStep(api, state, [onStep], [onPass], [to])`](#module_step.getStep) ⇒ <code>object</code> \| <code>string</code> \| <code>string</code> \| <code>array.string</code> \| <code>array.string</code> \| <code>object</code> \| <code>number</code> \| <code>buffer</code> \| <code>command</code> \| <code>function</code>
         * [`.updateMergeTest()`](#module_step.updateMergeTest)
         * [`.default()`](#module_step.default)
     * _inner_
         * [`~buffer`](#module_step..buffer) ⇒ <code>\*</code> \| <code>number</code> \| <code>number</code>
         * [`~clear`](#module_step..clear) : <code>function</code>
-        * [`~command`](#module_step..command) ⇒ <code>function</code>
-        * [`~subimage`](#module_step..subimage) ⇒ <code>texture</code>
-        * [`~onCommand`](#module_step..onCommand) ⇒ <code>number</code> \| <code>array.&lt;number&gt;</code> \| <code>\*</code>
-        * [`~onStep`](#module_step..onStep) ⇒ <code>object</code>
-        * [`~onPass`](#module_step..onPass) ⇒ <code>object</code>
-* [util/remain-div](#module_util/remain-div) : <code>string.&lt;glsl&gt;</code>
-
-<a name="module_const"></a>
-
-## const
-Default properties for GPGPU and GL capabilities and resources.
-
-
-* [const](#module_const)
-    * [`.extensions`](#module_const.extensions)
-    * [`.extensionsFloat`](#module_const.extensionsFloat)
-    * [`.extensionsHalfFloat`](#module_const.extensionsHalfFloat)
-    * [`.optionalExtensions`](#module_const.option
+        * [`~command

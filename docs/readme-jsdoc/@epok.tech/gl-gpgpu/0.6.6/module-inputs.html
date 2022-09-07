@@ -518,7 +518,7 @@ current step to access states by texture sampling.
             
 
             <td class="description last">The array of steps, or number of steps.
-    See `getState`.</td>
+  See `getState`.</td>
         </tr>
 
     
@@ -556,7 +556,7 @@ current step to access states by texture sampling.
             
 
             <td class="description last">Any merged state texture; uses separate state
-    textures if not given. See `getState`.</td>
+  textures if not given. See `getState`.</td>
         </tr>
 
     
@@ -592,7 +592,7 @@ current step to access states by texture sampling.
             
 
             <td class="description last">How values are grouped per-texture per-pass
-    per-step. See `mapGroups`.
+  per-step. See `mapGroups`.
                 <h6>Properties</h6>
                 
 
@@ -635,7 +635,7 @@ current step to access states by texture sampling.
             
 
             <td class="description last">How values are grouped into
-    textures. See `mapGroups`.</td>
+  textures. See `mapGroups`.</td>
         </tr>
 
     
@@ -682,7 +682,7 @@ current step to access states by texture sampling.
             
 
             <td class="description last">Number of steps bound to output,
-    cannot be input; for platforms forbidding read/write of same buffer.</td>
+  cannot be input; for platforms forbidding read/write of same buffer.</td>
         </tr>
 
     
@@ -729,7 +729,7 @@ current step to access states by texture sampling.
             
 
             <td class="description last">The object to contain the
-    uniforms; `state.uniforms` or a new object if not given.</td>
+  uniforms; `state.uniforms` or a new object if not given.</td>
         </tr>
 
     
@@ -770,7 +770,7 @@ current step to access states by texture sampling.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="inputs.js.html">inputs.js</a>, <a href="inputs.js.html#line92">line 92</a>
+        <a href="inputs.js.html">inputs.js</a>, <a href="inputs.js.html#line91">line 91</a>
     </li></ul></dd>
     
 
@@ -817,9 +817,9 @@ current step to access states by texture sampling.
         
 <div class="param-desc">
     `to` The uniform hooks
-    for the given `state`. Each is a static number or array of numbers; or a
-    GL object such as a texture; or a `getUniform` function returning one, to
-    be called on each pass.
+  for the given `state`. Each is a static number or array of numbers; or a GL
+  object such as a texture; or a `getUniform` function returning one, to be
+  called on each pass.
 </div>
 
 
@@ -843,43 +843,42 @@ current step to access states by texture sampling.
 
     <h5>Example</h5>
     
-    <pre class="prettyprint"><code>const state =
-        { pre: '', steps: 2, maps: mapFlow({ values: [1, 2, 3] }) };
+    <pre class="prettyprint"><code>const state = { pre: '', steps: 2, maps: mapFlow({ values: [1, 2, 3] }) };
 
-    getUniforms(getState({}, state)); // =>
-    {
-        stepNow: (context, state) => {},
-        dataShape: (context, state) => {},
-        viewShape: (context, state) => {},
-        // Data textures kept separate in a `sampler2D[]`.
-        // Data textures for the 1st step ago not bound as an output.
-        'states[0]': (context, state) => {},
-        'states[1]': (context, state) => {}
-    };
+  getUniforms(getState({}, state)); // =>
+  {
+    stepNow: (context, state) => {},
+    dataShape: (context, state) => {},
+    viewShape: (context, state) => {},
+    // Data textures kept separate in a `sampler2D[]`.
+    // Data textures for the 1st step ago not bound as an output.
+    'states[0]': (context, state) => {},
+    'states[1]': (context, state) => {}
+  };
 
-    getUniforms(getState({}, { ...state, steps: 3 })); // =>
-    {
-        stepNow: (context, state) => {},
-        dataShape: (context, state) => {},
-        viewShape: (context, state) => {},
-        // Data textures kept separate in a `sampler2D[]`.
-        // Data textures for the 1st step ago not bound as an output.
-        'states[0]': (context, state) => {},
-        'states[1]': (context, state) => {}
-        // Data textures for the 2nd step ago not bound as an output.
-        'states[2]': (context, state) => {},
-        'states[3]': (context, state) => {}
-    };
+  getUniforms(getState({}, { ...state, steps: 3 })); // =>
+  {
+    stepNow: (context, state) => {},
+    dataShape: (context, state) => {},
+    viewShape: (context, state) => {},
+    // Data textures kept separate in a `sampler2D[]`.
+    // Data textures for the 1st step ago not bound as an output.
+    'states[0]': (context, state) => {},
+    'states[1]': (context, state) => {}
+    // Data textures for the 2nd step ago not bound as an output.
+    'states[2]': (context, state) => {},
+    'states[3]': (context, state) => {}
+  };
 
-    getUniforms(getState({}, { ...state, merge: true })); // =>
-    {
-        stepNow: (context, state) => {},
-        dataShape: (context, state) => {},
-        viewShape: (context, state) => {},
-        // All states merged into one data texture upon every pass; for
-        // `sampler2D`, or `sampler3D` or `sampler2DArray` where supported.
-        states: (context, state) => {}
-    };</code></pre>
+  getUniforms(getState({}, { ...state, merge: true })); // =>
+  {
+    stepNow: (context, state) => {},
+    dataShape: (context, state) => {},
+    viewShape: (context, state) => {},
+    // All states merged into one data texture upon every pass; for
+    // `sampler2D`, or `sampler3D` or `sampler2DArray` where supported.
+    states: (context, state) => {}
+  };</code></pre>
 
 
 
@@ -1299,7 +1298,7 @@ current step to access states by texture sampling.
             
 
             <td class="description last">Textures per step, as arrays
-    of objects with a `texture` property. See `getState`.</td>
+  of objects with a `texture` property. See `getState`.</td>
         </tr>
 
     
@@ -1434,7 +1433,7 @@ current step to access states by texture sampling.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon Feb 28 2022 14:05:20 GMT+0000 (Greenwich Mean Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.11</a> on Wed Sep 07 2022 17:43:32 GMT+0100 (British Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>
