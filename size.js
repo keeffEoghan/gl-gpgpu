@@ -1,4 +1,4 @@
-/** @module size */
+/** @module */
 
 import map from '@epok.tech/fn-lists/map';
 import range from '@epok.tech/fn-lists/range';
@@ -6,7 +6,7 @@ import range from '@epok.tech/fn-lists/range';
 /**
  * Returns the given width, for various parameters in order of precedence.
  *
- * @see [getState]{@link ./state.js#getState}
+ * @see {@link state.getState}
  *
  * @param {number|object<number>|array<number>} size Numeric size (width), or
  *   an object or array containing it.
@@ -30,7 +30,7 @@ export const getWidth = ({ width, w, x, shape, size, side, 0: a }) =>
 /**
  * Returns the given height, for various parameters in order of precedence.
  *
- * @see [getState]{@link ./state.js#getState}
+ * @see {@link state.getState}
  *
  * @param {number|object<number>|array<number>} size Numeric size (height), or
  *   an object or array containing it.
@@ -55,9 +55,9 @@ export const getHeight = ({ height, h, y, shape, size, side, 1: a }) =>
  * Gives the number of indexes to draw a full state, for various parameters.
  * Effectively equivalent to `gl_VertexID` in WebGL2.
  *
- * @see getWidth
- * @see getHeight
- * @see [getState]{@link ./state.js#getState}
+ * @see {@link getWidth}
+ * @see {@link getHeight}
+ * @see {@link state.getState}
  *
  * @param {number|object<number>|array<number>} size Numeric size information of
  *   data resources, or an object or array containing it; or width if
@@ -91,4 +91,4 @@ export const getDrawIndexes = (size) => map((_, i) => i,
  *
  * @returns 2 raised to the given numeric power, or `null` if not given.
  */
-export const getScaled = (scale) => (Number.isFinite(scale))? 2**scale : null;
+export const getScaled = (scale) => ((Number.isFinite(scale))? 2**scale : null);

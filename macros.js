@@ -1,18 +1,17 @@
 /**
- * GPGPU GLSL preprocessor macros for each part of the state.
+ * GPGPU `GLSL` preprocessor macros for working with the state and maps.
  *
- * Careful defining these, as each set of different macros will result in new
- * shaders and compilations, missing the cache here and in the rendering system.
- * So, as few unique macros as possible should be created for a given set of
- * inputs, for efficiency.
+ * Use these with care, as each set of different macros will result in new
+ * shaders and compilations; so, as few unique macros as possible should be
+ * created for a given set of inputs, for efficiency.
  *
- * @module macros
+ * @module
  *
  * @todo Ensure the `output_N` in `macroOutput` can work with `WebGL2`; look at
  *   using `layout(location=attach_N) out data_N`, not `gl_FragData[attach_N]`.
- *   https://stackoverflow.com/questions/51793336/multiple-output-textures-from-the-same-program
- *   https://stackoverflow.com/questions/46740817/gl-fragdata-must-be-constant-zero
- *   https://stackoverflow.com/questions/50258822/how-are-layout-qualifiers-better-than-getattriblocation-in-webgl2
+ *   - https://stackoverflow.com/questions/51793336/multiple-output-textures-from-the-same-program
+ *   - https://stackoverflow.com/questions/46740817/gl-fragdata-must-be-constant-zero
+ *   - https://stackoverflow.com/questions/50258822/how-are-layout-qualifiers-better-than-getattriblocation-in-webgl2
  * @todo Redo examples, especially `macroTaps` and `macroPass`.
  * @todo Allow passes into or across textures; separate data and texture shapes.
  * @todo Make everything function-like macro taking variable names? Makes
@@ -34,8 +33,9 @@ export const cr = ' \\\n';
 export const rgba = 'rgba';
 /** Simple cache for temporary or reusable objects. */
 export const cache = {};
-/** Get cache keys without having to create new objects for `stringify`. */
-export const id = JSON.stringify;
+
+/** Gives cache keys from plain objects. */
+const id = JSON.stringify;
 
 /** Keys for each part of the macro handling process available to hooks. */
 export const hooks = {
@@ -52,7 +52,7 @@ export const hooks = {
  * Allows macros of the given key to be handled by external named hooks, to
  * replace any part of the functionality here.
  *
- * @example
+ * @example ```
  *   // Macros to be handled here, the default.
  *   [hasMacros(), hasMacros({}), hasMacros({ macros: true })]]
  *     .every((m) => m === null);
@@ -74,13 +74,15 @@ export const hooks = {
  *   hasMacros({ macros: { frag: 0, a_vert: 0 } }, '', 'vert') === null;
  *   // Macros for hook `'a'` specified `on` a 'vert' not created.
  *   hasMacros({ macros: { frag: 0, a_vert: 0 } }, 'a', 'vert') === '';
+ * ```
  *
  * @param {object} [props] The properties handling macros.
  * @param {string} [key] The name for which macros should be handled.
  * @param {string} [on=''] Any further macro `hooks` specifier; if given, both
  *   the hook key and this specifier are checked (e.g: `key` and `key_on`).
+ *
  * @param {string|function|object|false} [macros=props.macros] Whether and how
- *   GLSL preprocessor macros should be handled:
+ *   `GLSL` preprocessor macros should be handled:
  *   - If it's false-y and non-nullish, no macros are handled here.
  *   - If it's a string, no macros are handled here as it's used instead.
  *   - If it's a function, it's passed the given `props`, `key`, `macros`, and
@@ -89,7 +91,7 @@ export const hooks = {
  *     with the given `props`, `key`, and `macros[key]`.
  *   - Otherwise, returns `null` to indicate macros should be handled here.
  *
- * @returns {string|null|*} Either the result of the macros handled elsewhere,
+ * @returns {string|null} Either the result of the macros handled elsewhere,
  *   or `null` if macros should be handled here.
  */
 export function hasMacros(props, key, on = '', macros = props?.macros) {
@@ -107,26 +109,28 @@ export function hasMacros(props, key, on = '', macros = props?.macros) {
 }
 
 /**
- * Generates an array-like declaration, as a GLSL syntax string compatible with
- * all versions.
- * Workaround for lack of `const` arrays in GLSL < 3.
- * Used as the base for the other GLSL version list types, ensuring a standard
- * basis while offering further language features where available.
+ * Generates an array-like declaration, as a `GLSL` syntax string compatible
+ * with all versions.
  *
- * @example
+ * Workaround for lack of `const` arrays in `GLSL` < 3. Used as the base for the
+ * other `GLSL` version list types, ensuring a standard basis while offering
+ * further language features where available.
+ *
+ * @example ```
  *   getGLSLListBase('float', 'list', [0, 1, 2], 'const'); // =>
  *   'const int list_l = 3;'+cr+
  *   'const int list_0 = float(0);'+cr+
  *   'const int list_1 = float(1);'+cr+
  *   'const int list_2 = float(2);';
+ * ```
  *
- * @param {string} type The GLSL list data-type.
- * @param {string} name The name of the GLSL list variable.
- * @param {array<number,array<number>>} a The list of GLSL values.
- * @param {string} [qualify=''] A GLSL qualifier, if needed.
+ * @param {string} type The `GLSL` list data-type.
+ * @param {string} name The name of the `GLSL` list variable.
+ * @param {array<number,array<number>>} a The list of `GLSL` values.
+ * @param {string} [qualify=''] A `GLSL` qualifier, if needed.
  * @param {string} [init=type] A data-type initialiser, `type` by default.
  *
- * @returns {string} The GLSL 1 array-like declaration string.
+ * @returns {string} The `GLSL1` array-like declaration string.
  */
 export const getGLSLListBase = (type, name, a, qualify = '', init = type) =>
   `const int ${name}_l = ${a.length};`+
@@ -136,11 +140,14 @@ export const getGLSLListBase = (type, name, a, qualify = '', init = type) =>
     a, '');
 
 /**
- * Generates an array-like declaration, as a GLSL 1 syntax string.
- * Workaround for lack of `const` arrays in GLSL < 3.
- * Adds a lookup macro function; slow here, but standard.
+ * Generates an array-like declaration, as a `GLSL1` syntax string.
  *
- * @example
+ * Workaround for lack of `const` arrays in `GLSL` < 3. Adds a lookup macro
+ * function; slow here, but standard.
+ *
+ * @see {@link getGLSLListBase}
+ *
+ * @example ```
  *   getGLSL1ListLike('float', 'list', [0, 1, 2], 'const'); // =>
  *   'const int list_l = 3;'+cr+
  *   'const int list_0 = float(0);'+cr+
@@ -149,14 +156,15 @@ export const getGLSLListBase = (type, name, a, qualify = '', init = type) =>
  *   '// Index macro `list_i` (e.g: `list_i(0)`) may be slow, `+
  *     'use name (e.g: `list_0`) if possible.\n'+
  *   '#define list_i(i) ((i == 2)? list_2 : ((i == 1)? list_1 : list_0))\n';
+ * ```
  *
- * @param {string} type The GLSL list data-type.
- * @param {string} name The name of the GLSL list variable.
- * @param {array<number,array<number>>} a The list of GLSL values.
- * @param {string} [qualify=''] A GLSL qualifier, if needed.
+ * @param {string} type The `GLSL` list data-type.
+ * @param {string} name The name of the `GLSL` list variable.
+ * @param {array<number,array<number>>} a The list of `GLSL` values.
+ * @param {string} [qualify=''] A `GLSL` qualifier, if needed.
  * @param {string} [init=type] A data-type initialiser, `type` by default.
  *
- * @returns {string} The GLSL 1 array-like declaration string.
+ * @returns {string} The `GLSL1` array-like declaration string.
  */
 export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
   getGLSLListBase(type, name, a, qualify, init)+'\n'+
@@ -169,10 +177,13 @@ export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
     a, '')}\n`;
 
 /**
- * Generates an array declaration, as a GLSL 1 syntax string.
+ * Generates an array declaration, as a `GLSL1` syntax string.
+ *
  * Lookup and meta macros are added for consistency with other versions.
  *
- * @example
+ * @see {@link getGLSLListBase}
+ *
+ * @example ```
  *   getGLSL1ListArray('vec3', 'list', [[1, 0, 0], [0, 2, 0], [0, 0, 3]]);
  *   // =>
  *   'const int list_l = 3;'+cr+
@@ -184,14 +195,15 @@ export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
  *   'list[1] = list_1;'+cr+
  *   'list[2] = list_2;\n'+
  *   '#define list_i(i) list[i]\n';
+ * ```
  *
- * @param {string} type The GLSL list data-type.
- * @param {string} name The name of the GLSL list variable.
- * @param {array<number,array<number>>} a The list of GLSL values.
- * @param {string} [qualify=''] A GLSL qualifier, if needed.
+ * @param {string} type The `GLSL` list data-type.
+ * @param {string} name The name of the `GLSL` list variable.
+ * @param {array<number,array<number>>} a The list of `GLSL` values.
+ * @param {string} [qualify=''] A `GLSL` qualifier, if needed.
  * @param {string} [init=type] A data-type initialiser, `type` by default.
  *
- * @returns {string} The GLSL 1 array declaration string.
+ * @returns {string} The `GLSL1` array declaration string.
  */
 export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
   getGLSLListBase(type, name, a, qualify, init)+cr+
@@ -200,10 +212,13 @@ export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
   `#define ${name}_i(i) ${name}[i]\n`;
 
 /**
- * Generates an array declaration, as a GLSL 3 syntax string.
+ * Generates an array declaration, as a `GLSL3` syntax string.
+ *
  * Lookup and meta macros are added for consistency with other versions.
  *
- * @example
+ * @see {@link getGLSLListBase}
+ *
+ * @example ```
  *   getGLSL3List('int', 'list', [0, 1, 2], 'const'); // =>
  *   'const int list_l = 3;'+cr+
  *   'const int list_0 = int(0);'+cr+
@@ -211,14 +226,15 @@ export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
  *   'const int list_2 = int(2);'+cr+
  *   'const int list[list_l] = int[list_l](list_0, list_1, list_2);\n'+
  *   '#define list_i(i) list[i]\n';
+ * ```
  *
- * @param {string} type The GLSL list data-type.
- * @param {string} name The name of the GLSL list variable.
- * @param {array<number,array<number>>} a The list of GLSL values.
- * @param {string} [qualify=''] A GLSL qualifier, if needed.
+ * @param {string} type The `GLSL` list data-type.
+ * @param {string} name The name of the `GLSL` list variable.
+ * @param {array<number,array<number>>} a The list of `GLSL` values.
+ * @param {string} [qualify=''] A `GLSL` qualifier, if needed.
  * @param {string} [init=type] A data-type initialiser, `type` by default.
  *
- * @returns {string} The GLSL 3 array declaration string.
+ * @returns {string} The `GLSL3` array declaration string.
  */
 export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
   getGLSLListBase(type, name, a, qualify, init)+cr+
@@ -227,16 +243,22 @@ export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
   `#define ${name}_i(i) ${name}[i]\n`;
 
 /**
- * Creates a GLSL definition of an array, and initialises it with the given
+ * Creates a `GLSL` definition of an array, and initialises it with the given
  * values, type, and variable name.
- * The initialisation is valid GLSL 1.0 or greater syntax; but is written with
- * escaped new-lines so it may be used in a single-line - e.g: for preprocessor
- * macros.
- * For a `qualify` of `const` on any `glsl` less than `3`, falls back to using
- * non-array variables with the index appended to `name`, since `const` arrays
- * aren't supported before GLSL 3.0.
  *
- * @example
+ * The initialisation is valid `GLSL1` or greater syntax; but is written with
+ * escaped new-lines so it may be used in a single-line (e.g: for preprocessor
+ * macros).
+ *
+ * For a `qualify` of `const` on any `GLSL` < 3, falls back to using non-array
+ * variables with the index appended to `name`, since `const` arrays aren't
+ * supported before `GLSL3`.
+ *
+ * @see {@link getGLSL3List}
+ * @see {@link getGLSL1ListLike}
+ * @see {@link getGLSL1ListArray}
+ *
+ * @example ```
  *   getGLSLList('int', 'test', [0, 1]); // =>
  *   'const int test_l = 2;'+cr+
  *   'int test_0 = int(0);'+cr+
@@ -260,15 +282,16 @@ export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
  *   '// Index macro `listLike_i` (e.g: `listLike_i(0)`) may be slow, `+
  *     'use name (e.g: `listLike_0`) if possible.\n'+
  *   '#define listLike_i(i) ((i == 1)? listLike_1 : listLike_0)\n';
+ * ```
  *
- * @param {string} type The GLSL list data-type.
- * @param {string} name The name of the GLSL list variable.
- * @param {array<number,array<number>>} a The list of GLSL values.
- * @param {string} [qualify=''] A GLSL qualifier, if needed (e.g: `const`).
- * @param {number} [glsl=1] The GLSL version to target, if specified.
+ * @param {string} type The `GLSL` list data-type.
+ * @param {string} name The name of the `GLSL` list variable.
+ * @param {array<number,array<number>>} a The list of `GLSL` values.
+ * @param {string} [qualify=''] A `GLSL` qualifier, if needed (e.g: `const`).
+ * @param {number} [glsl=1] The `GLSL` version to target, if specified.
  * @param {string} [init] A data-type initialiser.
  *
- * @returns {string} The GLSL (1 or 3) array or array-like declaration string.
+ * @returns {string} The `GLSL` (1 or 3) array or array-like declaration string.
  */
 export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
   ((glsl >= 3)? getGLSL3List
@@ -276,15 +299,16 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
     (type, name, a, qualify, init);
 
 /**
- * Defines the values within textures per-step, as GLSL preprocessor macros.
+ * Defines the values within textures per-step, as `GLSL` preprocessor macros.
+ *
  * These macros define mappings from values to their textures and channels.
  * Caches the result if `macros` generation is enabled, to help reuse shaders.
  *
- * @see hasMacros
- * @see [mapGroups]{@link ./maps.js#mapGroups}
- * @see [getState]{@link ./state.js#getState}
+ * @see {@link hasMacros}
+ * @see {@link maps.mapGroups}
+ * @see {@link state.getState}
  *
- * @example
+ * @example ```
  *   const maps = { values: [2, 4, 1], channelsMax: 4 };
  *
  *   // No optimisations - values not packed, single texture output per pass.
@@ -346,6 +370,7 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  *   '#define stepsPast 1\n'+
  *   '#define steps 2\n'+
  *   '\n';
+ * ```
  *
  * @param {object} state Properties used to generate the macros. See `getState`.
  * @param {string} [on] Any further macro `hooks` specifier; if given, both
@@ -367,7 +392,7 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  * @param {number} [state.size.count] The number of data entries per texture
  *   (the texture's area), if given. See `getState`.
  *
- * @returns {string} The GLSL preprocessor macros defining the mappings from
+ * @returns {string} The `GLSL` preprocessor macros defining the mappings from
  *   values to textures/channels.
  */
 export function macroValues(state, on) {
@@ -399,15 +424,16 @@ export function macroValues(state, on) {
 }
 
 /**
- * Defines the outputs being drawn to per-pass, as GLSL preprocessor macros.
+ * Defines the outputs being drawn to per-pass, as `GLSL` preprocessor macros.
+ *
  * These macros define mappings from values to their outputs, if bound.
  * Caches the result if `macros` generation is enabled, to help reuse shaders.
  *
- * @see hasMacros
- * @see [mapGroups]{@link ./maps.js#mapGroups}
- * @see [getState]{@link ./state.js#getState}
+ * @see {@link hasMacros}
+ * @see {@link maps.mapGroups}
+ * @see {@link state.getState}
  *
- * @example
+ * @example ```
  *   const maps = { values: [2, 4, 1], channelsMax: 4 };
  *
  *   // No optimisations - values not packed, single texture output per pass.
@@ -466,6 +492,7 @@ export function macroValues(state, on) {
  *   '#define attach_2 1\n'+
  *   '#define output_2 gl_FragData[attach_2].b\n'+
  *   '\n';
+ * ```
  *
  * @param {object} state Properties for generating the macros. See `getState`:
  * @param {string} [on] Any further macro `hooks` specifier; if given, both
@@ -483,7 +510,7 @@ export function macroValues(state, on) {
  * @param {array<array<number>>} state.maps.passes The groupings of textures
  *   into passes. See `mapGroups`.
  *
- * @returns {string} The GLSL preprocessor macros for the pass's bound outputs.
+ * @returns {string} The `GLSL` preprocessor macros for the pass's bound outputs.
  */
 export function macroOutput(state, on) {
   const key = hooks.macroOutput;
@@ -509,22 +536,24 @@ export function macroOutput(state, on) {
 }
 
 /**
- * Defines the texture samples/reads per-pass, as GLSL preprocessor macros.
+ * Defines the texture samples/reads per-pass, as `GLSL` preprocessor macros.
+ *
  * The macros define the mapping between the values and those they derive from,
  * as step/texture locations in a `samples` list, and indexes to read values
  * from sampled data in a `reads` list (once sampled into a `data` list, as in
  * `macroTaps` or similar).
+ *
  * They're set up as function-like macros that may be called from the shader to
  * initialise the mappings arrays with a given name.
  * Caches the result if `macros` generation is enabled, to help reuse shaders.
  *
- * @see macroTaps
- * @see hasMacros
- * @see getGLSLList
- * @see [mapFlow]{@link ./maps.js#mapFlow}
- * @see [getState]{@link ./state.js#getState}
+ * @see {@link macroTaps}
+ * @see {@link hasMacros}
+ * @see {@link getGLSLList}
+ * @see {@link maps.mapFlow}
+ * @see {@link state.getState}
  *
- * @example
+ * @example ```
  *   const values = [2, 4, 1];
  *   const derives = [2, , [[1, 0], true]];
  *   const maps = { values, derives, channelsMax: 4 };
@@ -615,6 +644,7 @@ export function macroOutput(state, on) {
  *   '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+
  *     ': ((i == 1)? reads_2_1 : reads_2_0)))\n'+
  *   '\n';
+ * ```
  *
  * @param {object} state Properties used to generate the macros. See `getState`.
  * @param {string} [on] Any further macro `hooks` specifier; if given, both the
@@ -630,9 +660,10 @@ export function macroOutput(state, on) {
  *   texture samples to use. See `mapSamples`.
  * @param {array<array<array<number>>>} [state.maps.reads] The mappings from
  *   values to the corresponding `state.samples`. See `mapSamples`.
- * @param {number} [state.glsl=1] The GLSL language version. See `getGLSLList`.
+ * @param {number} [state.glsl=1] The `GLSL` language version.
+ *   See `getGLSLList`.
  *
- * @returns {string} The GLSL preprocessor macros defining the mappings for
+ * @returns {string} The `GLSL` preprocessor macros defining the mappings for
  *   samples and reads, for each value.
  */
 export function macroSamples(state, on) {
@@ -659,37 +690,35 @@ export function macroSamples(state, on) {
 }
 
 /**
- * Defines the samples of textures per-pass, as GLSL preprocessor macros.
+ * Defines the samples of textures per-pass, as `GLSL` preprocessor macros.
+ *
  * The macros define the minimal sampling of textures for the data the active
  * pass's values derive from; creates a `data` list containing the samples; the
- * `samples` list names are required, as created by `macroSamples` or similar.
+ * `samples` list variable names are required as created by `macroSamples`.
+ *
  * Handles sampling states in a flat array of textures, or merged in one texture
  * (in both `sampler2D`, and `sampler3D`/`sampler2DArray` where supported).
  * Merging allows shaders to access past steps by non-constant lookups; e.g:
- * attributes cause "sampler array index must be a literal expression" on GLSL3
- * spec and some platforms (e.g: D3D); note these need texture repeat wrapping.
+ * attributes cause `sampler array index must be a literal expression` on
+ * `GLSL3` spec and other platforms (e.g: `D3D`); note these need texture repeat
+ * wrapping.
+ *
  * They're set up as function-like macros that may be called from the shader to
  * initialise the mappings arrays with a given name.
  * Caches the result if `macros` generation is enabled, to help reuse shaders.
  *
- * @todo Combine texture steps into one map would work around it, avoiding
- *   sampler arrays entirely; maybe usage-specific/heavy; could have 1
- *   framebuffer, copy pixels into its offset in 1 big past states texture
- *   (merge the current sampler array); analogous to GLSL3
- *   `sampler3D`/`sampler2DArray`.
+ * @see [`sampler array index must be a literal expression`](https://stackoverflow.com/a/60110986/716898)
+ * @see [`sampler2DArray`](https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_2d_array.html)
+ * @see [`sampler3D`](https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_3d.html)
  *
- * @see https://stackoverflow.com/a/60110986/716898
- * @see https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_2d_array.html
- * @see https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_3d.html
+ * @see {@link macroSamples}
+ * @see {@link hasMacros}
+ * @see {@link getGLSLList}
+ * @see {@link maps.mapFlow}
+ * @see {@link state.getState}
+ * @see {@link inputs.getUniforms}
  *
- * @see macroSamples
- * @see hasMacros
- * @see getGLSLList
- * @see [mapFlow]{@link ./maps.js#mapFlow}
- * @see [getState]{@link ./state.js#getState}
- * @see [getUniforms]{@link ./inputs.js#getUniforms}
- *
- * @example
+ * @example ```
  *   const values = [2, 4, 1];
  *   const derives = [2, , [[1, 0], true]];
  *   const maps = { values, derives, channelsMax: 4 };
@@ -719,6 +748,7 @@ export function macroSamples(state, on) {
  *   state.passNow = 0;
  *   macroTaps(state); // =>
  *   '@todo';
+ * ```
  *
  * @param {object} state Properties used to generate the macros. See `getState`.
  * @param {string} [on] Any further macro `hooks` specifier; if given, both
@@ -734,11 +764,12 @@ export function macroSamples(state, on) {
  *   texture samples to use. See `mapSamples`.
  * @param {object} [state.merge] Any merged state texture; uses separate state
  *   textures if not given. See `getState`.
- * @param {number} [state.glsl=1] The GLSL language version. See `getGLSLList`.
+ * @param {number} [state.glsl=1] The `GLSL` language version.
+ *   See `getGLSLList`.
  *
- * @returns {string} The GLSL preprocessor macros defining the minimal sampling
- *   of textures, to suit how states are stored (flat array of textures, or all
- *   merged into one texture) and supported GLSL language features.
+ * @returns {string} The `GLSL` preprocessor macros defining the minimal
+ *   sampling of textures, to suit how states are stored (array of textures, or
+ *   all merged into one texture) and supported `GLSL` language features.
  */
 export function macroTaps(state, on) {
   const key = hooks.macroTaps;
@@ -933,21 +964,22 @@ export function macroTaps(state, on) {
 }
 
 /**
- * Defines all GLSL preprocessor macro values, texture samples, and outputs for
- * the active pass.
+ * Defines all `GLSL` preprocessor macro values, texture samples, and outputs
+ * for the active pass.
+ *
  * The macros define the mapping between the active values, their textures and
  * channels, bound outputs, and other macros useful for a draw pass.
  * Caches the result if `macros` generation is enabled, to help reuse shaders.
  *
- * @see hasMacros
- * @see macroValues
- * @see macroOutput
- * @see macroTaps
- * @see macroSamples
- * @see [mapFlow]{@link ./maps.js#mapFlow}
- * @see [getState]{@link ./state.js#getState}
+ * @see {@link hasMacros}
+ * @see {@link macroValues}
+ * @see {@link macroOutput}
+ * @see {@link macroTaps}
+ * @see {@link macroSamples}
+ * @see {@link maps.mapFlow}
+ * @see {@link state.getState}
  *
- * @example
+ * @example ```
  *   const values = [2, 4, 1];
  *   const derives = [2, , [[1, 0], true]];
  *
@@ -1041,13 +1073,14 @@ export function macroTaps(state, on) {
  *   '\n'+
  *   '// States in a `sampler2D[]`; looks up 1D index and 2D `uv`.\n'+
  *   '@todo';
+ * ```
  *
  * @param {object} state Properties for generating the macros. See `getState`
  *   and `mapGroups`.
  * @param {string} [on] Any further macro `hooks` specifier; if given, both
  *   the hook key and this specifier are checked (e.g: `key` and `key_on`).
  *
- * @returns {string} The GLSL preprocessor macros defining the mappings for
+ * @returns {string} The `GLSL` preprocessor macros defining the mappings for
  *   values, textures, channels, bound outputs of the active pass, etc. See
  *   `macroValues`, `macroOutput`, and `macroSamples`.
  */
@@ -1055,9 +1088,4 @@ export const macroPass = (state, on) =>
   hasMacros(state, hooks.macroPass, on) ??
     macroValues(state)+macroOutput(state)+macroSamples(state)+macroTaps(state);
 
-/**
- * @alias module:macros.default
- * @function
- * @see {@link module:macros.macroPass}
- */
 export default macroPass;

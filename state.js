@@ -1,7 +1,7 @@
 /**
- * GPGPU state and GL resources: framebuffers, textures; and meta information.
+ * GPGPU state and `GL` resources: framebuffers, textures; and meta information.
  *
- * @module state
+ * @module
  *
  * @todo Allow passes into or across textures; separate data and texture shapes.
  * @todo In-place updates of complex resources and meta info.
@@ -23,7 +23,7 @@ const { isInteger } = Number;
 /**
  * Set up the GPGPU resources and meta information for a state of a number data.
  *
- * @example
+ * @example ```
  *   const api = {
  *     framebuffer: ({ depth, stencil, width, height, color }) => null,
  *     texture: ({ type, min, mag, wrap, width, height, channels }) => null
@@ -183,28 +183,28 @@ const { isInteger } = Number;
  *       ]
  *     ]
  *   };
+ * ```
  *
  * @see {@link texture}
  * @see {@link framebuffer}
- * @see {@link module:maps.mapGroups}
- * @see {@link module:maps.mapSamples}
- * @see {@link module:step.getStep}
- * @see {@link module:macros.macroSamples}
- * @see {@link module:macros.macroTaps}
- * @see {@link module:macros.macroPass}
- * @see {@link module:size.getWidth}
- * @see {@link module:size.getHeight}
- * @see {@link module:size.getScaled}
+ * @see {@link maps.mapGroups}
+ * @see {@link maps.mapSamples}
+ * @see {@link step.getStep}
+ * @see {@link macros.macroSamples}
+ * @see {@link macros.macroTaps}
+ * @see {@link macros.macroPass}
+ * @see {@link size.getWidth}
+ * @see {@link size.getHeight}
+ * @see {@link size.getScaled}
  *
- * @see {@link https://stackoverflow.com/a/60110986/716898}
- * @see {@link https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_2d_array.html}
- * @see {@link https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_3d.html}
+ * @see [`sampler array index must be a literal expression`](https://stackoverflow.com/a/60110986/716898)
+ * @see [`sampler2DArray`](https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_2d_array.html)
+ * @see [`sampler3D`](https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_3d.html)
  *
- * @param {object} api The API for GL resources.
- * @param {texture} [api.texture] Function to create a GL texture.
- * @param {framebuffer} [api.framebuffer] Function to create a GL framebuffer.
+ * @param {object} api The API for `GL` resources.
+ * @param {texture} [api.texture] Function to create a `GL` texture.
+ * @param {framebuffer} [api.framebuffer] Function to create a `GL` framebuffer.
  * @param {object} [state={}] The state parameters.
- *
  * @param {number} [state.width=widthDef] Data width, aliases follow in order
  *   of precedence. See `getWidth`.
  * @param {number} [state.w] Alias of `state.width`. See `getWidth`.
@@ -240,28 +240,33 @@ const { isInteger } = Number;
  * @param {string} [state.min=minDef] Texture minification filter.
  * @param {string} [state.mag=magDef] Texture magnification filter.
  * @param {string} [state.wrap=wrapDef] Texture wrap mode.
- * @param {boolean|*} [state.depth=depthDef] Framebuffer depth attachment.
- * @param {boolean|*} [state.stencil=stencilDef] Framebuffer stencil attachment.
+ * @param {boolean|object} [state.depth=depthDef] Framebuffer depth attachment.
+ * @param {boolean|object} [state.stencil=stencilDef] Framebuffer stencil
+ *   attachment.
  *
- * @param {boolean|*} [state.merge=mergeDef] Whether to merge states into one
- *   texture; `true` handles merging here; any other truthy is used as-is (the
- *   merged texture already set up); falsey uses un-merged arrays of textures.
+ * @param {boolean|object} [state.merge=mergeDef] Whether to merge states into
+ *   one texture; `true` handles merging here; any other truthy is used as-is
+ *   (the merged texture already set up); falsey uses un-merged arrays of
+ *   textures.
+ *
  *   Merging allows shaders to access past steps by non-constant lookups; e.g:
  *   attributes cause "sampler array index must be a literal expression" on
- *   GLSL3 spec and some platforms (e.g: D3D); but takes more work to copy the
- *   last pass's bound texture/s to merge into the past texture, so should be
- *   used to variably access past steps or avoid arrays of textures limits.
+ *   `GLSL3` spec and some platforms (e.g: `D3D`); but takes more work to copy
+ *   the last pass's bound texture/s to merge into the past texture, so should
+ *   be used to variably access past steps or avoid arrays of textures limits.
  *   Only this merged past texture and those bound in an active pass are
  *   created, as upon each pass the output will be copied to the past texture,
  *   and bound textures reused in the next pass.
  *   If not merging, all state is as output by its pass in its own one of the
  *   arrays of textures.
+ *
  *   The default merged texture is laid out as `[texture, step]` on the
  *   `[x, y]` axes, respectively; if other layouts are needed, the merge
  *   texture can be given here to be used as-is, and the merging/copying and
  *   lookup logic in their respective hooks. See `getStep` and `macroTaps`.
  *   If a merge texture is given, size information is interpreted in a similar
  *   way and precedence as it is from `state`. See `getWidth` and `getHeight`.
+ *
  * @param {number} [state.merge.width] Merged data width, aliases follow in
  *   order of precedence. See `state`.
  * @param {number} [state.merge.w] Alias of `state.merge.width`. See `state`.
@@ -501,7 +506,7 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
 }
 
 /**
- * Function to create a GL texture; from a GL API.
+ * Function to create a `GL` texture; from a `GL` API.
  *
  * @callback texture
  *
@@ -513,11 +518,11 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
  * @param {number} height
  * @param {number} channels
  *
- * @returns {*} A GL texture, or an object serving that purpose.
+ * @returns {*} A `GL` texture, or an object serving that purpose.
  */
 
 /**
- * Function to create a GL framebuffer; from a GL API.
+ * Function to create a `GL` framebuffer; from a `GL` API.
  *
  * @callback framebuffer
  *
@@ -527,12 +532,7 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
  * @param {number} height
  * @param {array<texture>} color
  *
- * @returns {*} A GL framebuffer, or an object serving that purpose.
+ * @returns {*} A `GL` framebuffer, or an object serving that purpose.
  */
 
-/**
- * @alias module:state.default
- * @function
- * @see {@link module:state.getState}
- */
 export default getState;

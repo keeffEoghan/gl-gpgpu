@@ -1,7 +1,7 @@
 /**
  * Default properties for GPGPU and GL capabilities and resources.
  *
- * @module const
+ * @module
  */
 
 import { positions } from '@epok.tech/gl-screen-triangle';
@@ -32,7 +32,7 @@ export const preDef = 'gpgpu_';
  * Default minimum allowable channels for framebuffer attachments.
  * This avoids `RGB32F` framebuffer attachments, which errors on Firefox.
  *
- * @see https://bugzilla.mozilla.org/show_bug.cgi?id=1448632
+ * @see [Firefox RGB32F bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1448632)
  */
 export const channelsMinDef = 4;
 
@@ -40,7 +40,7 @@ export const channelsMinDef = 4;
  * Default minimum allowable channels for framebuffer attachments.
  * This avoids `RGB32F` framebuffer attachments, which errors on Firefox.
  *
- * @see https://bugzilla.mozilla.org/show_bug.cgi?id=1448632
+ * @see [Firefox RGB32F bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1448632)
  */
 export const channelsMaxDef = 4;
 

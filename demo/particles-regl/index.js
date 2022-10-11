@@ -54,7 +54,7 @@ function setQuery(entries, query = getQuery()) {
 }
 
 let query = getQuery();
-const fragDepth = (query.get('depth') === 'frag');
+const fragDepth = query.get('depth') === 'frag';
 
 // Set up GL.
 
@@ -62,10 +62,10 @@ const extend = {
   halfFloat: extensionsHalfFloat?.(),
   float: extensionsFloat?.(),
   other: optionalExtensions?.(),
-  depth: (fragDepth && 'EXT_frag_depth')
+  depth: fragDepth && 'ext_frag_depth'
 };
 
-const pixelRatio = (Math.max(devicePixelRatio, 1.5) || 1.5);
+const pixelRatio = Math.max(devicePixelRatio, 1.5) || 1.5;
 
 const regl = self.regl = getRegl({
   canvas, pixelRatio,
@@ -126,7 +126,7 @@ const useMerge = query.get('merge');
  *   const merge = ((useMerge)? (useMerge !== 'false') : (form !== 1));
  * ```
  */
-const merge = (!useMerge || (useMerge !== 'false'));
+const merge = !useMerge || (useMerge !== 'false');
 
 /** How many steps are used for output at a given time. */
 const bound = 1;
@@ -159,13 +159,13 @@ console.log('limits', limits, regl.limits);
  * 2 active states, as many others as can be bound; at least 2 past states
  * needed for Verlet integration, 1 for Euler integration.
  */
-const steps = Math.floor(clamp((parseFloat(query.get('steps'), 10) || 2+bound),
+const steps = Math.floor(clamp(parseFloat(query.get('steps'), 10) || 2+bound,
   ...limits.steps));
 
 /** How many past steps (not bound to outputs) are in the GPGPU state. */
 const stepsPast = steps-bound;
 /** Whether to allow Verlet integration; within available resource limits. */
-const canVerlet = (stepsPast > 1);
+const canVerlet = stepsPast > 1;
 
 /**
  * Form vertexes to draw; if not given, uses trails of 'lines' if there are
@@ -174,7 +174,7 @@ const canVerlet = (stepsPast > 1);
 const form = Math.floor(parseFloat(query.get('form'), 10) || 0);
 
 /** How wide the form is; to be scaled by `viewScale`. */
-const wide = (parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio);
+const wide = parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio;
 
 /**
  * Variable-step (delta-time) if given falsey/`NaN`; fixed-step (add-step)
@@ -183,7 +183,7 @@ const wide = (parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio);
 const hasTimestep = query.has('timestep');
 
 /** Whether to use a fixed timestep or render variably as soon as possible. */
-const timestep = ((hasTimestep)? (parseFloat(query.get('timestep'), 10) || null)
+const timestep = ((hasTimestep)? parseFloat(query.get('timestep'), 10) || null
   : 1e3/60);
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
@@ -383,7 +383,7 @@ console.groupEnd();
 const drawBound = +(!merge);
 
 const drawSteps = steps-drawBound;
-const useLines = (merge && (drawSteps > 1));
+const useLines = merge && (drawSteps > 1);
 
 console.log('drawSteps', drawSteps, 'useLines', useLines);
 
@@ -406,7 +406,7 @@ const drawState = {
   macros: { 'output': 0, 'frag': 0 },
   drawProps: {
     // How many vertexes per form.
-    form: clamp((form || 2), 1, 1+useLines),
+    form: clamp(form || 2, 1, 1+useLines),
     // Vertex counts by form; how many steps a form covers, for all entries.
     count: null,
     counts: drawCounts,
@@ -531,8 +531,8 @@ canvas.addEventListener((('onpointerup' in self)? 'pointerup'
     // Switch between physics/drawing modes if this wasn't press-held.
 
     const { props: p, drawProps: d } = drawState;
-    const v = (canVerlet && (p.useVerlet = 1-p.useVerlet));
-    const f = (form || (d.form = 1+(useLines && ((canVerlet)? v : d.form%2))));
+    const v = canVerlet && (p.useVerlet = 1-p.useVerlet);
+    const f = form || (d.form = 1+(useLines && ((canVerlet)? v : d.form%2)));
 
     console.log('useVerlet', v, 'form', f,
       // See how this derives other properties.

@@ -1,8 +1,8 @@
 # `gl-gpgpu`
 
-[![GPGPU particles demo](./snap/demo-particles-regl.png)](https://epok.tech/gl-gpgpu "GPGPU particles demo")
+[![GPGPU particles demo](https://github.com/keeffEoghan/gl-gpgpu/tree/master/snap/demo-particles-regl-frames.png)](https://epok.tech/gl-gpgpu "GPGPU demo, particles with `regl`")
 
-[GPGPU state-stepping](#gpgpu-state-stepping) - maps optimal draw passes, shaders, GL resources, inputs, outputs; lets you focus on your logic - [BYORenderer](#byorenderer).
+[GPGPU state-stepping](#gpgpu-state-stepping) - declaratively maps optimal draw passes, shaders, `WebGL` resources, inputs, outputs - lets you focus on your logic, [BYORenderer](#byorenderer).
 
 ## Installation
 
@@ -19,9 +19,11 @@ yarn add @epok.tech/gl-gpgpu
 
 [See the demo](https://epok.tech/gl-gpgpu) and [its source code](https://github.com/keeffEoghan/gl-gpgpu/tree/master/demo/particles-regl) or [video](https://youtu.be/ddt3YA2J1ys) - below is shown a [partial example of GPGPU logic setup](#partial-example).
 
+[See the API documentation](https://epok.tech/gl-gpgpu/api) for a fuller guide.
+
 ## GPGPU State-Stepping
 
-GPGPU (General-Purpose Graphics Processing Unit) methods typically use textures as 2D (or 3D) memory buffers to perform arbitrary computation on the highly-parallel GPU in shaders.
+[GPGPU (General-Purpose Graphics Processing Unit)](https://en.wikipedia.org/wiki/General-purpose_computing_on_graphics_processing_units) methods typically use textures as 2D (or 3D) memory buffers to perform arbitrary computation on the highly-parallel GPU in shaders.
 
 This involves reading existing states from past buffers, writing new states into the next buffers, and keeping track of the mappings of each piece of data in memory.
 

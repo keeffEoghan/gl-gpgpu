@@ -1,7 +1,7 @@
 /**
  * Default GPGPU vertex shader.
  *
- * @see @epok.tech/gl-screen-triangle/uv-texture.vert.glsl
+ * @see [@epok.tech/gl-screen-triangle/uv-texture.vert.glsl](https://github.com/keeffEoghan/gl-screen-triangle/tree/master/uv-texture.vert.glsl)
  */
 
 precision highp float;

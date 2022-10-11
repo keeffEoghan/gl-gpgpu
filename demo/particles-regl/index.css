@@ -63,15 +63,17 @@ a {
   bottom: 0;
   left: 0;
   right: 0;
-  max-height: 100%;
+  max-height: 50%;
   overflow-y: auto;
-  opacity: 0.5;
-  transition: opacity 800ms ease-out;
-  will-change: opacity;
   font-family: sans-serif;
   color: #fff;
   background-color: #333;
   text-align: center;
+  opacity: 0.5;
+  transition: opacity 800ms ease-out;
+  will-change: opacity;
+
+  @media (any-hover: none) { opacity: 1; }
 
   &:hover,
   &:focus,
@@ -88,7 +90,7 @@ a {
   justify-content: center;
   align-items: flex-start;
   margin: 0;
-  padding: 1em;
+  padding: 0.5em;
 }
 
 .error {
@@ -130,7 +132,9 @@ a {
 }
 
 .flip-guide {
+  position: sticky;
   display: block;
+  top: 0;
   width: 100%;
   flex: 1 0 100%;
   padding: 0.4em;
@@ -138,10 +142,13 @@ a {
   font-size: 1.2em;
   font-weight: 900;
   font-family: monospace;
-  cursor: pointer;
+  cursor: row-resize;
   color: #333;
   background-color: #fff;
   outline-offset: -3px;
+  border: solid #333;
+  border-width: 1px 0 1px 0;
+  z-index: 1;
 
   &::before,
   &::after {
