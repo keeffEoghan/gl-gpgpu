@@ -1,6 +1,17 @@
 /**
- * @module
- * @group GLSL Modules
- * @see `GLSL` code in `./index-uv.glsl`, transformed via `glslify`
+ * `./index-uv.glsl` transformed via `glslify`.
+ *
+ * @module lookup/index-uv/glsl
+ * @group GLSL
  */
-export * as default from './index-uv.glsl';
+import transformed from './index-uv.glsl';
+
+/**
+ * `./index-uv.glsl` transformed via `glslify`.
+ *
+ * @type {string}
+ * @group GLSL
+ */
+export const glsl = transformed;
+
+export default glsl;

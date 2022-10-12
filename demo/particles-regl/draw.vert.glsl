@@ -2,8 +2,8 @@
  * Drawing a GPGPU particle simulation.
  * Requires setup with preprocessor macros. See `macroPass` and `macroValues`.
  *
- * @see [macroPass]{@link ../../macros.js#macroPass}
- * @see [macroValues]{@link ../../macros.js#macroValues}
+ * @see {@link macros.macroPass}
+ * @see {@link macros.macroValues}
  */
 
 precision highp float;
@@ -124,7 +124,7 @@ void main() {
 
   /**
    * Convert vertex position to `gl_FragCoord` window-space.
-   * @see https://stackoverflow.com/a/7158573
+   * @see [SO](https://stackoverflow.com/a/7158573)
    * @todo Might need the viewport `x` and `y` offset as well as `w` and `h`?
    */
   center = vec3(viewShape*((1.0+vertex.xy)/vertex.w)*0.5, vertex.z);

@@ -1,15 +1,15 @@
 /**
- * Convenience to turn a 1D entry index into a 2D texture UV to sample entries.
+ * Convenience to turn a 1D entry index into a 2D texture `UV` for sampling.
  * Note that this does not wrap the y-axis, so if the `index` exceeds the range
  * `[0, (size.x*size.y)-1]`, the result y-axis will exceed the range `[0, 1]`.
  *
- * @see [remainDiv]{@link ../util/remain-div.glsl}
+ * @see {@link util/remain-div/glsl}
  *
  * @param {float|int} `index` 1D index, expect range `[0, (size.x*size.y)-1]`.
  * @param {float|int|vec2|ivec2} `size` Texture's size, expect
  *   `[width, height]`, or if given a scalar interpret both as `side`.
  *
- * @returns {vec2} 2D UV texture sample coordinate, expect range `[0, 1]`.
+ * @returns {vec2} 2D `UV` texture sample coordinate, expect range `[0, 1]`.
  */
 
 #pragma glslify: remainDiv = require(../util/remain-div)

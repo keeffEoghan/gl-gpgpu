@@ -1,6 +1,17 @@
 /**
- * @module
- * @group GLSL Modules
- * @see `GLSL` code in `./index-states.glsl`, transformed via `glslify`
+ * `./index-states.glsl` transformed via `glslify`.
+ *
+ * @module index-forms/index-states/glsl
+ * @group GLSL
  */
-export * as default from './index-states.glsl';
+import transformed from './index-states.glsl';
+
+/**
+ * `./index-states.glsl` transformed via `glslify`.
+ *
+ * @type {string}
+ * @group GLSL
+ */
+export const glsl = transformed;
+
+export default glsl;

@@ -6,8 +6,8 @@
  * preprocessor macros control the combination according to which `values` are
  * currently bound for `output` to the next `state`.
  *
- * @see [getStep]{@link ../../step.js#getStep}
- * @see [macroPass]{@link ../../macros.js#macroPass}
+ * @see {@link step.getStep}
+ * @see {@link macros.macroPass}
  */
 
 #ifdef GL_EXT_draw_buffers
@@ -100,7 +100,7 @@ varying vec2 uv;
 #if defined(positionOutput) || defined(motionOutput)
   #pragma glslify: tau = require(glsl-constants/TWO_PI)
 
-  /** @see https://observablehq.com/@rreusser/equally-distributing-points-on-a-sphere */
+  /** @see [Spherical distribution](https://observablehq.com/@rreusser/equally-distributing-points-on-a-sphere) */
   vec3 randomOnSphere(float randomAngle, float randomDepth) {
     float a = randomAngle*tau;
     float u = (randomDepth*2.0)-1.0;
@@ -111,7 +111,7 @@ varying vec2 uv;
 
 /**
  * Drag acceleration, constrained within the given velocity.
- * @see https://en.wikipedia.org/wiki/Verlet_integration#Algorithmic_representation
+ * @see [Wikipedia on Verlet](https://en.wikipedia.org/wiki/Verlet_integration#Algorithmic_representation)
  */
 // vec3 dragAcc(vec3 velocity, vec3 drag) {
 //   vec3 l = abs(velocity);
@@ -207,7 +207,7 @@ void main() {
   #ifdef motionOutput
     /**
      * Gravitate towards the sink point (simplified).
-     * @see https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation
+     * @see [Wikipedia on gravitation](https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation)
      */
     vec3 gravity = sink.xyz-position1;
 

@@ -1,6 +1,17 @@
 /**
- * @module
- * @group GLSL Modules
- * @see `GLSL` code in `./index.vert.glsl`, transformed via `glslify`
+ * `./index.vert.glsl` transformed via `glslify`.
+ *
+ * @module index/vert/glsl
+ * @group GLSL
  */
-export * as default from './index.vert.glsl';
+import transformed from './index.vert.glsl';
+
+/**
+ * `./index.vert.glsl` transformed via `glslify`.
+ *
+ * @type {string}
+ * @group GLSL
+ */
+export const glsl = transformed;
+
+export default glsl;

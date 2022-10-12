@@ -1,6 +1,17 @@
 /**
- * @module
- * @group GLSL Modules
- * @see `GLSL` code in `./offset-uv.glsl`, transformed via `glslify`
+ * `./offset-uv.glsl` transformed via `glslify`.
+ *
+ * @module lookup/offset-uv/glsl
+ * @group GLSL
  */
-export * as default from './offset-uv.glsl';
+import transformed from './offset-uv.glsl';
+
+/**
+ * `./offset-uv.glsl` transformed via `glslify`.
+ *
+ * @type {string}
+ * @group GLSL
+ */
+export const glsl = transformed;
+
+export default glsl;

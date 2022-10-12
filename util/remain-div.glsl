@@ -5,8 +5,8 @@
  * Reuses the truncated division, and returns both; as both are useful in
  * various places, e.g: index conversion.
  *
- * @see https://www.shaderific.com/glsl-functions#modulo
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Remainder
+ * @see [GLSL modulo](https://www.shaderific.com/glsl-functions#modulo)
+ * @see [JS modulo/remainder](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Remainder)
  *
  * @param {float|int} `x` The first remainder/divide operand, expect `x >= 0`.
  * @param {float|int} `y` The second remainder/divide operand, expect `y >= 0`.
@@ -27,8 +27,6 @@ vec2 remainDiv(float x, int y) {
   int d = int(x)/y;
 
   // Remainder; like `mod` but with truncated `d` not floored, reuses `d`.
-  // @see https://www.shaderific.com/glsl-functions#modulo
-  // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Remainder
   // return vec2(mod(x, y), d);
   return vec2(x-float(y*d), d);
 }

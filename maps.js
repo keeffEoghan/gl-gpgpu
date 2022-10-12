@@ -1,8 +1,8 @@
 /**
- * GPGPU mappings for step/draw shaders input/output.
+ * The `gpgpu` mappings for step/draw shaders input/output.
  *
  * These maps show shaders how to make use of a system's supported features, how
- * to pack/unpack their data from framebuffers/textures, perform only minimal
+ * to pack/unpack their data from `framebuffer`s/`texture`s, perform minimal
  * needed samples to retrieve any past values they must derive from, etc.
  *
  * Shaders may declare values they output, values they derive from, groupings of
@@ -122,9 +122,9 @@ export function packValues(values, channelsMax = channelsMaxDef, to = []) {
 }
 
 /**
- * Groups the `values` of GPGPU data items across draw passes and data textures.
+ * Groups the `values` of `gpgpu` data across draw passes and data textures.
  *
- * @see {@link maps.packValues}
+ * @see {@link packValues}
  *
  * @example ```
  *   const x = 2;
@@ -183,7 +183,7 @@ export function packValues(values, channelsMax = channelsMaxDef, to = []) {
  *   };
  * ```
  *
- * @param {object} [maps={}] Maps and initial settings; new object if not given.
+ * @param {object} [maps=\{\}] Maps and initial settings; new object if not given.
  *
  * @param {array<number>} [maps.values=valuesDef()] An array where each number
  *   denotes how many value channels are grouped into one data texture in one
@@ -288,7 +288,7 @@ export function mapGroups(maps = {}, to = maps) {
  * Maps the minimal set of texture reads to derive the next state of values from
  * a past state of values they depend upon.
  *
- * @see {@link maps.mapGroups}
+ * @see {@link mapGroups}
  *
  * @example ```
  *   const maps = mapGroups({
@@ -440,8 +440,8 @@ export function mapSamples(maps, to = maps) {
  * Main function, creates maps for a given set of values and settings, as well
  * as maps for minimal samples and reads if new values derive from past ones.
  *
- * @see {@link maps.mapGroups}
- * @see {@link maps.mapSamples}
+ * @see {@link mapGroups}
+ * @see {@link mapSamples}
  *
  * @param {object} [maps] Maps and initial settings.
  * @param {object} [to=maps] An object to contain the results; modifies `maps`

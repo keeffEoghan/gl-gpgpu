@@ -1,6 +1,17 @@
 /**
- * @module
- * @group GLSL Modules
- * @see `GLSL` code in `./remain-div.glsl`, transformed via `glslify`
+ * `./remain-div.glsl` transformed via `glslify`.
+ *
+ * @module util/remain-div/glsl
+ * @group GLSL
  */
-export * as default from './remain-div.glsl';
+import transformed from './remain-div.glsl';
+
+/**
+ * `./remain-div.glsl` transformed via `glslify`.
+ *
+ * @type {string}
+ * @group GLSL
+ */
+export const glsl = transformed;
+
+export default glsl;

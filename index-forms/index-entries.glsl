@@ -1,7 +1,7 @@
 /**
  * The step and entry indexes corresponding to the entries and steps count for
  * pairs of elements (e.g: lines linking each entry's steps); as detailed in the
- * `indexForms` JS function.
+ * `indexForms` `JS` function.
  * Takes vertex index and entries count as input; iterates steps-then-entries.
  *
  * Works out as 2 `remainDiv`:
@@ -9,9 +9,8 @@
  * `[entryForm.s+floor(entryForm.t/entries), entryForm.t%entries]`
  * `[entryForm.s+stepEntry.t, stepEntry.s]`
  *
- * @see [readme]{@link ./readme.md}
- * @see [indexForms]{@link ./index.js#indexForms}
- * @see [remainDiv]{@link ../util/remain-div.glsl}
+ * @see {@link index-forms}
+ * @see {@link util/remain-div/glsl}
  *
  * @param {float|int} `index` The index of a vertex; expects simple sequential
  *   index attribute.

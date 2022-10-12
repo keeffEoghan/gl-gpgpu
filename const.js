@@ -1,15 +1,16 @@
 /**
- * Default properties for GPGPU and GL capabilities and resources.
+ * Default properties for `gpgpu` and `GL` capabilities and resources.
  *
  * @module
  */
 
 import { positions } from '@epok.tech/gl-screen-triangle';
+import _vertDef from './index.vert.glsl';
 
-/** Default vertex shader. */
-export { default as vertDef } from './index.vert.glsl';
+/** Default vertex shader `GLSL` code. */
+export const vertDef = _vertDef;
 
-// The required and optional GL extensions for a GPGPU state.
+// The required and optional `GL` extensions for a `gpgpu` state.
 
 /** Default required extensions; none. */
 export const extensions = () => [];
@@ -87,7 +88,7 @@ export const typeDef = 'float';
 export const minDef = 'nearest';
 /** Default texture magnification filter. */
 export const magDef = 'nearest';
-/** Default texture wrap mode, avoids WebGL1 need for power-of-2 texture. */
+/** Default texture wrap mode, avoids `WebGL1` need for power-of-2 texture. */
 export const wrapDef = 'clamp';
 /** Default framebuffer depth attachment. */
 export const depthDef = false;

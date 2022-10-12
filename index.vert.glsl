@@ -1,5 +1,5 @@
 /**
- * Default GPGPU vertex shader.
+ * Default `gpgpu` vertex shader.
  *
  * @see [@epok.tech/gl-screen-triangle/uv-texture.vert.glsl](https://github.com/keeffEoghan/gl-screen-triangle/tree/master/uv-texture.vert.glsl)
  */

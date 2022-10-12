@@ -1,5 +1,5 @@
 /**
- * GPGPU inputs (uniforms, attributes, indexes, etc).
+ * The `gpgpu` inputs (uniforms, attributes, indexes, etc).
  *
  * @module
  */
@@ -11,7 +11,7 @@ import wrap from '@epok.tech/fn-lists/wrap';
 import { boundDef, preDef } from './const';
 
 /**
- * Uniform inputs for GPGPU calls, such as in `getStep`.
+ * Uniform inputs for `gpgpu` calls, such as in `getStep`.
  * Uniforms are defined as callback hooks called at each pass, using properties
  * from given global context and local state objects, allowing different APIs or
  * author-defined hooks.
@@ -68,7 +68,7 @@ import { boundDef, preDef } from './const';
  * @see {@link macros.macroSamples}
  * @see {@link macros.macroTaps}
  *
- * @param {object} state The GPGPU state to use. See `getState` and `mapGroups`.
+ * @param {object} state The `gpgpu` state. See `getState` and `mapGroups`.
  * @param {string} [state.pre=preDef] Namespace prefix; `preDef` if not given.
  * @param {object} [state.size] Size information of the `state`. See `getState`.
  * @param {array<number>} [state.size.shape] The data's shape. See `getState`.
@@ -82,7 +82,7 @@ import { boundDef, preDef } from './const';
  *   textures. See `mapGroups`.
  * @param {number} [state.bound=boundDef] Number of steps bound to output,
  *   cannot be input; for platforms forbidding read/write of same buffer.
- * @param {object} [to=(state.uniforms ?? {})] The object to contain the
+ * @param {object} [to=(state.uniforms ?? \{\})] The object to contain the
  *   uniforms; `state.uniforms` or a new object if not given.
  *
  * @returns {object<number,array<number>,object,getUniform>} `to` The uniform
@@ -107,8 +107,11 @@ export function getUniforms(state, to = (state.uniforms ?? {})) {
   to[n+'viewShape'] = ({ drawingBufferWidth: w, drawingBufferHeight: h }) =>
     setC2(viewShape, w, h);
 
-  /** Past steps, all merged into one texture. */
-  to[n+'states'] = (_, s) => s.merge?.texture;
+  /**
+   * Past steps, all merged into one `texture`.
+   * Only returns a value if using a `merge`d `texture`.
+   */
+  to[n+'states'] = (_, s) => s.merge?.all?.texture;
 
   /**
    * Past steps, each some steps `ago`, from the current active step at `0`, as
@@ -116,12 +119,13 @@ export function getUniforms(state, to = (state.uniforms ?? {})) {
    */
   const addTextures = (ago) =>
     /**
-     * Hooks to pull a given texture from the active pass `props`.
-     * `GLSL` dynamically accesses array of textures by a constant index.
+     * Hooks to pull a given `texture` from the active pass `props`.
+     * `GLSL` dynamically accesses array of `texture`s by a constant index.
+     * Only returns a value if not using a `merge`d `texture`.
      */
     each((_, t) => to[n+`states[${(ago*texturesL)+t}]`] =
-        (_, { stepNow: s, bound: b = bound, merge: m, textures: ts }) =>
-          (m || wrap(s-b-ago, ts)?.[t]?.texture),
+        (_, { merge: m, stepNow: s, bound: b = bound, textures: ts }) =>
+          m || wrap(s-b-ago, ts)?.[t]?.texture,
       textures);
 
   // Flatten all input textures, as uniforms are stored in flat arrays.
@@ -131,23 +135,38 @@ export function getUniforms(state, to = (state.uniforms ?? {})) {
 }
 
 /**
+ * @typedef {(context: {
+ *     drawingBufferWidth: number,
+ *     drawingBufferHeight: number
+ *   },
+ *   props: {
+ *     stepNow: number,
+ *     bound: number,
+ *     merge: { texture: {} },
+ *     textures: array<array<{ texture: {} }>>
+ *   }) => number|array<number>|object} getUniform
+ *
+ * Function hook to update a uniform on each pass.
+ *
+ * **Parameters**
+ * - `context`: General or global properties.
+ *   - `drawingBufferWidth`: Current view width in pixels.
+ *   - `drawingBufferHeight`: Current view height in pixels.
+ * - `props`: Local properties (`gpgpu` `state`).
+ *   - `stepNow`: The current step of the `gpgpu` `state`.
+ *   - `bound`: Number of steps bound to output, cannot be input.
+ *   - `merge`: Object containing merged texture.
+ *     - `texture`: Merged texture.
+ *   - `textures`: Textures per step, as arrays of objects with a `texture`
+ *     property. See `getState`.
+ *
+ * **Returns**
+ * - `uniform` A `GL` uniform to be bound via a `GL` API.
+ *
+ * @todo [Fix `@callback` format for nested parameters](https://github.com/TypeStrong/typedoc/issues/1896)
+ *
  * @see {@link getUniforms}
  * @see {@link state.getState}
- *
- * @callback getUniform Function hook to update a uniform on each pass.
- *
- * @param {object} context General or global properties.
- * @param {number} context.drawingBufferWidth Current view width in pixels.
- * @param {number} context.drawingBufferHeight Current view height in pixels.
- * @param {object} props Local properties (e.g: the GPGPU `state`).
- * @param {number} props.stepNow The current step of the GPGPU `state`.
- * @param {number} props.bound Number of steps bound to output, cannot be input.
- * @param {object} props.merge Object containing merged texture.
- * @param {*} props.merge.texture Merged texture.
- * @param {array<array<{ texture: * }>>} props.textures Textures per step, as
- *   arrays of objects with a `texture` property. See `getState`.
- *
- * @returns {number|array<number>|object} A GL uniform to be bound via a GL API.
  */
 
 export default getUniforms;

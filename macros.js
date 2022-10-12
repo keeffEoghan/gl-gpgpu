@@ -1,5 +1,5 @@
 /**
- * GPGPU `GLSL` preprocessor macros for working with the state and maps.
+ * The `gpgpu` `GLSL` preprocessor macros for working with the state and maps.
  *
  * Use these with care, as each set of different macros will result in new
  * shaders and compilations; so, as few unique macros as possible should be
@@ -868,7 +868,7 @@ export function macroTaps(state, on) {
         `vec2 ${t}i2 = vec2(0, 1)-vec2(0, stepNow);`+cr+
         // Sample into the `data` output list.
         getGLSLList('vec4', n+'data',
-          // Would repeat wrap; but WebGL1 needs power-of-2.
+          // Would repeat wrap; but `WebGL1` needs power-of-2.
           map((_, i) =>
               texture+`(states, `+
                 // Offset texture, step.
@@ -889,7 +889,7 @@ export function macroTaps(state, on) {
         `vec2 ${t}i2B = vec2(${by}).ts+vec2(0, 1)-vec2(0, stepNow);`+cr+
         // Sample into the `data` output list.
         getGLSLList('vec4', n+'data',
-          // Would repeat wrap; but WebGL1 needs power-of-2.
+          // Would repeat wrap; but `WebGL1` needs power-of-2.
           map((_, i) =>
               texture+`(states, `+
                 // Offset texture, step.
@@ -902,7 +902,7 @@ export function macroTaps(state, on) {
         akaBy+
           `2By(uv, ${n}states, ${n}stepNow, ${n}steps, ${n}textures, ${by})\n`
       : /**
-         * Merged 3D texture types, supported from GLSL3.
+         * Merged 3D texture types, supported from `GLSL3`.
          * @todo Check and finish this.
          */
         '// States merged to `sampler3D` or `sampler2DArray`; 2D `uv` '+
@@ -911,7 +911,7 @@ export function macroTaps(state, on) {
         '// - `sampler2DArray`: `1` or less; layer, `[0, steps-1]`.\n'+
         `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
         tap+`3(uv, states, stepNow, steps, textures)`+cr+
-          // @see `...2()` above.
+          /** @see `...2()` above. */
           // Compute before the loop for lighter work.
           `vec2 ${t}l3 = vec2(textures, steps);`+cr+
           `vec2 ${t}uv3 = vec2(uv)/${t}l3;`+cr+
@@ -935,7 +935,7 @@ export function macroTaps(state, on) {
         '// States may also be sampled by shifted step/texture.\n'+
         `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
         tap+`3By(uv, states, stepNow, steps, textures, ${by})`+cr+
-          // @see `...2By()` above.
+          /** @see `...2By()` above. */
           // Compute before the loop for lighter work.
           `vec2 ${t}l3B = vec2(textures, steps);`+cr+
           `vec2 ${t}uv3B = (vec2(uv)+vec2(textureBy, 0))/${t}l3B;`+cr+
@@ -956,7 +956,7 @@ export function macroTaps(state, on) {
                   `(float(${st+i}.s)+${t}s3B)*${t}sz3B)))`,
               passSamples, tapsSamples),
             '', glsl)+'\n'+
-        '// Preferred aliases: 3D suits merged texture in GLSL 3+.\n'+
+        '// Preferred aliases: 3D suits merged texture in `GLSL` 3+.\n'+
         aka+`3(uv, ${n}states, ${n}stepNow, ${n}steps, ${n}textures)\n`+
         akaBy+
           `3By(uv, ${n}states, ${n}stepNow, ${n}steps, ${n}textures, ${by})\n`

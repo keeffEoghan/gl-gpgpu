@@ -1,7 +1,9 @@
 /**
- * GPGPU update step.
+ * The `gpgpu` update step.
  *
- * @module step
+ * Connects inputs to the `GL` state and renders an update step.
+ *
+ * @module
  */
 
 import each from '@epok.tech/fn-lists/each';
@@ -19,11 +21,11 @@ export const cache = {
 };
 
 /**
- * Convenience to get the currently active framebuffer.
+ * Convenience to get the currently active `framebuffer`.
  *
- * @see [getState]{@link ./state.js#getState}
+ * @see {@link state.getState}
  *
- * @param {object} state The GPGPU state.
+ * @param {object} state The `gpgpu` state.
  * @param {array<object>} state.passes Passes per step. See `getState`.
  * @param {number} [state.stepNow] The currently active state step, if any.
  * @param {number} [state.passNow] The currently active draw pass, if any.
@@ -34,25 +36,27 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
   wrap(s, ps)?.[p];
 
 /**
- * Merged texture update, called upon each pass. Copies the active pass's output
- * into the merged texture, from each of its attachments one by one (to support
- * multiple draw buffers). Matches the lookup logic defined in `macroTaps`.
+ * Merged `texture` update, called upon each pass.
+ *
+ * Copies the active pass's output into the merged `texture`, from each of its
+ * attachments one by one (to support multiple draw buffers).
+ * Matches the lookup logic defined in `macroTaps`.
  *
  * @todo Update docs.
  *
- * @see https://stackoverflow.com/a/34160982/716898
- * @see getPass
- * @see [texture]{@link ./state.js#texture}
- * @see [getState]{@link ./state.js#getState}
- * @see [mapGroups]{@link ./maps.js#mapGroups}
- * @see [macroTaps]{@link ./macros.js#macroTaps}
+ * @see [SO reading from multiple `framebuffers`](https://stackoverflow.com/a/34160982/716898)
+ * @see {@link getPass}
+ * @see {@link state.texture}
+ * @see {@link state.getState}
+ * @see {@link maps.mapGroups}
+ * @see {@link macros.macroTaps}
  *
- * @param {object} state A GPGPU state of the active pass.
+ * @param {object} state A `gpgpu` state of the active pass.
  * @param {array<object<array<texture>,array<number>>>} state.passes Passes per
  *   step; the active one is found via `getPass`, with a `color` array of
  *   `texture`s, and a `map` array of numbers showing how the textures are
  *   grouped into the pass. See `getState` and `mapGroups`.
- * @param {merge} state.merge The merged texture to update.
+ * @param {merge} state.merge The merged `texture` to update.
  * @param {number} [state.stepNow] The currently active state step, if any.
  *
  * @returns {texture} The merged `texture`, updated by the active pass's output;
@@ -60,18 +64,18 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
  */
  export function updateMerge(state) {
   const { color, map: pass } = getPass(state);
-  const { merge: { texture: to, copier }, stepNow: s, size } = state;
-  const f = copier?.framebuffer;
+  const { merge, stepNow: s, size } = state;
+  const { all: { texture: to }, next: { framebuffer: f } } = merge;
 
   // Silent exit if there's not enough info ready now to perform the update.
   if(!(to && f && color && pass && (s || (s === 0)))) { return to; }
 
   const { steps: sl, shape: [w, h] } = size;
-  /** Start at the top of the texture, move down row-per-step and wrap. */
+  /** Start at the top of the `texture`, move down row-per-step and wrap. */
   const y = (s%sl)*h;
   const { copyFrame: cf, copyImage: ci } = cache;
 
-  /** Reusable framebuffer copies pass's pixels to the merged texture. */
+  /** Reusable `framebuffer` copies pass's pixels to the merged `texture`. */
   each((c, i) =>
       ((cf.color = c) && f(cf).use(() => to.subimage(ci, pass[i]*w, y))),
     color);
@@ -80,84 +84,87 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
 }
 
 /**
- * Creates a GPGPU update step function, for use with a GPGPU state object.
+ * Creates a `gpgpu` update step function, for use with a `gpgpu` state object.
  *
  * @todo Make this fully extensible in state.
- * @todo @example
+ * @todo Example
  *
- * @see buffer
- * @see command
- * @see subimage
- * @see onCommand
- * @see onStep
- * @see onPass
- * @see getPass
- * @see [getState]{@link ./state.js#getState}
- * @see [mapGroups]{@link ./maps.js#mapGroups}
- * @see [macroPass]{@link ./macros.js#macroPass}
- * @see [getUniforms]{@link ./inputs.js#getUniforms}
+ * @see {@link buffer}
+ * @see {@link command}
+ * @see {@link subimage}
+ * @see {@link onStep}
+ * @see {@link onPass}
+ * @see {@link getPass}
+ * @see {@link state.getState}
+ * @see {@link maps.mapGroups}
+ * @see {@link macros.macroPass}
+ * @see {@link inputs.getUniforms}
  *
- * @param {object} api An API for GL resources.
- * @param {buffer} [api.buffer] Function to set up a GL buffer.
- * @param {clear} [api.clear] Function to clear GL output view or `framebuffer`.
- * @param {command} [api.command=api] Function to create a GL render pass, given
- *   options, to be called later with options.
- * @param {object} state The GPGPU state to use. See `getState` and `mapGroups`.
- * @param {object} state.maps How values are grouped per-texture per-pass
+ * @param {object} api An API for `GL` resources.
+ * @param {buffer} [api.buffer] Function to set up a `GL` buffer.
+ * @param {clear} [api.clear] Function to clear `GL` view or `framebuffer`.
+ * @param {command} [api.command=api] Function to create a `GL` render pass,
+ *   given options, to be called later with options; `api` if not given.
+ * @param {object} state The `gpgpu` state to use. See `getState` and
+ *   `mapGroups`.
+ * @param {object} state.maps How values are grouped per-`texture` per-pass
  *   per-step. See `mapGroups`.
  * @param {array<array<number>>} state.passes How textures are grouped into
  *   passes. See `mapGroups`.
- * @param {object} [state.merge] Any merged state texture; uses separate state
+ * @param {object} [state.merge] Any merged state `texture`; uses separate state
  *   textures if not given.
- * @param {object} [state.merge.texture] The GL texture object in `state.merge`.
+ * @param {object} [state.merge.texture] Any `GL` `texture` of `state.merge`.
  * @param {subimage} [state.merge.texture.subimage] A function to update part of
- *   the merge GL texture object data. See `subimage`.
+ *   the merge `GL` `texture` object data. See `subimage`.
  * @param {function} [state.merge.update] Hook to update, if any; if not given,
  *   `state.merge.texture` is updated here with active states upon each pass.
- *   The default merged texture is laid out as `[texture, step]` on the `[x, y]`
- *   axes, respectively; if other layouts are needed, this merge update hook can
- *   be given here to be used as-is, and the setup and lookup logic in their
- *   respective hooks. See `getState` and `macroTaps`.
+ *
+ *   The default merged `texture` is laid out as `[texture, step]` on the
+ *   `[x, y]` axes, respectively; if other layouts are needed, this merge update
+ *   hook can be given to use as-is, and the setup and lookup logic in their
+ *   respective hooks.
+ *
+ *   See `getState` and `macroTaps`.
  * @param {string} [state.pre=preDef] The namespace prefix; `preDef` by default.
- * @param {object} [state.step=to] The properties for the step GL command.
- * @param {string} [state.step.vert=vertDef] The step vertex shader GLSL; a
+ * @param {object} [state.step=to] The properties for the step `GL` command.
+ * @param {string} [state.step.vert=vertDef] The step vertex shader `GLSL`; a
  *   simple flat screen shader if not given.
- * @param {string} state.step.frag The step fragment shader GLSL.
+ * @param {string} state.step.frag The step fragment shader `GLSL`.
  * @param {object} [state.step.uniforms=getUniforms(state)] The step uniforms;
  *   modifies any given. See `getUniforms`.
  * @param {array<number>|buffer} [state.step.positions=positionsDef()] The step
  *   position attributes; 3 points of a large flat triangle if not given.
  * @param {number} [state.step.count=state.step.positions.length*scale.vec2] The
  *   number of elements/attributes to draw.
- * @param {object} [state.step.passCommand] Any GL command properties to mix in
- *   over the default ones here, and passed to `api.command`.
- * @param {string} [state.step.vert=vertDef] Vertex shader GLSL to add code to.
- * @param {array} [state.step.verts] Preprocesses and caches vertex GLSL code
+ * @param {object} [state.step.passCommand] Any `GL` command properties to mix
+ *   in over the default ones here, and passed to `api.command`.
+ * @param {string} [state.step.vert=vertDef] Vertex `GLSL` code to append to.
+ * @param {array} [state.step.verts] Preprocesses and caches vertex `GLSL` code
  *   per-pass if given, otherwise processes it just-in-time before each pass.
- * @param {string} [state.step.frag] Fragment shader GLSL to add code to.
- * @param {array} [state.step.frags] Preprocesses and caches fragment GLSL code
- *   per-pass, otherwise processes it just-in-time before each pass.
+ * @param {string} [state.step.frag] Fragment shader `GLSL` to append to.
+ * @param {array} [state.step.frags] Preprocesses and caches fragment `GLSL`
+ *   code per-pass, otherwise processes it just-in-time before each pass.
  * @param {onStep} [onStep] Callback upon each step.
  * @param {onPass} [onPass] Callback upon each pass.
- * @param {object} [to=(state.step ?? {})] The results object; `state.step` or a
- *   new object if not given.
+ * @param {object} [to=(state.step ?? \{\})] The results object; `state.step` or
+ *   a new object if not given.
  *
- * @returns {object} `to` The given `to` object; containing a GPGPU update step
- *   function and related properties, to be passed a GPGPU state.
- * @returns {string} `to.vert` The given/new `state.vert` vertex shader GLSL.
- * @returns {string} `to.frag` The given `state.frag` fragment shader GLSL.
+ * @returns {object} `to` The given `to` object; containing a `gpgpu` update
+ *   step function and related properties, to be passed a `gpgpu` state.
+ * @returns {string} `to.vert` The given/new `state.vert` vertex shader `GLSL`.
+ * @returns {string} `to.frag` The given `state.frag` fragment shader `GLSL`.
  * @returns {array.string} `[to.verts]` Any cached pre-processed vertex shaders
- *   GLSL, if `state.step.verts` was given.
+ *   `GLSL`, if `state.step.verts` was given.
  * @returns {array.string} `[to.frags]` Any cached pre-processed fragment
- *   shaders GLSL, if `state.step.verts` was enabled.
+ *   shaders `GLSL`, if `state.step.verts` was enabled.
  * @returns {object} `to.uniforms` The given `state.uniforms`.
  * @returns {number} `to.count` The given/new `state.count`.
  * @returns {buffer} `to.positions` The given/new `state.positions`; via
  *   `api.buffer`.
- * @returns {command} `to.pass` A GL command function to draw a given pass; via
- *   `api.command`.
+ * @returns {command} `to.pass` A `GL` command function to draw a given pass;
+ *   via `api`/`api.command`.
  * @returns {function} `to.run` The main step function, which performs all the
- *   draw pass GL commands for a given state step.
+ *   draw pass `GL` commands for a given state step.
  */
 export function getStep(api, state, to = state.step ?? {}) {
   const { buffer, clear, command = api } = api;
@@ -196,7 +203,7 @@ export function getStep(api, state, to = state.step ?? {}) {
     state.passNow = passNow;
   }
 
-  /** The render command describing a full GL state for a step. */
+  /** The render command describing a full `GL` state for a step. */
   to.pass = command(to.passCommand = {
     // Uses the full-screen vertex shader state by default.
     vert(_, s = state) {
@@ -223,7 +230,7 @@ export function getStep(api, state, to = state.step ?? {}) {
     ...passCommand
   });
 
-  /** Any merged texture's update, set up if not already given. */
+  /** Any merged `texture`'s update, set up if not already given. */
   merge && (merge.update ??= updateMerge);
 
   /** Executes the next step and all its passes. */
@@ -245,7 +252,7 @@ export function getStep(api, state, to = state.step ?? {}) {
           clear(clearPass));
 
         pass(passProps);
-        // Update any merged texture upon each pass.
+        // Update any merged `texture` upon each pass.
         mergeUpdate?.(passProps);
       },
       stepProps.maps.passes);
@@ -257,27 +264,32 @@ export function getStep(api, state, to = state.step ?? {}) {
 }
 
 /**
- * Function to set up a GL buffer; from a GL API.
- *
- * @see getStep
- *
  * @callback buffer
+ * Function to set up a `GL` buffer; from a `GL` API.
  *
- * @param {array<number>|buffer} data The buffer data, as `array` or `buffer`.
+ * **Returns**
+ * - `buffer` A `GL` buffer to use for vertex attributes, or an
+ *   object serving that purpose.
+ * - `[buffer.count]` The buffer element/vertex count.
+ * - `[buffer.length]` The length of the buffer data `array`.
  *
- * @returns {*} `buffer` A GL buffer to use for vertex attributes, or an object
- *   serving that purpose.
- * @returns {number} `[buffer.count]` The buffer element/vertex count.
- * @returns {number} `[buffer.length]` The length of the buffer data array.
+ * @todo [Fix `@callback` format for return details](https://github.com/TypeStrong/typedoc/issues/1896)
+ *
+ * @see {@link getStep}
+ *
+ * @param {array<number>|{}} data The buffer data, as `array` or `buffer`.
+ *
+ * @returns {{}}
  */
 
 /**
- * Function to clear GL output view or `framebuffer`; from a GL API.
- *
- * @see getStep
- * @see [framebuffer]{@link ./state.js#framebuffer}
- *
  * @callback clear
+ * Function to clear `GL` output view or `framebuffer`; from a `GL` API.
+ *
+ * @todo [Fix `@callback` format for return details](https://github.com/TypeStrong/typedoc/issues/1896)
+ *
+ * @see {@link getStep}
+ * @see {@link state.framebuffer}
  *
  * @param {object} props The values to clear with.
  * @param {array<number>} [color] The values to clear any color buffers with.
@@ -285,108 +297,113 @@ export function getStep(api, state, to = state.step ?? {}) {
  * @param {number} [stencil] The value to clear any stencil buffer with.
  * @param {framebuffer} [framebuffer] Any `framebuffer` to clear; if not given,
  *   clears any active `framebuffer` or the view.
+ *
+ * @returns {void}
  */
 
 /**
- * Function to create a GL render pass, given options, to be called later with
- * options; from a GL API.
- *
- * @see getStep
- * @see [getUniforms]{@link ./step.js#getUniforms}
- * @see [framebuffer]{@link ./state.js#framebuffer}
- *
  * @callback command
+ * Function to create a `GL` render pass execution function, to be called later,
+ * with options, for a render pass; from a `GL` API.
  *
- * @param {object} passCommand The properties from which to create the GL render
- *   function for a given pass.
+ * **Returns**
+ * - Function to execute a `GL` render pass, with options, for a render pass.
+ *
+ * @todo [Fix `@callback` format for return details](https://github.com/TypeStrong/typedoc/issues/1896)
+ *
+ * @see {@link getStep}
+ * @see {@link step.getUniforms}
+ * @see {@link state.framebuffer}
+ *
+ * @param {object} passCommand The properties from which to create the `GL`
+ *   render function for a given pass.
  * @param {function} [passCommand.vert] Function hook returning the vertex
- *   shader GLSL string for the next render pass.
+ *   shader `GLSL` string for the next render pass.
  * @param {function} [passCommand.frag] Function hook returning the fragment
- *   shader GLSL string for the next render pass.
+ *   shader `GLSL` string for the next render pass.
  * @param {object<buffer>} [passCommand.attributes] The vertex attributes for
  *   the next render pass.
  * @param {object<function>} [passCommand.uniforms] The uniform hooks for the
  *   given `props`. See `getUniforms`.
  * @param {number} [passCommand.count] The number of elements to draw.
- * @param {object<boolean,*>} [passCommand.depth] An object describing the depth
- *   settings for the next render pass; e.g: `passCommand.depth.enable` flag.
+ * @param {object<boolean,{}>} [passCommand.depth] An object describing the
+ *   depth settings for the next render pass; e.g: `passCommand.depth.enable`.
  * @param {function} [passCommand.framebuffer] Function hook returning the
  *   `framebuffer` to draw to in the next render pass. See `framebuffer`.
  *
- * @returns {function} Function to execute a GL render pass, with options, for a
- *   given render pass.
+ * @returns {function}
  */
 
 /**
- * Function of a GL `texture` to update part of it with new data; from a GL API.
- *
- * @see getStep
- * @see [texture]{@link ./state.js#texture}
- *
  * @callback subimage
+ * Function of a `GL` `texture` to update part of it with new data; from a `GL`
+ * API.
+ *
+ * **Returns**
+ * - The calling `texture`, with part updated part to `data`.
+ *
+ * @todo [Fix `@callback` format for return details](https://github.com/TypeStrong/typedoc/issues/1896)
+ *
+ * @see {@link getStep}
+ * @see {@link state.texture}
  *
  * @param {texture} data The data to update into part of the calling `texture`.
  * @param {number} [x=0] Offset on the x-axis within the calling `texture`.
  * @param {number} [y=0] Offset on the y-axis within the calling `texture`.
  *
- * @returns {texture} The calling `texture`, with part updated part to `data`.
+ * @returns {texture}
  */
 
 /**
- * Function hook to update on each pass.
- *
- * @see getStep
- *
- * @callback onCommand
- *
- * @param {object} context General or global properties.
- * @param {object} props Local properties (e.g: the GPGPU `state`).
- *
- * @returns {number|array<number>|*} A GL object to be bound via a GL API.
- */
-
-/**
+ * @callback onStep
  * Callback upon each step.
  *
- * @see getStep
- * @see [getState]{@link ./state.js#getState}
- * @see [framebuffer]{@link ./state.js#framebuffer}
+ * **Returns**
+ * - A `stepProps` object to use for each of the step's next passes; or
+ *   `null`ish to use the given `props`.
  *
- * @callback onStep
+ * @todo [Fix `@callback` format for return details](https://github.com/TypeStrong/typedoc/issues/1896)
+ *
+ * @see {@link getStep}
+ * @see {@link state.getState}
+ * @see {@link state.framebuffer}
  *
  * @param {object} [props] The `props` passed to `run`.
  * @param {array<framebuffer>} step The `framebuffer`s for `props.stepNow` from
  *   `props.steps`, where the next state step will be drawn. See `getState`.
  *
- * @returns {object} A `stepProps` to use for each of the step's next passes; or
- *   `null`ish to use the given `props`.
+ * @returns {{}}
  */
 
 /**
+ * @callback onPass
  * Callback upon each pass.
  *
- * @see getStep
- * @see [mapGroups]{@link ./maps.js#mapGroups}
+ * **Returns**
+ * - A `passProps` object to use for the render `command` call; or `null`ish to
+ *   use the given `stepProps`.
  *
- * @callback onPass
+ * @todo [Fix `@callback` format for return details](https://github.com/TypeStrong/typedoc/issues/1896)
+ *
+ * @see {@link getStep}
+ * @see {@link maps.mapGroups}
  *
  * @param {object} [stepProps] The `props` passed to `run` via any `onStep`.
  * @param {array<number>} pass The maps for the next pass. See `mapGroups`.
  *
- * @returns {object} A `passProps` to use for the render `command` call; or
- *   `null`ish to use the given `stepProps`.
+ * @returns {{}}
  */
 
-/** A wrapper around `updateMerge` that's handy for testing. */
-export function updateMergeTest(state, update = updateMerge, after = 2) {
+/** A wrapper around `updateMerge`, handy for testing. */
+function updateMergeTest(state, update = updateMerge, after = 2) {
   const { color, map: pass } = getPass(state);
-  const { merge, stepNow: s, passNow: p, size, maps } = state;
-  const { channels, copier } = merge;
+  const { merge: { all, next }, stepNow: s, passNow: p, size, maps } = state;
+  const { channels } = all;
   const { steps: sl, shape: [w, h], merge: { shape: [wl, hl] } } = size;
   const tl = maps.textures.length;
   const y = (s%sl)*h;
   const lc = y*tl*w;
-  const f = copier?.framebuffer;
+  const f = next?.framebuffer;
   const to = update(state);
 
   console.warn(s, p, pass, ':');
@@ -413,9 +430,4 @@ export function updateMergeTest(state, update = updateMerge, after = 2) {
   return to;
 }
 
-/**
- * @alias module:step.default
- * @function
- * @see {@link module:step.getStep}
- */
 export default getStep;

@@ -5,14 +5,13 @@
  * If fewer than 2 states or form are given, gives a setup for a point at each
  * entry's steps of state using `gl.POINTS`.
  * Possibly useful for other forms too.
- * Corresponds to the indexing logic in the `indexForms` GLSL function.
+ * Corresponds to the indexing logic in the `indexForms` `GLSL` function.
  *
- * @module index-forms
+ * @module
  *
- * @see [readme]{@link ./readme.md}
- * @see [indexForms]{@link ./index-states.glsl#indexForms}
- * @see [indexForms]{@link ./index-entries.glsl#indexForms}
- * @see `gl.LINES` at https://webglfundamentals.org/webgl/lessons/webgl-points-lines-triangles.html
+ * @see {@link index-forms/index-states/glsl}
+ * @see {@link index-forms/index-entries/glsl}
+ * @see [`gl.LINES`](https://webglfundamentals.org/webgl/lessons/webgl-points-lines-triangles.html)
  *
  * @param {number} [states=1] How many steps of state each entry has.
  * @param {number} [form=2] How many steps of state each form covers.
@@ -26,9 +25,4 @@
 export const indexForms = (states = 1, form = 2, entries = 1) =>
   Math.max(1, (states-form)+1)*form*entries;
 
-/**
- * @alias module:index-forms.default
- * @function
- * @see {@link module:index-forms.indexForms}
- */
 export default indexForms;

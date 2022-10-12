@@ -1,13 +1,14 @@
 /**
  * [GPGPU](https://en.wikipedia.org/wiki/General-purpose_computing_on_graphics_processing_units)
- * state-stepping - declaratively maps optimal draw passes, shaders, WebGL
+ * state-stepping - declaratively maps optimal draw passes, shaders, `WebGL`
  * resources, inputs, outputs - lets you focus on your logic, BYORenderer.
  *
  * Decouples logic from rendering approach/engine.
  * The modules and many hooks may be used as given, or piecemeal, or overridden.
  *
- * @module (entry point)
- * @group Entry Module
+ * @module [main]
+ * @group Main
+ * @group Modules
  *
  * @todo Fix `GLSL3`/`D3D` error "sampler array index must be a literal
  *   expression". See info in `macroSamples` in `macros.js`.
@@ -21,7 +22,7 @@ import { getStep } from './step';
 export * from './const';
 
 /**
- * Sets up all the maps, inputs, resources, etc for a GPGPU process.
+ * Sets up all the maps, inputs, resources, etc for a `gpgpu` process.
  * Each component may also be used individually, see their documentation.
  *
  * @see {@link maps.mapGroups}
@@ -35,7 +36,7 @@ export * from './const';
  * @param {object} [api.limits=api] A map of GL resource limits.
  * @param {number} [api.limits.maxDrawbuffers] The maximum number of GL textures
  *   a framebuffer can bind in a single draw call.
- * @param {object} [state={}] State properties to set up; a new object by
+ * @param {object} [state=\{\}] State properties to set up; a new object by
  *   default. See `getState`, `getUniforms`, and `getStep`.
  * @param {object} [state.maps] How values are grouped per-texture per-pass
  *   per-step. Sets up new maps if not given or missing its mapped properties.
@@ -69,10 +70,8 @@ export default gpgpu;
 
 /**
  * Before tag
- * @todo Fix `@callback` formatting.
- * @see https://github.com/TypeStrong/typedoc/issues/1896
  * @callback Type1 On Tag
- * @param {number} one Param 1
+ *   Test
  * @param {object} context General or global properties.
  * @param {number} context.drawingBufferWidth Current view width in pixels.
  * @param {number} context.drawingBufferHeight Current view height in pixels.
@@ -81,24 +80,11 @@ export default gpgpu;
 
 /**
  * Before tag
- * @todo Fix `@callback` formatting.
- * @see https://github.com/TypeStrong/typedoc/issues/1896
- * @typedef {{(context: { drawingBufferWidth: number, drawingBufferHeight: number }) => number}} Type2
+ * @todo [Fix `@callback` format for nested parameters](https://github.com/TypeStrong/typedoc/issues/1896)
+ * @typedef {(context: {
+ *     drawingBufferWidth: number,
+ *     drawingBufferHeight: number
+ *   }) => number} Type2
  *
  * Some type 2.
- */
-
-/**
- * Before tag
- * @todo Fix `@callback` formatting.
- * @see https://github.com/TypeStrong/typedoc/issues/1896
- * @typedef {{drawingBufferWidth: contextDrawingBufferWidth, drawingBufferHeight: contextDrawingBufferHeight}} context General or global properties.
- * @typedef {number} contextDrawingBufferWidth Current view width in pixels.
- * @typedef {number} contextDrawingBufferHeight Current view height in pixels.
- * @callback Type3 On Tag
- * @param {number} one Param 1
- * @param {context} context
- * @returns {number} Ret
- *
- * Some type 3.
  */
