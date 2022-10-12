@@ -1,7 +1,7 @@
 /**
  * `./index.vert.glsl` transformed via `glslify`.
  *
- * @module index/vert/glsl
+ * @module index/vert
  * @group GLSL
  */
 import transformed from './index.vert.glsl';

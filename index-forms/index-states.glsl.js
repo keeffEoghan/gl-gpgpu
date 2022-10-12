@@ -1,7 +1,7 @@
 /**
  * `./index-states.glsl` transformed via `glslify`.
  *
- * @module index-forms/index-states/glsl
+ * @module index-forms/index-states
  * @group GLSL
  */
 import transformed from './index-states.glsl';

@@ -1,7 +1,7 @@
 /**
  * `./offset-uv.glsl` transformed via `glslify`.
  *
- * @module lookup/offset-uv/glsl
+ * @module lookup/offset-uv
  * @group GLSL
  */
 import transformed from './offset-uv.glsl';

@@ -3,7 +3,7 @@
  * Note that this does not wrap the y-axis, so if the `index` exceeds the range
  * `[0, (size.x*size.y)-1]`, the result y-axis will exceed the range `[0, 1]`.
  *
- * @see {@link util/remain-div/glsl}
+ * @see {@link util/remain-div.glsl util/remain-div.glsl}
  *
  * @param {float|int} `index` 1D index, expect range `[0, (size.x*size.y)-1]`.
  * @param {float|int|vec2|ivec2} `size` Texture's size, expect
