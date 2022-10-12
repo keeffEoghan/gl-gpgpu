@@ -6,7 +6,7 @@
  * Decouples logic from rendering approach/engine.
  * The modules and many hooks may be used as given, or piecemeal, or overridden.
  *
- * @module -main-
+ * @module /entry
  * @group Main
  * @group Modules
  *
