@@ -6,7 +6,7 @@
  * Decouples logic from rendering approach/engine.
  * The modules and many hooks may be used as given, or piecemeal, or overridden.
  *
- * @module /entry
+ * @module [main]
  * @group Main
  * @group Modules
  *
@@ -67,24 +67,3 @@ export function gpgpu(api, state = {}, to = state) {
 }
 
 export default gpgpu;
-
-/**
- * Before tag
- * @callback Type1 On Tag
- *   Test
- * @param {object} context General or global properties.
- * @param {number} context.drawingBufferWidth Current view width in pixels.
- * @param {number} context.drawingBufferHeight Current view height in pixels.
- * @returns {number} Ret
- */
-
-/**
- * Before tag
- * @todo [Fix `@callback` format for nested parameters](https://github.com/TypeStrong/typedoc/issues/1896)
- * @typedef {(context: {
- *     drawingBufferWidth: number,
- *     drawingBufferHeight: number
- *   }) => number} Type2
- *
- * Some type 2.
- */
