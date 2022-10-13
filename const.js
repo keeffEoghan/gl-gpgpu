@@ -30,22 +30,22 @@ export const optionalExtensions = () => ['webgl_draw_buffers'];
 export const preDef = 'gpgpu_';
 
 /**
- * Default minimum allowable channels for framebuffer attachments.
- * This avoids `RGB32F` framebuffer attachments, which errors on Firefox.
+ * Default minimum allowable channels for `framebuffer` attachments.
+ * This avoids `RGB32F` `framebuffer` attachments, which errors on Firefox.
  *
  * @see [Firefox RGB32F bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1448632)
  */
 export const channelsMinDef = 4;
 
 /**
- * Default minimum allowable channels for framebuffer attachments.
- * This avoids `RGB32F` framebuffer attachments, which errors on Firefox.
+ * Default minimum allowable channels for `framebuffer` attachments.
+ * This avoids `RGB32F` `framebuffer` attachments, which errors on Firefox.
  *
- * @see [Firefox RGB32F bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1448632)
+ * @see [Firefox `RGB32F` bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1448632)
  */
 export const channelsMaxDef = 4;
 
-/** Default maximum textures bound per pass. */
+/** Default maximum `texture`s bound per pass. */
 export const buffersMaxDef = 1;
 
 /**
@@ -55,14 +55,14 @@ export const buffersMaxDef = 1;
 export const boundDef = 1;
 
 /**
- * Default length of the data textures sides to allocate; gives a square
- * power-of-two texture raising 2 to this power.
+ * Default length of the data `texture`s sides to allocate; gives a square
+ * power-of-two `texture` raising 2 to this power.
  */
 export const scaleDef = 9;
 
 /**
- * Default width of the data textures sides to allocate; gives a square
- * power-of-two texture raising 2 to the default scale.
+ * Default width of the data `texture`s sides to allocate; gives a square
+ * power-of-two `texture` raising 2 to the default scale.
  */
 export const widthDef = 2**scaleDef;
 
@@ -77,22 +77,22 @@ export const stepsDef = 2;
 
 /** Default values to track. */
 export const valuesDef = () => [channelsMaxDef];
-/** Default vertex positions attribute; 3 points of a large flat triangle. */
+/** Default vertex positions `attribute`; 3 points of a large flat triangle. */
 export const positionsDef = () => [...positions];
 
-// Resource format defaults.
+// `GL` resource format defaults.
 
-/** Default texture data type. */
+/** Default `texture` data type. */
 export const typeDef = 'float';
-/** Default texture minification filter. */
+/** Default `texture` minification filter. */
 export const minDef = 'nearest';
-/** Default texture magnification filter. */
+/** Default `texture` magnification filter. */
 export const magDef = 'nearest';
-/** Default texture wrap mode, avoids `WebGL1` need for power-of-2 texture. */
+/** Default `texture` wrap mode, avoid `WebGL1` needing power-of-2 `texture`. */
 export const wrapDef = 'clamp';
-/** Default framebuffer depth attachment. */
+/** Default `framebuffer` depth attachment. */
 export const depthDef = false;
-/** Default framebuffer stencil attachment. */
+/** Default `framebuffer` stencil attachment. */
 export const stencilDef = false;
-/** Whether states merge into one texture; one merged texture by default. */
+/** Whether states merge into one `texture`; one merged `texture` by default. */
 export const mergeDef = true;

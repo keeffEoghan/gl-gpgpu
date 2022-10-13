@@ -409,8 +409,7 @@ function updateMergeTest(state, update = updateMerge, after = 2) {
   console.warn(s, p, pass, ':');
   console.warn('- l', 0, 'r', tl*w, 'w', w, 'wl', wl);
   console.warn('- t', y, 'b', y+h, 'h', h, 'hl', hl);
-  console.warn('- c', channels, 'lc', lc*channels,
-    'rc', (lc+(w*h))*channels,
+  console.warn('- c', channels, 'lc', lc*channels, 'rc', (lc+(w*h))*channels,
     'sc', w*h*channels, 'slc', wl*hl*channels);
 
   f({ color: to }).use(() =>

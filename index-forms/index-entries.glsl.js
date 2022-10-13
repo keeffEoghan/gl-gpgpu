@@ -1,7 +1,7 @@
 /**
  * `./index-entries.glsl` transformed via `glslify`.
  *
- * @module index-forms/index-entries.glsl
+ * @module
  * @group GLSL
  */
  import transformed from './index-entries.glsl';
