@@ -1,7 +1,7 @@
 /**
  * `./remain-div.glsl` transformed via `glslify`.
  *
- * @module util/remain-div
+ * @module util/remain-div.glsl
  * @group GLSL
  */
 import transformed from './remain-div.glsl';

@@ -10,7 +10,7 @@
  * `[entryForm.s+stepEntry.t, stepEntry.s]`
  *
  * @see {@link index-forms}
- * @see {@link util/remain-div.glsl}
+ * @see {@link util/remain-div.glsl!}
  *
  * @param {float|int} `index` The index of a vertex; expects simple sequential
  *   index attribute.

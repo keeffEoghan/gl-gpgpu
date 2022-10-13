@@ -9,8 +9,8 @@
  *
  * @module
  *
- * @see {@link index-forms/index-states.glsl index-forms/index-states.glsl}
- * @see {@link index-forms/index-entries.glsl index-forms/index-entries.glsl}
+ * @see {@link index-forms/index-states.glsl!}
+ * @see {@link index-forms/index-entries.glsl!}
  * @see [`gl.LINES`](https://webglfundamentals.org/webgl/lessons/webgl-points-lines-triangles.html)
  *
  * @param {number} [states=1] How many steps of state each entry has.

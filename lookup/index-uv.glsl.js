@@ -1,7 +1,7 @@
 /**
  * `./index-uv.glsl` transformed via `glslify`.
  *
- * @module lookup/index-uv
+ * @module lookup/index-uv.glsl
  * @group GLSL
  */
 import transformed from './index-uv.glsl';

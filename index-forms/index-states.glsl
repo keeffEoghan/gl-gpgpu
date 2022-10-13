@@ -5,7 +5,7 @@
  * Takes vertex index and steps count as input; iterates entries-then-steps.
  *
  * @see {@link index-forms}
- * @see {@link util/remain-div.glsl util/remain-div.glsl}
+ * @see {@link util/remain-div.glsl!}
  *
  * @param {float|int} `index` The index of a vertex; expects simple sequential
  *   index attribute.
