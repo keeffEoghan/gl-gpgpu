@@ -2,7 +2,7 @@
  * `./remain-div.glsl` transformed via `glslify`.
  *
  * @module
- * @group GLSL
+ * @category GLSL
  */
 import transformed from './remain-div.glsl';
 
@@ -10,7 +10,7 @@ import transformed from './remain-div.glsl';
  * `./remain-div.glsl` transformed via `glslify`.
  *
  * @type {string}
- * @group GLSL
+ * @category GLSL
  */
 export const glsl = transformed;
 

@@ -51,17 +51,17 @@ varying float radius;
 #pragma glslify: aspect = require(@epok.tech/glsl-aspect/contain)
 #pragma glslify: gt = require(glsl-conditionals/when_gt)
 
-#pragma glslify: indexUV = require(../../lookup/index-uv)
-#pragma glslify: offsetUV = require(../../lookup/offset-uv)
+#pragma glslify: indexUV = require(../../src/lookup/index-uv)
+#pragma glslify: offsetUV = require(../../src/lookup/offset-uv)
 
 #if stepsPast > 1
   // If multiple steps are given, shift into past steps.
   // Lookups mostly equivalent; input and result iteration order differ.
   #define indexFormsStates
   #ifdef indexFormsStates
-    #pragma glslify: indexStates = require(../../index-forms/index-states)
+    #pragma glslify: indexStates = require(../../src/index-forms/index-states)
   #else
-    #pragma glslify: indexEntries = require(../../index-forms/index-entries)
+    #pragma glslify: indexEntries = require(../../src/index-forms/index-entries)
   #endif
 #endif
 

@@ -1,7 +1,7 @@
 {
   "name": "@epok.tech/gl-gpgpu",
-  "version": "0.6.12",
-  "description": "GPGPU state-stepping - declaratively maps optimal draw passes, shaders, WebGL resources, inputs, outputs - lets you focus on your logic, BYORenderer.",
+  "version": "0.7.0",
+  "description": "GPGPU state-stepping - declaratively maps optimal draw passes, shaders, WebGL resources, inputs, outputs - lets you focus on your logic, BYO-renderer.",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
   "author": "Eoghan O'Keeffe <epok.tech@gmail.com> (https://epok.tech)",
   "license": "MIT",
@@ -11,18 +11,23 @@
   },
   "packageManager": "yarn@3.1.0",
   "scripts": {
-    "start": "yarn docs",
-    "dev": "parcel --log-level verbose --target docs",
-    "dist": "yarn build & yarn docs & wait",
-    "build": "rm -rf ./dist/ && parcel build --target esm --target cjs",
-    "docs": "rm -rf ./docs/ && (yarn docs:demo & yarn docs:info & yarn docs:gh & wait)",
-    "docs:demo": "parcel build --target docs",
-    "docs:info": "mkdir -p ./docs/api && typedoc $(ls ./{*,{index-forms,lookup,util}/**/*}.js | xargs) --tsconfig ./tsconfig.json --readme ./readme.md --githubPages false --out ./docs/api",
-    "docs:gh": "mkdir -p ./docs/ && touch ./docs/.nojekyll",
-    "dist:safe": "yarn build:safe & yarn docs:safe & wait",
+    "start": "yarn dist:safe",
+    "dev": "parcel --target docs --log-level verbose",
     "dev:safe": "yarn dev --no-cache",
+    "dist": "yarn clean && (yarn build & yarn docs & wait)",
+    "dist:safe": "yarn clean && (yarn build:safe & yarn docs:safe & wait)",
+    "build": "parcel build $(yarn list:src | xargs) --target esm --target cjs",
     "build:safe": "yarn build --no-cache",
-    "docs:safe": "yarn docs --no-cache"
+    "docs": "yarn docs:demo & yarn docs:info & wait",
+    "docs:safe": "yarn docs:demo:safe & yarn docs:info & wait",
+    "docs:demo": "parcel build --target docs",
+    "docs:demo:safe": "yarn docs:demo --no-cache",
+    "docs:info": "typedoc $(yarn list:src | xargs) && mv ./docs/api/.nojekyll ./docs/.nojekyll",
+    "list:all": "find ./src -not -type d",
+    "list:src": "yarn list:all | grep -i -E '\\.(js|ts)$'",
+    "clean": "yarn clean:build & yarn clean:docs & wait",
+    "clean:build": "rm -rf ./cjs/ ./esm/",
+    "clean:docs": "rm -rf ./docs/"
   },
   "dependencies": {
     "@epok.tech/fn-lists": "^0.1.4",
@@ -49,50 +54,34 @@
     "typedoc": "^0.23.16",
     "typescript": "^4.8.2"
   },
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "source": [
-    "const.js",
-    "index.js",
-    "inputs.js",
-    "macros.js",
-    "maps.js",
-    "state.js",
-    "step.js",
-    "size.js",
-    "index.vert.js",
-    "index-forms/index.js",
-    "index-forms/index-entries.glsl.js",
-    "index-forms/index-states.glsl.js",
-    "lookup/index-uv.glsl.js",
-    "lookup/offset-uv.glsl.js",
-    "util/remain-div.glsl.js"
-  ],
+  "main": "cjs/index.js",
+  "module": "esm/index.js",
   "files": [
-    "*.js",
-    "dist/**/*",
-    "index-forms/**/*",
-    "lookup/**/*",
-    "util/**/*"
+    "src/**/*",
+    "cjs/**/*",
+    "esm/**/*",
+    "demo/**/*"
   ],
   "targets": {
     "cjs": {
       "outputFormat": "commonjs",
       "isLibrary": true,
+      "optimize": true,
       "engines": {
         "browsers": "last 2 versions, > 0.5%, not dead"
       },
-      "distDir": "dist/cjs/",
-      "publicUrl": "dist/cjs/"
+      "distDir": "cjs/",
+      "publicUrl": "cjs/"
     },
     "esm": {
       "outputFormat": "esmodule",
       "isLibrary": true,
+      "optimize": true,
       "engines": {
         "browsers": "last 2 versions, > 0.5%, not dead"
       },
-      "distDir": "dist/esm/",
-      "publicUrl": "dist/esm/"
+      "distDir": "esm/",
+      "publicUrl": "esm/"
     },
     "docs": {
       "isLibrary": false,

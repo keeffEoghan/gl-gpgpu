@@ -2,13 +2,14 @@
  * Default properties for `gpgpu` and `GL` capabilities and resources.
  *
  * @module
+ * @category JS
  */
 
 import { positions } from '@epok.tech/gl-screen-triangle';
-import _vertDef from './index.vert.glsl';
+import vertGLSL from './index.vert.glsl';
 
 /** Default vertex shader `GLSL` code. */
-export const vertDef = _vertDef;
+export const vertDef = vertGLSL;
 
 // The required and optional `GL` extensions for a `gpgpu` state.
 
@@ -26,14 +27,14 @@ export const extensionsHalfFloat = () =>
 /** Default optional extensions; update more data in one render pass. */
 export const optionalExtensions = () => ['webgl_draw_buffers'];
 
-/** Prefix namespace to avoid naming clashes; highly recommended. */
+/** Prefix namespace to avoid naming clashes; recommended. */
 export const preDef = 'gpgpu_';
 
 /**
  * Default minimum allowable channels for `framebuffer` attachments.
  * This avoids `RGB32F` `framebuffer` attachments, which errors on Firefox.
  *
- * @see [Firefox RGB32F bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1448632)
+ * @see [Firefox `RGB32F` bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1448632)
  */
 export const channelsMinDef = 4;
 
@@ -67,8 +68,8 @@ export const scaleDef = 9;
 export const widthDef = 2**scaleDef;
 
 /**
- * Default height of the data textures sides to allocate; gives a square
- * power-of-two texture raising 2 to the default scale.
+ * Default height of the data `texture`s sides to allocate; gives a square
+ * power-of-two `texture` raising 2 to the default scale.
  */
 export const heightDef = 2**scaleDef;
 

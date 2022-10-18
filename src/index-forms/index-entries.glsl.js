@@ -2,7 +2,7 @@
  * `./index-entries.glsl` transformed via `glslify`.
  *
  * @module
- * @group GLSL
+ * @category GLSL
  */
  import transformed from './index-entries.glsl';
 
@@ -10,7 +10,7 @@
   * `./index-entries.glsl` transformed via `glslify`.
   *
   * @type {string}
-  * @group GLSL
+  * @category GLSL
   */
  export const glsl = transformed;
 

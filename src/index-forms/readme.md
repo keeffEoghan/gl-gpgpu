@@ -1,4 +1,4 @@
-# Index Forms
+**Index Forms**
 
 Helpers to count and index the vertex data entries needed for different forms covering each entry's steps of state (e.g: pairs of line segments using [`gl.LINES`](https://webglfundamentals.org/webgl/lessons/webgl-points-lines-triangles.html)).
 

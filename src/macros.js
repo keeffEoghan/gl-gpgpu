@@ -6,6 +6,7 @@
  * created for a given set of inputs, for efficiency.
  *
  * @module
+ * @category JS
  *
  * @todo Ensure the `output_N` in `macroOutput` can work with `WebGL2`; look at
  *   using `layout(location=attach_N) out data_N`, not `gl_FragData[attach_N]`.
@@ -13,12 +14,6 @@
  *   - https://stackoverflow.com/questions/46740817/gl-fragdata-must-be-constant-zero
  *   - https://stackoverflow.com/questions/50258822/how-are-layout-qualifiers-better-than-getattriblocation-in-webgl2
  * @todo Redo examples, especially `macroTaps` and `macroPass`.
- * @todo Allow passes into or across textures; separate data and texture shapes.
- * @todo Make everything function-like macro taking variable names? Makes
- *   variable names explicit (e.g: `useSamples(samples)`, `useReads_0(reads)`,
- *   `tapStateBy(data, st, stepPast, 0)`, `tapState(data, st)`), but makes
- *   interconnections harder (e.g: `macroValues`, `macroOutput`, `macroTaps`);
- *   probably impossible without concatenation macro anyway, namespace is OK.
  */
 
 import reduce from '@epok.tech/fn-lists/reduce';
@@ -126,7 +121,7 @@ export function hasMacros(props, key, on = '', macros = props?.macros) {
  *
  * @param {string} type The `GLSL` list data-type.
  * @param {string} name The name of the `GLSL` list variable.
- * @param {array<number,array<number>>} a The list of `GLSL` values.
+ * @param {array.<number,array.<number>>} a The list of `GLSL` values.
  * @param {string} [qualify=''] A `GLSL` qualifier, if needed.
  * @param {string} [init=type] A data-type initialiser, `type` by default.
  *
@@ -160,7 +155,7 @@ export const getGLSLListBase = (type, name, a, qualify = '', init = type) =>
  *
  * @param {string} type The `GLSL` list data-type.
  * @param {string} name The name of the `GLSL` list variable.
- * @param {array<number,array<number>>} a The list of `GLSL` values.
+ * @param {array.<number,array.<number>>} a The list of `GLSL` values.
  * @param {string} [qualify=''] A `GLSL` qualifier, if needed.
  * @param {string} [init=type] A data-type initialiser, `type` by default.
  *
@@ -199,7 +194,7 @@ export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
  *
  * @param {string} type The `GLSL` list data-type.
  * @param {string} name The name of the `GLSL` list variable.
- * @param {array<number,array<number>>} a The list of `GLSL` values.
+ * @param {array.<number,array.<number>>} a The list of `GLSL` values.
  * @param {string} [qualify=''] A `GLSL` qualifier, if needed.
  * @param {string} [init=type] A data-type initialiser, `type` by default.
  *
@@ -230,7 +225,7 @@ export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
  *
  * @param {string} type The `GLSL` list data-type.
  * @param {string} name The name of the `GLSL` list variable.
- * @param {array<number,array<number>>} a The list of `GLSL` values.
+ * @param {array.<number,array.<number>>} a The list of `GLSL` values.
  * @param {string} [qualify=''] A `GLSL` qualifier, if needed.
  * @param {string} [init=type] A data-type initialiser, `type` by default.
  *
@@ -286,7 +281,7 @@ export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
  *
  * @param {string} type The `GLSL` list data-type.
  * @param {string} name The name of the `GLSL` list variable.
- * @param {array<number,array<number>>} a The list of `GLSL` values.
+ * @param {array.<number,array.<number>>} a The list of `GLSL` values.
  * @param {string} [qualify=''] A `GLSL` qualifier, if needed (e.g: `const`).
  * @param {number} [glsl=1] The `GLSL` version to target, if specified.
  * @param {string} [init] A data-type initialiser.
@@ -380,9 +375,9 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  * @param {string} [state.pre=preDef] Macros prefix; `preDef` if not given.
  * @param {object} state.maps How values are grouped per-texture per-pass
  *   per-step.
- * @param {array<number>} state.maps.values How values of each data item are
+ * @param {array.<number>} state.maps.values How values of each data item are
  *   grouped into textures. See `mapGroups`.
- * @param {array<array<number>>} state.maps.textures The groupings of values
+ * @param {array.<array.<number>>} state.maps.textures The groupings of values
  *   into textures. See `mapGroups`.
  * @param {array} state.maps.passes Passes drawn per-step. See `mapGroups`.
  * @param {array|number} state.steps States drawn across frames. See `getState`.
@@ -503,14 +498,14 @@ export function macroValues(state, on) {
  * @param {number} state.passNow The index of the currently active pass.
  * @param {object} state.maps How values are grouped per-texture per-pass
  *   per-step. See `mapGroups`.
- * @param {array<number>} state.maps.values How values of each data item may be
+ * @param {array.<number>} state.maps.values How values of each data item may be
  *   grouped into textures across passes. See `mapGroups`.
- * @param {array<array<number>>} state.maps.textures The groupings of values
+ * @param {array.<array.<number>>} state.maps.textures The groupings of values
  *   into textures. See `mapGroups`.
- * @param {array<array<number>>} state.maps.passes The groupings of textures
+ * @param {array.<array.<number>>} state.maps.passes The groupings of textures
  *   into passes. See `mapGroups`.
  *
- * @returns {string} The `GLSL` preprocessor macros for the pass's bound outputs.
+ * @returns {string} `GLSL` preprocessor macros for the pass's bound outputs.
  */
 export function macroOutput(state, on) {
   const key = hooks.macroOutput;
@@ -550,7 +545,7 @@ export function macroOutput(state, on) {
  * @see {@link macroTaps}
  * @see {@link hasMacros}
  * @see {@link getGLSLList}
- * @see {@link maps.mapFlow}
+ * @see {@link maps.mapValues}
  * @see {@link state.getState}
  *
  * @example ```
@@ -560,7 +555,7 @@ export function macroOutput(state, on) {
  *
  *   // No optimisations - values not packed, single texture output per pass.
  *   const state =
- *     { pre: '', maps: mapFlow({ ...maps, buffersMax: 1, packed: 0 }) };
+ *     { pre: '', maps: mapValues({ ...maps, buffersMax: 1, packed: 0 }) };
  *
  *   // Uses the first pass by default.
  *   macroSamples(state); // =>
@@ -656,14 +651,14 @@ export function macroOutput(state, on) {
  *   uses the first pass if not given.
  * @param {object} state.maps  How `values` are grouped per-texture per-pass
  *   per-step. See `mapGroups`.
- * @param {array<array<array<number>>>} [state.maps.samples] The minimal set of
- *   texture samples to use. See `mapSamples`.
- * @param {array<array<array<number>>>} [state.maps.reads] The mappings from
+ * @param {array.<array.<array.<number>>>} [state.maps.samples] The minimal set
+ *   of texture samples to use. See `mapSamples`.
+ * @param {array.<array.<array.<number>>>} [state.maps.reads] The mappings from
  *   values to the corresponding `state.samples`. See `mapSamples`.
  * @param {number} [state.glsl=1] The `GLSL` language version.
  *   See `getGLSLList`.
  *
- * @returns {string} The `GLSL` preprocessor macros defining the mappings for
+ * @returns {string} `GLSL` preprocessor macros defining the mappings for
  *   samples and reads, for each value.
  */
 export function macroSamples(state, on) {
@@ -714,7 +709,7 @@ export function macroSamples(state, on) {
  * @see {@link macroSamples}
  * @see {@link hasMacros}
  * @see {@link getGLSLList}
- * @see {@link maps.mapFlow}
+ * @see {@link maps.mapValues}
  * @see {@link state.getState}
  * @see {@link inputs.getUniforms}
  *
@@ -725,7 +720,7 @@ export function macroSamples(state, on) {
  *
  *   // No optimisations - values not packed, single texture output per pass.
  *   const state =
- *     { pre: '', maps: mapFlow({ ...maps, buffersMax: 1, packed: 0 }) };
+ *     { pre: '', maps: mapValues({ ...maps, buffersMax: 1, packed: 0 }) };
  *
  *   // Uses the first pass by default.
  *   macroTaps(state); // =>
@@ -760,8 +755,8 @@ export function macroSamples(state, on) {
  *   uses the first pass if not given.
  * @param {object} state.maps  How `values` are grouped per-texture per-pass
  *   per-step. See `mapGroups`.
- * @param {array<array<array<number>>>} [state.maps.samples] The minimal set of
- *   texture samples to use. See `mapSamples`.
+ * @param {array.<array.<array.<number>>>} [state.maps.samples] The minimal set
+ *   of texture samples to use. See `mapSamples`.
  * @param {object} [state.merge] Any merged state texture; uses separate state
  *   textures if not given. See `getState`.
  * @param {number} [state.glsl=1] The `GLSL` language version.
@@ -976,7 +971,7 @@ export function macroTaps(state, on) {
  * @see {@link macroOutput}
  * @see {@link macroTaps}
  * @see {@link macroSamples}
- * @see {@link maps.mapFlow}
+ * @see {@link maps.mapValues}
  * @see {@link state.getState}
  *
  * @example ```
@@ -987,7 +982,7 @@ export function macroTaps(state, on) {
  *   // Only a single texture output per pass - values across more passes.
  *   const state = {
  *     passNow: 0, steps: 2, size: { count: 2**5 },
- *     maps: mapFlow({ values, derives, channelsMax: 4, buffersMax: 1 })
+ *     maps: mapValues({ values, derives, channelsMax: 4, buffersMax: 1 })
  *   };
  *
  *   macroPass(state); // =>

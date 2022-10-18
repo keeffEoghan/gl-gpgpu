@@ -2,7 +2,7 @@
  * `./offset-uv.glsl` transformed via `glslify`.
  *
  * @module
- * @group GLSL
+ * @category GLSL
  */
 import transformed from './offset-uv.glsl';
 
@@ -10,7 +10,7 @@ import transformed from './offset-uv.glsl';
  * `./offset-uv.glsl` transformed via `glslify`.
  *
  * @type {string}
- * @group GLSL
+ * @category GLSL
  */
 export const glsl = transformed;
 

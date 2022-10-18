@@ -9,14 +9,16 @@ import each from '@epok.tech/fn-lists/each';
 import range from '@epok.tech/fn-lists/range';
 import wrap from '@epok.tech/fn-lists/wrap';
 
-import { gpgpu, extensionsFloat, extensionsHalfFloat, optionalExtensions }
-  from '../../index';
+import gpgpu from '../../src';
 
-import { macroPass } from '../../macros';
-import { mapFlow } from '../../maps';
-import { getUniforms } from '../../inputs';
-import { getDrawIndexes } from '../../size';
-import indexForms from '../../index-forms';
+import { extensionsFloat, extensionsHalfFloat, optionalExtensions }
+  from '../../src/const';
+
+import { macroPass } from '../../src/macros';
+import { mapValues } from '../../src/maps';
+import { getUniforms } from '../../src/inputs';
+import { getDrawIndexes } from '../../src/size';
+import indexForms from '../../src/index-forms';
 
 import stepFrag from './step.frag.glsl';
 import drawVert from './draw.vert.glsl';
@@ -24,7 +26,7 @@ import drawFrag from './draw.frag.glsl';
 
 self.gpgpu = gpgpu;
 self.macroPass = macroPass;
-self.mapFlow = mapFlow;
+self.mapValues = mapValues;
 self.getUniforms = getUniforms;
 self.getDrawIndexes = getDrawIndexes;
 self.indexForms = indexForms;
@@ -421,9 +423,9 @@ const drawState = {
     // Speed-to-colour scaling, as `[multiply, power]`.
     pace: [[1e-3, 0.6], [3e2, 0.6]]
   },
-  // Map everything similarly to the GPGPU step, `mapFlow` can be reused to
+  // Map everything similarly to the GPGPU step, `mapValues` can be reused to
   // create new mappings with some additions for drawing.
-  maps: mapFlow({
+  maps: mapValues({
     ...state.maps,
     // This one pass can bind textures for input; not output across passes.
     texturesMax: maxTextureUnits,

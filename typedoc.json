@@ -1,1 +1,12 @@
-{}
+{
+  "sort": ["alphabetical", "source-order"],
+  "categoryOrder": ["Main", "*"],
+  "customCss": "./media/docs/index.css",
+  "includeVersion": true,
+  "tsconfig": "./tsconfig.json",
+  "readme": "./readme.md",
+  "media": "./media/docs",
+  "includes": "./",
+  "json": "./docs/api.json",
+  "out": "./docs/api"
+}

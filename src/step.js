@@ -4,6 +4,7 @@
  * Connects inputs to the `GL` state and renders an update step.
  *
  * @module
+ * @category JS
  */
 
 import each from '@epok.tech/fn-lists/each';
@@ -26,7 +27,7 @@ export const cache = {
  * @see {@link state.getState}
  *
  * @param {object} state The `gpgpu` state.
- * @param {array<object>} state.passes Passes per step. See `getState`.
+ * @param {array.<object>} state.passes Passes per step. See `getState`.
  * @param {number} [state.stepNow] The currently active state step, if any.
  * @param {number} [state.passNow] The currently active draw pass, if any.
  *
@@ -52,7 +53,7 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
  * @see {@link macros.macroTaps}
  *
  * @param {object} state A `gpgpu` state of the active pass.
- * @param {array<object<array<texture>,array<number>>>} state.passes Passes per
+ * @param {array.<object.<array.<texture>,array.<number>>>} state.passes Passes per
  *   step; the active one is found via `getPass`, with a `color` array of
  *   `texture`s, and a `map` array of numbers showing how the textures are
  *   grouped into the pass. See `getState` and `mapGroups`.
@@ -109,7 +110,7 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
  *   `mapGroups`.
  * @param {object} state.maps How values are grouped per-`texture` per-pass
  *   per-step. See `mapGroups`.
- * @param {array<array<number>>} state.passes How textures are grouped into
+ * @param {array.<array.<number>>} state.passes How textures are grouped into
  *   passes. See `mapGroups`.
  * @param {object} [state.merge] Any merged state `texture`; uses separate state
  *   textures if not given.
@@ -132,7 +133,7 @@ export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
  * @param {string} state.step.frag The step fragment shader `GLSL`.
  * @param {object} [state.step.uniforms=getUniforms(state)] The step uniforms;
  *   modifies any given. See `getUniforms`.
- * @param {array<number>|buffer} [state.step.positions=positionsDef()] The step
+ * @param {array.<number>|buffer} [state.step.positions=positionsDef()] The step
  *   position attributes; 3 points of a large flat triangle if not given.
  * @param {number} [state.step.count=state.step.positions.length*scale.vec2] The
  *   number of elements/attributes to draw.
@@ -264,8 +265,13 @@ export function getStep(api, state, to = state.step ?? {}) {
 }
 
 /**
+ * @todo [Fix `@callback`:  nested `@param`, `@return`/`@see`/etc details](https://github.com/TypeStrong/typedoc/issues/1896)
+ *
  * @callback buffer
  * Function to set up a `GL` buffer; from a `GL` API.
+ *
+ * **See**
+ * - {@link getStep}
  *
  * **Returns**
  * - `buffer` A `GL` buffer to use for vertex attributes, or an
@@ -273,26 +279,23 @@ export function getStep(api, state, to = state.step ?? {}) {
  * - `[buffer.count]` The buffer element/vertex count.
  * - `[buffer.length]` The length of the buffer data `array`.
  *
- * @todo [Fix `@callback` format for return details](https://github.com/TypeStrong/typedoc/issues/1896)
+ * @param {array.<number>|object.<number>} data Buffer data.
  *
- * @see {@link getStep}
- *
- * @param {array<number>|{}} data The buffer data, as `array` or `buffer`.
- *
- * @returns {{}}
+ * @returns {object}
  */
 
 /**
+ * @todo [Fix `@callback`:  nested `@param`, `@return`/`@see`/etc details](https://github.com/TypeStrong/typedoc/issues/1896)
+ *
  * @callback clear
  * Function to clear `GL` output view or `framebuffer`; from a `GL` API.
  *
- * @todo [Fix `@callback` format for return details](https://github.com/TypeStrong/typedoc/issues/1896)
- *
- * @see {@link getStep}
- * @see {@link state.framebuffer}
+ * **See**
+ * - {@link getStep}
+ * - {@link state.framebuffer}
  *
  * @param {object} props The values to clear with.
- * @param {array<number>} [color] The values to clear any color buffers with.
+ * @param {array.<number>} [color] The values to clear any color buffers with.
  * @param {number} [depth] The value to clear any depth buffer with.
  * @param {number} [stencil] The value to clear any stencil buffer with.
  * @param {framebuffer} [framebuffer] Any `framebuffer` to clear; if not given,
@@ -302,18 +305,19 @@ export function getStep(api, state, to = state.step ?? {}) {
  */
 
 /**
+ * @todo [Fix `@callback`:  nested `@param`, `@return`/`@see`/etc details](https://github.com/TypeStrong/typedoc/issues/1896)
+ *
  * @callback command
  * Function to create a `GL` render pass execution function, to be called later,
  * with options, for a render pass; from a `GL` API.
  *
+ * **See**
+ * - {@link getStep}
+ * - {@link inputs.getUniforms}
+ * - {@link state.framebuffer}
+ *
  * **Returns**
  * - Function to execute a `GL` render pass, with options, for a render pass.
- *
- * @todo [Fix `@callback` format for return details](https://github.com/TypeStrong/typedoc/issues/1896)
- *
- * @see {@link getStep}
- * @see {@link step.getUniforms}
- * @see {@link state.framebuffer}
  *
  * @param {object} passCommand The properties from which to create the `GL`
  *   render function for a given pass.
@@ -321,12 +325,12 @@ export function getStep(api, state, to = state.step ?? {}) {
  *   shader `GLSL` string for the next render pass.
  * @param {function} [passCommand.frag] Function hook returning the fragment
  *   shader `GLSL` string for the next render pass.
- * @param {object<buffer>} [passCommand.attributes] The vertex attributes for
+ * @param {object.<buffer>} [passCommand.attributes] The vertex attributes for
  *   the next render pass.
- * @param {object<function>} [passCommand.uniforms] The uniform hooks for the
+ * @param {object.<function>} [passCommand.uniforms] The uniform hooks for the
  *   given `props`. See `getUniforms`.
  * @param {number} [passCommand.count] The number of elements to draw.
- * @param {object<boolean,{}>} [passCommand.depth] An object describing the
+ * @param {object.<boolean,{}>} [passCommand.depth] An object describing the
  *   depth settings for the next render pass; e.g: `passCommand.depth.enable`.
  * @param {function} [passCommand.framebuffer] Function hook returning the
  *   `framebuffer` to draw to in the next render pass. See `framebuffer`.
@@ -335,17 +339,18 @@ export function getStep(api, state, to = state.step ?? {}) {
  */
 
 /**
+ * @todo [Fix `@callback`:  nested `@param`, `@return`/`@see`/etc details](https://github.com/TypeStrong/typedoc/issues/1896)
+ *
  * @callback subimage
  * Function of a `GL` `texture` to update part of it with new data; from a `GL`
  * API.
  *
+ * **See**
+ * - {@link getStep}
+ * - {@link state.texture}
+ *
  * **Returns**
  * - The calling `texture`, with part updated part to `data`.
- *
- * @todo [Fix `@callback` format for return details](https://github.com/TypeStrong/typedoc/issues/1896)
- *
- * @see {@link getStep}
- * @see {@link state.texture}
  *
  * @param {texture} data The data to update into part of the calling `texture`.
  * @param {number} [x=0] Offset on the x-axis within the calling `texture`.
@@ -355,43 +360,45 @@ export function getStep(api, state, to = state.step ?? {}) {
  */
 
 /**
+ * @todo [Fix `@callback`:  nested `@param`, `@return`/`@see`/etc details](https://github.com/TypeStrong/typedoc/issues/1896)
+ *
  * @callback onStep
  * Callback upon each step.
+ *
+ * **See**
+ * - {@link getStep}
+ * - {@link state.getState}
+ * - {@link state.framebuffer}
  *
  * **Returns**
  * - A `stepProps` object to use for each of the step's next passes; or
  *   `null`ish to use the given `props`.
  *
- * @todo [Fix `@callback` format for return details](https://github.com/TypeStrong/typedoc/issues/1896)
- *
- * @see {@link getStep}
- * @see {@link state.getState}
- * @see {@link state.framebuffer}
- *
  * @param {object} [props] The `props` passed to `run`.
- * @param {array<framebuffer>} step The `framebuffer`s for `props.stepNow` from
+ * @param {array.<framebuffer>} step The `framebuffer`s for `props.stepNow` from
  *   `props.steps`, where the next state step will be drawn. See `getState`.
  *
- * @returns {{}}
+ * @returns {object}
  */
 
 /**
+ * @todo [Fix `@callback`:  nested `@param`, `@return`/`@see`/etc details](https://github.com/TypeStrong/typedoc/issues/1896)
+ *
  * @callback onPass
  * Callback upon each pass.
+ *
+ * **See**
+ * - {@link getStep}
+ * - {@link maps.mapGroups}
  *
  * **Returns**
  * - A `passProps` object to use for the render `command` call; or `null`ish to
  *   use the given `stepProps`.
  *
- * @todo [Fix `@callback` format for return details](https://github.com/TypeStrong/typedoc/issues/1896)
- *
- * @see {@link getStep}
- * @see {@link maps.mapGroups}
- *
  * @param {object} [stepProps] The `props` passed to `run` via any `onStep`.
- * @param {array<number>} pass The maps for the next pass. See `mapGroups`.
+ * @param {array.<number>} pass The maps for the next pass. See `mapGroups`.
  *
- * @returns {{}}
+ * @returns {object}
  */
 
 /** A wrapper around `updateMerge`, handy for testing. */

@@ -177,6 +177,8 @@ Temporary Items
 # Custom Overrides
 
 /dist
+/cjs
+/esm
 
 # Ignore files/folders marked with `.gitignore`, but not `.gitignore` itself.
 *.gitignore

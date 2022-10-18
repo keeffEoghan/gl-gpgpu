@@ -4,6 +4,7 @@
  * Handles `framebuffer`s, `texture`s; and meta info.
  *
  * @module
+ * @category JS
  *
  * @todo Allow passes into or across textures; separate data and texture shapes.
  * @todo In-place updates of complex resources and meta info.
@@ -209,20 +210,22 @@ const { isInteger } = Number;
  * @param {texture} [api.texture] Function creating `GL` `texture`s.
  * @param {framebuffer} [api.framebuffer] Function creating `GL` `framebuffer`s.
  * @param {object} [state=\{\}] The state parameters.
+ *
  * @param {number} [state.width=widthDef] Data width, aliases follow in order
  *   of precedence. See `getWidth`.
  * @param {number} [state.w] Alias of `state.width`. See `getWidth`.
  * @param {number} [state.x] Alias of `state.width`. See `getWidth`.
+ * @param {number} [state.ʼ0ʼ] Alias of `state.width`. See `getWidth`.
+ *
  * @param {number} [state.height=heightDef] Data height, aliases follow in order
  *   of precedence. See `getHeight`.
  * @param {number} [state.h] Alias of `state.height`. See `getHeight`.
  * @param {number} [state.y] Alias of `state.height`. See `getHeight`.
+ * @param {number} [state.ʼ1ʼ] Alias of `state.height`. See `getHeight`.
  * @param {number} [state.shape] Data size. See `getWidth` and `getHeight`.
  * @param {number} [state.size] Data size. See `getWidth` and `getHeight`.
  * @param {number} [state.side] Data size of width/height.
  *   See `getWidth` and `getHeight`.
- * @param {number} [state.0] Alias of `state.width` (index 0). See `getWidth`.
- * @param {number} [state.1] Alias of `state.height` (index 1). See `getHeight`.
  * @param {number} [state.scale=scaleDef] Data size of width/height as a square
  *   power-of-two size, 2 raised to this power. See `getScaled`.
  *
@@ -230,7 +233,7 @@ const { isInteger } = Number;
  *   track, or the list of states if already set up.
  * @param {object} [state.maps] How `state.maps.values` are grouped
  *   per-`texture` per-pass per-step. See `mapGroups`.
- * @param {array<number>} [state.maps.values=valuesDef()] How values of each
+ * @param {array.<number>} [state.maps.values=valuesDef()] How values of each
  *   data item may be grouped into `texture`s across passes; set up here if not
  *   given. See `mapGroups`.
  * @param {number} [state.maps.channelsMin=channelsMinDef] The minimum allowed
@@ -238,21 +241,22 @@ const { isInteger } = Number;
  *   to reach this limit.
  * @param {number} [state.maps.textures] How values are grouped into `texture`s.
  *   See `mapGroups`.
+ *
  * @param {number} [state.stepNow] The currently active state step, if any.
  * @param {number} [state.passNow] The currently active draw pass, if any.
  * @param {string} [state.type=typeDef] Any `texture` data type value.
  * @param {string} [state.min=minDef] Any `texture` minification filter value.
  * @param {string} [state.mag=magDef] Any `texture` magnification filter value.
  * @param {string} [state.wrap=wrapDef] Any `texture` wrap mode value.
- * @param {boolean|object} [state.depth=depthDef] Any `framebuffer` depth
- *   attachment, or a flag for whether it should be created.
- * @param {boolean|object} [state.stencil=stencilDef] Any `framebuffer` stencil
+ * @param {object} [state.depth=depthDef] Any `framebuffer` depth attachment, or
+ *   a flag for whether it should be created.
+ * @param {object} [state.stencil=stencilDef] Any `framebuffer` stencil
  *   attachment, or a flag for whether it should be created.
  *
- * @param {boolean|object} [state.merge=mergeDef] Whether to merge states into
- *   one `texture`; `true`y handles merging here, with any  used as-is
- *   (the merged `texture` already set up); `false`y uses un-merged `array`s of
- *   `texture`s.
+ * @param {object} [state.merge=mergeDef] Whether to merge states into
+ *   one `texture`; `true`y handles merging here, with any given properties used
+ *   as-is (the merged `texture` already set up); `false`y uses un-merged
+ *   `array`s of `texture`s.
  *
  *   Merging allows shaders to access past steps by non-constant lookups; e.g:
  *   attributes cause `"sampler array index must be a literal expression"` on
@@ -277,18 +281,16 @@ const { isInteger } = Number;
  *   order of precedence. See `state`.
  * @param {number} [state.merge.w] Alias of `state.merge.width`. See `state`.
  * @param {number} [state.merge.x] Alias of `state.merge.width`. See `state`.
+ * @param {number} [state.merge.ʼ0ʼ] Alias of `state.merge.width`. See `state`.
  * @param {number} [state.merge.height] Merged data height, aliases follow in
  *   order of precedence. See `state`.
  * @param {number} [state.merge.h] Alias of `state.merge.height`. See `state`.
  * @param {number} [state.merge.y] Alias of `state.merge.height`. See `state`.
+ *   See `state`.
+ * @param {number} [state.merge.ʼ1ʼ] Alias of `state.merge.height`. See `state`.
  * @param {number} [state.merge.shape] Merged data size. See `state`.
  * @param {number} [state.merge.size] Merged data size. See `state`.
  * @param {number} [state.merge.side] Merged data size of width/height.
- *   See `state`.
- * @param {number} [state.merge.0] Alias of `state.merge.width` (index 0).
- *   See `state`.
- * @param {number} [state.merge.1] Alias of `state.merge.height` (index 1).
- *   See `state`.
  * @param {number} [state.merge.scale] Merged data size of width/height as a
  *   square power-of-two size, 2 raised to this power. See `state`.
  *
@@ -297,15 +299,15 @@ const { isInteger } = Number;
  *
  * @returns {object} `to` The state object, set up with the data resources and
  *   meta information, for use with `getStep` and drawing:
- * @returns {object<number,array<number,array<number>>>} `to.maps` Any given
+ * @returns {object.<number,array.<number,array.<number>>>} `to.maps` Any given
  *   `state.maps`. See `mapGroups`.
- * @returns {array<array<object<texture,string,number,array<number>>>>}
+ * @returns {array.<array.<object.<texture,string,number,array.<number>>>>}
  *   `to.textures` The `texture`s per-step, as `array`s of objects of `texture`s
  *   and meta info. See `to.maps.textures`.
- * @returns {array<array<object<framebuffer,number,array<number>>>>}
+ * @returns {array.<array.<object.<framebuffer,number,array.<number>>>>}
  *   `to.passes` Passes per step, as `array`s of objects of `framebuffer`s,
  *   referencing `to.textures`, and meta info. See `to.maps.passes`.
- * @returns {array<framebuffer<array<texture>>>} `to.steps`
+ * @returns {array.<framebuffer<array.<texture>>>} `to.steps`
  *   Hierarchy of steps of state, as an `array` of `framebuffer`s from
  *   `to.passes`, with `array`s of `texture`s from `to.textures`, and meta
  *   information; set up here, or the given `state.steps` if it's an `array`.
@@ -314,9 +316,9 @@ const { isInteger } = Number;
  * @returns {object|undefined} `[to.merge]` If merging, a given or new merged
  *   `texture` and copier `framebuffer`, with meta info. See `getStep` and
  *   `macroTaps`.
- * @returns {object<texture,string,number>|undefined} `[to.merge.all]` Any given
+ * @returns {object.<texture,string,number>|undefined} `[to.merge.all]` Any given
  *   `state.merge.all`, or newly-created merged `texture` and meta info.
- * @returns {object<framebuffer,string,number>|undefined} `[to.merge.next]` Any
+ * @returns {object.<framebuffer,string,number>|undefined} `[to.merge.next]` Any
  *   given `state.merge.next`, or newly-created `framebuffer` and meta info; for
  *   copying each pass's data into the `merge`d `texture`.
  * @returns {object} `to.size` Size/type information of the created resources.
@@ -331,10 +333,10 @@ const { isInteger } = Number;
  * @returns {number} `to.size.colors` Number of `texture`s created.
  * @returns {number} `to.size.width` Width of `framebuffer`s and `texture`s.
  * @returns {number} `to.size.height` Height of `framebuffer`s and `texture`s.
- * @returns {array<number>} `to.size.shape` Shape of `framebuffer`s and
+ * @returns {array.<number>} `to.size.shape` Shape of `framebuffer`s and
  *   `texture`s, as `[to.size.width, to.size.height]`.
  * @returns {number} `to.size.count` Number of entries in each `texture`.
- * @returns {object<number,string,array<number>>|undefined} `[to.size.merge]`
+ * @returns {object.<number,string,array.<number>>|undefined} `[to.size.merge]`
  *   Any size/type information about any created or given `merge`d `texture`.
  * @returns {number} `to.stepNow` The currently active state step, as given.
  * @returns {number} `to.passNow` The currently active draw pass, as given.
@@ -530,13 +532,16 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
 }
 
 /**
+ * @todo [Fix `@callback`:  nested `@param`, `@return`/`@see`/etc details](https://github.com/TypeStrong/typedoc/issues/1896)
+ *
  * @callback texture
  * Function to create a `GL` `texture`; from a `GL` API.
  *
+ * **See**
+ * - {@link getState}
+ *
  * **Returns**
  * - `texture` A `GL` `texture`, or an object serving that purpose.
- *
- * @todo [Fix `@callback` format for return details](https://github.com/TypeStrong/typedoc/issues/1896)
  *
  * @param {string} type Any `texture` data type value.
  * @param {string} min Any `texture` minification filter value.
@@ -546,27 +551,30 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
  * @param {number} height The height of the `texture`.
  * @param {number} channels The number of channels of the `texture`.
  *
- * @returns {{}}
+ * @returns {object}
  */
 
 /**
+ * @todo [Fix `@callback`:  nested `@param`, `@return`/`@see`/etc details](https://github.com/TypeStrong/typedoc/issues/1896)
+ *
  * @callback framebuffer
  * Function to create a `GL` `framebuffer`; from a `GL` API.
+ *
+ * **See**
+ * - {@link getState}
  *
  * **Returns**
  * - `framebuffer` A `GL` `framebuffer`, or an object serving that purpose.
  *
- * @todo [Fix `@callback` format for return details](https://github.com/TypeStrong/typedoc/issues/1896)
- *
- * @param {boolean|object} [depth] Any `framebuffer` depth attachment, or a
- *   flag for whether it should be created.
- * @param {boolean|object} [stencil] Any `framebuffer` stencil attachment, or a
- *   flag for whether it should be created.
+ * @param {object} [depth] Any `framebuffer` depth attachment, or a flag for
+ *   whether it should be created.
+ * @param {object} [stencil] Any `framebuffer` stencil attachment, or a flag for
+ *   whether it should be created.
  * @param {number} width The width of the `framebuffer`.
  * @param {number} height The height of the `framebuffer`.
- * @param {array<texture>} color The `texture` attachments to use.
+ * @param {array.<texture>} color The `texture` attachments to use.
  *
- * @returns {{}}
+ * @returns {object}
  */
 
 export default getState;
