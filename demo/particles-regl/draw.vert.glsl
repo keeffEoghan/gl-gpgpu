@@ -35,7 +35,7 @@ attribute float index;
 // Must be defined when using the default `tapStates` or `tapStatesBy`.
 uniform float stepNow;
 
-uniform vec4 dataShape;
+uniform vec4 stateShape;
 uniform vec2 viewShape;
 uniform float pointSize;
 uniform float dt;
@@ -86,7 +86,7 @@ void main() {
   #endif
 
   // Turn 1D index into 2D texture UV; offset to texel center, avoids errors.
-  vec2 st = offsetUV(indexUV(entry, dataShape.xy), dataShape.xy);
+  vec2 st = offsetUV(indexUV(entry, stateShape.xy), stateShape.xy);
 
   // Can also use the `reads` logic to take the minimum possible samples here.
   // Sample the desired state values; creates the `data` array.

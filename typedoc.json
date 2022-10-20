@@ -1,5 +1,7 @@
 {
-  "sort": ["alphabetical", "source-order"],
+  "plugin": ["typedoc-theme-hierarchy"],
+  "theme": "hierarchy",
+  "sort": ["source-order"],
   "categoryOrder": ["Main", "*"],
   "customCss": "./media/docs/index.css",
   "includeVersion": true,

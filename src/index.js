@@ -10,7 +10,7 @@
  * Decouples logic from rendering approach/engine.
  * The modules and many hooks may be used as given, or piecemeal, or overridden.
  *
- * @module [@epok.tech/gl-gpgpu]
+ * @module (index)
  * @category Main
  * @category JS
  *
@@ -25,6 +25,7 @@ import { getStep } from './step';
  * Sets up all the maps, inputs, resources, etc for a `gpgpu` process.
  * Each component may also be used individually, see their documentation.
  *
+ * @see {@link maps.mapValues}
  * @see {@link maps.mapGroups}
  * @see {@link maps.mapSamples}
  * @see {@link state.getState}
@@ -47,6 +48,8 @@ import { getStep } from './step';
  *   `state` object by default.
  *
  * @returns {object} The given `to` `object`, set up for a `gpgpu` process.
+ *   See `mapValues`, `getState`, `getUniforms`, `getStep` and `macroPass` for
+ *   each constituent part.
  */
 export function gpgpu(api, state = {}, to = state) {
   const { maxDrawbuffers, glsl } = api.limits ?? api;
