@@ -1,6 +1,6 @@
 {
 	"id": 0,
-	"name": "@epok.tech/gl-gpgpu - v0.7.0",
+	"name": "@epok.tech/gl-gpgpu - v0.7.1",
 	"kind": 1,
 	"flags": {},
 	"originalName": "",
@@ -65,7 +65,7 @@
 							"fileName": "const.js",
 							"line": 12,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L12"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L12"
 						}
 					],
 					"type": {
@@ -85,7 +85,7 @@
 							"fileName": "const.js",
 							"line": 17,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L17"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L17"
 						}
 					],
 					"signatures": [
@@ -124,7 +124,7 @@
 							"fileName": "const.js",
 							"line": 20,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L20"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L20"
 						}
 					],
 					"signatures": [
@@ -171,7 +171,7 @@
 							"fileName": "const.js",
 							"line": 24,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L24"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L24"
 						}
 					],
 					"signatures": [
@@ -218,7 +218,7 @@
 							"fileName": "const.js",
 							"line": 28,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L28"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L28"
 						}
 					],
 					"signatures": [
@@ -267,7 +267,7 @@
 							"fileName": "const.js",
 							"line": 31,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L31"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L31"
 						}
 					],
 					"type": {
@@ -340,7 +340,7 @@
 							"fileName": "const.js",
 							"line": 39,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L39"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L39"
 						}
 					],
 					"type": {
@@ -413,7 +413,7 @@
 							"fileName": "const.js",
 							"line": 47,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L47"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L47"
 						}
 					],
 					"type": {
@@ -451,7 +451,7 @@
 							"fileName": "const.js",
 							"line": 50,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L50"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L50"
 						}
 					],
 					"type": {
@@ -481,7 +481,7 @@
 							"fileName": "const.js",
 							"line": 56,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L56"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L56"
 						}
 					],
 					"type": {
@@ -527,7 +527,7 @@
 							"fileName": "const.js",
 							"line": 62,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L62"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L62"
 						}
 					],
 					"type": {
@@ -573,7 +573,7 @@
 							"fileName": "const.js",
 							"line": 68,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L68"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L68"
 						}
 					],
 					"type": {
@@ -619,7 +619,7 @@
 							"fileName": "const.js",
 							"line": 74,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L74"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L74"
 						}
 					],
 					"type": {
@@ -649,7 +649,7 @@
 							"fileName": "const.js",
 							"line": 77,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L77"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L77"
 						}
 					],
 					"type": {
@@ -669,7 +669,7 @@
 							"fileName": "const.js",
 							"line": 80,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L80"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L80"
 						}
 					],
 					"signatures": [
@@ -708,7 +708,7 @@
 							"fileName": "const.js",
 							"line": 82,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L82"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L82"
 						}
 					],
 					"signatures": [
@@ -773,7 +773,7 @@
 							"fileName": "const.js",
 							"line": 87,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L87"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L87"
 						}
 					],
 					"type": {
@@ -811,7 +811,7 @@
 							"fileName": "const.js",
 							"line": 89,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L89"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L89"
 						}
 					],
 					"type": {
@@ -849,7 +849,7 @@
 							"fileName": "const.js",
 							"line": 91,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L91"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L91"
 						}
 					],
 					"type": {
@@ -903,7 +903,7 @@
 							"fileName": "const.js",
 							"line": 93,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L93"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L93"
 						}
 					],
 					"type": {
@@ -941,7 +941,7 @@
 							"fileName": "const.js",
 							"line": 95,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L95"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L95"
 						}
 					],
 					"type": {
@@ -979,7 +979,7 @@
 							"fileName": "const.js",
 							"line": 97,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L97"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L97"
 						}
 					],
 					"type": {
@@ -1025,7 +1025,7 @@
 							"fileName": "const.js",
 							"line": 99,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L99"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L99"
 						}
 					],
 					"type": {
@@ -1033,6 +1033,50 @@
 						"value": true
 					},
 					"defaultValue": "true"
+				},
+				{
+					"id": 208,
+					"name": "cacheDef",
+					"kind": 32,
+					"kindString": "Variable",
+					"flags": {
+						"isConst": true
+					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Simple shared cache for temporary or reusable objects."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "const.js",
+							"line": 102,
+							"character": 13,
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L102"
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 209,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "const.js",
+									"line": 102,
+									"character": 13,
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L102"
+								}
+							]
+						}
+					},
+					"defaultValue": "{}"
 				}
 			],
 			"groups": [
@@ -1055,7 +1099,8 @@
 						204,
 						205,
 						206,
-						207
+						207,
+						208
 					]
 				},
 				{
@@ -1075,7 +1120,7 @@
 					"fileName": "const.js",
 					"line": 8,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/const.js#L8"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/const.js#L8"
 				}
 			]
 		},
@@ -1139,7 +1184,7 @@
 							"fileName": "index-forms/index-entries.glsl.js",
 							"line": 15,
 							"character": 14,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index-forms/index-entries.glsl.js#L15"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index-forms/index-entries.glsl.js#L15"
 						}
 					],
 					"type": {
@@ -1159,7 +1204,7 @@
 							"fileName": "index-forms/index-entries.glsl.js",
 							"line": 17,
 							"character": 1,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index-forms/index-entries.glsl.js#L17"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index-forms/index-entries.glsl.js#L17"
 						}
 					],
 					"target": 50
@@ -1192,7 +1237,7 @@
 					"fileName": "index-forms/index-entries.glsl.js",
 					"line": 7,
 					"character": 1,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index-forms/index-entries.glsl.js#L7"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index-forms/index-entries.glsl.js#L7"
 				}
 			]
 		},
@@ -1256,7 +1301,7 @@
 							"fileName": "index-forms/index-states.glsl.js",
 							"line": 15,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index-forms/index-states.glsl.js#L15"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index-forms/index-states.glsl.js#L15"
 						}
 					],
 					"type": {
@@ -1276,7 +1321,7 @@
 							"fileName": "index-forms/index-states.glsl.js",
 							"line": 17,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index-forms/index-states.glsl.js#L17"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index-forms/index-states.glsl.js#L17"
 						}
 					],
 					"target": 40
@@ -1309,7 +1354,7 @@
 					"fileName": "index-forms/index-states.glsl.js",
 					"line": 7,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index-forms/index-states.glsl.js#L7"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index-forms/index-states.glsl.js#L7"
 				}
 			]
 		},
@@ -1498,7 +1543,7 @@
 							"fileName": "index-forms/index.js",
 							"line": 30,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index-forms/index.js#L30"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index-forms/index.js#L30"
 						}
 					],
 					"signatures": [
@@ -1570,7 +1615,7 @@
 							"fileName": "index-forms/index.js",
 							"line": 33,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index-forms/index.js#L33"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index-forms/index.js#L33"
 						}
 					],
 					"target": 43
@@ -1595,7 +1640,7 @@
 					"fileName": "index-forms/index.js",
 					"line": 30,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index-forms/index.js#L30"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index-forms/index.js#L30"
 				}
 			]
 		},
@@ -1643,17 +1688,6 @@
 						"kind": "text",
 						"text": "\nresources, inputs, outputs - lets you focus on your logic, BYO-renderer.\n\nDecouples logic from rendering approach/engine.\nThe modules and many hooks may be used as given, or piecemeal, or overridden."
 					}
-				],
-				"blockTags": [
-					{
-						"tag": "@todo",
-						"content": [
-							{
-								"kind": "text",
-								"text": "Allow passes within/across textures; separate data and texture shapes."
-							}
-						]
-					}
 				]
 			},
 			"originalName": "index",
@@ -1667,9 +1701,9 @@
 					"sources": [
 						{
 							"fileName": "index.js",
-							"line": 54,
+							"line": 52,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index.js#L54"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index.js#L52"
 						}
 					],
 					"signatures": [
@@ -1762,7 +1796,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getUniforms",
-												"target": 209
+												"target": 211
 											},
 											{
 												"kind": "text",
@@ -1776,7 +1810,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getStep",
-												"target": 263
+												"target": 265
 											},
 											{
 												"kind": "text",
@@ -1946,9 +1980,9 @@
 													"sources": [
 														{
 															"fileName": "index.js",
-															"line": 37,
+															"line": 35,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index.js#L37"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index.js#L35"
 														}
 													],
 													"type": {
@@ -1969,9 +2003,9 @@
 																	"sources": [
 																		{
 																			"fileName": "index.js",
-																			"line": 38,
+																			"line": 36,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index.js#L38"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index.js#L36"
 																		}
 																	],
 																	"type": {
@@ -1991,9 +2025,9 @@
 															"sources": [
 																{
 																	"fileName": "index.js",
-																	"line": 38,
+																	"line": 36,
 																	"character": 3,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index.js#L38"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index.js#L36"
 																}
 															]
 														}
@@ -2011,9 +2045,9 @@
 											"sources": [
 												{
 													"fileName": "index.js",
-													"line": 37,
+													"line": 35,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index.js#L37"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index.js#L35"
 												}
 											]
 										}
@@ -2098,7 +2132,7 @@
 															},
 															{
 																"kind": "code",
-																"text": "`mapGroups`"
+																"text": "`mapValues`"
 															},
 															{
 																"kind": "text",
@@ -2109,9 +2143,9 @@
 													"sources": [
 														{
 															"fileName": "index.js",
-															"line": 42,
+															"line": 40,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index.js#L42"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index.js#L40"
 														}
 													],
 													"type": {
@@ -2132,9 +2166,9 @@
 																	"sources": [
 																		{
 																			"fileName": "index.js",
-																			"line": 45,
+																			"line": 43,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index.js#L45"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index.js#L43"
 																		}
 																	],
 																	"type": {
@@ -2154,9 +2188,9 @@
 															"sources": [
 																{
 																	"fileName": "index.js",
-																	"line": 45,
+																	"line": 43,
 																	"character": 3,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index.js#L45"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index.js#L43"
 																}
 															]
 														}
@@ -2174,9 +2208,9 @@
 											"sources": [
 												{
 													"fileName": "index.js",
-													"line": 42,
+													"line": 40,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index.js#L42"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index.js#L40"
 												}
 											]
 										}
@@ -2238,9 +2272,9 @@
 					"sources": [
 						{
 							"fileName": "index.js",
-							"line": 73,
+							"line": 71,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index.js#L73"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index.js#L71"
 						}
 					],
 					"target": 86
@@ -2263,9 +2297,9 @@
 			"sources": [
 				{
 					"fileName": "index.js",
-					"line": 20,
+					"line": 18,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index.js#L20"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index.js#L18"
 				}
 			]
 		},
@@ -2330,7 +2364,7 @@
 							"fileName": "index.vert.js",
 							"line": 15,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index.vert.js#L15"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index.vert.js#L15"
 						}
 					],
 					"type": {
@@ -2350,7 +2384,7 @@
 							"fileName": "index.vert.js",
 							"line": 17,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index.vert.js#L17"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index.vert.js#L17"
 						}
 					],
 					"target": 107
@@ -2383,12 +2417,12 @@
 					"fileName": "index.vert.js",
 					"line": 7,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/index.vert.js#L7"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/index.vert.js#L7"
 				}
 			]
 		},
 		{
-			"id": 208,
+			"id": 210,
 			"name": "inputs",
 			"kind": 2,
 			"kindString": "Module",
@@ -2427,7 +2461,7 @@
 			},
 			"children": [
 				{
-					"id": 209,
+					"id": 211,
 					"name": "getUniforms",
 					"kind": 64,
 					"kindString": "Function",
@@ -2437,12 +2471,12 @@
 							"fileName": "inputs.js",
 							"line": 110,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L110"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L110"
 						}
 					],
 					"signatures": [
 						{
-							"id": 210,
+							"id": 212,
 							"name": "getUniforms",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -2596,7 +2630,7 @@
 										"content": [
 											{
 												"kind": "code",
-												"text": "```javascript\nconst state = { pre: '', steps: 2, maps: mapValues({ values: [1, 2, 3] }) };\nconst api = {};\n\ngetUniforms(getState(api, { ...state, merge: false }, {})); // =>\n{\n  stepNow: (context, state) => {},\n  stateShape: (context, state) => {},\n  viewShape: (context, state) => {},\n  // Separate data-`texture`s, an `array` of `sampler`s (e.g: `sampler2D[]`).\n  // Data-`texture`s for the 1st step ago, not bound as outputs.\n  'states[0]': (context, state) => {},\n  'states[1]': (context, state) => {},\n  // Merged `texture` not used.\n  states: (context, state) => null\n};\n\ngetUniforms(getState(api, { ...state, steps: 3, merge: false }, {})); // =>\n{\n  stepNow: (context, state) => {},\n  stateShape: (context, state) => {},\n  viewShape: (context, state) => {},\n  // Separate data-`texture`s, an `array` of `sampler`s (e.g: `sampler2D[]`).\n  // Data-`texture`s for the 1st step ago, not bound as outputs.\n  'states[0]': (context, state) => {},\n  'states[1]': (context, state) => {}\n  // Data-`texture`s for the 2nd step ago, not bound as outputs.\n  'states[2]': (context, state) => {},\n  'states[3]': (context, state) => {},\n  // Merged `texture` not used.\n  states: (context, state) => null\n};\n\ngetUniforms(getState(api, { ...state, merge: true }, {})); // =>\n{\n  stepNow: (context, state) => {},\n  stateShape: (context, state) => {},\n  viewShape: (context, state) => {},\n  // All states merged into one data-`texture` upon every pass; for\n  // `sampler2D`, or `sampler3D`/`sampler2DArray` where supported.\n  states: (context, state) => {},\n  // Separate data-`texture`s not used.\n  'states[0]': (context, state) => null,\n  'states[1]': (context, state) => null,\n  // ...etc...\n};\n```"
+												"text": "```javascript\nconst state = { pre: '', steps: 2, maps: mapValues({ values: [1, 2, 3] }) };\nconst api = {};\n\ngetUniforms(getState(api, { ...state, merge: false }, {})); // =>\n{\n  stepNow: (context, state) => {},\n  stateShape: (context, state) => {},\n  viewShape: (context, state) => {},\n  // Separate state data-`texture`s in an `array` (e.g: `sampler2D[]`).\n  // State data-`texture`s for the 1st step ago, not bound as outputs.\n  'states[0]': (context, state) => {},\n  'states[1]': (context, state) => {},\n  // Merged `texture` not used.\n  states: (context, state) => null\n};\n\ngetUniforms(getState(api, { ...state, steps: 3, merge: false }, {})); // =>\n{\n  stepNow: (context, state) => {},\n  stateShape: (context, state) => {},\n  viewShape: (context, state) => {},\n  // Separate state data-`texture`s in an `array` (e.g: `sampler2D[]`).\n  // State data-`texture`s for the 1st step ago, not bound as outputs.\n  'states[0]': (context, state) => {},\n  'states[1]': (context, state) => {}\n  // State data-`texture`s for the 2nd step ago, not bound as outputs.\n  'states[2]': (context, state) => {},\n  'states[3]': (context, state) => {},\n  // Merged `texture` not used.\n  states: (context, state) => null\n};\n\ngetUniforms(getState(api, { ...state, merge: true }, {})); // =>\n{\n  stepNow: (context, state) => {},\n  stateShape: (context, state) => {},\n  viewShape: (context, state) => {},\n  // Merged states in one data-`texture` upon every pass (e.g: `sampler2D`,\n  // or `sampler3D`/`sampler2DArray` where supported).\n  states: (context, state) => {},\n  // Separate data-`texture`s not used.\n  'states[0]': (context, state) => null,\n  'states[1]': (context, state) => null,\n  // ...etc...\n};\n```"
 											}
 										]
 									},
@@ -2611,7 +2645,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "uniforms",
-												"target": 232
+												"target": 234
 											},
 											{
 												"kind": "text",
@@ -2625,7 +2659,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getUniform",
-												"target": 237
+												"target": 239
 											},
 											{
 												"kind": "text",
@@ -2639,7 +2673,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getStep",
-												"target": 263
+												"target": 265
 											},
 											{
 												"kind": "text",
@@ -2681,7 +2715,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "macroSamples",
-												"target": 368
+												"target": 370
 											},
 											{
 												"kind": "text",
@@ -2695,7 +2729,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "macroTaps",
-												"target": 372
+												"target": 374
 											},
 											{
 												"kind": "text",
@@ -2748,7 +2782,7 @@
 							},
 							"parameters": [
 								{
-									"id": 211,
+									"id": 213,
 									"name": "state",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -2788,14 +2822,14 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 212,
+											"id": 214,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
 											"flags": {},
 											"children": [
 												{
-													"id": 213,
+													"id": 215,
 													"name": "steps",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2829,7 +2863,7 @@
 															"fileName": "inputs.js",
 															"line": 84,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L84"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L84"
 														}
 													],
 													"type": {
@@ -2850,7 +2884,7 @@
 													}
 												},
 												{
-													"id": 214,
+													"id": 216,
 													"name": "maps",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2884,20 +2918,20 @@
 															"fileName": "inputs.js",
 															"line": 86,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L86"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L86"
 														}
 													],
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 215,
+															"id": 217,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"children": [
 																{
-																	"id": 216,
+																	"id": 218,
 																	"name": "textures",
 																	"kind": 1024,
 																	"kindString": "Property",
@@ -2909,7 +2943,7 @@
 																			"fileName": "inputs.js",
 																			"line": 86,
 																			"character": 12,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L86"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L86"
 																		}
 																	],
 																	"type": {
@@ -2928,7 +2962,7 @@
 																{
 																	"title": "Properties",
 																	"children": [
-																		216
+																		218
 																	]
 																}
 															],
@@ -2937,14 +2971,14 @@
 																	"fileName": "inputs.js",
 																	"line": 86,
 																	"character": 11,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L86"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L86"
 																}
 															]
 														}
 													}
 												},
 												{
-													"id": 217,
+													"id": 219,
 													"name": "pre",
 													"kind": 1024,
 													"kindString": "Property",
@@ -2970,7 +3004,7 @@
 															"fileName": "inputs.js",
 															"line": 88,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L88"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L88"
 														}
 													],
 													"type": {
@@ -2979,7 +3013,7 @@
 													}
 												},
 												{
-													"id": 218,
+													"id": 220,
 													"name": "merge",
 													"kind": 1024,
 													"kindString": "Property",
@@ -3021,20 +3055,20 @@
 															"fileName": "inputs.js",
 															"line": 89,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L89"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L89"
 														}
 													],
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 219,
+															"id": 221,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"children": [
 																{
-																	"id": 220,
+																	"id": 222,
 																	"name": "all",
 																	"kind": 1024,
 																	"kindString": "Property",
@@ -3046,20 +3080,20 @@
 																			"fileName": "inputs.js",
 																			"line": 89,
 																			"character": 12,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L89"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L89"
 																		}
 																	],
 																	"type": {
 																		"type": "reflection",
 																		"declaration": {
-																			"id": 221,
+																			"id": 223,
 																			"name": "__type",
 																			"kind": 65536,
 																			"kindString": "Type literal",
 																			"flags": {},
 																			"children": [
 																				{
-																					"id": 222,
+																					"id": 224,
 																					"name": "texture",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -3071,7 +3105,7 @@
 																							"fileName": "inputs.js",
 																							"line": 89,
 																							"character": 18,
-																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L89"
+																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L89"
 																						}
 																					],
 																					"type": {
@@ -3084,7 +3118,7 @@
 																				{
 																					"title": "Properties",
 																					"children": [
-																						222
+																						224
 																					]
 																				}
 																			],
@@ -3093,7 +3127,7 @@
 																					"fileName": "inputs.js",
 																					"line": 89,
 																					"character": 17,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L89"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L89"
 																				}
 																			]
 																		}
@@ -3104,7 +3138,7 @@
 																{
 																	"title": "Properties",
 																	"children": [
-																		220
+																		222
 																	]
 																}
 															],
@@ -3113,14 +3147,14 @@
 																	"fileName": "inputs.js",
 																	"line": 89,
 																	"character": 11,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L89"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L89"
 																}
 															]
 														}
 													}
 												},
 												{
-													"id": 223,
+													"id": 225,
 													"name": "size",
 													"kind": 1024,
 													"kindString": "Property",
@@ -3210,20 +3244,20 @@
 															"fileName": "inputs.js",
 															"line": 92,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L92"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L92"
 														}
 													],
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 224,
+															"id": 226,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"children": [
 																{
-																	"id": 225,
+																	"id": 227,
 																	"name": "shape",
 																	"kind": 1024,
 																	"kindString": "Property",
@@ -3235,7 +3269,7 @@
 																			"fileName": "inputs.js",
 																			"line": 92,
 																			"character": 12,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L92"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L92"
 																		}
 																	],
 																	"type": {
@@ -3247,7 +3281,7 @@
 																	}
 																},
 																{
-																	"id": 226,
+																	"id": 228,
 																	"name": "merge",
 																	"kind": 1024,
 																	"kindString": "Property",
@@ -3259,20 +3293,20 @@
 																			"fileName": "inputs.js",
 																			"line": 92,
 																			"character": 28,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L92"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L92"
 																		}
 																	],
 																	"type": {
 																		"type": "reflection",
 																		"declaration": {
-																			"id": 227,
+																			"id": 229,
 																			"name": "__type",
 																			"kind": 65536,
 																			"kindString": "Type literal",
 																			"flags": {},
 																			"children": [
 																				{
-																					"id": 228,
+																					"id": 230,
 																					"name": "shape",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -3284,7 +3318,7 @@
 																							"fileName": "inputs.js",
 																							"line": 92,
 																							"character": 36,
-																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L92"
+																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L92"
 																						}
 																					],
 																					"type": {
@@ -3300,7 +3334,7 @@
 																				{
 																					"title": "Properties",
 																					"children": [
-																						228
+																						230
 																					]
 																				}
 																			],
@@ -3309,7 +3343,7 @@
 																					"fileName": "inputs.js",
 																					"line": 92,
 																					"character": 35,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L92"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L92"
 																				}
 																			]
 																		}
@@ -3320,8 +3354,8 @@
 																{
 																	"title": "Properties",
 																	"children": [
-																		225,
-																		226
+																		227,
+																		228
 																	]
 																}
 															],
@@ -3330,14 +3364,14 @@
 																	"fileName": "inputs.js",
 																	"line": 92,
 																	"character": 11,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L92"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L92"
 																}
 															]
 														}
 													}
 												},
 												{
-													"id": 229,
+													"id": 231,
 													"name": "bound",
 													"kind": 1024,
 													"kindString": "Property",
@@ -3363,7 +3397,7 @@
 															"fileName": "inputs.js",
 															"line": 99,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L99"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L99"
 														}
 													],
 													"type": {
@@ -3372,7 +3406,7 @@
 													}
 												},
 												{
-													"id": 230,
+													"id": 232,
 													"name": "uniforms",
 													"kind": 1024,
 													"kindString": "Property",
@@ -3414,7 +3448,7 @@
 															"fileName": "inputs.js",
 															"line": 101,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L101"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L101"
 														}
 													],
 													"type": {
@@ -3427,13 +3461,13 @@
 												{
 													"title": "Properties",
 													"children": [
-														213,
-														214,
-														217,
-														218,
-														223,
-														229,
-														230
+														215,
+														216,
+														219,
+														220,
+														225,
+														231,
+														232
 													]
 												}
 											],
@@ -3442,14 +3476,14 @@
 													"fileName": "inputs.js",
 													"line": 84,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L84"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L84"
 												}
 											]
 										}
 									}
 								},
 								{
-									"id": 231,
+									"id": 233,
 									"name": "to",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -3521,14 +3555,14 @@
 							],
 							"type": {
 								"type": "reference",
-								"id": 232,
+								"id": 234,
 								"name": "uniforms"
 							}
 						}
 					]
 				},
 				{
-					"id": 254,
+					"id": 256,
 					"name": "default",
 					"kind": 8388608,
 					"kindString": "Reference",
@@ -3538,13 +3572,13 @@
 							"fileName": "inputs.js",
 							"line": 230,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L230"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L230"
 						}
 					],
-					"target": 209
+					"target": 211
 				},
 				{
-					"id": 232,
+					"id": 234,
 					"name": "uniforms",
 					"kind": 256,
 					"kindString": "Interface",
@@ -3601,13 +3635,13 @@
 								"kind": "inline-tag",
 								"tag": "@link",
 								"text": "getStep",
-								"target": 263
+								"target": 265
 							}
 						]
 					},
 					"children": [
 						{
-							"id": 233,
+							"id": 235,
 							"name": "stepNow",
 							"kind": 1024,
 							"kindString": "Property",
@@ -3633,17 +3667,17 @@
 									"fileName": "inputs.js",
 									"line": 170,
 									"character": 26,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L170"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L170"
 								}
 							],
 							"type": {
 								"type": "reference",
-								"id": 237,
+								"id": 239,
 								"name": "getUniform"
 							}
 						},
 						{
-							"id": 234,
+							"id": 236,
 							"name": "stateShape",
 							"kind": 1024,
 							"kindString": "Property",
@@ -3749,17 +3783,17 @@
 									"fileName": "inputs.js",
 									"line": 172,
 									"character": 26,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L172"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L172"
 								}
 							],
 							"type": {
 								"type": "reference",
-								"id": 237,
+								"id": 239,
 								"name": "getUniform"
 							}
 						},
 						{
-							"id": 235,
+							"id": 237,
 							"name": "viewShape",
 							"kind": 1024,
 							"kindString": "Property",
@@ -3801,17 +3835,17 @@
 									"fileName": "inputs.js",
 									"line": 180,
 									"character": 26,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L180"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L180"
 								}
 							],
 							"type": {
 								"type": "reference",
-								"id": 237,
+								"id": 239,
 								"name": "getUniform"
 							}
 						},
 						{
-							"id": 236,
+							"id": 238,
 							"name": "states",
 							"kind": 1024,
 							"kindString": "Property",
@@ -3973,12 +4007,12 @@
 									"fileName": "inputs.js",
 									"line": 183,
 									"character": 26,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L183"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L183"
 								}
 							],
 							"type": {
 								"type": "reference",
-								"id": 237,
+								"id": 239,
 								"name": "getUniform"
 							}
 						}
@@ -3987,10 +4021,10 @@
 						{
 							"title": "Properties",
 							"children": [
-								233,
-								234,
 								235,
-								236
+								236,
+								237,
+								238
 							]
 						}
 					],
@@ -3999,12 +4033,12 @@
 							"fileName": "inputs.js",
 							"line": 159,
 							"character": 21,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L159"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L159"
 						}
 					]
 				},
 				{
-					"id": 237,
+					"id": 239,
 					"name": "getUniform",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -4014,13 +4048,13 @@
 							"fileName": "inputs.js",
 							"line": 205,
 							"character": 43,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L205"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L205"
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 238,
+							"id": 240,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
@@ -4030,12 +4064,12 @@
 									"fileName": "inputs.js",
 									"line": 196,
 									"character": 13,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L196"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L196"
 								}
 							],
 							"signatures": [
 								{
-									"id": 239,
+									"id": 241,
 									"name": "__type",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -4058,7 +4092,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getUniforms",
-												"target": 209
+												"target": 211
 											},
 											{
 												"kind": "text",
@@ -4288,7 +4322,7 @@
 									},
 									"parameters": [
 										{
-											"id": 240,
+											"id": 242,
 											"name": "context",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -4296,14 +4330,14 @@
 											"type": {
 												"type": "reflection",
 												"declaration": {
-													"id": 241,
+													"id": 243,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
 													"flags": {},
 													"children": [
 														{
-															"id": 242,
+															"id": 244,
 															"name": "drawingBufferWidth",
 															"kind": 1024,
 															"kindString": "Property",
@@ -4313,7 +4347,7 @@
 																	"fileName": "inputs.js",
 																	"line": 197,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L197"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L197"
 																}
 															],
 															"type": {
@@ -4322,7 +4356,7 @@
 															}
 														},
 														{
-															"id": 243,
+															"id": 245,
 															"name": "drawingBufferHeight",
 															"kind": 1024,
 															"kindString": "Property",
@@ -4332,7 +4366,7 @@
 																	"fileName": "inputs.js",
 																	"line": 198,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L198"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L198"
 																}
 															],
 															"type": {
@@ -4345,8 +4379,8 @@
 														{
 															"title": "Properties",
 															"children": [
-																242,
-																243
+																244,
+																245
 															]
 														}
 													],
@@ -4355,14 +4389,14 @@
 															"fileName": "inputs.js",
 															"line": 196,
 															"character": 23,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L196"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L196"
 														}
 													]
 												}
 											}
 										},
 										{
-											"id": 244,
+											"id": 246,
 											"name": "props",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -4370,14 +4404,14 @@
 											"type": {
 												"type": "reflection",
 												"declaration": {
-													"id": 245,
+													"id": 247,
 													"name": "__type",
 													"kind": 65536,
 													"kindString": "Type literal",
 													"flags": {},
 													"children": [
 														{
-															"id": 246,
+															"id": 248,
 															"name": "stepNow",
 															"kind": 1024,
 															"kindString": "Property",
@@ -4387,7 +4421,7 @@
 																	"fileName": "inputs.js",
 																	"line": 201,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L201"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L201"
 																}
 															],
 															"type": {
@@ -4396,7 +4430,7 @@
 															}
 														},
 														{
-															"id": 247,
+															"id": 249,
 															"name": "bound",
 															"kind": 1024,
 															"kindString": "Property",
@@ -4406,7 +4440,7 @@
 																	"fileName": "inputs.js",
 																	"line": 202,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L202"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L202"
 																}
 															],
 															"type": {
@@ -4415,7 +4449,7 @@
 															}
 														},
 														{
-															"id": 248,
+															"id": 250,
 															"name": "merge",
 															"kind": 1024,
 															"kindString": "Property",
@@ -4425,20 +4459,20 @@
 																	"fileName": "inputs.js",
 																	"line": 203,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L203"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L203"
 																}
 															],
 															"type": {
 																"type": "reflection",
 																"declaration": {
-																	"id": 249,
+																	"id": 251,
 																	"name": "__type",
 																	"kind": 65536,
 																	"kindString": "Type literal",
 																	"flags": {},
 																	"children": [
 																		{
-																			"id": 250,
+																			"id": 252,
 																			"name": "texture",
 																			"kind": 1024,
 																			"kindString": "Property",
@@ -4448,7 +4482,7 @@
 																					"fileName": "inputs.js",
 																					"line": 203,
 																					"character": 14,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L203"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L203"
 																				}
 																			],
 																			"type": {
@@ -4461,7 +4495,7 @@
 																		{
 																			"title": "Properties",
 																			"children": [
-																				250
+																				252
 																			]
 																		}
 																	],
@@ -4470,14 +4504,14 @@
 																			"fileName": "inputs.js",
 																			"line": 203,
 																			"character": 13,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L203"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L203"
 																		}
 																	]
 																}
 															}
 														},
 														{
-															"id": 251,
+															"id": 253,
 															"name": "textures",
 															"kind": 1024,
 															"kindString": "Property",
@@ -4487,7 +4521,7 @@
 																	"fileName": "inputs.js",
 																	"line": 204,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L204"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L204"
 																}
 															],
 															"type": {
@@ -4497,14 +4531,14 @@
 																	"elementType": {
 																		"type": "reflection",
 																		"declaration": {
-																			"id": 252,
+																			"id": 254,
 																			"name": "__type",
 																			"kind": 65536,
 																			"kindString": "Type literal",
 																			"flags": {},
 																			"children": [
 																				{
-																					"id": 253,
+																					"id": 255,
 																					"name": "texture",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -4514,7 +4548,7 @@
 																							"fileName": "inputs.js",
 																							"line": 204,
 																							"character": 17,
-																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L204"
+																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L204"
 																						}
 																					],
 																					"type": {
@@ -4527,7 +4561,7 @@
 																				{
 																					"title": "Properties",
 																					"children": [
-																						253
+																						255
 																					]
 																				}
 																			],
@@ -4536,7 +4570,7 @@
 																					"fileName": "inputs.js",
 																					"line": 204,
 																					"character": 16,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L204"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L204"
 																				}
 																			]
 																		}
@@ -4549,10 +4583,10 @@
 														{
 															"title": "Properties",
 															"children": [
-																246,
-																247,
 																248,
-																251
+																249,
+																250,
+																253
 															]
 														}
 													],
@@ -4561,7 +4595,7 @@
 															"fileName": "inputs.js",
 															"line": 200,
 															"character": 12,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L200"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L200"
 														}
 													]
 												}
@@ -4602,25 +4636,25 @@
 				{
 					"title": "Functions",
 					"children": [
-						209
+						211
 					]
 				},
 				{
 					"title": "References",
 					"children": [
-						254
+						256
 					]
 				},
 				{
 					"title": "Interfaces",
 					"children": [
-						232
+						234
 					]
 				},
 				{
 					"title": "Type Aliases",
 					"children": [
-						237
+						239
 					]
 				}
 			],
@@ -4629,7 +4663,7 @@
 					"fileName": "inputs.js",
 					"line": 8,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/inputs.js#L8"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/inputs.js#L8"
 				}
 			]
 		},
@@ -4693,7 +4727,7 @@
 							"fileName": "lookup/index-uv.glsl.js",
 							"line": 15,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/lookup/index-uv.glsl.js#L15"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/lookup/index-uv.glsl.js#L15"
 						}
 					],
 					"type": {
@@ -4713,7 +4747,7 @@
 							"fileName": "lookup/index-uv.glsl.js",
 							"line": 17,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/lookup/index-uv.glsl.js#L17"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/lookup/index-uv.glsl.js#L17"
 						}
 					],
 					"target": 101
@@ -4746,7 +4780,7 @@
 					"fileName": "lookup/index-uv.glsl.js",
 					"line": 7,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/lookup/index-uv.glsl.js#L7"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/lookup/index-uv.glsl.js#L7"
 				}
 			]
 		},
@@ -4810,7 +4844,7 @@
 							"fileName": "lookup/offset-uv.glsl.js",
 							"line": 15,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/lookup/offset-uv.glsl.js#L15"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/lookup/offset-uv.glsl.js#L15"
 						}
 					],
 					"type": {
@@ -4830,7 +4864,7 @@
 							"fileName": "lookup/offset-uv.glsl.js",
 							"line": 17,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/lookup/offset-uv.glsl.js#L17"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/lookup/offset-uv.glsl.js#L17"
 						}
 					],
 					"target": 104
@@ -4863,12 +4897,12 @@
 					"fileName": "lookup/offset-uv.glsl.js",
 					"line": 7,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/lookup/offset-uv.glsl.js#L7"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/lookup/offset-uv.glsl.js#L7"
 				}
 			]
 		},
 		{
-			"id": 353,
+			"id": 355,
 			"name": "macros",
 			"kind": 2,
 			"kindString": "Module",
@@ -4893,7 +4927,7 @@
 					},
 					{
 						"kind": "text",
-						"text": " preprocessor macros for working with the state and maps.\n\nUse these with care, as each set of different macros will result in new\nshaders and compilations; so, as few unique macros as possible should be\ncreated for a given set of inputs, for efficiency."
+						"text": " preprocessor macros for working with the state and maps.\n\nUse these with care, as each set of different macros will result in new\nshaders and compilations - as few unique macros as possible should be created\nfor a given set of inputs, ideally; can use caches here for this efficiency."
 					}
 				],
 				"blockTags": [
@@ -4975,7 +5009,7 @@
 			},
 			"children": [
 				{
-					"id": 376,
+					"id": 378,
 					"name": "cr",
 					"kind": 32,
 					"kindString": "Variable",
@@ -4995,7 +5029,7 @@
 							"fileName": "macros.js",
 							"line": 26,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L26"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L26"
 						}
 					],
 					"type": {
@@ -5005,7 +5039,7 @@
 					"defaultValue": "' \\\\\\n'"
 				},
 				{
-					"id": 377,
+					"id": 379,
 					"name": "rgba",
 					"kind": 32,
 					"kindString": "Variable",
@@ -5025,7 +5059,7 @@
 							"fileName": "macros.js",
 							"line": 28,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L28"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L28"
 						}
 					],
 					"type": {
@@ -5033,50 +5067,6 @@
 						"value": "rgba"
 					},
 					"defaultValue": "'rgba'"
-				},
-				{
-					"id": 378,
-					"name": "cache",
-					"kind": 32,
-					"kindString": "Variable",
-					"flags": {
-						"isConst": true
-					},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "Simple cache for temporary or reusable objects."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "macros.js",
-							"line": 30,
-							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L30"
-						}
-					],
-					"type": {
-						"type": "reflection",
-						"declaration": {
-							"id": 379,
-							"name": "__type",
-							"kind": 65536,
-							"kindString": "Type literal",
-							"flags": {},
-							"sources": [
-								{
-									"fileName": "macros.js",
-									"line": 30,
-									"character": 13,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L30"
-								}
-							]
-						}
-					},
-					"defaultValue": "{}"
 				},
 				{
 					"id": 380,
@@ -5097,9 +5087,9 @@
 					"sources": [
 						{
 							"fileName": "macros.js",
-							"line": 36,
+							"line": 33,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L36"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L33"
 						}
 					],
 					"type": {
@@ -5128,16 +5118,16 @@
 									"sources": [
 										{
 											"fileName": "macros.js",
-											"line": 38,
+											"line": 35,
 											"character": 2,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L38"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L35"
 										}
 									],
 									"type": {
 										"type": "intrinsic",
 										"name": "string"
 									},
-									"defaultValue": "''"
+									"defaultValue": "'pass'"
 								},
 								{
 									"id": 383,
@@ -5156,9 +5146,9 @@
 									"sources": [
 										{
 											"fileName": "macros.js",
-											"line": 40,
+											"line": 37,
 											"character": 2,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L40"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L37"
 										}
 									],
 									"type": {
@@ -5176,9 +5166,9 @@
 									"sources": [
 										{
 											"fileName": "macros.js",
-											"line": 40,
+											"line": 37,
 											"character": 25,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L40"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L37"
 										}
 									],
 									"type": {
@@ -5196,9 +5186,9 @@
 									"sources": [
 										{
 											"fileName": "macros.js",
-											"line": 41,
+											"line": 38,
 											"character": 2,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L41"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L38"
 										}
 									],
 									"type": {
@@ -5216,9 +5206,9 @@
 									"sources": [
 										{
 											"fileName": "macros.js",
-											"line": 41,
+											"line": 38,
 											"character": 27,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L41"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L38"
 										}
 									],
 									"type": {
@@ -5243,9 +5233,9 @@
 							"sources": [
 								{
 									"fileName": "macros.js",
-									"line": 36,
+									"line": 33,
 									"character": 21,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L36"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L33"
 								}
 							]
 						}
@@ -5253,7 +5243,7 @@
 					"defaultValue": "..."
 				},
 				{
-					"id": 354,
+					"id": 356,
 					"name": "hasMacros",
 					"kind": 64,
 					"kindString": "Function",
@@ -5261,14 +5251,14 @@
 					"sources": [
 						{
 							"fileName": "macros.js",
-							"line": 92,
+							"line": 89,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L92"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L89"
 						}
 					],
 					"signatures": [
 						{
-							"id": 355,
+							"id": 357,
 							"name": "hasMacros",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -5311,7 +5301,7 @@
 							},
 							"parameters": [
 								{
-									"id": 356,
+									"id": 358,
 									"name": "props",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -5332,7 +5322,7 @@
 									}
 								},
 								{
-									"id": 357,
+									"id": 359,
 									"name": "key",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -5353,7 +5343,7 @@
 									}
 								},
 								{
-									"id": 358,
+									"id": 360,
 									"name": "on",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -5399,7 +5389,7 @@
 									"defaultValue": "''"
 								},
 								{
-									"id": 359,
+									"id": 361,
 									"name": "macros",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -5509,9 +5499,9 @@
 					"sources": [
 						{
 							"fileName": "macros.js",
-							"line": 130,
+							"line": 127,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L130"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L127"
 						}
 					],
 					"signatures": [
@@ -5764,9 +5754,9 @@
 					"sources": [
 						{
 							"fileName": "macros.js",
-							"line": 164,
+							"line": 161,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L164"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L161"
 						}
 					],
 					"signatures": [
@@ -6022,9 +6012,9 @@
 					"sources": [
 						{
 							"fileName": "macros.js",
-							"line": 203,
+							"line": 200,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L203"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L200"
 						}
 					],
 					"signatures": [
@@ -6264,9 +6254,9 @@
 					"sources": [
 						{
 							"fileName": "macros.js",
-							"line": 234,
+							"line": 231,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L234"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L231"
 						}
 					],
 					"signatures": [
@@ -6506,9 +6496,9 @@
 					"sources": [
 						{
 							"fileName": "macros.js",
-							"line": 291,
+							"line": 288,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L291"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L288"
 						}
 					],
 					"signatures": [
@@ -6861,7 +6851,7 @@
 					]
 				},
 				{
-					"id": 360,
+					"id": 362,
 					"name": "macroValues",
 					"kind": 64,
 					"kindString": "Function",
@@ -6871,12 +6861,12 @@
 							"fileName": "macros.js",
 							"line": 393,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L393"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L393"
 						}
 					],
 					"signatures": [
 						{
-							"id": 361,
+							"id": 363,
 							"name": "macroValues",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -6916,7 +6906,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "hasMacros",
-												"target": 354
+												"target": 356
 											},
 											{
 												"kind": "text",
@@ -6949,6 +6939,20 @@
 											{
 												"kind": "text",
 												"text": "\n"
+											},
+											{
+												"kind": "text",
+												"text": " - "
+											},
+											{
+												"kind": "inline-tag",
+												"tag": "@link",
+												"text": "cacheDef",
+												"target": 208
+											},
+											{
+												"kind": "text",
+												"text": "\n"
 											}
 										]
 									},
@@ -6974,7 +6978,15 @@
 											},
 											{
 												"kind": "text",
-												"text": " preprocessor macros defining the mappings from\n  values to textures/channels."
+												"text": " preprocessor macros defining the mappings from\n  values to "
+											},
+											{
+												"kind": "code",
+												"text": "`texture`"
+											},
+											{
+												"kind": "text",
+												"text": "s/channels."
 											}
 										]
 									}
@@ -6982,7 +6994,7 @@
 							},
 							"parameters": [
 								{
-									"id": 362,
+									"id": 364,
 									"name": "state",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -7009,7 +7021,7 @@
 									}
 								},
 								{
-									"id": 363,
+									"id": 365,
 									"name": "on",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -7062,7 +7074,7 @@
 					]
 				},
 				{
-					"id": 364,
+					"id": 366,
 					"name": "macroOutput",
 					"kind": 64,
 					"kindString": "Function",
@@ -7070,14 +7082,14 @@
 					"sources": [
 						{
 							"fileName": "macros.js",
-							"line": 510,
+							"line": 517,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L510"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L517"
 						}
 					],
 					"signatures": [
 						{
-							"id": 365,
+							"id": 367,
 							"name": "macroOutput",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -7117,7 +7129,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "hasMacros",
-												"target": 354
+												"target": 356
 											},
 											{
 												"kind": "text",
@@ -7146,6 +7158,20 @@
 												"tag": "@link",
 												"text": "getState",
 												"target": 110
+											},
+											{
+												"kind": "text",
+												"text": "\n"
+											},
+											{
+												"kind": "text",
+												"text": " - "
+											},
+											{
+												"kind": "inline-tag",
+												"tag": "@link",
+												"text": "cacheDef",
+												"target": 208
 											},
 											{
 												"kind": "text",
@@ -7179,7 +7205,7 @@
 							},
 							"parameters": [
 								{
-									"id": 366,
+									"id": 368,
 									"name": "state",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -7206,7 +7232,7 @@
 									}
 								},
 								{
-									"id": 367,
+									"id": 369,
 									"name": "on",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -7259,7 +7285,7 @@
 					]
 				},
 				{
-					"id": 368,
+					"id": 370,
 					"name": "macroSamples",
 					"kind": 64,
 					"kindString": "Function",
@@ -7267,14 +7293,14 @@
 					"sources": [
 						{
 							"fileName": "macros.js",
-							"line": 664,
+							"line": 678,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L664"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L678"
 						}
 					],
 					"signatures": [
 						{
-							"id": 369,
+							"id": 371,
 							"name": "macroSamples",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -7346,7 +7372,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "macroTaps",
-												"target": 372
+												"target": 374
 											},
 											{
 												"kind": "text",
@@ -7360,7 +7386,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "hasMacros",
-												"target": 354
+												"target": 356
 											},
 											{
 												"kind": "text",
@@ -7407,6 +7433,20 @@
 											{
 												"kind": "text",
 												"text": "\n"
+											},
+											{
+												"kind": "text",
+												"text": " - "
+											},
+											{
+												"kind": "inline-tag",
+												"tag": "@link",
+												"text": "cacheDef",
+												"target": 208
+											},
+											{
+												"kind": "text",
+												"text": "\n"
 											}
 										]
 									},
@@ -7436,7 +7476,7 @@
 							},
 							"parameters": [
 								{
-									"id": 370,
+									"id": 372,
 									"name": "state",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -7463,7 +7503,7 @@
 									}
 								},
 								{
-									"id": 371,
+									"id": 373,
 									"name": "on",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -7516,7 +7556,7 @@
 					]
 				},
 				{
-					"id": 372,
+					"id": 374,
 					"name": "macroTaps",
 					"kind": 64,
 					"kindString": "Function",
@@ -7524,14 +7564,14 @@
 					"sources": [
 						{
 							"fileName": "macros.js",
-							"line": 769,
+							"line": 791,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L769"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L791"
 						}
 					],
 					"signatures": [
 						{
-							"id": 373,
+							"id": 375,
 							"name": "macroTaps",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -7703,7 +7743,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "macroSamples",
-												"target": 368
+												"target": 370
 											},
 											{
 												"kind": "text",
@@ -7717,7 +7757,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "hasMacros",
-												"target": 354
+												"target": 356
 											},
 											{
 												"kind": "text",
@@ -7773,7 +7813,21 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getUniforms",
-												"target": 209
+												"target": 211
+											},
+											{
+												"kind": "text",
+												"text": "\n"
+											},
+											{
+												"kind": "text",
+												"text": " - "
+											},
+											{
+												"kind": "inline-tag",
+												"tag": "@link",
+												"text": "cacheDef",
+												"target": 208
 											},
 											{
 												"kind": "text",
@@ -7819,7 +7873,7 @@
 							},
 							"parameters": [
 								{
-									"id": 374,
+									"id": 376,
 									"name": "state",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -7846,7 +7900,7 @@
 									}
 								},
 								{
-									"id": 375,
+									"id": 377,
 									"name": "on",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -7907,9 +7961,9 @@
 					"sources": [
 						{
 							"fileName": "macros.js",
-							"line": 1082,
+							"line": 1105,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L1082"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L1105"
 						}
 					],
 					"signatures": [
@@ -7931,7 +7985,23 @@
 									},
 									{
 										"kind": "text",
-										"text": " preprocessor macro values, texture samples, and outputs\nfor the active pass.\n\nThe macros define the mapping between the active values, their textures and\nchannels, bound outputs, and other macros useful for a draw pass.\nCaches the result if "
+										"text": " preprocessor macro values, "
+									},
+									{
+										"kind": "code",
+										"text": "`texture`"
+									},
+									{
+										"kind": "text",
+										"text": " samples, and outputs\nfor the active pass.\n\nThe macros define the mapping between the active values, their "
+									},
+									{
+										"kind": "code",
+										"text": "`texture`"
+									},
+									{
+										"kind": "text",
+										"text": "s and\nchannels, bound outputs, and other macros useful for a draw pass.\nCaches the result if "
 									},
 									{
 										"kind": "code",
@@ -7954,7 +8024,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "hasMacros",
-												"target": 354
+												"target": 356
 											},
 											{
 												"kind": "text",
@@ -7968,7 +8038,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "macroValues",
-												"target": 360
+												"target": 362
 											},
 											{
 												"kind": "text",
@@ -7982,7 +8052,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "macroOutput",
-												"target": 364
+												"target": 366
 											},
 											{
 												"kind": "text",
@@ -7996,7 +8066,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "macroTaps",
-												"target": 372
+												"target": 374
 											},
 											{
 												"kind": "text",
@@ -8010,7 +8080,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "macroSamples",
-												"target": 368
+												"target": 370
 											},
 											{
 												"kind": "text",
@@ -8051,7 +8121,7 @@
 										"content": [
 											{
 												"kind": "code",
-												"text": "```\n  const values = [2, 4, 1];\n  const derives = [2, , [[1, 0], true]];\n\n  // Automatically packed values - values across fewer textures/passes.\n  // Only a single texture output per pass - values across more passes.\n  const state = {\n    passNow: 0, steps: 2, size: { count: 2**5 },\n    maps: mapValues({ values, derives, channelsMax: 4, buffersMax: 1 })\n  };\n\n  macroPass(state); // =>\n  '#define gpgpu_texture_1 0\\n'+\n  '#define gpgpu_channels_1 rgba\\n'+\n  '\\n'+\n  '#define gpgpu_texture_0 1\\n'+\n  '#define gpgpu_channels_0 rg\\n'+\n  '\\n'+\n  '#define gpgpu_texture_2 1\\n'+\n  '#define gpgpu_channels_2 b\\n'+\n  '\\n'+\n  '#define count 32\\n'+\n  '#define gpgpu_textures 2\\n'+\n  '#define gpgpu_passes 2\\n'+\n  '#define gpgpu_stepsPast 1\\n'+\n  '#define gpgpu_steps 2\\n'+\n  '\\n'+\n  '#define gpgpu_passNow 0\\n'+\n  '\\n'+\n  '#define gpgpu_bound_1 0\\n'+\n  '#define gpgpu_attach_1 0\\n'+\n  '#define gpgpu_output_1 gl_FragData[gpgpu_attach_1].rgba\\n'+\n  '\\n';\n\n  // Next pass and extra step.\n  ++state.steps;\n  ++state.passNow;\n  state.pre = '';\n  macroPass(state); // =>\n  '#define texture_1 0\\n'+\n  '#define channels_1 rgba\\n'+\n  '\\n'+\n  '#define texture_0 1\\n'+\n  '#define channels_0 rg\\n'+\n  '\\n'+\n  '#define texture_2 1\\n'+\n  '#define channels_2 b\\n'+\n  '\\n'+\n  '#define count 32\\n'+\n  '#define textures 2\\n'+\n  '#define passes 2\\n'+\n  '#define stepsPast 2\\n'+\n  '#define steps 3\\n'+\n  '\\n'+\n  '#define passNow 1\\n'+\n  '\\n'+\n  '#define bound_0 1\\n'+\n  '#define attach_0 0\\n'+\n  '#define output_0 gl_FragData[attach_0].rg\\n'+\n  '\\n'+\n  '#define bound_2 1\\n'+\n  '#define attach_2 0\\n'+\n  '#define output_2 gl_FragData[attach_2].b\\n'+\n  '\\n'+\n  '#define useSamples'+cr+\n    'const int samples_l = 3;'+cr+\n    'const ivec2 samples_0 = ivec2(0, 1);'+cr+\n    'const ivec2 samples_1 = ivec2(1, 1);'+cr+\n    'const ivec2 samples_2 = ivec2(0, 0);\\n'+\n  '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+\n    'use name (e.g: `samples_0`) if possible.\\n'+\n  '#define samples_i(i)'+cr+\n    '((i == 2)? samples_2 : ((i == 1)? samples_1 : samples_0))\\n'+\n  '\\n'+\n  '#define useReads_0'+cr+\n    'const int reads_0_l = 1;'+cr+\n    'const int reads_0_0 = int(0);\\n'+\n  '// Index macro `reads_0_i` (e.g: `reads_0_i(0)`) may be slow, '+\n    'use name (e.g: `reads_0_0`) if possible.\\n'+\n  '#define reads_0_i(i) reads_0_0\\n'+\n  '\\n'+\n  '#define useReads_2'+cr+\n    'const int reads_2_l = 4;'+cr+\n    'const int reads_2_0 = int(1);'+cr+\n    'const int reads_2_1 = int(0);'+cr+\n    'const int reads_2_2 = int(2);'+cr+\n    'const int reads_2_3 = int(0);\\n'+\n  '// Index macro `reads_2_i` (e.g: `reads_2_i(0)`) may be slow, '+\n    'use name (e.g: `reads_2_0`) if possible.\\n'+\n  '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+\n    ': ((i == 1)? reads_2_1 : reads_2_0)))\\n'+\n  '\\n'+\n  '// States in a `sampler2D[]`; looks up 1D index and 2D `uv`.\\n'+\n  '@todo';\n```"
+												"text": "```\n  const values = [2, 4, 1];\n  const derives = [2, , [[1, 0], true]];\n\n  // Automatically packed values - values across fewer `texture`s/passes.\n  // Only a single `texture` output per pass - values across more passes.\n  const state = {\n    passNow: 0, steps: 2, size: { count: 2**5 },\n    maps: mapValues({ values, derives, channelsMax: 4, buffersMax: 1 })\n  };\n\n  macroPass(state); // =>\n  '#define gpgpu_texture_1 0\\n'+\n  '#define gpgpu_channels_1 rgba\\n'+\n  '\\n'+\n  '#define gpgpu_texture_0 1\\n'+\n  '#define gpgpu_channels_0 rg\\n'+\n  '\\n'+\n  '#define gpgpu_texture_2 1\\n'+\n  '#define gpgpu_channels_2 b\\n'+\n  '\\n'+\n  '#define count 32\\n'+\n  '#define gpgpu_textures 2\\n'+\n  '#define gpgpu_passes 2\\n'+\n  '#define gpgpu_stepsPast 1\\n'+\n  '#define gpgpu_steps 2\\n'+\n  '\\n'+\n  '#define gpgpu_passNow 0\\n'+\n  '\\n'+\n  '#define gpgpu_bound_1 0\\n'+\n  '#define gpgpu_attach_1 0\\n'+\n  '#define gpgpu_output_1 gl_FragData[gpgpu_attach_1].rgba\\n'+\n  '\\n';\n\n  // Next pass and extra step.\n  ++state.steps;\n  ++state.passNow;\n  state.pre = '';\n  macroPass(state); // =>\n  '#define texture_1 0\\n'+\n  '#define channels_1 rgba\\n'+\n  '\\n'+\n  '#define texture_0 1\\n'+\n  '#define channels_0 rg\\n'+\n  '\\n'+\n  '#define texture_2 1\\n'+\n  '#define channels_2 b\\n'+\n  '\\n'+\n  '#define count 32\\n'+\n  '#define textures 2\\n'+\n  '#define passes 2\\n'+\n  '#define stepsPast 2\\n'+\n  '#define steps 3\\n'+\n  '\\n'+\n  '#define passNow 1\\n'+\n  '\\n'+\n  '#define bound_0 1\\n'+\n  '#define attach_0 0\\n'+\n  '#define output_0 gl_FragData[attach_0].rg\\n'+\n  '\\n'+\n  '#define bound_2 1\\n'+\n  '#define attach_2 0\\n'+\n  '#define output_2 gl_FragData[attach_2].b\\n'+\n  '\\n'+\n  '#define useSamples'+cr+\n    'const int samples_l = 3;'+cr+\n    'const ivec2 samples_0 = ivec2(0, 1);'+cr+\n    'const ivec2 samples_1 = ivec2(1, 1);'+cr+\n    'const ivec2 samples_2 = ivec2(0, 0);\\n'+\n  '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+\n    'use name (e.g: `samples_0`) if possible.\\n'+\n  '#define samples_i(i)'+cr+\n    '((i == 2)? samples_2 : ((i == 1)? samples_1 : samples_0))\\n'+\n  '\\n'+\n  '#define useReads_0'+cr+\n    'const int reads_0_l = 1;'+cr+\n    'const int reads_0_0 = int(0);\\n'+\n  '// Index macro `reads_0_i` (e.g: `reads_0_i(0)`) may be slow, '+\n    'use name (e.g: `reads_0_0`) if possible.\\n'+\n  '#define reads_0_i(i) reads_0_0\\n'+\n  '\\n'+\n  '#define useReads_2'+cr+\n    'const int reads_2_l = 4;'+cr+\n    'const int reads_2_0 = int(1);'+cr+\n    'const int reads_2_1 = int(0);'+cr+\n    'const int reads_2_2 = int(2);'+cr+\n    'const int reads_2_3 = int(0);\\n'+\n  '// Index macro `reads_2_i` (e.g: `reads_2_i(0)`) may be slow, '+\n    'use name (e.g: `reads_2_0`) if possible.\\n'+\n  '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+\n    ': ((i == 1)? reads_2_1 : reads_2_0)))\\n'+\n  '\\n'+\n  '// States in a `sampler2D[]`; looks up 1D index and 2D `uv`.\\n'+\n  '@todo';\n```"
 											}
 										]
 									},
@@ -8068,7 +8138,15 @@
 											},
 											{
 												"kind": "text",
-												"text": " preprocessor macros defining the mappings for\n  values, textures, channels, bound outputs of the active pass, etc. See\n  "
+												"text": " preprocessor macros defining the mappings for\n  values, "
+											},
+											{
+												"kind": "code",
+												"text": "`texture`"
+											},
+											{
+												"kind": "text",
+												"text": "s, channels, bound outputs of the active pass, etc. See\n  "
 											},
 											{
 												"kind": "code",
@@ -8196,9 +8274,9 @@
 					"sources": [
 						{
 							"fileName": "macros.js",
-							"line": 1086,
+							"line": 1109,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L1086"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L1109"
 						}
 					],
 					"target": 423
@@ -8208,25 +8286,24 @@
 				{
 					"title": "Variables",
 					"children": [
-						376,
-						377,
 						378,
+						379,
 						380
 					]
 				},
 				{
 					"title": "Functions",
 					"children": [
-						354,
+						356,
 						387,
 						394,
 						401,
 						408,
 						415,
-						360,
-						364,
-						368,
-						372,
+						362,
+						366,
+						370,
+						374,
 						423
 					]
 				},
@@ -8242,7 +8319,7 @@
 					"fileName": "macros.js",
 					"line": 19,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/macros.js#L19"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/macros.js#L19"
 				}
 			]
 		},
@@ -8317,7 +8394,7 @@
 							"fileName": "maps.js",
 							"line": 31,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L31"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L31"
 						}
 					],
 					"type": {
@@ -8340,7 +8417,7 @@
 											"fileName": "maps.js",
 											"line": 31,
 											"character": 23,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L31"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L31"
 										}
 									],
 									"type": {
@@ -8366,7 +8443,7 @@
 									"fileName": "maps.js",
 									"line": 31,
 									"character": 21,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L31"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L31"
 								}
 							]
 						}
@@ -8384,7 +8461,7 @@
 							"fileName": "maps.js",
 							"line": 42,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L42"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L42"
 						}
 					],
 					"signatures": [
@@ -8482,7 +8559,7 @@
 							"fileName": "maps.js",
 							"line": 79,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L79"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L79"
 						}
 					],
 					"signatures": [
@@ -8697,7 +8774,7 @@
 							"fileName": "maps.js",
 							"line": 230,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L230"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L230"
 						}
 					],
 					"signatures": [
@@ -9067,7 +9144,7 @@
 															"fileName": "maps.js",
 															"line": 189,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L189"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L189"
 														}
 													],
 													"type": {
@@ -9100,7 +9177,7 @@
 															"fileName": "maps.js",
 															"line": 201,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L201"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L201"
 														}
 													],
 													"type": {
@@ -9127,7 +9204,7 @@
 															"fileName": "maps.js",
 															"line": 203,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L203"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L203"
 														}
 													],
 													"type": {
@@ -9202,7 +9279,7 @@
 															"fileName": "maps.js",
 															"line": 205,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L205"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L205"
 														}
 													],
 													"type": {
@@ -9233,7 +9310,7 @@
 													"fileName": "maps.js",
 													"line": 189,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L189"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L189"
 												}
 											]
 										}
@@ -9297,7 +9374,7 @@
 							"fileName": "maps.js",
 							"line": 379,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L379"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L379"
 						}
 					],
 					"signatures": [
@@ -9520,7 +9597,7 @@
 															"fileName": "maps.js",
 															"line": 336,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L336"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L336"
 														}
 													],
 													"type": {
@@ -9554,7 +9631,7 @@
 													"fileName": "maps.js",
 													"line": 336,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L336"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L336"
 												}
 											]
 										}
@@ -9609,7 +9686,7 @@
 							"fileName": "maps.js",
 							"line": 455,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L455"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L455"
 						}
 					],
 					"signatures": [
@@ -9786,7 +9863,7 @@
 							"fileName": "maps.js",
 							"line": 458,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L458"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L458"
 						}
 					],
 					"target": 80
@@ -9821,7 +9898,7 @@
 					"fileName": "maps.js",
 					"line": 22,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/maps.js#L22"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/maps.js#L22"
 				}
 			]
 		},
@@ -9843,7 +9920,7 @@
 							"fileName": "size.js",
 							"line": 30,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L30"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L30"
 						}
 					],
 					"signatures": [
@@ -9958,7 +10035,7 @@
 															"fileName": "size.js",
 															"line": 17,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L17"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L17"
 														}
 													],
 													"type": {
@@ -9993,7 +10070,7 @@
 															"fileName": "size.js",
 															"line": 18,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L18"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L18"
 														}
 													],
 													"type": {
@@ -10028,7 +10105,7 @@
 															"fileName": "size.js",
 															"line": 19,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L19"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L19"
 														}
 													],
 													"type": {
@@ -10071,7 +10148,7 @@
 															"fileName": "size.js",
 															"line": 20,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L20"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L20"
 														}
 													],
 													"type": {
@@ -10114,7 +10191,7 @@
 															"fileName": "size.js",
 															"line": 22,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L22"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L22"
 														}
 													],
 													"type": {
@@ -10141,7 +10218,7 @@
 															"fileName": "size.js",
 															"line": 24,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L24"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L24"
 														}
 													],
 													"type": {
@@ -10184,7 +10261,7 @@
 															"fileName": "size.js",
 															"line": 25,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L25"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L25"
 														}
 													],
 													"type": {
@@ -10212,7 +10289,7 @@
 													"fileName": "size.js",
 													"line": 17,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L17"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L17"
 												}
 											]
 										}
@@ -10237,7 +10314,7 @@
 							"fileName": "size.js",
 							"line": 57,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L57"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L57"
 						}
 					],
 					"signatures": [
@@ -10352,7 +10429,7 @@
 															"fileName": "size.js",
 															"line": 44,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L44"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L44"
 														}
 													],
 													"type": {
@@ -10387,7 +10464,7 @@
 															"fileName": "size.js",
 															"line": 45,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L45"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L45"
 														}
 													],
 													"type": {
@@ -10422,7 +10499,7 @@
 															"fileName": "size.js",
 															"line": 46,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L46"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L46"
 														}
 													],
 													"type": {
@@ -10465,7 +10542,7 @@
 															"fileName": "size.js",
 															"line": 47,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L47"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L47"
 														}
 													],
 													"type": {
@@ -10508,7 +10585,7 @@
 															"fileName": "size.js",
 															"line": 49,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L49"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L49"
 														}
 													],
 													"type": {
@@ -10535,7 +10612,7 @@
 															"fileName": "size.js",
 															"line": 51,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L51"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L51"
 														}
 													],
 													"type": {
@@ -10578,7 +10655,7 @@
 															"fileName": "size.js",
 															"line": 52,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L52"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L52"
 														}
 													],
 													"type": {
@@ -10606,7 +10683,7 @@
 													"fileName": "size.js",
 													"line": 44,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L44"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L44"
 												}
 											]
 										}
@@ -10631,7 +10708,7 @@
 							"fileName": "size.js",
 							"line": 83,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L83"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L83"
 						}
 					],
 					"signatures": [
@@ -10824,7 +10901,7 @@
 															"fileName": "size.js",
 															"line": 76,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L76"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L76"
 														}
 													],
 													"type": {
@@ -10846,7 +10923,7 @@
 													"fileName": "size.js",
 													"line": 76,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L76"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L76"
 												}
 											]
 										}
@@ -10910,7 +10987,7 @@
 							"fileName": "size.js",
 							"line": 95,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L95"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L95"
 						}
 					],
 					"signatures": [
@@ -11016,7 +11093,7 @@
 							"fileName": "size.js",
 							"line": 105,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L105"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L105"
 						}
 					],
 					"signatures": [
@@ -11109,7 +11186,7 @@
 					"fileName": "size.js",
 					"line": 6,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/size.js#L6"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/size.js#L6"
 				}
 			]
 		},
@@ -11191,7 +11268,7 @@
 							"fileName": "state.js",
 							"line": 344,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L344"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L344"
 						}
 					],
 					"signatures": [
@@ -11310,7 +11387,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getStep",
-												"target": 263
+												"target": 265
 											},
 											{
 												"kind": "text",
@@ -11324,7 +11401,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "macroSamples",
-												"target": 368
+												"target": 370
 											},
 											{
 												"kind": "text",
@@ -11338,7 +11415,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "macroTaps",
-												"target": 372
+												"target": 374
 											},
 											{
 												"kind": "text",
@@ -12289,7 +12366,7 @@
 															"fileName": "state.js",
 															"line": 210,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L210"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L210"
 														}
 													],
 													"type": {
@@ -12333,7 +12410,7 @@
 															"fileName": "state.js",
 															"line": 211,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L211"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L211"
 														}
 													],
 													"type": {
@@ -12357,7 +12434,7 @@
 													"fileName": "state.js",
 													"line": 210,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L210"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L210"
 												}
 											]
 										}
@@ -12415,7 +12492,7 @@
 															"fileName": "state.js",
 															"line": 214,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L214"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L214"
 														}
 													],
 													"type": {
@@ -12458,7 +12535,7 @@
 															"fileName": "state.js",
 															"line": 216,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L216"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L216"
 														}
 													],
 													"type": {
@@ -12501,7 +12578,7 @@
 															"fileName": "state.js",
 															"line": 217,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L217"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L217"
 														}
 													],
 													"type": {
@@ -12544,7 +12621,7 @@
 															"fileName": "state.js",
 															"line": 218,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L218"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L218"
 														}
 													],
 													"type": {
@@ -12579,7 +12656,7 @@
 															"fileName": "state.js",
 															"line": 220,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L220"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L220"
 														}
 													],
 													"type": {
@@ -12622,7 +12699,7 @@
 															"fileName": "state.js",
 															"line": 222,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L222"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L222"
 														}
 													],
 													"type": {
@@ -12665,7 +12742,7 @@
 															"fileName": "state.js",
 															"line": 223,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L223"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L223"
 														}
 													],
 													"type": {
@@ -12708,7 +12785,7 @@
 															"fileName": "state.js",
 															"line": 224,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L224"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L224"
 														}
 													],
 													"type": {
@@ -12751,7 +12828,7 @@
 															"fileName": "state.js",
 															"line": 225,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L225"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L225"
 														}
 													],
 													"type": {
@@ -12794,7 +12871,7 @@
 															"fileName": "state.js",
 															"line": 226,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L226"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L226"
 														}
 													],
 													"type": {
@@ -12837,7 +12914,7 @@
 															"fileName": "state.js",
 															"line": 227,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L227"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L227"
 														}
 													],
 													"type": {
@@ -12872,7 +12949,7 @@
 															"fileName": "state.js",
 															"line": 229,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L229"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L229"
 														}
 													],
 													"type": {
@@ -12899,7 +12976,7 @@
 															"fileName": "state.js",
 															"line": 232,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L232"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L232"
 														}
 													],
 													"type": {
@@ -12962,7 +13039,7 @@
 															"fileName": "state.js",
 															"line": 234,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L234"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L234"
 														}
 													],
 													"type": {
@@ -12985,7 +13062,7 @@
 																			"fileName": "state.js",
 																			"line": 236,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L236"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L236"
 																		}
 																	],
 																	"type": {
@@ -13010,7 +13087,7 @@
 																			"fileName": "state.js",
 																			"line": 239,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L239"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L239"
 																		}
 																	],
 																	"type": {
@@ -13029,7 +13106,7 @@
 																			"fileName": "state.js",
 																			"line": 242,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L242"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L242"
 																		}
 																	],
 																	"type": {
@@ -13053,7 +13130,7 @@
 																	"fileName": "state.js",
 																	"line": 236,
 																	"character": 3,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L236"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L236"
 																}
 															]
 														}
@@ -13078,7 +13155,7 @@
 															"fileName": "state.js",
 															"line": 245,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L245"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L245"
 														}
 													],
 													"type": {
@@ -13105,7 +13182,7 @@
 															"fileName": "state.js",
 															"line": 246,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L246"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L246"
 														}
 													],
 													"type": {
@@ -13140,7 +13217,7 @@
 															"fileName": "state.js",
 															"line": 247,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L247"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L247"
 														}
 													],
 													"type": {
@@ -13175,7 +13252,7 @@
 															"fileName": "state.js",
 															"line": 248,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L248"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L248"
 														}
 													],
 													"type": {
@@ -13210,7 +13287,7 @@
 															"fileName": "state.js",
 															"line": 249,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L249"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L249"
 														}
 													],
 													"type": {
@@ -13245,7 +13322,7 @@
 															"fileName": "state.js",
 															"line": 250,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L250"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L250"
 														}
 													],
 													"type": {
@@ -13280,7 +13357,7 @@
 															"fileName": "state.js",
 															"line": 251,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L251"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L251"
 														}
 													],
 													"type": {
@@ -13315,7 +13392,7 @@
 															"fileName": "state.js",
 															"line": 253,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L253"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L253"
 														}
 													],
 													"type": {
@@ -13566,7 +13643,7 @@
 															"fileName": "state.js",
 															"line": 256,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L256"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L256"
 														}
 													],
 													"type": {
@@ -13589,7 +13666,7 @@
 																			"fileName": "state.js",
 																			"line": 280,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L280"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L280"
 																		}
 																	],
 																	"type": {
@@ -13608,7 +13685,7 @@
 																			"fileName": "state.js",
 																			"line": 282,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L282"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L282"
 																		}
 																	],
 																	"type": {
@@ -13627,7 +13704,7 @@
 																			"fileName": "state.js",
 																			"line": 283,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L283"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L283"
 																		}
 																	],
 																	"type": {
@@ -13646,7 +13723,7 @@
 																			"fileName": "state.js",
 																			"line": 284,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L284"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L284"
 																		}
 																	],
 																	"type": {
@@ -13665,7 +13742,7 @@
 																			"fileName": "state.js",
 																			"line": 285,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L285"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L285"
 																		}
 																	],
 																	"type": {
@@ -13684,7 +13761,7 @@
 																			"fileName": "state.js",
 																			"line": 287,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L287"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L287"
 																		}
 																	],
 																	"type": {
@@ -13703,7 +13780,7 @@
 																			"fileName": "state.js",
 																			"line": 288,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L288"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L288"
 																		}
 																	],
 																	"type": {
@@ -13722,7 +13799,7 @@
 																			"fileName": "state.js",
 																			"line": 290,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L290"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L290"
 																		}
 																	],
 																	"type": {
@@ -13741,7 +13818,7 @@
 																			"fileName": "state.js",
 																			"line": 291,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L291"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L291"
 																		}
 																	],
 																	"type": {
@@ -13760,7 +13837,7 @@
 																			"fileName": "state.js",
 																			"line": 292,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L292"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L292"
 																		}
 																	],
 																	"type": {
@@ -13779,7 +13856,7 @@
 																			"fileName": "state.js",
 																			"line": 293,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L293"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L293"
 																		}
 																	],
 																	"type": {
@@ -13798,7 +13875,7 @@
 																			"fileName": "state.js",
 																			"line": 294,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L294"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L294"
 																		}
 																	],
 																	"type": {
@@ -13831,7 +13908,7 @@
 																	"fileName": "state.js",
 																	"line": 280,
 																	"character": 3,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L280"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L280"
 																}
 															]
 														}
@@ -13873,7 +13950,7 @@
 													"fileName": "state.js",
 													"line": 214,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L214"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L214"
 												}
 											]
 										}
@@ -13929,7 +14006,7 @@
 							"fileName": "state.js",
 							"line": 580,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L580"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L580"
 						}
 					],
 					"target": 110
@@ -13945,7 +14022,7 @@
 							"fileName": "state.js",
 							"line": 537,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L537"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L537"
 						}
 					],
 					"type": {
@@ -13961,7 +14038,7 @@
 									"fileName": "state.js",
 									"line": 537,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L537"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L537"
 								}
 							],
 							"signatures": [
@@ -14248,7 +14325,7 @@
 							"fileName": "state.js",
 							"line": 560,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L560"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L560"
 						}
 					],
 					"type": {
@@ -14264,7 +14341,7 @@
 									"fileName": "state.js",
 									"line": 560,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L560"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L560"
 								}
 							],
 							"signatures": [
@@ -14524,12 +14601,12 @@
 					"fileName": "state.js",
 					"line": 13,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/state.js#L13"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/state.js#L13"
 				}
 			]
 		},
 		{
-			"id": 255,
+			"id": 257,
 			"name": "step",
 			"kind": 2,
 			"kindString": "Module",
@@ -14560,7 +14637,7 @@
 			},
 			"children": [
 				{
-					"id": 292,
+					"id": 294,
 					"name": "cache",
 					"kind": 32,
 					"kindString": "Variable",
@@ -14572,20 +14649,20 @@
 							"fileName": "step.js",
 							"line": 19,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L19"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L19"
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 293,
+							"id": 295,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
 							"flags": {},
 							"children": [
 								{
-									"id": 294,
+									"id": 296,
 									"name": "clearPass",
 									"kind": 1024,
 									"kindString": "Property",
@@ -14595,20 +14672,20 @@
 											"fileName": "step.js",
 											"line": 20,
 											"character": 2,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L20"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L20"
 										}
 									],
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 295,
+											"id": 297,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
 											"flags": {},
 											"children": [
 												{
-													"id": 296,
+													"id": 298,
 													"name": "color",
 													"kind": 1024,
 													"kindString": "Property",
@@ -14618,7 +14695,7 @@
 															"fileName": "step.js",
 															"line": 20,
 															"character": 15,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L20"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L20"
 														}
 													],
 													"type": {
@@ -14631,7 +14708,7 @@
 													"defaultValue": "..."
 												},
 												{
-													"id": 297,
+													"id": 299,
 													"name": "depth",
 													"kind": 1024,
 													"kindString": "Property",
@@ -14641,7 +14718,7 @@
 															"fileName": "step.js",
 															"line": 20,
 															"character": 36,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L20"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L20"
 														}
 													],
 													"type": {
@@ -14651,7 +14728,7 @@
 													"defaultValue": "1"
 												},
 												{
-													"id": 298,
+													"id": 300,
 													"name": "stencil",
 													"kind": 1024,
 													"kindString": "Property",
@@ -14661,7 +14738,7 @@
 															"fileName": "step.js",
 															"line": 20,
 															"character": 46,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L20"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L20"
 														}
 													],
 													"type": {
@@ -14675,9 +14752,9 @@
 												{
 													"title": "Properties",
 													"children": [
-														296,
-														297,
-														298
+														298,
+														299,
+														300
 													]
 												}
 											],
@@ -14686,7 +14763,7 @@
 													"fileName": "step.js",
 													"line": 20,
 													"character": 13,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L20"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L20"
 												}
 											]
 										}
@@ -14694,7 +14771,7 @@
 									"defaultValue": "..."
 								},
 								{
-									"id": 299,
+									"id": 301,
 									"name": "copyFrame",
 									"kind": 1024,
 									"kindString": "Property",
@@ -14704,20 +14781,20 @@
 											"fileName": "step.js",
 											"line": 21,
 											"character": 2,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L21"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L21"
 										}
 									],
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 300,
+											"id": 302,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
 											"flags": {},
 											"children": [
 												{
-													"id": 301,
+													"id": 303,
 													"name": "color",
 													"kind": 1024,
 													"kindString": "Property",
@@ -14727,7 +14804,7 @@
 															"fileName": "step.js",
 															"line": 21,
 															"character": 15,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L21"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L21"
 														}
 													],
 													"type": {
@@ -14741,7 +14818,7 @@
 												{
 													"title": "Properties",
 													"children": [
-														301
+														303
 													]
 												}
 											],
@@ -14750,7 +14827,7 @@
 													"fileName": "step.js",
 													"line": 21,
 													"character": 13,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L21"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L21"
 												}
 											]
 										}
@@ -14758,7 +14835,7 @@
 									"defaultValue": "..."
 								},
 								{
-									"id": 302,
+									"id": 304,
 									"name": "copyImage",
 									"kind": 1024,
 									"kindString": "Property",
@@ -14768,20 +14845,20 @@
 											"fileName": "step.js",
 											"line": 21,
 											"character": 30,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L21"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L21"
 										}
 									],
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 303,
+											"id": 305,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
 											"flags": {},
 											"children": [
 												{
-													"id": 304,
+													"id": 306,
 													"name": "copy",
 													"kind": 1024,
 													"kindString": "Property",
@@ -14791,7 +14868,7 @@
 															"fileName": "step.js",
 															"line": 21,
 															"character": 43,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L21"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L21"
 														}
 													],
 													"type": {
@@ -14805,7 +14882,7 @@
 												{
 													"title": "Properties",
 													"children": [
-														304
+														306
 													]
 												}
 											],
@@ -14814,7 +14891,7 @@
 													"fileName": "step.js",
 													"line": 21,
 													"character": 41,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L21"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L21"
 												}
 											]
 										}
@@ -14826,9 +14903,9 @@
 								{
 									"title": "Properties",
 									"children": [
-										294,
-										299,
-										302
+										296,
+										301,
+										304
 									]
 								}
 							],
@@ -14837,7 +14914,7 @@
 									"fileName": "step.js",
 									"line": 19,
 									"character": 21,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L19"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L19"
 								}
 							]
 						}
@@ -14845,7 +14922,7 @@
 					"defaultValue": "..."
 				},
 				{
-					"id": 305,
+					"id": 307,
 					"name": "getPass",
 					"kind": 64,
 					"kindString": "Function",
@@ -14855,12 +14932,12 @@
 							"fileName": "step.js",
 							"line": 36,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L36"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L36"
 						}
 					],
 					"signatures": [
 						{
-							"id": 306,
+							"id": 308,
 							"name": "getPass",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -14905,7 +14982,7 @@
 							},
 							"parameters": [
 								{
-									"id": 307,
+									"id": 309,
 									"name": "state",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -14930,14 +15007,14 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 308,
+											"id": 310,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
 											"flags": {},
 											"children": [
 												{
-													"id": 309,
+													"id": 311,
 													"name": "passes",
 													"kind": 1024,
 													"kindString": "Property",
@@ -14963,7 +15040,7 @@
 															"fileName": "step.js",
 															"line": 30,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L30"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L30"
 														}
 													],
 													"type": {
@@ -14978,7 +15055,7 @@
 													}
 												},
 												{
-													"id": 310,
+													"id": 312,
 													"name": "stepNow",
 													"kind": 1024,
 													"kindString": "Property",
@@ -14996,7 +15073,7 @@
 															"fileName": "step.js",
 															"line": 31,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L31"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L31"
 														}
 													],
 													"type": {
@@ -15005,7 +15082,7 @@
 													}
 												},
 												{
-													"id": 311,
+													"id": 313,
 													"name": "passNow",
 													"kind": 1024,
 													"kindString": "Property",
@@ -15023,7 +15100,7 @@
 															"fileName": "step.js",
 															"line": 32,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L32"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L32"
 														}
 													],
 													"type": {
@@ -15036,9 +15113,9 @@
 												{
 													"title": "Properties",
 													"children": [
-														309,
-														310,
-														311
+														311,
+														312,
+														313
 													]
 												}
 											],
@@ -15047,7 +15124,7 @@
 													"fileName": "step.js",
 													"line": 30,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L30"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L30"
 												}
 											]
 										}
@@ -15062,7 +15139,7 @@
 					]
 				},
 				{
-					"id": 256,
+					"id": 258,
 					"name": "updateMerge",
 					"kind": 64,
 					"kindString": "Function",
@@ -15072,12 +15149,12 @@
 							"fileName": "step.js",
 							"line": 66,
 							"character": 17,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L66"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L66"
 						}
 					],
 					"signatures": [
 						{
-							"id": 257,
+							"id": 259,
 							"name": "updateMerge",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -15154,7 +15231,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getPass",
-												"target": 305
+												"target": 307
 											},
 											{
 												"kind": "text",
@@ -15210,7 +15287,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "macroTaps",
-												"target": 372
+												"target": 374
 											},
 											{
 												"kind": "text",
@@ -15247,7 +15324,7 @@
 							},
 							"parameters": [
 								{
-									"id": 258,
+									"id": 260,
 									"name": "state",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -15271,14 +15348,14 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 259,
+											"id": 261,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
 											"flags": {},
 											"children": [
 												{
-													"id": 260,
+													"id": 262,
 													"name": "passes",
 													"kind": 1024,
 													"kindString": "Property",
@@ -15344,7 +15421,7 @@
 															"fileName": "step.js",
 															"line": 56,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L56"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L56"
 														}
 													],
 													"type": {
@@ -15381,7 +15458,7 @@
 													}
 												},
 												{
-													"id": 261,
+													"id": 263,
 													"name": "merge",
 													"kind": 1024,
 													"kindString": "Property",
@@ -15407,7 +15484,7 @@
 															"fileName": "step.js",
 															"line": 60,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L60"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L60"
 														}
 													],
 													"type": {
@@ -15416,7 +15493,7 @@
 													}
 												},
 												{
-													"id": 262,
+													"id": 264,
 													"name": "stepNow",
 													"kind": 1024,
 													"kindString": "Property",
@@ -15434,7 +15511,7 @@
 															"fileName": "step.js",
 															"line": 61,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L61"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L61"
 														}
 													],
 													"type": {
@@ -15447,9 +15524,9 @@
 												{
 													"title": "Properties",
 													"children": [
-														260,
-														261,
-														262
+														262,
+														263,
+														264
 													]
 												}
 											],
@@ -15458,7 +15535,7 @@
 													"fileName": "step.js",
 													"line": 56,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L56"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L56"
 												}
 											]
 										}
@@ -15473,7 +15550,7 @@
 					]
 				},
 				{
-					"id": 263,
+					"id": 265,
 					"name": "getStep",
 					"kind": 64,
 					"kindString": "Function",
@@ -15483,12 +15560,12 @@
 							"fileName": "step.js",
 							"line": 170,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L170"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L170"
 						}
 					],
 					"signatures": [
 						{
-							"id": 264,
+							"id": 266,
 							"name": "getStep",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -15546,7 +15623,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "buffer",
-												"target": 312
+												"target": 314
 											},
 											{
 												"kind": "text",
@@ -15560,7 +15637,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "command",
-												"target": 324
+												"target": 326
 											},
 											{
 												"kind": "text",
@@ -15574,7 +15651,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "subimage",
-												"target": 336
+												"target": 338
 											},
 											{
 												"kind": "text",
@@ -15588,7 +15665,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "onStep",
-												"target": 342
+												"target": 344
 											},
 											{
 												"kind": "text",
@@ -15602,7 +15679,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "onPass",
-												"target": 347
+												"target": 349
 											},
 											{
 												"kind": "text",
@@ -15616,7 +15693,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getPass",
-												"target": 305
+												"target": 307
 											},
 											{
 												"kind": "text",
@@ -15672,7 +15749,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getUniforms",
-												"target": 209
+												"target": 211
 											},
 											{
 												"kind": "text",
@@ -15966,7 +16043,7 @@
 							},
 							"parameters": [
 								{
-									"id": 265,
+									"id": 267,
 									"name": "api",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -15990,14 +16067,14 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 266,
+											"id": 268,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
 											"flags": {},
 											"children": [
 												{
-													"id": 267,
+													"id": 269,
 													"name": "buffer",
 													"kind": 1024,
 													"kindString": "Property",
@@ -16023,17 +16100,17 @@
 															"fileName": "step.js",
 															"line": 105,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L105"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L105"
 														}
 													],
 													"type": {
 														"type": "reference",
-														"id": 312,
+														"id": 314,
 														"name": "buffer"
 													}
 												},
 												{
-													"id": 268,
+													"id": 270,
 													"name": "clear",
 													"kind": 1024,
 													"kindString": "Property",
@@ -16067,17 +16144,17 @@
 															"fileName": "step.js",
 															"line": 106,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L106"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L106"
 														}
 													],
 													"type": {
 														"type": "reference",
-														"id": 316,
+														"id": 318,
 														"name": "clear"
 													}
 												},
 												{
-													"id": 269,
+													"id": 271,
 													"name": "command",
 													"kind": 1024,
 													"kindString": "Property",
@@ -16111,12 +16188,12 @@
 															"fileName": "step.js",
 															"line": 107,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L107"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L107"
 														}
 													],
 													"type": {
 														"type": "reference",
-														"id": 324,
+														"id": 326,
 														"name": "command"
 													}
 												}
@@ -16125,9 +16202,9 @@
 												{
 													"title": "Properties",
 													"children": [
-														267,
-														268,
-														269
+														269,
+														270,
+														271
 													]
 												}
 											],
@@ -16136,14 +16213,14 @@
 													"fileName": "step.js",
 													"line": 105,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L105"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L105"
 												}
 											]
 										}
 									}
 								},
 								{
-									"id": 270,
+									"id": 272,
 									"name": "state",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -16183,14 +16260,14 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 271,
+											"id": 273,
 											"name": "__type",
 											"kind": 65536,
 											"kindString": "Type literal",
 											"flags": {},
 											"children": [
 												{
-													"id": 272,
+													"id": 274,
 													"name": "maps",
 													"kind": 1024,
 													"kindString": "Property",
@@ -16224,7 +16301,7 @@
 															"fileName": "step.js",
 															"line": 111,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L111"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L111"
 														}
 													],
 													"type": {
@@ -16233,7 +16310,7 @@
 													}
 												},
 												{
-													"id": 273,
+													"id": 275,
 													"name": "passes",
 													"kind": 1024,
 													"kindString": "Property",
@@ -16259,7 +16336,7 @@
 															"fileName": "step.js",
 															"line": 113,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L113"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L113"
 														}
 													],
 													"type": {
@@ -16280,7 +16357,7 @@
 													}
 												},
 												{
-													"id": 274,
+													"id": 276,
 													"name": "merge",
 													"kind": 1024,
 													"kindString": "Property",
@@ -16306,20 +16383,20 @@
 															"fileName": "step.js",
 															"line": 115,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L115"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L115"
 														}
 													],
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 275,
+															"id": 277,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"children": [
 																{
-																	"id": 276,
+																	"id": 278,
 																	"name": "texture",
 																	"kind": 1024,
 																	"kindString": "Property",
@@ -16329,20 +16406,20 @@
 																			"fileName": "step.js",
 																			"line": 117,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L117"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L117"
 																		}
 																	],
 																	"type": {
 																		"type": "reflection",
 																		"declaration": {
-																			"id": 277,
+																			"id": 279,
 																			"name": "__type",
 																			"kind": 65536,
 																			"kindString": "Type literal",
 																			"flags": {},
 																			"children": [
 																				{
-																					"id": 278,
+																					"id": 280,
 																					"name": "subimage",
 																					"kind": 1024,
 																					"kindString": "Property",
@@ -16352,12 +16429,12 @@
 																							"fileName": "step.js",
 																							"line": 118,
 																							"character": 3,
-																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L118"
+																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L118"
 																						}
 																					],
 																					"type": {
 																						"type": "reference",
-																						"id": 336,
+																						"id": 338,
 																						"name": "subimage"
 																					}
 																				}
@@ -16366,7 +16443,7 @@
 																				{
 																					"title": "Properties",
 																					"children": [
-																						278
+																						280
 																					]
 																				}
 																			],
@@ -16375,14 +16452,14 @@
 																					"fileName": "step.js",
 																					"line": 118,
 																					"character": 3,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L118"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L118"
 																				}
 																			]
 																		}
 																	}
 																},
 																{
-																	"id": 279,
+																	"id": 281,
 																	"name": "update",
 																	"kind": 1024,
 																	"kindString": "Property",
@@ -16392,7 +16469,7 @@
 																			"fileName": "step.js",
 																			"line": 120,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L120"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L120"
 																		}
 																	],
 																	"type": {
@@ -16407,8 +16484,8 @@
 																{
 																	"title": "Properties",
 																	"children": [
-																		276,
-																		279
+																		278,
+																		281
 																	]
 																}
 															],
@@ -16417,14 +16494,14 @@
 																	"fileName": "step.js",
 																	"line": 117,
 																	"character": 3,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L117"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L117"
 																}
 															]
 														}
 													}
 												},
 												{
-													"id": 280,
+													"id": 282,
 													"name": "pre",
 													"kind": 1024,
 													"kindString": "Property",
@@ -16450,7 +16527,7 @@
 															"fileName": "step.js",
 															"line": 129,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L129"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L129"
 														}
 													],
 													"type": {
@@ -16459,7 +16536,7 @@
 													}
 												},
 												{
-													"id": 281,
+													"id": 283,
 													"name": "step",
 													"kind": 1024,
 													"kindString": "Property",
@@ -16485,20 +16562,20 @@
 															"fileName": "step.js",
 															"line": 130,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L130"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L130"
 														}
 													],
 													"type": {
 														"type": "reflection",
 														"declaration": {
-															"id": 282,
+															"id": 284,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
 															"flags": {},
 															"children": [
 																{
-																	"id": 283,
+																	"id": 285,
 																	"name": "vert",
 																	"kind": 1024,
 																	"kindString": "Property",
@@ -16508,13 +16585,13 @@
 																			"fileName": "step.js",
 																			"line": 131,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L131"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L131"
 																		},
 																		{
 																			"fileName": "step.js",
 																			"line": 142,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L142"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L142"
 																		}
 																	],
 																	"type": {
@@ -16523,7 +16600,7 @@
 																	}
 																},
 																{
-																	"id": 284,
+																	"id": 286,
 																	"name": "frag",
 																	"kind": 1024,
 																	"kindString": "Property",
@@ -16533,13 +16610,13 @@
 																			"fileName": "step.js",
 																			"line": 133,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L133"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L133"
 																		},
 																		{
 																			"fileName": "step.js",
 																			"line": 145,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L145"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L145"
 																		}
 																	],
 																	"type": {
@@ -16548,7 +16625,7 @@
 																	}
 																},
 																{
-																	"id": 285,
+																	"id": 287,
 																	"name": "uniforms",
 																	"kind": 1024,
 																	"kindString": "Property",
@@ -16558,7 +16635,7 @@
 																			"fileName": "step.js",
 																			"line": 134,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L134"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L134"
 																		}
 																	],
 																	"type": {
@@ -16567,7 +16644,7 @@
 																	}
 																},
 																{
-																	"id": 286,
+																	"id": 288,
 																	"name": "positions",
 																	"kind": 1024,
 																	"kindString": "Property",
@@ -16577,45 +16654,7 @@
 																			"fileName": "step.js",
 																			"line": 136,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L136"
-																		}
-																	],
-																	"type": {
-																		"type": "intrinsic",
-																		"name": "any"
-																	}
-																},
-																{
-																	"id": 287,
-																	"name": "count",
-																	"kind": 1024,
-																	"kindString": "Property",
-																	"flags": {},
-																	"sources": [
-																		{
-																			"fileName": "step.js",
-																			"line": 138,
-																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L138"
-																		}
-																	],
-																	"type": {
-																		"type": "intrinsic",
-																		"name": "number"
-																	}
-																},
-																{
-																	"id": 288,
-																	"name": "passCommand",
-																	"kind": 1024,
-																	"kindString": "Property",
-																	"flags": {},
-																	"sources": [
-																		{
-																			"fileName": "step.js",
-																			"line": 140,
-																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L140"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L136"
 																		}
 																	],
 																	"type": {
@@ -16625,6 +16664,44 @@
 																},
 																{
 																	"id": 289,
+																	"name": "count",
+																	"kind": 1024,
+																	"kindString": "Property",
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "step.js",
+																			"line": 138,
+																			"character": 3,
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L138"
+																		}
+																	],
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "number"
+																	}
+																},
+																{
+																	"id": 290,
+																	"name": "passCommand",
+																	"kind": 1024,
+																	"kindString": "Property",
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "step.js",
+																			"line": 140,
+																			"character": 3,
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L140"
+																		}
+																	],
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "any"
+																	}
+																},
+																{
+																	"id": 291,
 																	"name": "verts",
 																	"kind": 1024,
 																	"kindString": "Property",
@@ -16634,7 +16711,7 @@
 																			"fileName": "step.js",
 																			"line": 143,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L143"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L143"
 																		}
 																	],
 																	"type": {
@@ -16646,7 +16723,7 @@
 																	}
 																},
 																{
-																	"id": 290,
+																	"id": 292,
 																	"name": "frags",
 																	"kind": 1024,
 																	"kindString": "Property",
@@ -16656,7 +16733,7 @@
 																			"fileName": "step.js",
 																			"line": 146,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L146"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L146"
 																		}
 																	],
 																	"type": {
@@ -16672,14 +16749,14 @@
 																{
 																	"title": "Properties",
 																	"children": [
-																		283,
-																		284,
 																		285,
 																		286,
 																		287,
 																		288,
 																		289,
-																		290
+																		290,
+																		291,
+																		292
 																	]
 																}
 															],
@@ -16688,7 +16765,7 @@
 																	"fileName": "step.js",
 																	"line": 131,
 																	"character": 3,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L131"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L131"
 																}
 															]
 														}
@@ -16699,11 +16776,11 @@
 												{
 													"title": "Properties",
 													"children": [
-														272,
-														273,
 														274,
-														280,
-														281
+														275,
+														276,
+														282,
+														283
 													]
 												}
 											],
@@ -16712,14 +16789,14 @@
 													"fileName": "step.js",
 													"line": 111,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L111"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L111"
 												}
 											]
 										}
 									}
 								},
 								{
-									"id": 291,
+									"id": 293,
 									"name": "to",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -16741,7 +16818,7 @@
 					]
 				},
 				{
-					"id": 312,
+					"id": 314,
 					"name": "buffer",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -16751,13 +16828,13 @@
 							"fileName": "step.js",
 							"line": 270,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L270"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L270"
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 313,
+							"id": 315,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
@@ -16767,12 +16844,12 @@
 									"fileName": "step.js",
 									"line": 270,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L270"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L270"
 								}
 							],
 							"signatures": [
 								{
-									"id": 314,
+									"id": 316,
 									"name": "__type",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -16803,7 +16880,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getStep",
-												"target": 263
+												"target": 265
 											},
 											{
 												"kind": "text",
@@ -16853,7 +16930,7 @@
 									},
 									"parameters": [
 										{
-											"id": 315,
+											"id": 317,
 											"name": "data",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -16903,7 +16980,7 @@
 					}
 				},
 				{
-					"id": 316,
+					"id": 318,
 					"name": "clear",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -16913,13 +16990,13 @@
 							"fileName": "step.js",
 							"line": 290,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L290"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L290"
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 317,
+							"id": 319,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
@@ -16929,12 +17006,12 @@
 									"fileName": "step.js",
 									"line": 290,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L290"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L290"
 								}
 							],
 							"signatures": [
 								{
-									"id": 318,
+									"id": 320,
 									"name": "__type",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -16973,7 +17050,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getStep",
-												"target": 263
+												"target": 265
 											},
 											{
 												"kind": "text",
@@ -16989,7 +17066,7 @@
 									},
 									"parameters": [
 										{
-											"id": 319,
+											"id": 321,
 											"name": "props",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17008,7 +17085,7 @@
 											}
 										},
 										{
-											"id": 320,
+											"id": 322,
 											"name": "color",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17035,7 +17112,7 @@
 											}
 										},
 										{
-											"id": 321,
+											"id": 323,
 											"name": "depth",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17056,7 +17133,7 @@
 											}
 										},
 										{
-											"id": 322,
+											"id": 324,
 											"name": "stencil",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17077,7 +17154,7 @@
 											}
 										},
 										{
-											"id": 323,
+											"id": 325,
 											"name": "framebuffer",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17124,7 +17201,7 @@
 					}
 				},
 				{
-					"id": 324,
+					"id": 326,
 					"name": "command",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -17134,13 +17211,13 @@
 							"fileName": "step.js",
 							"line": 310,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L310"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L310"
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 325,
+							"id": 327,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
@@ -17150,12 +17227,12 @@
 									"fileName": "step.js",
 									"line": 310,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L310"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L310"
 								}
 							],
 							"signatures": [
 								{
-									"id": 326,
+									"id": 328,
 									"name": "__type",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -17186,7 +17263,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getStep",
-												"target": 263
+												"target": 265
 											},
 											{
 												"kind": "text",
@@ -17196,7 +17273,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getUniforms",
-												"target": 209
+												"target": 211
 											},
 											{
 												"kind": "text",
@@ -17224,7 +17301,7 @@
 									},
 									"parameters": [
 										{
-											"id": 327,
+											"id": 329,
 											"name": "passCommand",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17251,7 +17328,7 @@
 											}
 										},
 										{
-											"id": 328,
+											"id": 330,
 											"name": "passCommand.vert",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17280,7 +17357,7 @@
 											}
 										},
 										{
-											"id": 329,
+											"id": 331,
 											"name": "passCommand.frag",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17309,7 +17386,7 @@
 											}
 										},
 										{
-											"id": 330,
+											"id": 332,
 											"name": "passCommand.attributes",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17329,7 +17406,7 @@
 												"typeArguments": [
 													{
 														"type": "reference",
-														"id": 312,
+														"id": 314,
 														"name": "buffer"
 													}
 												],
@@ -17337,7 +17414,7 @@
 											}
 										},
 										{
-											"id": 331,
+											"id": 333,
 											"name": "passCommand.uniforms",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17380,7 +17457,7 @@
 											}
 										},
 										{
-											"id": 332,
+											"id": 334,
 											"name": "passCommand.count",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17401,7 +17478,7 @@
 											}
 										},
 										{
-											"id": 333,
+											"id": 335,
 											"name": "passCommand.depth",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17434,7 +17511,7 @@
 													{
 														"type": "reflection",
 														"declaration": {
-															"id": 334,
+															"id": 336,
 															"name": "__type",
 															"kind": 65536,
 															"kindString": "Type literal",
@@ -17444,7 +17521,7 @@
 																	"fileName": "step.js",
 																	"line": 333,
 																	"character": 27,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L333"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L333"
 																}
 															]
 														}
@@ -17454,7 +17531,7 @@
 											}
 										},
 										{
-											"id": 335,
+											"id": 337,
 											"name": "passCommand.framebuffer",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17501,7 +17578,7 @@
 					}
 				},
 				{
-					"id": 336,
+					"id": 338,
 					"name": "subimage",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -17511,13 +17588,13 @@
 							"fileName": "step.js",
 							"line": 344,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L344"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L344"
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 337,
+							"id": 339,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
@@ -17527,12 +17604,12 @@
 									"fileName": "step.js",
 									"line": 344,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L344"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L344"
 								}
 							],
 							"signatures": [
 								{
-									"id": 338,
+									"id": 340,
 									"name": "__type",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -17571,7 +17648,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getStep",
-												"target": 263
+												"target": 265
 											},
 											{
 												"kind": "text",
@@ -17607,7 +17684,7 @@
 									},
 									"parameters": [
 										{
-											"id": 339,
+											"id": 341,
 											"name": "data",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17634,7 +17711,7 @@
 											}
 										},
 										{
-											"id": 340,
+											"id": 342,
 											"name": "x",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17663,7 +17740,7 @@
 											}
 										},
 										{
-											"id": 341,
+											"id": 343,
 											"name": "y",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17702,7 +17779,7 @@
 					}
 				},
 				{
-					"id": 342,
+					"id": 344,
 					"name": "onStep",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -17712,13 +17789,13 @@
 							"fileName": "step.js",
 							"line": 365,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L365"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L365"
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 343,
+							"id": 345,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
@@ -17728,12 +17805,12 @@
 									"fileName": "step.js",
 									"line": 365,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L365"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L365"
 								}
 							],
 							"signatures": [
 								{
-									"id": 344,
+									"id": 346,
 									"name": "__type",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -17748,7 +17825,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getStep",
-												"target": 263
+												"target": 265
 											},
 											{
 												"kind": "text",
@@ -17802,7 +17879,7 @@
 									},
 									"parameters": [
 										{
-											"id": 345,
+											"id": 347,
 											"name": "props",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17839,7 +17916,7 @@
 											}
 										},
 										{
-											"id": 346,
+											"id": 348,
 											"name": "step",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -17906,7 +17983,7 @@
 					}
 				},
 				{
-					"id": 347,
+					"id": 349,
 					"name": "onPass",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -17916,13 +17993,13 @@
 							"fileName": "step.js",
 							"line": 387,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L387"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L387"
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 348,
+							"id": 350,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
@@ -17932,12 +18009,12 @@
 									"fileName": "step.js",
 									"line": 387,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L387"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L387"
 								}
 							],
 							"signatures": [
 								{
-									"id": 349,
+									"id": 351,
 									"name": "__type",
 									"kind": 4096,
 									"kindString": "Call signature",
@@ -17952,7 +18029,7 @@
 												"kind": "inline-tag",
 												"tag": "@link",
 												"text": "getStep",
-												"target": 263
+												"target": 265
 											},
 											{
 												"kind": "text",
@@ -18004,7 +18081,7 @@
 									},
 									"parameters": [
 										{
-											"id": 350,
+											"id": 352,
 											"name": "stepProps",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -18049,7 +18126,7 @@
 											}
 										},
 										{
-											"id": 351,
+											"id": 353,
 											"name": "pass",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -18092,7 +18169,7 @@
 					}
 				},
 				{
-					"id": 352,
+					"id": 354,
 					"name": "default",
 					"kind": 8388608,
 					"kindString": "Reference",
@@ -18102,42 +18179,42 @@
 							"fileName": "step.js",
 							"line": 439,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L439"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L439"
 						}
 					],
-					"target": 263
+					"target": 265
 				}
 			],
 			"groups": [
 				{
 					"title": "Variables",
 					"children": [
-						292
+						294
 					]
 				},
 				{
 					"title": "Functions",
 					"children": [
-						305,
-						256,
-						263
+						307,
+						258,
+						265
 					]
 				},
 				{
 					"title": "Type Aliases",
 					"children": [
-						312,
-						316,
-						324,
-						336,
-						342,
-						347
+						314,
+						318,
+						326,
+						338,
+						344,
+						349
 					]
 				},
 				{
 					"title": "References",
 					"children": [
-						352
+						354
 					]
 				}
 			],
@@ -18146,7 +18223,7 @@
 					"fileName": "step.js",
 					"line": 10,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/step.js#L10"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/step.js#L10"
 				}
 			]
 		},
@@ -18210,7 +18287,7 @@
 							"fileName": "util/remain-div.glsl.js",
 							"line": 15,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/util/remain-div.glsl.js#L15"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/util/remain-div.glsl.js#L15"
 						}
 					],
 					"type": {
@@ -18230,7 +18307,7 @@
 							"fileName": "util/remain-div.glsl.js",
 							"line": 17,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/util/remain-div.glsl.js#L17"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/util/remain-div.glsl.js#L17"
 						}
 					],
 					"target": 37
@@ -18263,7 +18340,7 @@
 					"fileName": "util/remain-div.glsl.js",
 					"line": 7,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/80e2f63/src/util/remain-div.glsl.js#L7"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/d523627/src/util/remain-div.glsl.js#L7"
 				}
 			]
 		}
@@ -18278,14 +18355,14 @@
 				42,
 				85,
 				106,
-				208,
+				210,
 				100,
 				103,
-				353,
+				355,
 				52,
 				1,
 				109,
-				255,
+				257,
 				36
 			],
 			"categories": [
@@ -18312,12 +18389,12 @@
 						178,
 						42,
 						85,
-						208,
-						353,
+						210,
+						355,
 						52,
 						1,
 						109,
-						255
+						257
 					]
 				}
 			]

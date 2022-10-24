@@ -13,8 +13,6 @@
  * @module (index)
  * @category Main
  * @category JS
- *
- * @todo Allow passes within/across textures; separate data and texture shapes.
  */
 
 import { mapValues } from './maps';
@@ -41,7 +39,7 @@ import { getStep } from './step';
  *   default. See `getState`, `getUniforms`, and `getStep`.
  * @param {object} [state.maps] How values are grouped per-`texture` per-pass
  *   per-step. Sets up new maps if not given or missing its mapped properties.
- *   See `mapGroups`.
+ *   See `mapValues`.
  * @param {number} [state.maps.buffersMax=api.limits.maxDrawbuffers] Maximum
  *   number of `texture`s per draw pass. Uses more passes above this limit.
  * @param {object} [to=state] The state `object` to set up. Modifies the given

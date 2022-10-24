@@ -281,7 +281,7 @@ const state = gpgpu(regl, {
   // Configure macro hooks, global or per-shader.
   macros: {
     // No macros needed for the `vert` shader; all other macros generated.
-    vert: false
+    macroVert: false
   },
   // Prefix is usually recommended; use none here to check for naming clashes.
   pre: '',
@@ -400,12 +400,12 @@ const drawCounts = map((_, f) => indexForms(drawSteps, f, state.size.count),
 const viewScale = ({ drawingBufferWidth: w, drawingBufferHeight: h }) =>
   Math.min(w, h);
 
-/** Reuse the GPGPU state, mix in drawing-specific state. */
+/** Reuse the `gpgpu` state, mix in drawing-specific state. */
 const drawState = {
   ...state,
   bound: drawBound,
-  // Drawing, don't need to output any data; also don't need `frag` macros.
-  macros: { 'output': 0, 'frag': 0 },
+  // Drawing, not data - so no `output` macros. Also, don't need `frag` macros.
+  macros: { output: 0, frag: 0 },
   drawProps: {
     // How many vertexes per form.
     form: clamp(form || 2, 1, 1+useLines),

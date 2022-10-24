@@ -212,14 +212,14 @@ export function getStep(api, state, to = state.step ?? {}) {
       const { vert: v = vert, verts: vs = verts } = step;
 
       // Specify the shader type, for per-shader macro hooks.
-      return vs?.[p] ?? macroPass(s, 'vert')+v;
+      return vs?.[p] ?? macroPass(s, 'macroVert')+v;
     },
     frag(_, s = state) {
       const { passNow: p, step } = s;
       const { frag: f = frag, frags: fs = frags } = step;
 
       // Specify the shader type, for per-shader macro hooks.
-      return fs?.[p] ?? macroPass(s, 'frag')+f;
+      return fs?.[p] ?? macroPass(s, 'macroFrag')+f;
     },
     attributes: {
       [n+'position']: (_, s = state) => s.step.positions ?? positions

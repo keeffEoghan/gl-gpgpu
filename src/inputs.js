@@ -33,8 +33,8 @@ import { boundDef, preDef } from './const';
  *   stepNow: (context, state) => {},
  *   stateShape: (context, state) => {},
  *   viewShape: (context, state) => {},
- *   // Separate data-`texture`s, an `array` of `sampler`s (e.g: `sampler2D[]`).
- *   // Data-`texture`s for the 1st step ago, not bound as outputs.
+ *   // Separate state data-`texture`s in an `array` (e.g: `sampler2D[]`).
+ *   // State data-`texture`s for the 1st step ago, not bound as outputs.
  *   'states[0]': (context, state) => {},
  *   'states[1]': (context, state) => {},
  *   // Merged `texture` not used.
@@ -46,11 +46,11 @@ import { boundDef, preDef } from './const';
  *   stepNow: (context, state) => {},
  *   stateShape: (context, state) => {},
  *   viewShape: (context, state) => {},
- *   // Separate data-`texture`s, an `array` of `sampler`s (e.g: `sampler2D[]`).
- *   // Data-`texture`s for the 1st step ago, not bound as outputs.
+ *   // Separate state data-`texture`s in an `array` (e.g: `sampler2D[]`).
+ *   // State data-`texture`s for the 1st step ago, not bound as outputs.
  *   'states[0]': (context, state) => {},
  *   'states[1]': (context, state) => {}
- *   // Data-`texture`s for the 2nd step ago, not bound as outputs.
+ *   // State data-`texture`s for the 2nd step ago, not bound as outputs.
  *   'states[2]': (context, state) => {},
  *   'states[3]': (context, state) => {},
  *   // Merged `texture` not used.
@@ -62,8 +62,8 @@ import { boundDef, preDef } from './const';
  *   stepNow: (context, state) => {},
  *   stateShape: (context, state) => {},
  *   viewShape: (context, state) => {},
- *   // All states merged into one data-`texture` upon every pass; for
- *   // `sampler2D`, or `sampler3D`/`sampler2DArray` where supported.
+ *   // Merged states in one data-`texture` upon every pass (e.g: `sampler2D`,
+ *   // or `sampler3D`/`sampler2DArray` where supported).
  *   states: (context, state) => {},
  *   // Separate data-`texture`s not used.
  *   'states[0]': (context, state) => null,

@@ -2,8 +2,8 @@
  * The `gpgpu` `GLSL` preprocessor macros for working with the state and maps.
  *
  * Use these with care, as each set of different macros will result in new
- * shaders and compilations; so, as few unique macros as possible should be
- * created for a given set of inputs, for efficiency.
+ * shaders and compilations - as few unique macros as possible should be created
+ * for a given set of inputs, ideally; can use caches here for this efficiency.
  *
  * @module
  * @category JS
@@ -20,22 +20,19 @@ import reduce from '@epok.tech/fn-lists/reduce';
 import map from '@epok.tech/fn-lists/map';
 import { type } from '@epok.tech/is-type/type';
 
-import { preDef, boundDef } from './const';
+import { preDef, boundDef, cacheDef } from './const';
 
 /** Escaped carriage-return for easier reading. */
 export const cr = ' \\\n';
 /** The channels denoted for texture input/output. */
 export const rgba = 'rgba';
-/** Simple cache for temporary or reusable objects. */
-export const cache = {};
-
-/** Gives cache keys from plain objects. */
+/** Gives cache keys from simple plain `object` inputs. */
 const id = JSON.stringify;
 
 /** Keys for each part of the macro handling process available to hooks. */
 export const hooks = {
   /** The full set of macros. */
-  macroPass: '',
+  macroPass: 'pass',
   /** Each part of the set of macros. */
   macroValues: 'values', macroOutput: 'output',
   macroSamples: 'samples', macroTaps: 'taps'
@@ -302,6 +299,7 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  * @see {@link hasMacros}
  * @see {@link maps.mapGroups}
  * @see {@link state.getState}
+ * @see {@link const.cacheDef}
  *
  * @example ```
  *   const maps = { values: [2, 4, 1], channelsMax: 4 };
@@ -373,22 +371,24 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  * @param {string|function|object|false} [state.macros] How macros are handled
  *   or prefixed. See `hasMacros`.
  * @param {string} [state.pre=preDef] Macros prefix; `preDef` if not given.
- * @param {object} state.maps How values are grouped per-texture per-pass
+ * @param {object} state.maps How values are grouped per-`texture` per-pass
  *   per-step.
  * @param {array.<number>} state.maps.values How values of each data item are
- *   grouped into textures. See `mapGroups`.
+ *   grouped into `texture`s. See `mapGroups`.
  * @param {array.<array.<number>>} state.maps.textures The groupings of values
- *   into textures. See `mapGroups`.
+ *   into `texture`s. See `mapGroups`.
  * @param {array} state.maps.passes Passes drawn per-step. See `mapGroups`.
  * @param {array|number} state.steps States drawn across frames. See `getState`.
  * @param {number} [state.bound=boundDef] How many steps are bound as outputs,
  *   unavailable as inputs.
  * @param {object} [state.size] Any size information about the GL resources.
- * @param {number} [state.size.count] The number of data entries per texture
- *   (the texture's area), if given. See `getState`.
+ * @param {number} [state.size.count] The number of data entries per `texture`
+ *   (the `texture`'s area), if given. See `getState`.
+ * @param {object|false} [state.cache=cacheDef] Any object to cache any inputs'
+ *   results in, `false`y to skip caching; uses `cacheDef` if not given.
  *
  * @returns {string} The `GLSL` preprocessor macros defining the mappings from
- *   values to textures/channels.
+ *   values to `texture`s/channels.
  */
 export function macroValues(state, on) {
   const key = hooks.macroValues;
@@ -397,17 +397,19 @@ export function macroValues(state, on) {
   if(hook !== null) { return hook; }
 
   const { maps, steps, bound = boundDef, size, pre: n = preDef } = state;
+  const { cache = cacheDef } = state;
   const { values, textures, passes: { length: passesL } } = maps;
   const stepsL = steps.length ?? steps;
   const count = size?.count;
 
-  const c = `${key}:${n},${bound},${id(values)},${id(textures)},${stepsL},${
-    passesL},${count}`;
+  const c = cache &&
+    `macro@${key}@${
+      n}|${bound}|${id(values)}|${id(textures)}|${stepsL}|${passesL}|${count}`;
 
-  return (cache[c] ??=
+  const to = cache?.[c] ??
     reduce((s, texture, t, _, i = 0) => reduce((s, v) =>
           s+`#define ${n}texture_${v} ${t}\n`+
-          `#define ${n}channels_${v} ${rgba.slice(i, (i += values[v]))}\n\n`,
+          `#define ${n}channels_${v} ${rgba.slice(i, i += values[v])}\n\n`,
         texture, s),
       textures, '')+
     ((count)? `#define count ${count}\n` : '')+
@@ -415,7 +417,9 @@ export function macroValues(state, on) {
     `#define ${n}passes ${passesL}\n`+
     `#define ${n}stepsPast ${stepsL-bound}\n`+
     `#define ${n}steps ${stepsL}\n`+
-    `#define ${n}bound ${bound}\n\n`);
+    `#define ${n}bound ${bound}\n\n`;
+
+  return ((cache)? cache[c] = to : to);
 }
 
 /**
@@ -427,6 +431,7 @@ export function macroValues(state, on) {
  * @see {@link hasMacros}
  * @see {@link maps.mapGroups}
  * @see {@link state.getState}
+ * @see {@link const.cacheDef}
  *
  * @example ```
  *   const maps = { values: [2, 4, 1], channelsMax: 4 };
@@ -504,6 +509,8 @@ export function macroValues(state, on) {
  *   into textures. See `mapGroups`.
  * @param {array.<array.<number>>} state.maps.passes The groupings of textures
  *   into passes. See `mapGroups`.
+ * @param {object|false} [state.cache=cacheDef] Any object to cache any inputs'
+ *   results in, `false`y to skip caching; uses `cacheDef` if not given.
  *
  * @returns {string} `GLSL` preprocessor macros for the pass's bound outputs.
  */
@@ -513,12 +520,14 @@ export function macroOutput(state, on) {
 
   if(hook !== null) { return hook; }
 
-  const { passNow: p, maps, pre: n = preDef } = state;
+  const { passNow: p, maps, pre: n = preDef, cache = cacheDef } = state;
   const { values, textures, passes } = maps;
   const pass = passes[p];
-  const c = `${key}:${n},${p},${id(values)},${id(textures)},${id(passes)}`;
 
-  return (cache[c] ??=
+  const c = cache &&
+    `macro@${key}@${n}|${p}|${id(values)}|${id(textures)}|${id(passes)}`;
+
+  const to = cache?.[c] ??
     `#define ${n}passNow ${p}\n`+
     reduce((s, texture, bound, _, i = 0) => reduce((s, v) =>
           s+'\n'+
@@ -527,7 +536,9 @@ export function macroOutput(state, on) {
           `#define ${n}output_${v} gl_FragData[${n}attach_${v}].${
             rgba.slice(i, i += values[v])}\n`,
         textures[texture], s),
-      pass, '')+'\n');
+      pass, '')+'\n';
+
+  return ((cache)? cache[c] = to : to);
 }
 
 /**
@@ -547,6 +558,7 @@ export function macroOutput(state, on) {
  * @see {@link getGLSLList}
  * @see {@link maps.mapValues}
  * @see {@link state.getState}
+ * @see {@link const.cacheDef}
  *
  * @example ```
  *   const values = [2, 4, 1];
@@ -657,6 +669,8 @@ export function macroOutput(state, on) {
  *   values to the corresponding `state.samples`. See `mapSamples`.
  * @param {number} [state.glsl=1] The `GLSL` language version.
  *   See `getGLSLList`.
+ * @param {object|false} [state.cache=cacheDef] Any object to cache any inputs'
+ *   results in, `false`y to skip caching; uses `cacheDef` if not given.
  *
  * @returns {string} `GLSL` preprocessor macros defining the mappings for
  *   samples and reads, for each value.
@@ -668,12 +682,15 @@ export function macroSamples(state, on) {
   if(hook !== null) { return hook; }
 
   const { passNow: p = 0, maps, glsl, pre: n = preDef } = state;
+  const { cache = cacheDef } = state;
   const { samples, reads } = maps;
   const passSamples = samples?.[p];
   const passReads = reads?.[p];
-  const c = `${key}:${n},${p},${id(passSamples)},${id(passReads)},${glsl}`;
 
-  return (cache[c] ??=
+  const c = cache &&
+    `macro@${key}@${n}|${p}|${id(passSamples)}|${id(passReads)}|${glsl}`;
+
+  const to = cache?.[c] ??
     ((!passSamples)? ''
     : `#define ${n}useSamples${cr+
         getGLSLList('ivec2', n+'samples', passSamples, 'const', glsl)}\n`)+
@@ -681,7 +698,9 @@ export function macroSamples(state, on) {
     : reduce((s, reads, v) =>
           `${s}#define ${n}useReads_${v}${cr+
             getGLSLList('int', n+'reads_'+v, reads, 'const', glsl)}\n`,
-        passReads, '')));
+        passReads, ''));
+
+  return ((cache)? cache[c] = to : to);
 }
 
 /**
@@ -712,6 +731,7 @@ export function macroSamples(state, on) {
  * @see {@link maps.mapValues}
  * @see {@link state.getState}
  * @see {@link inputs.getUniforms}
+ * @see {@link const.cacheDef}
  *
  * @example ```
  *   const values = [2, 4, 1];
@@ -761,6 +781,8 @@ export function macroSamples(state, on) {
  *   textures if not given. See `getState`.
  * @param {number} [state.glsl=1] The `GLSL` language version.
  *   See `getGLSLList`.
+ * @param {object|false} [state.cache=cacheDef] Any object to cache any inputs'
+ *   results in, `false`y to skip caching; uses `cacheDef` if not given.
  *
  * @returns {string} The `GLSL` preprocessor macros defining the minimal
  *   sampling of textures, to suit how states are stored (array of textures, or
@@ -773,12 +795,16 @@ export function macroTaps(state, on) {
   if(hook !== null) { return hook; }
 
   const { passNow: p = 0, maps, merge, glsl, pre: n = preDef } = state;
+  const { cache = cacheDef } = state;
   const passSamples = maps.samples?.[p];
   const index = !merge;
-  const c = `${key}:${n},${p},${id(passSamples)},${index},${glsl}`;
-  const cached = cache[c];
 
-  if(cached != undefined) { return cached; }
+  const c = cache &&
+    `macro@${key}@${n}|${p}|${id(passSamples)}|${index}|${glsl}`;
+
+  let to = cache?.[c];
+
+  if(to != null) { return to; }
 
   const glsl3 = (glsl >= 3);
   /** Which texture sampling function is available. */
@@ -786,13 +812,8 @@ export function macroTaps(state, on) {
   /** Short and common names for functions and parameters. */
   const f = n+'tapState';
   const tap = '#define '+f;
-
-  /**
-   * Common parameters; the full ordered parameters can be up to:
-   * (uv, states, stepNow, steps, textures, stepBy, textureBy)
-   */
+  /** Common parameters, passed as `(..., stepBy, textureBy)` */
   const by = `stepBy, textureBy`;
-
   /** Aliases default names for brevity, main functions offer more control. */
   const aka = `#define ${f}(uv)${cr+f}`;
   const akaBy = `#define ${f}By(uv, ${by})${cr+f}`;
@@ -800,15 +821,15 @@ export function macroTaps(state, on) {
   const st = n+'samples_';
   /** Prefix for private temporary variables. */
   const t = '_'+n;
-  /** A temporary array to pass to `getGLSLList`. */
-  const tapsSamples = cache[key+'Samples'] ??= [];
+  /** A temporary `array` to pass to `getGLSLList`. */
+  const tapsSamples = cache[key+':tapsSamples'] ??= [];
   const tapsL = tapsSamples.length = passSamples?.length ?? 0;
 
-  /** The texture-sampling logic. */
-  return (cache[c] = ((index)? '' : `#define ${n}mergedStates\n\n`)+
+  /** The main `texture`-sampling logic. */
+  to = ((index)? '' : `#define ${n}mergedStates\n\n`)+
     ((!tapsL)? ''
     : ((index)?
-      /** Separate un-merged textures accessed by constant index. */
+      /** Separate un-merged `texture`s accessed by constant index. */
       '// States in a `sampler2D[]`; looks up 1D index and 2D `uv`; '+cr+
         'past steps go later in the list.\n'+
       `// Pass constant array index values; \`textures\`.\n`+
@@ -820,7 +841,7 @@ export function macroTaps(state, on) {
         // Sample into the `data` output list.
         getGLSLList('vec4', n+'data',
           map((_, i) => texture+
-              // Offset step, texture.
+              // Offset step, `texture`.
               `(states[(int(${st+i}.s)*${t}tlI)+int(${st+i}.t)], ${t}uvI)`,
             passSamples, tapsSamples),
           '', glsl)+'\n'+
@@ -838,7 +859,7 @@ export function macroTaps(state, on) {
               texture+'(states['+
                   // Offset step.
                   `((int(${st+i}.s)+${t}byIB.s)*${t}tlIB)+`+
-                  // Offset texture.
+                  // Offset `texture`.
                   `int(${st+i}.t)+${t}byIB.t`+
                 `], ${t}uvIB)`,
             passSamples, tapsSamples),
@@ -846,7 +867,7 @@ export function macroTaps(state, on) {
       '// Preferred aliases: index suits states array constant access.\n'+
       aka+`s(uv, ${n}states, ${n}textures)\n`+
       akaBy+`sBy(uv, ${n}states, ${n}textures, ${by})\n`
-    : /** Merged 2D texture. */
+    : /** Merged 2D `texture`. */
       '// States merged to a `sampler2D`, scales 2D `uv` over '+
         '`[textures, steps]`.\n'+
       '// Step from now into the past going upwards in the texture.\n'+
@@ -857,8 +878,8 @@ export function macroTaps(state, on) {
         `vec2 ${t}uv2 = vec2(uv)/${t}l2;`+cr+
         // Steps advance in reverse, top-to-bottom.
         `vec2 ${t}s2 = vec2(1, -1)/${t}l2;`+cr+
-        // Offset texture, step.
-        // Each step stored in texture top downward at `-stepNow`.
+        // Offset `texture`, step.
+        // Each step stored in `texture` top downward at `-stepNow`.
         // Most recent step to look up is at `-stepNow+1`.
         `vec2 ${t}i2 = vec2(0, 1)-vec2(0, stepNow);`+cr+
         // Sample into the `data` output list.
@@ -866,7 +887,7 @@ export function macroTaps(state, on) {
           // Would repeat wrap; but `WebGL1` needs power-of-2.
           map((_, i) =>
               texture+`(states, `+
-                // Offset texture, step.
+                // Offset `texture`, step.
                 `fract(${t}uv2+fract((vec2(${st+i}).ts+${t}i2)*${t}s2)))`,
             passSamples, tapsSamples),
           '', glsl)+'\n'+
@@ -878,8 +899,8 @@ export function macroTaps(state, on) {
         `vec2 ${t}uv2B = vec2(uv)/${t}l2B;`+cr+
         // Steps advance in reverse, top-to-bottom.
         `vec2 ${t}s2B = vec2(1, -1)/${t}l2B;`+cr+
-        // Offset texture, step.
-        // Each step stored in texture top downward at `-stepNow`.
+        // Offset `texture`, step.
+        // Each step stored in `texture` top downward at `-stepNow`.
         // Most recent step to look up is at `-stepNow+1`.
         `vec2 ${t}i2B = vec2(${by}).ts+vec2(0, 1)-vec2(0, stepNow);`+cr+
         // Sample into the `data` output list.
@@ -887,7 +908,7 @@ export function macroTaps(state, on) {
           // Would repeat wrap; but `WebGL1` needs power-of-2.
           map((_, i) =>
               texture+`(states, `+
-                // Offset texture, step.
+                // Offset `texture`, step.
                 `fract(${t}uv2B+fract((vec2(${st+i}).ts+${t}i2B)*${t}s2B)))`,
             passSamples, tapsSamples),
           '', glsl)+'\n'+
@@ -897,7 +918,7 @@ export function macroTaps(state, on) {
         akaBy+
           `2By(uv, ${n}states, ${n}stepNow, ${n}steps, ${n}textures, ${by})\n`
       : /**
-         * Merged 3D texture types, supported from `GLSL3`.
+         * Merged 3D `texture` types, supported from `GLSL3`.
          * @todo Check and finish this.
          */
         '// States merged to `sampler3D` or `sampler2DArray`; 2D `uv` '+
@@ -910,7 +931,7 @@ export function macroTaps(state, on) {
           // Compute before the loop for lighter work.
           `vec2 ${t}l3 = vec2(textures, steps);`+cr+
           `vec2 ${t}uv3 = vec2(uv)/${t}l3;`+cr+
-          // Offset texture.
+          // Offset `texture`.
           `float ${t}sx3 = 1.0/${t}l3.x;`+cr+
           // Offset step.
           `float ${t}s3 = -float(stepNow);`+cr+
@@ -920,21 +941,21 @@ export function macroTaps(state, on) {
             // Would repeat wrap; but `sampler2DArray` layer can't.
             map((_, i) =>
                 texture+'(states, fract(vec3('+
-                  // Offset texture.
+                  // Offset `texture`.
                   `${t}uv3.x+(float(${st+i}.t)*${t}sx3), ${t}uv3.y, `+
                   // Offset step: `sampler3D` depth, `[0, 1]`;
                   // `sampler2DArray` layer, `[0, steps-1]`.
                   `(float(${st+i}.s)+${t}s3)*${t}sz3)))`,
               passSamples, tapsSamples),
             '', glsl)+'\n'+
-        '// States may also be sampled by shifted step/texture.\n'+
+        '// States may also be sampled by shifted step/`texture`.\n'+
         `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
         tap+`3By(uv, states, stepNow, steps, textures, ${by})`+cr+
           /** @see `...2By()` above. */
           // Compute before the loop for lighter work.
           `vec2 ${t}l3B = vec2(textures, steps);`+cr+
           `vec2 ${t}uv3B = (vec2(uv)+vec2(textureBy, 0))/${t}l3B;`+cr+
-          // Offset texture.
+          // Offset `texture`.
           `float ${t}sx3B = 1.0/${t}l3B.x;`+cr+
           // Offset step.
           `float ${t}s3B = float(stepBy)-float(stepNow);`+cr+
@@ -944,7 +965,7 @@ export function macroTaps(state, on) {
             // Would repeat wrap; but `sampler2DArray` layer can't.
             map((_, i) =>
                 texture+'(states, fract(vec3('+
-                  // Offset texture.
+                  // Offset `texture`.
                   `${t}uv3B.x+(float(${st+i}.t)*${t}sx3B), ${t}uv3B.y, `+
                   // Offset step: `sampler3D` depth, `[0, 1]`;
                   // `sampler2DArray` layer, `[0, steps-1]`.
@@ -955,14 +976,16 @@ export function macroTaps(state, on) {
         aka+`3(uv, ${n}states, ${n}stepNow, ${n}steps, ${n}textures)\n`+
         akaBy+
           `3By(uv, ${n}states, ${n}stepNow, ${n}steps, ${n}textures, ${by})\n`
-      ))+'\n'));
+      ))+'\n');
+
+  return ((cache)? cache[c] = to : to);
 }
 
 /**
- * Defines all `GLSL` preprocessor macro values, texture samples, and outputs
+ * Defines all `GLSL` preprocessor macro values, `texture` samples, and outputs
  * for the active pass.
  *
- * The macros define the mapping between the active values, their textures and
+ * The macros define the mapping between the active values, their `texture`s and
  * channels, bound outputs, and other macros useful for a draw pass.
  * Caches the result if `macros` generation is enabled, to help reuse shaders.
  *
@@ -978,8 +1001,8 @@ export function macroTaps(state, on) {
  *   const values = [2, 4, 1];
  *   const derives = [2, , [[1, 0], true]];
  *
- *   // Automatically packed values - values across fewer textures/passes.
- *   // Only a single texture output per pass - values across more passes.
+ *   // Automatically packed values - values across fewer `texture`s/passes.
+ *   // Only a single `texture` output per pass - values across more passes.
  *   const state = {
  *     passNow: 0, steps: 2, size: { count: 2**5 },
  *     maps: mapValues({ values, derives, channelsMax: 4, buffersMax: 1 })
@@ -1076,7 +1099,7 @@ export function macroTaps(state, on) {
  *   the hook key and this specifier are checked (e.g: `key` and `key_on`).
  *
  * @returns {string} The `GLSL` preprocessor macros defining the mappings for
- *   values, textures, channels, bound outputs of the active pass, etc. See
+ *   values, `texture`s, channels, bound outputs of the active pass, etc. See
  *   `macroValues`, `macroOutput`, and `macroSamples`.
  */
 export const macroPass = (state, on) =>

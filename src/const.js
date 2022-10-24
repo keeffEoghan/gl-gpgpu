@@ -97,3 +97,6 @@ export const depthDef = false;
 export const stencilDef = false;
 /** Whether states merge into one `texture`; one merged `texture` by default. */
 export const mergeDef = true;
+
+/** Simple shared cache for temporary or reusable objects. */
+export const cacheDef = {};
