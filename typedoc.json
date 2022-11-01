@@ -1,7 +1,7 @@
 {
   "plugin": ["typedoc-theme-hierarchy"],
   "theme": "hierarchy",
-  "sort": ["source-order"],
+  "sort": ["source-order", "alphabetical"],
   "categoryOrder": ["Main", "*"],
   "includeVersion": true,
   "githubPages": false,

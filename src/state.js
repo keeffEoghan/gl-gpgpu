@@ -190,8 +190,8 @@ const { isInteger } = Number;
  *
  * @todo Example using `merge`.
  *
- * @see {@link texture}
- * @see {@link framebuffer}
+ * @see {@link api.texture}
+ * @see {@link api.framebuffer}
  * @see {@link maps.mapGroups}
  * @see {@link maps.mapSamples}
  * @see {@link step.getStep}
@@ -530,51 +530,5 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
 
   return to;
 }
-
-/**
- * @todo [Fix `@callback`:  nested `@param`, `@return`/`@see`/etc details](https://github.com/TypeStrong/typedoc/issues/1896)
- *
- * @callback texture
- * Function to create a `GL` `texture`; from a `GL` API.
- *
- * **See**
- * - {@link getState}
- *
- * **Returns**
- * - `texture` A `GL` `texture`, or an object serving that purpose.
- *
- * @param {string} type Any `texture` data type value.
- * @param {string} min Any `texture` minification filter value.
- * @param {string} mag Any `texture` magnification filter value.
- * @param {string} wrap Any `texture` wrap mode value.
- * @param {number} width The width of the `texture`.
- * @param {number} height The height of the `texture`.
- * @param {number} channels The number of channels of the `texture`.
- *
- * @returns {object}
- */
-
-/**
- * @todo [Fix `@callback`:  nested `@param`, `@return`/`@see`/etc details](https://github.com/TypeStrong/typedoc/issues/1896)
- *
- * @callback framebuffer
- * Function to create a `GL` `framebuffer`; from a `GL` API.
- *
- * **See**
- * - {@link getState}
- *
- * **Returns**
- * - `framebuffer` A `GL` `framebuffer`, or an object serving that purpose.
- *
- * @param {object} [depth] Any `framebuffer` depth attachment, or a flag for
- *   whether it should be created.
- * @param {object} [stencil] Any `framebuffer` stencil attachment, or a flag for
- *   whether it should be created.
- * @param {number} width The width of the `framebuffer`.
- * @param {number} height The height of the `framebuffer`.
- * @param {array.<texture>} color The `texture` attachments to use.
- *
- * @returns {object}
- */
 
 export default getState;

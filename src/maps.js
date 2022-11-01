@@ -438,8 +438,8 @@ export function mapSamples(maps, to = maps) {
 }
 
 /**
- * Full maps, creates mappings for grouping given values and for minimal samples
- * and reads (if new values derive from past ones).
+ * Maps a full step, creates maps grouping given values per-`texture` per-pass
+ * per-step, and minimal samples and reads if new values derive from past ones.
  *
  * @see {@link mapGroups}
  * @see {@link mapSamples}
@@ -452,7 +452,7 @@ export function mapSamples(maps, to = maps) {
  *   per-`texture` per-pass per-step, meta information, and given parameters;
  *   and minimal samples and reads for any given `maps.derives`.
  */
-export const mapValues = (maps, to = maps) =>
+export const mapStep = (maps, to = maps) =>
   mapSamples(maps, mapGroups(maps, to));
 
-export default mapValues;
+export default mapStep;

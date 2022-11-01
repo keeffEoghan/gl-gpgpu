@@ -15,7 +15,8 @@
  * @category JS
  */
 
-import { mapValues } from './maps';
+import './api';
+import { mapStep } from './maps';
 import { getState } from './state';
 import { getStep } from './step';
 
@@ -23,11 +24,11 @@ import { getStep } from './step';
  * Sets up all the maps, inputs, resources, etc for a `gpgpu` process.
  * Each component may also be used individually, see their documentation.
  *
- * @see {@link maps.mapValues}
+ * @see {@link maps.mapStep}
  * @see {@link maps.mapGroups}
  * @see {@link maps.mapSamples}
  * @see {@link state.getState}
- * @see {@link inputs.getUniforms}
+ * @see {@link uniforms.getUniforms}
  * @see {@link step.getStep}
  * @see {@link macros.macroPass}
  *
@@ -39,15 +40,14 @@ import { getStep } from './step';
  *   default. See `getState`, `getUniforms`, and `getStep`.
  * @param {object} [state.maps] How values are grouped per-`texture` per-pass
  *   per-step. Sets up new maps if not given or missing its mapped properties.
- *   See `mapValues`.
+ *   See `mapStep`.
  * @param {number} [state.maps.buffersMax=api.limits.maxDrawbuffers] Maximum
  *   number of `texture`s per draw pass. Uses more passes above this limit.
  * @param {object} [to=state] The state `object` to set up. Modifies the given
  *   `state` object by default.
  *
  * @returns {object} The given `to` `object`, set up for a `gpgpu` process.
- *   See `mapValues`, `getState`, `getUniforms`, `getStep` and `macroPass` for
- *   each constituent part.
+ *   See `mapStep`, `getState`, `getUniforms`, `getStep`, `macroPass` for parts.
  */
 export function gpgpu(api, state = {}, to = state) {
   const { maxDrawbuffers, glsl } = api.limits ?? api;
@@ -57,8 +57,8 @@ export function gpgpu(api, state = {}, to = state) {
   to.glsl = parseFloat(glsl.match(/[0-9\.]+/)?.[0], 10);
 
   // Set up maps, and undo any modifications to the input.
-  maps.buffersMax = buffersMax ?? maxDrawbuffers;
-  mapValues(maps, to.maps ??= {});
+  maps.buffersMax ??= maxDrawbuffers;
+  mapStep(maps, to.maps ??= {});
   maps.buffersMax = buffersMax;
 
   // Set up the rest.

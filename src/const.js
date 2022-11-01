@@ -13,19 +13,19 @@ export const vertDef = vertGLSL;
 
 // The required and optional `GL` extensions for a `gpgpu` state.
 
-/** Default required extensions; none. */
-export const extensions = () => [];
+/** Default required `GL` extensions; none. */
+export const extensions = [];
 
-/** Default required extensions to draw to `float` buffers. */
-export const extensionsFloat = () =>
+/** Default required `GL` extensions to render to `float` buffers. */
+export const extensionsFloat =
   ['oes_texture_float', 'webgl_color_buffer_float'];
 
-/** Default required extensions to draw to `half float` buffers. */
-export const extensionsHalfFloat = () =>
+/** Default required `GL` extensions to render to `half float` buffers. */
+export const extensionsHalfFloat =
   ['oes_texture_half_float', 'ext_color_buffer_half_float'];
 
-/** Default optional extensions; update more data in one render pass. */
-export const optionalExtensions = () => ['webgl_draw_buffers'];
+/** Default optional `GL` extensions; update more data in one render pass. */
+export const optionalExtensions = ['webgl_draw_buffers'];
 
 /** Prefix namespace to avoid naming clashes; recommended. */
 export const preDef = 'gpgpu_';
@@ -34,6 +34,7 @@ export const preDef = 'gpgpu_';
  * Default minimum allowable channels for `framebuffer` attachments.
  * This avoids `RGB32F` `framebuffer` attachments, which errors on Firefox.
  *
+ * @see {@link state.framebuffer}
  * @see [Firefox `RGB32F` bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1448632)
  */
 export const channelsMinDef = 4;
@@ -42,11 +43,17 @@ export const channelsMinDef = 4;
  * Default minimum allowable channels for `framebuffer` attachments.
  * This avoids `RGB32F` `framebuffer` attachments, which errors on Firefox.
  *
+ * @see {@link state.framebuffer}
  * @see [Firefox `RGB32F` bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1448632)
  */
 export const channelsMaxDef = 4;
 
-/** Default maximum `texture`s bound per pass. */
+/**
+ * Default maximum `texture`s bound per pass.
+ *
+ * @see {@link state.framebuffer}
+ * @see {@link state.texture}
+ */
 export const buffersMaxDef = 1;
 
 /**
@@ -64,39 +71,69 @@ export const scaleDef = 9;
 /**
  * Default width of the data `texture`s sides to allocate; gives a square
  * power-of-two `texture` raising 2 to the default scale.
+ *
+ * @see {@link state.framebuffer}
+ * @see {@link state.texture}
  */
 export const widthDef = 2**scaleDef;
 
 /**
  * Default height of the data `texture`s sides to allocate; gives a square
  * power-of-two `texture` raising 2 to the default scale.
+ *
+ * @see {@link state.framebuffer}
+ * @see {@link state.texture}
  */
 export const heightDef = 2**scaleDef;
 
 /** Default number steps of state to track. */
 export const stepsDef = 2;
-
-/** Default values to track. */
-export const valuesDef = () => [channelsMaxDef];
-/** Default vertex positions `attribute`; 3 points of a large flat triangle. */
-export const positionsDef = () => [...positions];
+/** Default values to track; gives 1 set of `texture` channels. */
+export const valuesDef = [channelsMaxDef];
 
 // `GL` resource format defaults.
 
-/** Default `texture` data type. */
+/**
+ * Default `texture` data type.
+ *
+ * @see {@link state.texture}
+ */
 export const typeDef = 'float';
-/** Default `texture` minification filter. */
+
+/**
+ * Default `texture` minification filter.
+ *
+ * @see {@link state.texture}
+ */
 export const minDef = 'nearest';
-/** Default `texture` magnification filter. */
+
+/**
+ * Default `texture` magnification filter.
+ *
+ * @see {@link state.texture}
+ */
 export const magDef = 'nearest';
-/** Default `texture` wrap mode, avoid `WebGL1` needing power-of-2 `texture`. */
+
+/**
+ * Default `texture` wrap mode, avoid `WebGL1` needing power-of-2 `texture`.
+ *
+ * @see {@link state.texture}
+ */
 export const wrapDef = 'clamp';
-/** Default `framebuffer` depth attachment. */
+
+/**
+ * Default `framebuffer` depth attachment.
+ *
+ * @see {@link state.framebuffer}
+ */
 export const depthDef = false;
-/** Default `framebuffer` stencil attachment. */
+
+/**
+ * Default `framebuffer` stencil attachment.
+ *
+ * @see {@link state.framebuffer}
+ */
 export const stencilDef = false;
+
 /** Whether states merge into one `texture`; one merged `texture` by default. */
 export const mergeDef = true;
-
-/** Simple shared cache for temporary or reusable objects. */
-export const cacheDef = {};

@@ -15,7 +15,7 @@ import { extensionsFloat, extensionsHalfFloat, optionalExtensions }
   from '../../src/const';
 
 import { macroPass } from '../../src/macros';
-import { mapValues } from '../../src/maps';
+import { mapStep } from '../../src/maps';
 import { getUniforms } from '../../src/inputs';
 import { getDrawIndexes } from '../../src/size';
 import indexForms from '../../src/index-forms';
@@ -26,7 +26,7 @@ import drawFrag from './draw.frag.glsl';
 
 self.gpgpu = gpgpu;
 self.macroPass = macroPass;
-self.mapValues = mapValues;
+self.mapStep = mapStep;
 self.getUniforms = getUniforms;
 self.getDrawIndexes = getDrawIndexes;
 self.indexForms = indexForms;
@@ -43,6 +43,8 @@ function toggleError(e) {
   canvas.classList[(e)? 'add' : 'remove']('hide');
   scroll();
 }
+
+toggleError();
 
 // Handle query parameters.
 
@@ -61,22 +63,17 @@ const fragDepth = query.get('depth') === 'frag';
 // Set up GL.
 
 const extend = {
-  halfFloat: extensionsHalfFloat?.(),
-  float: extensionsFloat?.(),
-  other: optionalExtensions?.(),
-  depth: fragDepth && 'ext_frag_depth'
+  required: extensionsHalfFloat,
+  optional: ((fragDepth)?
+      [...extensionsFloat, ...optionalExtensions, 'ext_frag_depth']
+    : [...extensionsFloat, ...optionalExtensions])
 };
 
 const pixelRatio = Math.max(devicePixelRatio, 1.5) || 1.5;
 
 const regl = self.regl = getRegl({
   canvas, pixelRatio,
-  extensions: extend.required = extend.halfFloat,
-
-  optionalExtensions: extend.optional = ((fragDepth)?
-      [...extend.float, ...extend.other, extend.depth]
-    : [...extend.float, ...extend.other]),
-
+  extensions: extend.required, optionalExtensions: extend.optional,
   onDone: toggleError
 });
 
@@ -277,7 +274,7 @@ const state = gpgpu(regl, {
   merge,
   // Data type according to platform capabilities.
   // @todo Seems to move differently with `'half float'` Verlet integration.
-  type: ((extend.float.every(regl.hasExtension))? 'float' : 'half float'),
+  type: ((extensionsFloat.every(regl.hasExtension))? 'float' : 'half float'),
   // Configure macro hooks, global or per-shader.
   macros: {
     // No macros needed for the `vert` shader; all other macros generated.
@@ -423,9 +420,9 @@ const drawState = {
     // Speed-to-colour scaling, as `[multiply, power]`.
     pace: [[1e-3, 0.6], [3e2, 0.6]]
   },
-  // Map everything similarly to the GPGPU step, `mapValues` can be reused to
+  // Map everything similarly to the GPGPU step, `mapStep` can be reused to
   // create new mappings with some additions for drawing.
-  maps: mapValues({
+  maps: mapStep({
     ...state.maps,
     // This one pass can bind textures for input; not output across passes.
     texturesMax: maxTextureUnits,

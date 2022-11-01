@@ -1,5 +1,5 @@
 /**
- * The `gpgpu` inputs - `uniforms`, `attribute`s, indexes, etc.
+ * The `gpgpu` inputs for `GL` `uniform`s.
  *
  * @module
  * @category JS
@@ -25,7 +25,7 @@ import { boundDef, preDef } from './const';
  * `GLSL` can use a dynamic step index to sample states.
  *
  * @example ```javascript
- * const state = { pre: '', steps: 2, maps: mapValues({ values: [1, 2, 3] }) };
+ * const state = { pre: '', steps: 2, maps: mapStep({ values: [1, 2, 3] }) };
  * const api = {};
  *
  * getUniforms(getState(api, { ...state, merge: false }, {})); // =>
@@ -67,13 +67,10 @@ import { boundDef, preDef } from './const';
  *   states: (context, state) => {},
  *   // Separate data-`texture`s not used.
  *   'states[0]': (context, state) => null,
- *   'states[1]': (context, state) => null,
- *   // ...etc...
+ *   'states[1]': (context, state) => null
  * };
  * ```
  *
- * @see {@link uniforms}
- * @see {@link getUniform}
  * @see {@link step.getStep}
  * @see {@link state.getState}
  * @see {@link maps.mapGroups}
@@ -90,7 +87,7 @@ import { boundDef, preDef } from './const';
  *   uses separate state data-`texture`s if not given. See `getState`.
  *
  * @param {{shape?:number[],merge?:{shape?:number[]}}} [state.size] Any size of
- *   `state` data-`texture`s (each as `[width, height]`), with properties:
+ *   `state` data-`texture`s (as `vec2(width, height)`); with:
  *   - `shape`: Any `state` shape.
  *   - `merge.shape`: Any merged `states` shape, otherwise `state` shape.
  *
@@ -98,14 +95,55 @@ import { boundDef, preDef } from './const';
  *
  * @param {number} [state.bound=boundDef] Number of steps bound for output, not
  *   used for input; for platforms preventing read/write of the same `texture`.
- * @param {object} [state.uniforms] Any `object` to merge the new `uniforms`
- *   into. See `to`.
- * @param {object} [to=state.uniforms] Any `object` to contain the `uniform`
- *   hooks; modifies any `state.uniforms`, or a new `object` if not given.
- *   See `state.uniforms` and `uniforms`.
+ * @param {uniforms|object} [state.uniforms] Any `object` to merge the new
+ *   `uniforms` into. See `to`.
+ * @param {uniforms|object} [to=state.uniforms] Any `object` to contain the
+ *   `uniform` hooks; modifies any `state.uniforms`, or a new `object` if not
+ *   given. See `state.uniforms` and `uniforms`.
  *
- * @returns {uniforms} The `to` set up with `uniform` hooks for the given
- *   `state`. See `uniforms`.
+ * @returns {{
+ *     stepNow:(c,state:{stepNow:number})=>number,
+ *     stateShape:(c,state:{size:{number}})=>[number,number,number,number],
+ *     viewShape:(
+ *       context:{drawingBufferWidth:number,drawingBufferHeight:number},s?
+ *     )=>[number,number],
+ *     states:()=>([])
+ *   }}
+ *
+ * @param {{
+ *     stepNow?:number,
+ *     bound?:number,
+ *     merge?:{texture:object},
+ *     textures:{texture:object}[][]
+ *   }} state Local properties (the `gpgpu` `state`); with:
+ *   - `stepNow`: The current step of the `gpgpu` `state`.
+ *   - `bound`: Number of steps bound to output; can't be bound as inputs.
+ *   - `merge`: Any `object` containing merged data-`texture`.
+ *     - `texture`: Any merged data-`texture`.
+ *   - `textures`: Textures per-step, as `array`s of `object`s with a `texture`
+ *     property. See `getState`.
+ *
+ *   The `to` set up with `uniform` callback hooks for the given `state`, to
+ *   be called on each render pass for the latest `uniform` values; with:
+ *   - `stepNow`: Gives any current step. See `getStep`.
+ *   - `stateShape`: Gives any shape of any data-`texture`s; as
+ *     `vec4(vec2(width, height), vec2(width, height))`; channels are `null`ish
+ *     if there's no valid shape; with:
+ *     - Any `state` shape; in `xy` channels.
+ *     - Any merged `states` shape, otherwise `state` shape; in `zw` channels.
+ *   - `viewShape`: Gives the `GL` viewport shape; as `vec2(width, height)`;
+ *     given a `context` parameter with:
+ *     - `drawingBufferWidth`: Current `GL` viewport width in pixels.
+ *     - `drawingBufferHeight`: Current `GL` viewport height in pixels.
+ *   - `states`: Gives the past steps data-`texture`s; as either:
+ *     - Any merged data-`texture` as a single `GLSL` `sampler` (e.g: `2D`/
+ *       `2DArray`/`3D`; up to to the `GL` API for `texture`); otherwise `null`.
+ *     - Any separate data-`texture`s as a `GLSL` `array` of `sampler`s (e.g:
+ *       `sampler2D[]`), each part/all of a `gpgpu` step's data and accessible
+ *       by constant index (steps ago); otherwise `null`.
+ *
+ *   These property names may be prefixed with any given `state.pre`.
+ *   See `getState` and `getStep`.
  */
 export function getUniforms(state, to = state.uniforms ?? {}) {
   const { pre: n = preDef, steps, maps, bound = boundDef } = state;
@@ -115,22 +153,20 @@ export function getUniforms(state, to = state.uniforms ?? {}) {
   const stateShape = [];
   const viewShape = [];
 
+  /** Gives any current step. */
   to[n+'stepNow'] = (_, s) => s.stepNow;
 
-  /**
-   * Shape of any data-`texture`, and any other relevant data shape (any
-   * `merge`d `texture` or the same data-`texture` shape).
-   * Sets properties to `null`ish if there's no valid shape.
-   */
+  /** Gives any shape of `state` and any merged `states` data-`texture`s. */
   to[n+'stateShape'] = (_, { size: { shape: s, merge: m } }) =>
     ((s)? setC4(stateShape, ...s, ...(m?.shape ?? s)) : setC4(stateShape));
 
+  /** Gives the shape of the `GL` viewport. */
   to[n+'viewShape'] = ({ drawingBufferWidth: w, drawingBufferHeight: h }) =>
     setC2(viewShape, w, h);
 
   /**
-   * Past steps, all merged into one `texture`.
-   * Only returns a value if using a `merge`d `texture`; otherwise `null`.
+   * Gives all `states` merged in one `texture`, if using `merge`;
+   * otherwise gives `null`.
    */
   to[n+'states'] = (_, s) => s.merge?.all?.texture ?? null;
 
@@ -140,7 +176,7 @@ export function getUniforms(state, to = state.uniforms ?? {}) {
    */
   const addTextures = (ago) =>
     /**
-     * Hooks to pull a given `texture` by the active pass `props`; lets `GLSL`
+     * Hooks to pull a given `texture` by the active pass `state`; lets `GLSL`
      * access the `array` of `texture`s by constant index (steps ago).
      * Only returns a value if not using a `merge`d `texture`; otherwise `null`.
      */
@@ -156,66 +192,33 @@ export function getUniforms(state, to = state.uniforms ?? {}) {
 }
 
 /**
- * @typedef {object} uniforms
+ * @todo [Fix `@callback`/`@typedef`](https://github.com/TypeStrong/typedoc/issues/1896):
+ *   nested `@param`; omits `@return`/`@see`/`@this`
  *
- * The `uniform` callback hooks for a given `state`, to be called on each render
- * pass to get the latest `uniform` values.
- *
- * Its property names may be prefixed with any given `state.pre`.
- *
- * **See**
- * - {@link state.getState}
- * - {@link step.getStep}
- *
- * @property {getUniform} stepNow Gives any current step. See `getStep`.
- *
- * @property {getUniform} stateShape Gives any size of `state` data-`texture`s
- *   (as a `vec4` of `[[width, height], [width, height]]`; channels are
- *   `null`ish if there's no valid shape):
- *   - Any `state` shape; in `xy` channels.
- *   - Any merged `states` shape, otherwise `state` shape; in `zw` channels.
- *
- *   See `getState`.
- *
- * @property {getUniform} viewShape Gives the shape of the `GL` viewport (as a
- *   `vec2` of `[width, height]`).
- *
- * @property {getUniform} states Gives the past steps data-`texture`s as either:
- *   - Any merged data-`texture` as a single `GLSL` `sampler` (e.g: `2D`/
- *     `2DArray`/`3D`; up to to the `GL` API for `texture`); otherwise `null`.
- *   - Any separate data-`texture`s as a `GLSL` `array` of `sampler`s (e.g:
- *     `sampler2D[]`), each part/all of a `gpgpu` step's data and accessible by
- *     constant index (steps ago); otherwise `null`.
- *
- *   See `getStep`.
- */
-
-/**
- * @todo [Fix `@callback`:  nested `@param`, `@return`/`@see`/etc details](https://github.com/TypeStrong/typedoc/issues/1896)
- *
- * @typedef {(context: {
- *     drawingBufferWidth:number,
- *     drawingBufferHeight:number
- *   },
- *   props: {
- *     stepNow:number,
- *     bound:number,
- *     merge:{texture:object},
- *     textures:{texture:object}[][]
- *   }) => number|number[]|texture|object} getUniform
- *
- * Function hook to update a `uniform` on each render pass for its latest value.
+ * @callback getUniform
+ * A `function` hook to update a `GL` `uniform` value for a render pass.
  *
  * **See**
  * - {@link getUniforms}
  * - {@link state.getState}
  * - {@link state.texture}
  *
- * **Parameters**
- * - `context`: General or global properties.
+ * **Returns**
+ * A `GL` uniform to be bound via a `GL` API.
+ *
+ * @param {{
+ *     drawingBufferWidth:number,
+ *     drawingBufferHeight:number
+ *   }} context General or global properties; with:
  *   - `drawingBufferWidth`: Current `GL` viewport width in pixels.
  *   - `drawingBufferHeight`: Current `GL` viewport height in pixels.
- * - `props`: Local properties (`gpgpu` `state`).
+ *
+ * @param {{
+ *     stepNow?:number,
+ *     bound?:number,
+ *     merge?:{texture:object},
+ *     textures:{texture:object}[][]
+ *   }} state Local properties (the `gpgpu` `state`); with:
  *   - `stepNow`: The current step of the `gpgpu` `state`.
  *   - `bound`: Number of steps bound to output; can't be bound as inputs.
  *   - `merge`: Any `object` containing merged data-`texture`.
@@ -223,8 +226,5 @@ export function getUniforms(state, to = state.uniforms ?? {}) {
  *   - `textures`: Textures per-step, as `array`s of `object`s with a `texture`
  *     property. See `getState`.
  *
- * **Returns**
- * - `uniform` A `GL` uniform to be bound via a `GL` API.
+ * @returns {number|number[]|texture|object}
  */
-
-export default getUniforms;

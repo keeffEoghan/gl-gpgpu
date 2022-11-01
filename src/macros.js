@@ -1,124 +1,137 @@
 /**
- * The `gpgpu` `GLSL` preprocessor macros for working with the state and maps.
+ * The `GLSL` preprocessor macros for working with the `gpgpu` state and maps.
  *
- * Use these with care, as each set of different macros will result in new
- * shaders and compilations - as few unique macros as possible should be created
- * for a given set of inputs, ideally; can use caches here for this efficiency.
+ * Each set of different macros will result in new shader compilations - for
+ * optimal performance, the fewest macros possible should be created, one per
+ * each given set of inputs, ideally; caches here can be used for efficiency.
  *
  * @module
  * @category JS
  *
+ * @todo Redo examples, especially `macroTaps` and `macroPass`.
  * @todo Ensure the `output_N` in `macroOutput` can work with `WebGL2`; look at
  *   using `layout(location=attach_N) out data_N`, not `gl_FragData[attach_N]`.
- *   - https://stackoverflow.com/questions/51793336/multiple-output-textures-from-the-same-program
- *   - https://stackoverflow.com/questions/46740817/gl-fragdata-must-be-constant-zero
- *   - https://stackoverflow.com/questions/50258822/how-are-layout-qualifiers-better-than-getattriblocation-in-webgl2
- * @todo Redo examples, especially `macroTaps` and `macroPass`.
+ *   - [SO: Multiple output textures from the same program](https://stackoverflow.com/questions/51793336/multiple-output-textures-from-the-same-program)
+ *   - [SO: GL FragData must be constant zero](https://stackoverflow.com/questions/46740817/gl-fragdata-must-be-constant-zero)
+ *   - [SO: How are layout qualifiers better than getAttribLocation in WebGL2](https://stackoverflow.com/questions/50258822/how-are-layout-qualifiers-better-than-getattriblocation-in-webgl2)
  */
 
 import reduce from '@epok.tech/fn-lists/reduce';
 import map from '@epok.tech/fn-lists/map';
 import { type } from '@epok.tech/is-type/type';
 
-import { preDef, boundDef, cacheDef } from './const';
+import { preDef, boundDef } from './const';
 
-/** Escaped carriage-return for easier reading. */
-export const cr = ' \\\n';
+/** Escaped line-feed for easier reading. */
+export const lineFeed = ' \\\n';
+const lf = lineFeed;
+
 /** The channels denoted for texture input/output. */
 export const rgba = 'rgba';
+/** Simple shared cache for temporary or reusable objects. */
+export const cacheDef = {};
 /** Gives cache keys from simple plain `object` inputs. */
 const id = JSON.stringify;
 
-/** Keys for each part of the macro handling process available to hooks. */
+/** Names for each part of the macro handling process available to hooks. */
 export const hooks = {
   /** The full set of macros. */
-  macroPass: 'pass',
+  macroPass: '',
   /** Each part of the set of macros. */
   macroValues: 'values', macroOutput: 'output',
   macroSamples: 'samples', macroTaps: 'taps'
 };
 
 /**
- * Whether macros should be handled here; or the result of handling them by a
- * given named hook.
+ * Whether handling macros here; or the result of a given hook to handle it.
+ *
  * Allows macros of the given key to be handled by external named hooks, to
- * replace any part of the functionality here.
+ * replace any part of the functionality here in overall or granular ways.
  *
- * @example ```
- *   // Macros to be handled here, the default.
- *   [hasMacros(), hasMacros({}), hasMacros({ macros: true })]]
- *     .every((m) => m === null);
+ * The macro names checked in this module are found in `hooks`.
  *
- *   // Macros to be handled here, with prefix `'pre_'` instead of `'preDef'`.
- *   hasMacros({ pre: 'pre_' }) === null;
+ * @example ```javascript
+ * // Macros to be handled here, the default.
+ * [hasMacros(), hasMacros({}), hasMacros({ macros: true })]]
+ *   .every((m) => m == null);
  *
- *   // Macros not created.
- *   [hasMacros({ macros: false }), hasMacros({ macros: 0 })]
- *     .every((m) => m === '');
+ * // Macros to be handled here, with prefix `'pre_'` instead of `'preDef'`.
+ * hasMacros({ pre: 'pre_' }) == null;
  *
- *   // Macros for 'a' handled by external static hook, not here.
- *   hasMacros({ macros: { a: '//A\n', b: () => '//B\n' } }, 'a') === '//A\n';
- *   // Macros for 'b' handled by external function hook, not here.
- *   hasMacros({ macros: { a: '//A\n', b: () => '//B\n' } }, 'b') === '//B\n';
- *   // Macros specified `on` a 'frag' not created.
- *   hasMacros({ macros: { frag: 0 } }, '', 'frag') === '';
- *   // Macros specified `on` a 'vert' handled here.
- *   hasMacros({ macros: { frag: 0, a_vert: 0 } }, '', 'vert') === null;
- *   // Macros for hook `'a'` specified `on` a 'vert' not created.
- *   hasMacros({ macros: { frag: 0, a_vert: 0 } }, 'a', 'vert') === '';
+ * // Macros not created.
+ * [hasMacros({ macros: false }), hasMacros({ macros: 0 })]
+ *   .every((m) => m === '');
+ *
+ * // Macros for `'a'` handled by external `string` hook, not here.
+ * hasMacros({ macros: { a: '//A\n', b: () => '//B\n' } }, 'a') === '//A\n';
+ * // Macros for `'b'` handled by external `function` hook, not here.
+ * hasMacros({ macros: { a: '//A\n', b: () => '//B\n' } }, 'b') === '//B\n';
+ * // Macros specified `on` a `'frag'` not created.
+ * hasMacros({ macros: { frag: 0, values_vert: 0 } }, '', 'frag') === '';
+ * // Macros specified `on` a `'vert'` handled here.
+ * hasMacros({ macros: { frag: 0, values_vert: 0 } }, '', 'vert') == null;
+ * // Macros of `'values'`/`hooks.values` handled here.
+ * hasMacros({ macros: { frag: 0, values_vert: 0 } }, 'values', '') == null;
+ * // Macros of `'values'`/`hooks.values` specified `on` a `'vert'` not created.
+ * hasMacros({ macros: { frag: 0, values_vert: 0 } }, 'values', 'vert') === '';
  * ```
  *
- * @param {object} [props] The properties handling macros.
- * @param {string} [key] The name for which macros should be handled.
- * @param {string} [on=''] Any further macro `hooks` specifier; if given, both
- *   the hook key and this specifier are checked (e.g: `key` and `key_on`).
+ * @see hooks
  *
- * @param {string|function|object|false} [macros=props.macros] Whether and how
- *   `GLSL` preprocessor macros should be handled:
- *   - If it's false-y and non-nullish, no macros are handled here.
- *   - If it's a string, no macros are handled here as it's used instead.
- *   - If it's a function, it's passed the given `props`, `key`, `macros`, and
- *     the returned result is used.
- *   - If it's an object, any value at the given `key` is entered recursively,
- *     with the given `props`, `key`, and `macros[key]`.
- *   - Otherwise, returns `null` to indicate macros should be handled here.
+ * @param {object} [state] Any `object` whose properties may handle macros.
+ * @param {string} [key] Any name to check granularly within `macros`. See `hooks`.
+ * @param {string} [on=''] Any further macro name specifier; if given, `key`
+ *   itself and with this specifier are checked (i.e: `key` then `key+'_'+on`).
  *
- * @returns {string|null} Either the result of the macros handled elsewhere,
- *   or `null` if macros should be handled here.
+ * @param {false|string|((...)=>string|null)|{}} [macros=state.macros] How
+ *   macros should be handled, according to their type, in order of precedence:
+ *   - `null`ish: macros to be handled here, `null`ish returned.
+ *   - `true`: macros to be handled here, `null`ish returned.
+ *   - `false`y: no macros to be handled here, empty `''` `string` returned.
+ *   - `string`: no macros to be handled here, this hook value's used instead.
+ *   - `function`: external `hasMacros`-like `function` hook, called with
+ *     `macros(state, key, on, macros)`, the returned value used as shown here.
+ *   - `object`: recurses with any value at the given `key`, with
+ *     `hasMacros(state, key, on, macros[key])`.
+ *   - Otherwise, macros to be handled here, `null`ish returned.
+ *
+ * @returns {null|string} Either the result of the macros handled elsewhere,
+ *   or `null`ish if macros should be handled here.
  */
-export function hasMacros(props, key, on = '', macros = props?.macros) {
+export function hasMacros(state, key, on = '', macros = state?.macros) {
   if((macros ?? true) === true) { return null; }
   else if(!macros) { return ''; }
 
   const t = type(macros);
 
-  return ((t === 'Function')? macros(props, key, on, macros)
-    : ((t === 'String')? macros
+  return ((t === 'String')? macros
+    : ((t === 'Function')?
+      hasMacros(state, key, on, macros(state, key, on, macros))
     : (((macros instanceof Object) && (key in macros))?
-      hasMacros(props, key, on, macros[key])
-    : ((on)? hasMacros(props, ((key)? key+'_' : '')+on, '', macros)
+      hasMacros(state, key, on, macros[key])
+    : ((on)? hasMacros(state, ((key)? key+'_'+on : on), '', macros)
     : null))));
 }
 
 /**
- * Generates an array-like declaration, as a `GLSL` syntax string compatible
- * with all versions.
+ * Generates an `array`-like declaration, as a `GLSL` syntax `string` compatible
+ * with versions 1-3.
  *
- * Workaround for lack of `const` arrays in `GLSL` < 3. Used as the base for the
- * other `GLSL` version list types, ensuring a standard basis while offering
- * further language features where available.
+ * Works around the lack of `const` `array`s in `GLSL` < 3. Used as the base for
+ * the other `GLSL` version list types, ensuring a common standard while
+ * offering further language features where available.
  *
- * @example ```
- *   getGLSLListBase('float', 'list', [0, 1, 2], 'const'); // =>
- *   'const int list_l = 3;'+cr+
- *   'const int list_0 = float(0);'+cr+
- *   'const int list_1 = float(1);'+cr+
- *   'const int list_2 = float(2);';
+ * @example ```javascript
+ * getGLSLListBase('float', 'list', [0, 1, 2], 'const'); // =>
+ * 'const int list_l = 3;'+lf+
+ * 'const int list_0 = float(0);'+lf+
+ * 'const int list_1 = float(1);'+lf+
+ * 'const int list_2 = float(2);';
  * ```
  *
  * @param {string} type The `GLSL` list data-type.
  * @param {string} name The name of the `GLSL` list variable.
- * @param {array.<number,array.<number>>} a The list of `GLSL` values.
+ * @param {array.<number,number[]>} a The list of `GLSL` values.
  * @param {string} [qualify=''] A `GLSL` qualifier, if needed.
  * @param {string} [init=type] A data-type initialiser, `type` by default.
  *
@@ -127,7 +140,7 @@ export function hasMacros(props, key, on = '', macros = props?.macros) {
 export const getGLSLListBase = (type, name, a, qualify = '', init = type) =>
   `const int ${name}_l = ${a.length};`+
   reduce((s, v, i) =>
-      s+cr+(qualify && qualify+' ')+type+
+      s+lf+(qualify && qualify+' ')+type+
         ` ${name}_${i} = ${init}(${v.join?.(', ') ?? v});`,
     a, '');
 
@@ -139,15 +152,15 @@ export const getGLSLListBase = (type, name, a, qualify = '', init = type) =>
  *
  * @see {@link getGLSLListBase}
  *
- * @example ```
- *   getGLSL1ListLike('float', 'list', [0, 1, 2], 'const'); // =>
- *   'const int list_l = 3;'+cr+
- *   'const int list_0 = float(0);'+cr+
- *   'const int list_1 = float(1);'+cr+
- *   'const int list_2 = float(2);\n'+
- *   '// Index macro `list_i` (e.g: `list_i(0)`) may be slow, `+
- *     'use name (e.g: `list_0`) if possible.\n'+
- *   '#define list_i(i) ((i == 2)? list_2 : ((i == 1)? list_1 : list_0))\n';
+ * @example ```javascript
+ * getGLSL1ListLike('float', 'list', [0, 1, 2], 'const'); // =>
+ * 'const int list_l = 3;'+lf+
+ * 'const int list_0 = float(0);'+lf+
+ * 'const int list_1 = float(1);'+lf+
+ * 'const int list_2 = float(2);\n'+
+ * '// Index macro `list_i` (e.g: `list_i(0)`) may be slow, `+
+ *   'use name (e.g: `list_0`) if possible.\n'+
+ * '#define list_i(i) ((i == 2)? list_2 : ((i == 1)? list_1 : list_0))\n';
  * ```
  *
  * @param {string} type The `GLSL` list data-type.
@@ -175,18 +188,17 @@ export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
  *
  * @see {@link getGLSLListBase}
  *
- * @example ```
- *   getGLSL1ListArray('vec3', 'list', [[1, 0, 0], [0, 2, 0], [0, 0, 3]]);
- *   // =>
- *   'const int list_l = 3;'+cr+
- *   'vec3 list_0 = vec3(1, 0, 0);'+cr+
- *   'vec3 list_1 = vec3(0, 2, 0);'+cr+
- *   'vec3 list_2 = vec3(0, 0, 3);'+cr+
- *   'vec3 list[list_l];'+cr+
- *   'list[0] = list_0;'+cr+
- *   'list[1] = list_1;'+cr+
- *   'list[2] = list_2;\n'+
- *   '#define list_i(i) list[i]\n';
+ * @example ```javascript
+ * getGLSL1ListArray('vec3', 'list', [[1, 0, 0], [0, 2, 0], [0, 0, 3]]); // =>
+ * 'const int list_l = 3;'+lf+
+ * 'vec3 list_0 = vec3(1, 0, 0);'+lf+
+ * 'vec3 list_1 = vec3(0, 2, 0);'+lf+
+ * 'vec3 list_2 = vec3(0, 0, 3);'+lf+
+ * 'vec3 list[list_l];'+lf+
+ * 'list[0] = list_0;'+lf+
+ * 'list[1] = list_1;'+lf+
+ * 'list[2] = list_2;\n'+
+ * '#define list_i(i) list[i]\n';
  * ```
  *
  * @param {string} type The `GLSL` list data-type.
@@ -198,9 +210,9 @@ export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
  * @returns {string} The `GLSL1` array declaration string.
  */
 export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
-  getGLSLListBase(type, name, a, qualify, init)+cr+
+  getGLSLListBase(type, name, a, qualify, init)+lf+
   (qualify && qualify+' ')+type+` ${name}[${name}_l];`+
-  reduce((s, _, i) => s+cr+name+`[${i}] = ${name}_${i};`, a, '')+'\n'+
+  reduce((s, _, i) => s+lf+name+`[${i}] = ${name}_${i};`, a, '')+'\n'+
   `#define ${name}_i(i) ${name}[i]\n`;
 
 /**
@@ -210,14 +222,14 @@ export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
  *
  * @see {@link getGLSLListBase}
  *
- * @example ```
- *   getGLSL3List('int', 'list', [0, 1, 2], 'const'); // =>
- *   'const int list_l = 3;'+cr+
- *   'const int list_0 = int(0);'+cr+
- *   'const int list_1 = int(1);'+cr+
- *   'const int list_2 = int(2);'+cr+
- *   'const int list[list_l] = int[list_l](list_0, list_1, list_2);\n'+
- *   '#define list_i(i) list[i]\n';
+ * @example ```javascript
+ * getGLSL3List('int', 'list', [0, 1, 2], 'const'); // =>
+ * 'const int list_l = 3;'+lf+
+ * 'const int list_0 = int(0);'+lf+
+ * 'const int list_1 = int(1);'+lf+
+ * 'const int list_2 = int(2);'+lf+
+ * 'const int list[list_l] = int[list_l](list_0, list_1, list_2);\n'+
+ * '#define list_i(i) list[i]\n';
  * ```
  *
  * @param {string} type The `GLSL` list data-type.
@@ -229,7 +241,7 @@ export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
  * @returns {string} The `GLSL3` array declaration string.
  */
 export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
-  getGLSLListBase(type, name, a, qualify, init)+cr+
+  getGLSLListBase(type, name, a, qualify, init)+lf+
   (qualify && qualify+' ')+type+` ${name}[${name}_l] = ${init}[${name}_l](${
     reduce((s, _, i) => (s && s+', ')+name+'_'+i, a, '')});\n`+
   `#define ${name}_i(i) ${name}[i]\n`;
@@ -250,30 +262,30 @@ export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
  * @see {@link getGLSL1ListLike}
  * @see {@link getGLSL1ListArray}
  *
- * @example ```
- *   getGLSLList('int', 'test', [0, 1]); // =>
- *   'const int test_l = 2;'+cr+
- *   'int test_0 = int(0);'+cr+
- *   'int test_1 = int(1);'+cr+
- *   'int test[test_l];'+cr+
- *   'test[0] = test_0;'+cr+
- *   'test[1] = test_1;\n'+
- *   '#define test_i(i) test[i]\n';
+ * @example ```javascript
+ * getGLSLList('int', 'test', [0, 1]); // =>
+ * 'const int test_l = 2;'+lf+
+ * 'int test_0 = int(0);'+lf+
+ * 'int test_1 = int(1);'+lf+
+ * 'int test[test_l];'+lf+
+ * 'test[0] = test_0;'+lf+
+ * 'test[1] = test_1;\n'+
+ * '#define test_i(i) test[i]\n';
  *
- *   getGLSLList('ivec2', 'vecs', [[1, 0], [0, 1]], 'const', 3); // =>
- *   'const int vecs_l = 2;'+cr+
- *   'ivec2 vecs_0 = ivec2(1, 0);'+cr+
- *   'ivec2 vecs_1 = ivec2(0, 1);'+cr+
- *   'const ivec2 vecs[vecs_l] = ivec2[vecs_l](vecs_0, vecs_1);\n'+
- *   '#define vecs_i(i) vecs[i]\n';
+ * getGLSLList('ivec2', 'vecs', [[1, 0], [0, 1]], 'const', 3); // =>
+ * 'const int vecs_l = 2;'+lf+
+ * 'ivec2 vecs_0 = ivec2(1, 0);'+lf+
+ * 'ivec2 vecs_1 = ivec2(0, 1);'+lf+
+ * 'const ivec2 vecs[vecs_l] = ivec2[vecs_l](vecs_0, vecs_1);\n'+
+ * '#define vecs_i(i) vecs[i]\n';
  *
- *   getGLSLList('int', 'listLike', [0, 1], 'const', 1); // =>
- *   'const int listLike_l = 2;'+cr+
- *   'const int listLike_0 = int(0);'+cr+
- *   'const int listLike_1 = int(1);\n'+
- *   '// Index macro `listLike_i` (e.g: `listLike_i(0)`) may be slow, `+
- *     'use name (e.g: `listLike_0`) if possible.\n'+
- *   '#define listLike_i(i) ((i == 1)? listLike_1 : listLike_0)\n';
+ * getGLSLList('int', 'listLike', [0, 1], 'const', 1); // =>
+ * 'const int listLike_l = 2;'+lf+
+ * 'const int listLike_0 = int(0);'+lf+
+ * 'const int listLike_1 = int(1);\n'+
+ * '// Index macro `listLike_i` (e.g: `listLike_i(0)`) may be slow, `+
+ *   'use name (e.g: `listLike_0`) if possible.\n'+
+ * '#define listLike_i(i) ((i == 1)? listLike_1 : listLike_0)\n';
  * ```
  *
  * @param {string} type The `GLSL` list data-type.
@@ -299,70 +311,68 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  * @see {@link hasMacros}
  * @see {@link maps.mapGroups}
  * @see {@link state.getState}
- * @see {@link const.cacheDef}
+ * @see {@link cacheDef}
  *
- * @example ```
- *   const maps = { values: [2, 4, 1], channelsMax: 4 };
+ * @example ```javascript
+ * const state = { pre: '', steps: 2 };
+ * const maps = { values: [2, 4, 1], channelsMax: 4 };
  *
- *   // No optimisations - values not packed, single texture output per pass.
- *   const state = {
- *     pre: '', steps: 2, maps: mapGroups({ ...maps, buffersMax: 1, packed: 0 })
- *   };
+ * // No optimisations - values not packed, single texture output per pass.
+ * state.maps = mapGroups({ ...maps, buffersMax: 1, packed: 0 });
+ * macroValues(state); // =>
+ * '#define texture_0 0\n'+
+ * '#define channels_0 rg\n'+
+ * '\n'+
+ * '#define texture_1 1\n'+
+ * '#define channels_1 rgba\n'+
+ * '\n'+
+ * '#define texture_2 2\n'+
+ * '#define channels_2 r\n'+
+ * '\n'+
+ * '#define textures 3\n'+
+ * '#define passes 3\n'+
+ * '#define stepsPast 1\n'+
+ * '#define steps 2\n'+
+ * '\n';
  *
- *   macroValues(state); // =>
- *   '#define texture_0 0\n'+
- *   '#define channels_0 rg\n'+
- *   '\n'+
- *   '#define texture_1 1\n'+
- *   '#define channels_1 rgba\n'+
- *   '\n'+
- *   '#define texture_2 2\n'+
- *   '#define channels_2 r\n'+
- *   '\n'+
- *   '#define textures 3\n'+
- *   '#define passes 3\n'+
- *   '#define stepsPast 1\n'+
- *   '#define steps 2\n'+
- *   '\n';
+ * // Automatically packed values - values across fewer textures/passes.
+ * state.maps = mapGroups({ ...maps, buffersMax: 1 });
+ * state.size = { count: 2**5 };
+ * macroValues(state); // =>
+ * '#define texture_1 0\n'+
+ * '#define channels_1 rgba\n'+
+ * '\n'+
+ * '#define texture_0 1\n'+
+ * '#define channels_0 rg\n'+
+ * '\n'+
+ * '#define texture_2 1\n'+
+ * '#define channels_2 b\n'+
+ * '\n'+
+ * '#define count 32\n'+
+ * '#define textures 2\n'+
+ * '#define passes 2\n'+
+ * '#define stepsPast 1\n'+
+ * '#define steps 2\n'+
+ * '\n';
  *
- *   // Automatically packed values - values across fewer textures/passes.
- *   state.maps = mapGroups({ ...maps, buffersMax: 1 });
- *   state.size = { count: 2**5 };
- *   macroValues(state); // =>
- *   '#define texture_1 0\n'+
- *   '#define channels_1 rgba\n'+
- *   '\n'+
- *   '#define texture_0 1\n'+
- *   '#define channels_0 rg\n'+
- *   '\n'+
- *   '#define texture_2 1\n'+
- *   '#define channels_2 b\n'+
- *   '\n'+
- *   '#define count 32\n'+
- *   '#define textures 2\n'+
- *   '#define passes 2\n'+
- *   '#define stepsPast 1\n'+
- *   '#define steps 2\n'+
- *   '\n';
- *
- *   // Can bind more texture outputs per pass - values across fewer passes.
- *   state.maps = mapGroups({ ...maps, buffersMax: 4 });
- *   macroValues(state); // =>
- *   '#define texture_1 0\n'+
- *   '#define channels_1 rgba\n'+
- *   '\n'+
- *   '#define texture_0 1\n'+
- *   '#define channels_0 rg\n'+
- *   '\n'+
- *   '#define texture_2 1\n'+
- *   '#define channels_2 b\n'+
- *   '\n'+
- *   '#define count 32\n'+
- *   '#define textures 2\n'+
- *   '#define passes 1\n'+
- *   '#define stepsPast 1\n'+
- *   '#define steps 2\n'+
- *   '\n';
+ * // Can bind more texture outputs per pass - values across fewer passes.
+ * state.maps = mapGroups({ ...maps, buffersMax: 4 });
+ * macroValues(state); // =>
+ * '#define texture_1 0\n'+
+ * '#define channels_1 rgba\n'+
+ * '\n'+
+ * '#define texture_0 1\n'+
+ * '#define channels_0 rg\n'+
+ * '\n'+
+ * '#define texture_2 1\n'+
+ * '#define channels_2 b\n'+
+ * '\n'+
+ * '#define count 32\n'+
+ * '#define textures 2\n'+
+ * '#define passes 1\n'+
+ * '#define stepsPast 1\n'+
+ * '#define steps 2\n'+
+ * '\n';
  * ```
  *
  * @param {object} state Properties used to generate the macros. See `getState`.
@@ -392,9 +402,9 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  */
 export function macroValues(state, on) {
   const key = hooks.macroValues;
-  const hook = hasMacros(state, key, on);
+  let to = hasMacros(state, key, on);
 
-  if(hook !== null) { return hook; }
+  if(to != null) { return to; }
 
   const { maps, steps, bound = boundDef, size, pre: n = preDef } = state;
   const { cache = cacheDef } = state;
@@ -406,7 +416,7 @@ export function macroValues(state, on) {
     `macro@${key}@${
       n}|${bound}|${id(values)}|${id(textures)}|${stepsL}|${passesL}|${count}`;
 
-  const to = cache?.[c] ??
+  to = cache?.[c] ??
     reduce((s, texture, t, _, i = 0) => reduce((s, v) =>
           s+`#define ${n}texture_${v} ${t}\n`+
           `#define ${n}channels_${v} ${rgba.slice(i, i += values[v])}\n\n`,
@@ -431,67 +441,67 @@ export function macroValues(state, on) {
  * @see {@link hasMacros}
  * @see {@link maps.mapGroups}
  * @see {@link state.getState}
- * @see {@link const.cacheDef}
+ * @see {@link cacheDef}
  *
- * @example ```
- *   const maps = { values: [2, 4, 1], channelsMax: 4 };
+ * @example ```javascript
+ * const maps = { values: [2, 4, 1], channelsMax: 4 };
  *
- *   // No optimisations - values not packed, single texture output per pass.
- *   const state = {
- *     pre: '', passNow: 0,
- *     maps: mapGroups({ ...maps, buffersMax: 1, packed: 0 })
- *   };
+ * // No optimisations - values not packed, single texture output per pass.
+ * const state = {
+ *   pre: '', passNow: 0,
+ *   maps: mapGroups({ ...maps, buffersMax: 1, packed: 0 })
+ * };
  *
- *   macroOutput(state); // =>
- *   '#define passNow 0\n'+
- *   '\n'+
- *   '#define bound_0 0\n'+
- *   '#define attach_0 0\n'+
- *   '#define output_0 gl_FragData[attach_0].rg\n'+
- *   '\n';
+ * macroOutput(state); // =>
+ * '#define passNow 0\n'+
+ * '\n'+
+ * '#define bound_0 0\n'+
+ * '#define attach_0 0\n'+
+ * '#define output_0 gl_FragData[attach_0].rg\n'+
+ * '\n';
  *
- *   // Automatically packed values - values across fewer textures/passes.
- *   state.maps = mapGroups({ ...maps, buffersMax: 1 });
- *   macroOutput(state); // =>
- *   '#define passNow 0\n'+
- *   '\n'+
- *   '#define bound_1 0\n'+
- *   '#define attach_1 0\n'+
- *   '#define output_1 gl_FragData[attach_1].rgba\n'+
- *   '\n';
+ * // Automatically packed values - values across fewer textures/passes.
+ * state.maps = mapGroups({ ...maps, buffersMax: 1 });
+ * macroOutput(state); // =>
+ * '#define passNow 0\n'+
+ * '\n'+
+ * '#define bound_1 0\n'+
+ * '#define attach_1 0\n'+
+ * '#define output_1 gl_FragData[attach_1].rgba\n'+
+ * '\n';
  *
- *   // Next pass in this step.
- *   ++state.passNow;
- *   macroOutput(state); // =>
- *   '#define passNow 1\n'+
- *   '\n'+
- *   '#define bound_0 1\n'+
- *   '#define attach_0 0\n'+
- *   '#define output_0 gl_FragData[attach_0].rg\n'+
- *   '\n'+
- *   '#define bound_2 1\n'+
- *   '#define attach_2 0\n'+
- *   '#define output_2 gl_FragData[attach_2].b\n'+
- *   '\n';
+ * // Next pass in this step.
+ * ++state.passNow;
+ * macroOutput(state); // =>
+ * '#define passNow 1\n'+
+ * '\n'+
+ * '#define bound_0 1\n'+
+ * '#define attach_0 0\n'+
+ * '#define output_0 gl_FragData[attach_0].rg\n'+
+ * '\n'+
+ * '#define bound_2 1\n'+
+ * '#define attach_2 0\n'+
+ * '#define output_2 gl_FragData[attach_2].b\n'+
+ * '\n';
  *
- *   // Can bind more texture outputs per pass - values across fewer passes.
- *   state.maps = mapGroups({ ...maps, buffersMax: 4 });
- *   state.passNow = 0;
- *   macroOutput(state); // =>
- *   '#define passNow 0\n'+
- *   '\n'+
- *   '#define bound_1 0\n'+
- *   '#define attach_1 0\n'+
- *   '#define output_1 gl_FragData[attach_1].rgba\n'+
- *   '\n'+
- *   '#define bound_0 1\n'+
- *   '#define attach_0 1\n'+
- *   '#define output_0 gl_FragData[attach_0].rg\n'+
- *   '\n'+
- *   '#define bound_2 1\n'+
- *   '#define attach_2 1\n'+
- *   '#define output_2 gl_FragData[attach_2].b\n'+
- *   '\n';
+ * // Can bind more texture outputs per pass - values across fewer passes.
+ * state.maps = mapGroups({ ...maps, buffersMax: 4 });
+ * state.passNow = 0;
+ * macroOutput(state); // =>
+ * '#define passNow 0\n'+
+ * '\n'+
+ * '#define bound_1 0\n'+
+ * '#define attach_1 0\n'+
+ * '#define output_1 gl_FragData[attach_1].rgba\n'+
+ * '\n'+
+ * '#define bound_0 1\n'+
+ * '#define attach_0 1\n'+
+ * '#define output_0 gl_FragData[attach_0].rg\n'+
+ * '\n'+
+ * '#define bound_2 1\n'+
+ * '#define attach_2 1\n'+
+ * '#define output_2 gl_FragData[attach_2].b\n'+
+ * '\n';
  * ```
  *
  * @param {object} state Properties for generating the macros. See `getState`:
@@ -516,9 +526,9 @@ export function macroValues(state, on) {
  */
 export function macroOutput(state, on) {
   const key = hooks.macroOutput;
-  const hook = hasMacros(state, key, on);
+  let to = hasMacros(state, key, on);
 
-  if(hook !== null) { return hook; }
+  if(to != null) { return to; }
 
   const { passNow: p, maps, pre: n = preDef, cache = cacheDef } = state;
   const { values, textures, passes } = maps;
@@ -527,7 +537,7 @@ export function macroOutput(state, on) {
   const c = cache &&
     `macro@${key}@${n}|${p}|${id(values)}|${id(textures)}|${id(passes)}`;
 
-  const to = cache?.[c] ??
+  to = cache?.[c] ??
     `#define ${n}passNow ${p}\n`+
     reduce((s, texture, bound, _, i = 0) => reduce((s, v) =>
           s+'\n'+
@@ -556,101 +566,101 @@ export function macroOutput(state, on) {
  * @see {@link macroTaps}
  * @see {@link hasMacros}
  * @see {@link getGLSLList}
- * @see {@link maps.mapValues}
+ * @see {@link maps.mapStep}
  * @see {@link state.getState}
- * @see {@link const.cacheDef}
+ * @see {@link cacheDef}
  *
- * @example ```
- *   const values = [2, 4, 1];
- *   const derives = [2, , [[1, 0], true]];
- *   const maps = { values, derives, channelsMax: 4 };
+ * @example ```javascript
+ * const values = [2, 4, 1];
+ * const derives = [2, , [[1, 0], true]];
+ * const maps = { values, derives, channelsMax: 4 };
  *
- *   // No optimisations - values not packed, single texture output per pass.
- *   const state =
- *     { pre: '', maps: mapValues({ ...maps, buffersMax: 1, packed: 0 }) };
+ * // No optimisations - values not packed, single texture output per pass.
+ * const state =
+ *   { pre: '', maps: mapStep({ ...maps, buffersMax: 1, packed: 0 }) };
  *
- *   // Uses the first pass by default.
- *   macroSamples(state); // =>
- *   '#define useSamples'+cr+
- *     'const int samples_l = 1;'+cr+
- *     'const ivec2 samples_0 = ivec2(0, 2);\n'+
- *   '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
- *     'use name (e.g: `samples_0`) if possible.\n'+
- *   '#define samples_i(i) samples_0\n'+
- *   '\n'+
- *   '#define useReads_0'+cr+
- *     'const int reads_0_l = 1;'+cr+
- *     'const int reads_0_0 = int(0);\n'+
- *   '// Index macro `reads_0_i` (e.g: `reads_0_i(0)`) may be slow, '+
- *     'use name (e.g: `reads_0_0`) if possible.\n'+
- *   '#define reads_0_i(i) reads_0_0\n'+
- *   '\n';
+ * // Uses the first pass by default.
+ * macroSamples(state); // =>
+ * '#define useSamples'+lf+
+ *   'const int samples_l = 1;'+lf+
+ *   'const ivec2 samples_0 = ivec2(0, 2);\n'+
+ * '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
+ *   'use name (e.g: `samples_0`) if possible.\n'+
+ * '#define samples_i(i) samples_0\n'+
+ * '\n'+
+ * '#define useReads_0'+lf+
+ *   'const int reads_0_l = 1;'+lf+
+ *   'const int reads_0_0 = int(0);\n'+
+ * '// Index macro `reads_0_i` (e.g: `reads_0_i(0)`) may be slow, '+
+ *   'use name (e.g: `reads_0_0`) if possible.\n'+
+ * '#define reads_0_i(i) reads_0_0\n'+
+ * '\n';
  *
- *   // Next pass in this step - no derives, no samples nor reads.
- *   state.passNow = 1;
- *   macroSamples(state); // =>
- *   '';
+ * // Next pass in this step - no derives, no samples nor reads.
+ * state.passNow = 1;
+ * macroSamples(state); // =>
+ * '';
  *
- *   // Next pass in this step.
- *   ++state.passNow;
- *   macroSamples(state); // =>
- *   '#define useSamples'+cr+
- *     'const int samples_l = 4;'+cr+
- *     'const ivec2 samples_0 = ivec2(1, 0);'+cr+
- *     'const ivec2 samples_1 = ivec2(0, 0);'+cr+
- *     'const ivec2 samples_2 = ivec2(0, 1);'+cr+
- *     'const ivec2 samples_3 = ivec2(0, 2);\n'+
- *   '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
- *     'use name (e.g: `samples_0`) if possible.\n'+
- *   '#define samples_i(i) ((i == 3)? samples_3 : ((i == 2)? samples_2 '+
- *     ': ((i == 1)? samples_1 : samples_0)))\n'+
- *   '\n'+
- *   '#define useReads_2'+cr+
- *     'const int reads_2_l = 4;'+cr+
- *     'const int reads_2_0 = int(0);'+cr+
- *     'const int reads_2_1 = int(1);'+cr+
- *     'const int reads_2_2 = int(2);'+cr+
- *     'const int reads_2_3 = int(3);\n'+
- *   '// Index macro `reads_2_i` (e.g: `reads_2_i(0)`) may be slow, '+
- *     'use name (e.g: `reads_2_0`) if possible.\n'+
- *   '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+
- *     ': ((i == 1)? reads_2_1 : reads_2_0)))\n'+
- *   '\n';
+ * // Next pass in this step.
+ * ++state.passNow;
+ * macroSamples(state); // =>
+ * '#define useSamples'+lf+
+ *   'const int samples_l = 4;'+lf+
+ *   'const ivec2 samples_0 = ivec2(1, 0);'+lf+
+ *   'const ivec2 samples_1 = ivec2(0, 0);'+lf+
+ *   'const ivec2 samples_2 = ivec2(0, 1);'+lf+
+ *   'const ivec2 samples_3 = ivec2(0, 2);\n'+
+ * '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
+ *   'use name (e.g: `samples_0`) if possible.\n'+
+ * '#define samples_i(i) ((i == 3)? samples_3 : ((i == 2)? samples_2 '+
+ *   ': ((i == 1)? samples_1 : samples_0)))\n'+
+ * '\n'+
+ * '#define useReads_2'+lf+
+ *   'const int reads_2_l = 4;'+lf+
+ *   'const int reads_2_0 = int(0);'+lf+
+ *   'const int reads_2_1 = int(1);'+lf+
+ *   'const int reads_2_2 = int(2);'+lf+
+ *   'const int reads_2_3 = int(3);\n'+
+ * '// Index macro `reads_2_i` (e.g: `reads_2_i(0)`) may be slow, '+
+ *   'use name (e.g: `reads_2_0`) if possible.\n'+
+ * '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+
+ *   ': ((i == 1)? reads_2_1 : reads_2_0)))\n'+
+ * '\n';
  *
- *   // Automatically packed values - values across fewer textures/passes.
- *   // Can bind more texture outputs per pass - values across fewer passes.
- *   // Also fewer samples where values share derives or textures.
- *   state.maps = mapGroups({ ...maps, buffersMax: 4 });
- *   state.passNow = 0;
- *   macroSamples(state); // =>
- *   '#define useSamples'+cr+
- *     'const int samples_l = 3;'+cr+
- *     'const ivec2 samples_0 = ivec2(0, 1);'+cr+
- *     'const ivec2 samples_1 = ivec2(1, 1);'+cr+
- *     'const ivec2 samples_2 = ivec2(0, 0);\n'+
- *   '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
- *     'use name (e.g: `samples_0`) if possible.\n'+
- *   '#define samples_i(i) '+
- *     '((i == 2)? samples_2 : ((i == 1)? samples_1 : samples_0))\n'+
- *   '\n'+
- *   '#define useReads_0'+cr+
- *     'const int reads_0_l = 1;'+cr+
- *     'const int reads_0_0 = int(0);\n'+
- *   '// Index macro `reads_0_i` (e.g: `reads_0_i(0)`) may be slow, '+
- *     'use name (e.g: `reads_0_0`) if possible.\n'+
- *   '#define reads_0_i(i) reads_0_0\n'+
- *   '\n'+
- *   '#define useReads_2'+cr+
- *     'const int reads_2_l = 4;'+cr+
- *     'const int reads_2_0 = int(1);'+cr+
- *     'const int reads_2_1 = int(0);'+cr+
- *     'const int reads_2_2 = int(2);'+cr+
- *     'const int reads_2_3 = int(0);\n'+
- *   '// Index macro `reads_2_i` (e.g: `reads_2_i(0)`) may be slow, '+
- *     'use name (e.g: `reads_2_0`) if possible.\n'+
- *   '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+
- *     ': ((i == 1)? reads_2_1 : reads_2_0)))\n'+
- *   '\n';
+ * // Automatically packed values - values across fewer textures/passes.
+ * // Can bind more texture outputs per pass - values across fewer passes.
+ * // Also fewer samples where values share derives or textures.
+ * state.maps = mapGroups({ ...maps, buffersMax: 4 });
+ * state.passNow = 0;
+ * macroSamples(state); // =>
+ * '#define useSamples'+lf+
+ *   'const int samples_l = 3;'+lf+
+ *   'const ivec2 samples_0 = ivec2(0, 1);'+lf+
+ *   'const ivec2 samples_1 = ivec2(1, 1);'+lf+
+ *   'const ivec2 samples_2 = ivec2(0, 0);\n'+
+ * '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
+ *   'use name (e.g: `samples_0`) if possible.\n'+
+ * '#define samples_i(i) '+
+ *   '((i == 2)? samples_2 : ((i == 1)? samples_1 : samples_0))\n'+
+ * '\n'+
+ * '#define useReads_0'+lf+
+ *   'const int reads_0_l = 1;'+lf+
+ *   'const int reads_0_0 = int(0);\n'+
+ * '// Index macro `reads_0_i` (e.g: `reads_0_i(0)`) may be slow, '+
+ *   'use name (e.g: `reads_0_0`) if possible.\n'+
+ * '#define reads_0_i(i) reads_0_0\n'+
+ * '\n'+
+ * '#define useReads_2'+lf+
+ *   'const int reads_2_l = 4;'+lf+
+ *   'const int reads_2_0 = int(1);'+lf+
+ *   'const int reads_2_1 = int(0);'+lf+
+ *   'const int reads_2_2 = int(2);'+lf+
+ *   'const int reads_2_3 = int(0);\n'+
+ * '// Index macro `reads_2_i` (e.g: `reads_2_i(0)`) may be slow, '+
+ *   'use name (e.g: `reads_2_0`) if possible.\n'+
+ * '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+
+ *   ': ((i == 1)? reads_2_1 : reads_2_0)))\n'+
+ * '\n';
  * ```
  *
  * @param {object} state Properties used to generate the macros. See `getState`.
@@ -677,9 +687,9 @@ export function macroOutput(state, on) {
  */
 export function macroSamples(state, on) {
   const key = hooks.macroSamples;
-  const hook = hasMacros(state, key, on);
+  let to = hasMacros(state, key, on);
 
-  if(hook !== null) { return hook; }
+  if(to != null) { return to; }
 
   const { passNow: p = 0, maps, glsl, pre: n = preDef } = state;
   const { cache = cacheDef } = state;
@@ -690,13 +700,13 @@ export function macroSamples(state, on) {
   const c = cache &&
     `macro@${key}@${n}|${p}|${id(passSamples)}|${id(passReads)}|${glsl}`;
 
-  const to = cache?.[c] ??
+  to = cache?.[c] ??
     ((!passSamples)? ''
-    : `#define ${n}useSamples${cr+
+    : `#define ${n}useSamples${lf+
         getGLSLList('ivec2', n+'samples', passSamples, 'const', glsl)}\n`)+
     ((!passReads)? ''
     : reduce((s, reads, v) =>
-          `${s}#define ${n}useReads_${v}${cr+
+          `${s}#define ${n}useReads_${v}${lf+
             getGLSLList('int', n+'reads_'+v, reads, 'const', glsl)}\n`,
         passReads, ''));
 
@@ -728,41 +738,41 @@ export function macroSamples(state, on) {
  * @see {@link macroSamples}
  * @see {@link hasMacros}
  * @see {@link getGLSLList}
- * @see {@link maps.mapValues}
+ * @see {@link maps.mapStep}
  * @see {@link state.getState}
  * @see {@link inputs.getUniforms}
- * @see {@link const.cacheDef}
+ * @see {@link cacheDef}
  *
- * @example ```
- *   const values = [2, 4, 1];
- *   const derives = [2, , [[1, 0], true]];
- *   const maps = { values, derives, channelsMax: 4 };
+ * @example ```javascript
+ * const values = [2, 4, 1];
+ * const derives = [2, , [[1, 0], true]];
+ * const maps = { values, derives, channelsMax: 4 };
  *
- *   // No optimisations - values not packed, single texture output per pass.
- *   const state =
- *     { pre: '', maps: mapValues({ ...maps, buffersMax: 1, packed: 0 }) };
+ * // No optimisations - values not packed, single texture output per pass.
+ * const state =
+ *   { pre: '', maps: mapStep({ ...maps, buffersMax: 1, packed: 0 }) };
  *
- *   // Uses the first pass by default.
- *   macroTaps(state); // =>
- *   '@todo';
+ * // Uses the first pass by default.
+ * macroTaps(state); // =>
+ * '@todo';
  *
- *   // Next pass in this step - no derives, no samples nor reads.
- *   state.passNow = 1;
- *   macroTaps(state); // =>
- *   '';
+ * // Next pass in this step - no derives, no samples nor reads.
+ * state.passNow = 1;
+ * macroTaps(state); // =>
+ * '';
  *
- *   // Next pass in this step.
- *   ++state.passNow;
- *   macroTaps(state); // =>
- *   '@todo';
+ * // Next pass in this step.
+ * ++state.passNow;
+ * macroTaps(state); // =>
+ * '@todo';
  *
- *   // Automatically packed values - values across fewer textures/passes.
- *   // Can bind more texture outputs per pass - values across fewer passes.
- *   // Also fewer samples where values share derives or textures.
- *   state.maps = mapGroups({ ...maps, buffersMax: 4 });
- *   state.passNow = 0;
- *   macroTaps(state); // =>
- *   '@todo';
+ * // Automatically packed values - values across fewer textures/passes.
+ * // Can bind more texture outputs per pass - values across fewer passes.
+ * // Also fewer samples where values share derives or textures.
+ * state.maps = mapGroups({ ...maps, buffersMax: 4 });
+ * state.passNow = 0;
+ * macroTaps(state); // =>
+ * '@todo';
  * ```
  *
  * @param {object} state Properties used to generate the macros. See `getState`.
@@ -790,9 +800,9 @@ export function macroSamples(state, on) {
  */
 export function macroTaps(state, on) {
   const key = hooks.macroTaps;
-  const hook = hasMacros(state, key, on);
+  let to = hasMacros(state, key, on);
 
-  if(hook !== null) { return hook; }
+  if(to != null) { return to; }
 
   const { passNow: p = 0, maps, merge, glsl, pre: n = preDef } = state;
   const { cache = cacheDef } = state;
@@ -802,9 +812,7 @@ export function macroTaps(state, on) {
   const c = cache &&
     `macro@${key}@${n}|${p}|${id(passSamples)}|${index}|${glsl}`;
 
-  let to = cache?.[c];
-
-  if(to != null) { return to; }
+  if((to = cache?.[c]) != null) { return to; }
 
   const glsl3 = (glsl >= 3);
   /** Which texture sampling function is available. */
@@ -815,8 +823,8 @@ export function macroTaps(state, on) {
   /** Common parameters, passed as `(..., stepBy, textureBy)` */
   const by = `stepBy, textureBy`;
   /** Aliases default names for brevity, main functions offer more control. */
-  const aka = `#define ${f}(uv)${cr+f}`;
-  const akaBy = `#define ${f}By(uv, ${by})${cr+f}`;
+  const aka = `#define ${f}(uv)${lf+f}`;
+  const akaBy = `#define ${f}By(uv, ${by})${lf+f}`;
   /** The current `sample`, as `[step, texture]`. */
   const st = n+'samples_';
   /** Prefix for private temporary variables. */
@@ -830,14 +838,14 @@ export function macroTaps(state, on) {
     ((!tapsL)? ''
     : ((index)?
       /** Separate un-merged `texture`s accessed by constant index. */
-      '// States in a `sampler2D[]`; looks up 1D index and 2D `uv`; '+cr+
+      '// States in a `sampler2D[]`; looks up 1D index and 2D `uv`; '+lf+
         'past steps go later in the list.\n'+
       `// Pass constant array index values; \`textures\`.\n`+
       `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
-      tap+`s(uv, states, textures)`+cr+
+      tap+`s(uv, states, textures)`+lf+
         // Compute before the loop for lighter work.
-        `const int ${t}tlI = int(textures);`+cr+
-        `vec2 ${t}uvI = vec2(uv);`+cr+
+        `const int ${t}tlI = int(textures);`+lf+
+        `vec2 ${t}uvI = vec2(uv);`+lf+
         // Sample into the `data` output list.
         getGLSLList('vec4', n+'data',
           map((_, i) => texture+
@@ -848,11 +856,11 @@ export function macroTaps(state, on) {
       '// States may also be sampled by shifted step/texture.\n'+
       `// Pass constant array index values; \`textures, ${by}\`.\n`+
       `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
-      tap+`sBy(uv, states, textures, ${by})`+cr+
+      tap+`sBy(uv, states, textures, ${by})`+lf+
         // Compute before the loop for lighter work.
-        `const int ${t}tlIB = int(textures);`+cr+
-        `ivec2 ${t}byIB = ivec2(${by});`+cr+
-        `vec2 ${t}uvIB = vec2(uv);`+cr+
+        `const int ${t}tlIB = int(textures);`+lf+
+        `ivec2 ${t}byIB = ivec2(${by});`+lf+
+        `vec2 ${t}uvIB = vec2(uv);`+lf+
         // Sample into the `data` output list.
         getGLSLList('vec4', n+'data',
           map((_, i) =>
@@ -872,16 +880,16 @@ export function macroTaps(state, on) {
         '`[textures, steps]`.\n'+
       '// Step from now into the past going upwards in the texture.\n'+
       `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
-      tap+`2(uv, states, stepNow, steps, textures)`+cr+
+      tap+`2(uv, states, stepNow, steps, textures)`+lf+
         // Compute before the loop for lighter work.
-        `vec2 ${t}l2 = vec2(textures, steps);`+cr+
-        `vec2 ${t}uv2 = vec2(uv)/${t}l2;`+cr+
+        `vec2 ${t}l2 = vec2(textures, steps);`+lf+
+        `vec2 ${t}uv2 = vec2(uv)/${t}l2;`+lf+
         // Steps advance in reverse, top-to-bottom.
-        `vec2 ${t}s2 = vec2(1, -1)/${t}l2;`+cr+
+        `vec2 ${t}s2 = vec2(1, -1)/${t}l2;`+lf+
         // Offset `texture`, step.
         // Each step stored in `texture` top downward at `-stepNow`.
         // Most recent step to look up is at `-stepNow+1`.
-        `vec2 ${t}i2 = vec2(0, 1)-vec2(0, stepNow);`+cr+
+        `vec2 ${t}i2 = vec2(0, 1)-vec2(0, stepNow);`+lf+
         // Sample into the `data` output list.
         getGLSLList('vec4', n+'data',
           // Would repeat wrap; but `WebGL1` needs power-of-2.
@@ -893,16 +901,16 @@ export function macroTaps(state, on) {
           '', glsl)+'\n'+
       '// States may also be sampled by shifted step/texture.\n'+
       `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
-      tap+`2By(uv, states, stepNow, steps, textures, ${by})`+cr+
+      tap+`2By(uv, states, stepNow, steps, textures, ${by})`+lf+
         // Compute before the loop for lighter work.
-        `vec2 ${t}l2B = vec2(textures, steps);`+cr+
-        `vec2 ${t}uv2B = vec2(uv)/${t}l2B;`+cr+
+        `vec2 ${t}l2B = vec2(textures, steps);`+lf+
+        `vec2 ${t}uv2B = vec2(uv)/${t}l2B;`+lf+
         // Steps advance in reverse, top-to-bottom.
-        `vec2 ${t}s2B = vec2(1, -1)/${t}l2B;`+cr+
+        `vec2 ${t}s2B = vec2(1, -1)/${t}l2B;`+lf+
         // Offset `texture`, step.
         // Each step stored in `texture` top downward at `-stepNow`.
         // Most recent step to look up is at `-stepNow+1`.
-        `vec2 ${t}i2B = vec2(${by}).ts+vec2(0, 1)-vec2(0, stepNow);`+cr+
+        `vec2 ${t}i2B = vec2(${by}).ts+vec2(0, 1)-vec2(0, stepNow);`+lf+
         // Sample into the `data` output list.
         getGLSLList('vec4', n+'data',
           // Would repeat wrap; but `WebGL1` needs power-of-2.
@@ -926,16 +934,16 @@ export function macroTaps(state, on) {
         '// - `sampler3D`: the number of steps; depth, `[0, 1]`.\n'+
         '// - `sampler2DArray`: `1` or less; layer, `[0, steps-1]`.\n'+
         `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
-        tap+`3(uv, states, stepNow, steps, textures)`+cr+
+        tap+`3(uv, states, stepNow, steps, textures)`+lf+
           /** @see `...2()` above. */
           // Compute before the loop for lighter work.
-          `vec2 ${t}l3 = vec2(textures, steps);`+cr+
-          `vec2 ${t}uv3 = vec2(uv)/${t}l3;`+cr+
+          `vec2 ${t}l3 = vec2(textures, steps);`+lf+
+          `vec2 ${t}uv3 = vec2(uv)/${t}l3;`+lf+
           // Offset `texture`.
-          `float ${t}sx3 = 1.0/${t}l3.x;`+cr+
+          `float ${t}sx3 = 1.0/${t}l3.x;`+lf+
           // Offset step.
-          `float ${t}s3 = -float(stepNow);`+cr+
-          `float ${t}sz3 = -1.0/${t}l3;`+cr+
+          `float ${t}s3 = -float(stepNow);`+lf+
+          `float ${t}sz3 = -1.0/${t}l3;`+lf+
           // Sample into the `data` output list.
           getGLSLList('vec4', n+'data',
             // Would repeat wrap; but `sampler2DArray` layer can't.
@@ -950,16 +958,16 @@ export function macroTaps(state, on) {
             '', glsl)+'\n'+
         '// States may also be sampled by shifted step/`texture`.\n'+
         `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
-        tap+`3By(uv, states, stepNow, steps, textures, ${by})`+cr+
+        tap+`3By(uv, states, stepNow, steps, textures, ${by})`+lf+
           /** @see `...2By()` above. */
           // Compute before the loop for lighter work.
-          `vec2 ${t}l3B = vec2(textures, steps);`+cr+
-          `vec2 ${t}uv3B = (vec2(uv)+vec2(textureBy, 0))/${t}l3B;`+cr+
+          `vec2 ${t}l3B = vec2(textures, steps);`+lf+
+          `vec2 ${t}uv3B = (vec2(uv)+vec2(textureBy, 0))/${t}l3B;`+lf+
           // Offset `texture`.
-          `float ${t}sx3B = 1.0/${t}l3B.x;`+cr+
+          `float ${t}sx3B = 1.0/${t}l3B.x;`+lf+
           // Offset step.
-          `float ${t}s3B = float(stepBy)-float(stepNow);`+cr+
-          `float ${t}sz3B = -1.0/${t}l3B;`+cr+
+          `float ${t}s3B = float(stepBy)-float(stepNow);`+lf+
+          `float ${t}sz3B = -1.0/${t}l3B;`+lf+
           // Sample into the `data` output list.
           getGLSLList('vec4', n+'data',
             // Would repeat wrap; but `sampler2DArray` layer can't.
@@ -994,103 +1002,103 @@ export function macroTaps(state, on) {
  * @see {@link macroOutput}
  * @see {@link macroTaps}
  * @see {@link macroSamples}
- * @see {@link maps.mapValues}
+ * @see {@link maps.mapStep}
  * @see {@link state.getState}
  *
- * @example ```
- *   const values = [2, 4, 1];
- *   const derives = [2, , [[1, 0], true]];
+ * @example ```javascript
+ * const values = [2, 4, 1];
+ * const derives = [2, , [[1, 0], true]];
  *
- *   // Automatically packed values - values across fewer `texture`s/passes.
- *   // Only a single `texture` output per pass - values across more passes.
- *   const state = {
- *     passNow: 0, steps: 2, size: { count: 2**5 },
- *     maps: mapValues({ values, derives, channelsMax: 4, buffersMax: 1 })
- *   };
+ * // Automatically packed values - values across fewer `texture`s/passes.
+ * // Only a single `texture` output per pass - values across more passes.
+ * const state = {
+ *   passNow: 0, steps: 2, size: { count: 2**5 },
+ *   maps: mapStep({ values, derives, channelsMax: 4, buffersMax: 1 })
+ * };
  *
- *   macroPass(state); // =>
- *   '#define gpgpu_texture_1 0\n'+
- *   '#define gpgpu_channels_1 rgba\n'+
- *   '\n'+
- *   '#define gpgpu_texture_0 1\n'+
- *   '#define gpgpu_channels_0 rg\n'+
- *   '\n'+
- *   '#define gpgpu_texture_2 1\n'+
- *   '#define gpgpu_channels_2 b\n'+
- *   '\n'+
- *   '#define count 32\n'+
- *   '#define gpgpu_textures 2\n'+
- *   '#define gpgpu_passes 2\n'+
- *   '#define gpgpu_stepsPast 1\n'+
- *   '#define gpgpu_steps 2\n'+
- *   '\n'+
- *   '#define gpgpu_passNow 0\n'+
- *   '\n'+
- *   '#define gpgpu_bound_1 0\n'+
- *   '#define gpgpu_attach_1 0\n'+
- *   '#define gpgpu_output_1 gl_FragData[gpgpu_attach_1].rgba\n'+
- *   '\n';
+ * macroPass(state); // =>
+ * '#define gpgpu_texture_1 0\n'+
+ * '#define gpgpu_channels_1 rgba\n'+
+ * '\n'+
+ * '#define gpgpu_texture_0 1\n'+
+ * '#define gpgpu_channels_0 rg\n'+
+ * '\n'+
+ * '#define gpgpu_texture_2 1\n'+
+ * '#define gpgpu_channels_2 b\n'+
+ * '\n'+
+ * '#define count 32\n'+
+ * '#define gpgpu_textures 2\n'+
+ * '#define gpgpu_passes 2\n'+
+ * '#define gpgpu_stepsPast 1\n'+
+ * '#define gpgpu_steps 2\n'+
+ * '\n'+
+ * '#define gpgpu_passNow 0\n'+
+ * '\n'+
+ * '#define gpgpu_bound_1 0\n'+
+ * '#define gpgpu_attach_1 0\n'+
+ * '#define gpgpu_output_1 gl_FragData[gpgpu_attach_1].rgba\n'+
+ * '\n';
  *
- *   // Next pass and extra step.
- *   ++state.steps;
- *   ++state.passNow;
- *   state.pre = '';
- *   macroPass(state); // =>
- *   '#define texture_1 0\n'+
- *   '#define channels_1 rgba\n'+
- *   '\n'+
- *   '#define texture_0 1\n'+
- *   '#define channels_0 rg\n'+
- *   '\n'+
- *   '#define texture_2 1\n'+
- *   '#define channels_2 b\n'+
- *   '\n'+
- *   '#define count 32\n'+
- *   '#define textures 2\n'+
- *   '#define passes 2\n'+
- *   '#define stepsPast 2\n'+
- *   '#define steps 3\n'+
- *   '\n'+
- *   '#define passNow 1\n'+
- *   '\n'+
- *   '#define bound_0 1\n'+
- *   '#define attach_0 0\n'+
- *   '#define output_0 gl_FragData[attach_0].rg\n'+
- *   '\n'+
- *   '#define bound_2 1\n'+
- *   '#define attach_2 0\n'+
- *   '#define output_2 gl_FragData[attach_2].b\n'+
- *   '\n'+
- *   '#define useSamples'+cr+
- *     'const int samples_l = 3;'+cr+
- *     'const ivec2 samples_0 = ivec2(0, 1);'+cr+
- *     'const ivec2 samples_1 = ivec2(1, 1);'+cr+
- *     'const ivec2 samples_2 = ivec2(0, 0);\n'+
- *   '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
- *     'use name (e.g: `samples_0`) if possible.\n'+
- *   '#define samples_i(i)'+cr+
- *     '((i == 2)? samples_2 : ((i == 1)? samples_1 : samples_0))\n'+
- *   '\n'+
- *   '#define useReads_0'+cr+
- *     'const int reads_0_l = 1;'+cr+
- *     'const int reads_0_0 = int(0);\n'+
- *   '// Index macro `reads_0_i` (e.g: `reads_0_i(0)`) may be slow, '+
- *     'use name (e.g: `reads_0_0`) if possible.\n'+
- *   '#define reads_0_i(i) reads_0_0\n'+
- *   '\n'+
- *   '#define useReads_2'+cr+
- *     'const int reads_2_l = 4;'+cr+
- *     'const int reads_2_0 = int(1);'+cr+
- *     'const int reads_2_1 = int(0);'+cr+
- *     'const int reads_2_2 = int(2);'+cr+
- *     'const int reads_2_3 = int(0);\n'+
- *   '// Index macro `reads_2_i` (e.g: `reads_2_i(0)`) may be slow, '+
- *     'use name (e.g: `reads_2_0`) if possible.\n'+
- *   '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+
- *     ': ((i == 1)? reads_2_1 : reads_2_0)))\n'+
- *   '\n'+
- *   '// States in a `sampler2D[]`; looks up 1D index and 2D `uv`.\n'+
- *   '@todo';
+ * // Next pass and extra step.
+ * ++state.steps;
+ * ++state.passNow;
+ * state.pre = '';
+ * macroPass(state); // =>
+ * '#define texture_1 0\n'+
+ * '#define channels_1 rgba\n'+
+ * '\n'+
+ * '#define texture_0 1\n'+
+ * '#define channels_0 rg\n'+
+ * '\n'+
+ * '#define texture_2 1\n'+
+ * '#define channels_2 b\n'+
+ * '\n'+
+ * '#define count 32\n'+
+ * '#define textures 2\n'+
+ * '#define passes 2\n'+
+ * '#define stepsPast 2\n'+
+ * '#define steps 3\n'+
+ * '\n'+
+ * '#define passNow 1\n'+
+ * '\n'+
+ * '#define bound_0 1\n'+
+ * '#define attach_0 0\n'+
+ * '#define output_0 gl_FragData[attach_0].rg\n'+
+ * '\n'+
+ * '#define bound_2 1\n'+
+ * '#define attach_2 0\n'+
+ * '#define output_2 gl_FragData[attach_2].b\n'+
+ * '\n'+
+ * '#define useSamples'+lf+
+ *   'const int samples_l = 3;'+lf+
+ *   'const ivec2 samples_0 = ivec2(0, 1);'+lf+
+ *   'const ivec2 samples_1 = ivec2(1, 1);'+lf+
+ *   'const ivec2 samples_2 = ivec2(0, 0);\n'+
+ * '// Index macro `samples_i` (e.g: `samples_i(0)`) may be slow, '+
+ *   'use name (e.g: `samples_0`) if possible.\n'+
+ * '#define samples_i(i)'+lf+
+ *   '((i == 2)? samples_2 : ((i == 1)? samples_1 : samples_0))\n'+
+ * '\n'+
+ * '#define useReads_0'+lf+
+ *   'const int reads_0_l = 1;'+lf+
+ *   'const int reads_0_0 = int(0);\n'+
+ * '// Index macro `reads_0_i` (e.g: `reads_0_i(0)`) may be slow, '+
+ *   'use name (e.g: `reads_0_0`) if possible.\n'+
+ * '#define reads_0_i(i) reads_0_0\n'+
+ * '\n'+
+ * '#define useReads_2'+lf+
+ *   'const int reads_2_l = 4;'+lf+
+ *   'const int reads_2_0 = int(1);'+lf+
+ *   'const int reads_2_1 = int(0);'+lf+
+ *   'const int reads_2_2 = int(2);'+lf+
+ *   'const int reads_2_3 = int(0);\n'+
+ * '// Index macro `reads_2_i` (e.g: `reads_2_i(0)`) may be slow, '+
+ *   'use name (e.g: `reads_2_0`) if possible.\n'+
+ * '#define reads_2_i(i) ((i == 3)? reads_2_3 : ((i == 2)? reads_2_2 '+
+ *   ': ((i == 1)? reads_2_1 : reads_2_0)))\n'+
+ * '\n'+
+ * '// States in a `sampler2D[]`; looks up 1D index and 2D `uv`.\n'+
+ * '@todo';
  * ```
  *
  * @param {object} state Properties for generating the macros. See `getState`
@@ -1104,6 +1112,7 @@ export function macroTaps(state, on) {
  */
 export const macroPass = (state, on) =>
   hasMacros(state, hooks.macroPass, on) ??
-    macroValues(state)+macroOutput(state)+macroSamples(state)+macroTaps(state);
+    macroValues(state, on)+macroOutput(state, on)+macroSamples(state, on)+
+    macroTaps(state, on);
 
 export default macroPass;
