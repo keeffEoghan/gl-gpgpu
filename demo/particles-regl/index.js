@@ -281,8 +281,6 @@ const state = gpgpu(regl, {
     // No macros needed for the `vert` shader; all other macros generated.
     macroVert: false
   },
-  // Prefix is usually recommended; use none here to check for naming clashes.
-  pre: '',
   // A fragment shader to compute each state step, with `gl-gpgpu` macros.
   // Vertex shaders can also be given.
   frag: stepFrag,
@@ -387,9 +385,9 @@ console.log('drawSteps', drawSteps, 'useLines', useLines);
 /**
  * Vertex counts by form; how many steps a form covers, for all entries;
  * respectively for: none, points, lines.
- * Note `state.size.indexes` equals the value returned by `countDrawIndexes`.
+ * Note `state.size.entries` equals the value returned by `countDrawIndexes`.
  */
-const drawCounts = map((_, f) => indexForms(drawSteps, f, state.size.indexes),
+const drawCounts = map((_, f) => indexForms(drawSteps, f, state.size.entries),
   range(2+useLines), 0);
 
 const viewScale = ({ drawingBufferWidth: w, drawingBufferHeight: h }) =>

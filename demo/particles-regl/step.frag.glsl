@@ -23,49 +23,49 @@ precision highp float;
 // they are defined here to match that arrangement.
 
 // The texture channels each of the `values` is stored in.
-#define positionChannels channels_0
-#define motionChannels channels_1
-#define lifeChannels channels_2
+#define positionChannels gpgpu_channels_0
+#define motionChannels gpgpu_channels_1
+#define lifeChannels gpgpu_channels_2
 
 /** Set up sampling logic via `gl-gpgpu` macro. */
-useSamples
+gpgpu_useSamples
 
 // Set up minimal texture reads logic; only read what a value with a currently
 // bound output `derives` from other `values` for its next state.
 // See `derives` for indexing `reads_${bound value index}_${derives index}`.
-#ifdef output_0
-  #define positionOutput output_0
-  useReads_0
-  #define positionReadPosition0 reads_0_0
-  #define positionReadPosition1 reads_0_1
-  #define positionReadMotion reads_0_2
-  #define positionReadLife reads_0_3
+#ifdef gpgpu_output_0
+  #define positionOutput gpgpu_output_0
+  gpgpu_useReads_0
+  #define positionReadPosition0 gpgpu_reads_0_0
+  #define positionReadPosition1 gpgpu_reads_0_1
+  #define positionReadMotion gpgpu_reads_0_2
+  #define positionReadLife gpgpu_reads_0_3
 #endif
-#ifdef output_1
-  #define motionOutput output_1
-  useReads_1
-  #define motionReadMotion reads_1_0
-  #define motionReadLife reads_1_1
-  #define motionReadPosition reads_1_2
+#ifdef gpgpu_output_1
+  #define motionOutput gpgpu_output_1
+  gpgpu_useReads_1
+  #define motionReadMotion gpgpu_reads_1_0
+  #define motionReadLife gpgpu_reads_1_1
+  #define motionReadPosition gpgpu_reads_1_2
 #endif
-#ifdef output_2
-  #define lifeOutput output_2
-  useReads_2
-  #define lifeReadLifeLast reads_2_0
-  #define lifeReadLife1 reads_2_1
+#ifdef gpgpu_output_2
+  #define lifeOutput gpgpu_output_2
+  gpgpu_useReads_2
+  #define lifeReadLifeLast gpgpu_reads_2_0
+  #define lifeReadLife1 gpgpu_reads_2_1
 #endif
 
 // The main shader.
 
 // States from `gl-gpgpu`; in separate textures or merged.
-#ifdef mergedStates
-  uniform sampler2D states;
+#ifdef gpgpu_mergedStates
+  uniform sampler2D gpgpu_states;
 #else
-  uniform sampler2D states[stepsPast*textures];
+  uniform sampler2D gpgpu_states[gpgpu_stepsPast*gpgpu_textures];
 #endif
 
-/** The current step from `gl-gpgpu`. */
-uniform float stepNow;
+/** Current step from `gl-gpgpu`; needed for `tapStates` or `tapStatesBy`. */
+uniform float gpgpu_stepNow;
 
 // Custom inputs for this demo.
 
@@ -120,13 +120,13 @@ varying vec2 uv;
 // }
 
 void main() {
-  // Sample the desired state values - creates the `data` array.
-  tapState(uv)
+  // Sample the desired state values - creates the `gpgpu_data` `array`.
+  gpgpu_tapState(uv)
 
   // Read values.
 
   #ifdef positionOutput
-    vec3 position0 = data[positionReadPosition0].positionChannels;
+    vec3 position0 = gpgpu_data[positionReadPosition0].positionChannels;
   #endif
 
   // If reads all map to the same value sample, any of them will do.
@@ -139,8 +139,8 @@ void main() {
       #define readPosition motionReadPosition
     #endif
 
-    vec3 position1 = data[readPosition].positionChannels;
-    vec3 motion = data[readMotion].motionChannels;
+    vec3 position1 = gpgpu_data[readPosition].positionChannels;
+    vec3 motion = gpgpu_data[readMotion].motionChannels;
   #endif
 
   // If reads all map to the same value sample, any of them will do.
@@ -152,10 +152,10 @@ void main() {
     #define readLife motionReadLife
   #endif
 
-  float life = data[readLife].lifeChannels;
+  float life = gpgpu_data[readLife].lifeChannels;
 
   #ifdef lifeOutput
-    float lifeLast = data[lifeReadLifeLast].lifeChannels;
+    float lifeLast = gpgpu_data[lifeReadLifeLast].lifeChannels;
   #endif
 
   // Update and output values.

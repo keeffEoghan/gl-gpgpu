@@ -42,7 +42,7 @@ const { isInteger } = Number;
  *     ...state,
  *     size: {
  *       steps: 2, passes: 2, textures: 4,
- *       width: 10, height: 10, shape: [10, 10], indexes: 100
+ *       width: 10, height: 10, shape: [10, 10], entries: 100
  *     },
  *     steps: [[s0.passes[0][0].framebuffer], [s0.passes[1][0].framebuffer]],
  *     // This setup results in fewer passes, as more buffers can be bound.
@@ -111,7 +111,7 @@ const { isInteger } = Number;
  *     ...state,
  *     size: {
  *       steps: 2, passes: 4, textures: 4,
- *       width: 32, height: 32, shape: [32, 32], indexes: 1024
+ *       width: 32, height: 32, shape: [32, 32], entries: 1024
  *     },
  *     steps: [
  *       [s1.passes[0][0].framebuffer, s1.passes[0][1].framebuffer],
@@ -334,7 +334,7 @@ const { isInteger } = Number;
  * @returns {number} `to.size.height` Height of `framebuffer`s and `texture`s.
  * @returns {array.<number>} `to.size.shape` Shape of `framebuffer`s and
  *   `texture`s, as `[to.size.width, to.size.height]`.
- * @returns {number} `to.size.indexes` Number of entries in each `texture`.
+ * @returns {number} `to.size.entries` Number of entries in each `texture`.
  * @returns {object.<number,string,array.<number>>|undefined} `[to.size.merge]`
  *   Any size/type information about any created or given `merge`d `texture`.
  */
@@ -392,7 +392,7 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
     type, depth, stencil, channelsMin: mergeChannels ?? channelsMin,
     steps: steps.length ?? steps,
     passes: 0, framebuffers: 0, textures: 0, colors: 0,
-    width, height, shape: [width, height], indexes: width*height
+    width, height, shape: [width, height], entries: width*height
   };
 
   /** The `texture`s created for the `step`/`pass` render flow. */
@@ -530,7 +530,7 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
     next: merge.next ?? addPass(null, false)()
   };
 
-  size.merge = { width: mw, height: mh, shape: [mw, mh], indexes: mw*mh };
+  size.merge = { width: mw, height: mh, shape: [mw, mh], entries: mw*mh };
 
   return to;
 }

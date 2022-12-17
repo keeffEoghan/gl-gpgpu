@@ -1,8 +1,8 @@
 /**
- * The step and entry indexes corresponding to the number of indexes and steps
+ * The step and entry indexes corresponding to the number of entries and steps
  * for pairs of elements (e.g: lines linking each index's steps); as detailed in
  * the `indexForms` `JS` `function`.
- * Given the vertex index and number of steps; iterates indexes-then-steps.
+ * Given the vertex index and number of steps; iterates entries-then-steps.
  *
  * @see {@link index-forms}
  * @see {@link util/remain-div.glsl!}
@@ -15,7 +15,7 @@
  * @returns {vec2|ivec2} The step and entry index, respectively, to look up the
  *   correct data to draw the given `form` along each entry's steps of state;
  *   always a `vec2` if any operand is a `float`, an `ivec2` if all are `int`;
- *   iterates with `index` by indexes-then-steps.
+ *   iterates with `index` by entries-then-steps.
  */
 
 #pragma glslify: remainDiv = require(../util/remain-div)

@@ -9,34 +9,35 @@
 precision highp float;
 
 // The texture channels each of the `values` is stored in.
-#define positionChannels channels_0
-#define motionChannels channels_1
-#define lifeChannels channels_2
+#define positionChannels gpgpu_channels_0
+#define motionChannels gpgpu_channels_1
+#define lifeChannels gpgpu_channels_2
 // Set up sampling logic.
-useSamples
+gpgpu_useSamples
 // Only the first value derives from all values, giving these minimal `reads`.
-useReads_0
+gpgpu_useReads_0
 // All `derives` here are in one pass (`0`), and in the same order as `values`.
 // See `values` for indexing `reads_0_${derives index == values index}`.
-#define readPosition1 reads_0_0
-#define readMotion reads_0_1
-#define readLife reads_0_2
-#define readPosition0 reads_0_3
+#define readPosition1 gpgpu_reads_0_0
+#define readMotion gpgpu_reads_0_1
+#define readLife gpgpu_reads_0_2
+#define readPosition0 gpgpu_reads_0_3
 
 attribute float index;
 
 // States from `gl-gpgpu`; in separate textures or merged.
-#ifdef mergedStates
-  uniform sampler2D states;
+#ifdef gpgpu_mergedStates
+  uniform sampler2D gpgpu_states;
 #else
-  uniform sampler2D states[stepsPast*textures];
+  uniform sampler2D gpgpu_states[gpgpu_stepsPast*gpgpu_textures];
 #endif
 
-// Must be defined when using the default `tapStates` or `tapStatesBy`.
-uniform float stepNow;
+/** Current step from `gl-gpgpu`; needed for `tapStates` or `tapStatesBy`. */
+uniform float gpgpu_stepNow;
+/** Further `gl-gpgpu` uniforms. */
+uniform vec4 gpgpu_stateShape;
+uniform vec2 gpgpu_viewShape;
 
-uniform vec4 stateShape;
-uniform vec2 viewShape;
 uniform float pointSize;
 uniform float dt;
 uniform vec3 lifetime;
@@ -54,7 +55,7 @@ varying float radius;
 #pragma glslify: indexUV = require(../../src/lookup/index-uv)
 #pragma glslify: offsetUV = require(../../src/lookup/offset-uv)
 
-#if stepsPast > 1
+#if gpgpu_stepsPast > 1
   // If multiple steps are given, shift into past steps.
   // Lookups mostly equivalent; input and result iteration order differ.
   #define indexFormsStates
@@ -68,13 +69,13 @@ varying float radius;
 const vec4 noPosition = vec4(0, 0, -1, 0);
 
 void main() {
-  #if stepsPast > 1
+  #if gpgpu_stepsPast > 1
     // If multiple steps are given, find past step and entry.
     // Lookups mostly equivalent; input and result iteration order differ.
     #ifdef indexFormsStates
-      vec2 stepEntry = indexStates(index, stepsPast, form);
+      vec2 stepEntry = indexStates(index, gpgpu_stepsPast, form);
     #else
-      vec2 stepEntry = indexEntries(index, indexes, form);
+      vec2 stepEntry = indexEntries(index, gpgpu_entries, form);
     #endif
 
     float stepPast = stepEntry.s;
@@ -86,32 +87,32 @@ void main() {
   #endif
 
   // Turn 1D index into 2D texture UV; offset to texel center, avoids errors.
-  vec2 st = offsetUV(indexUV(entry, stateShape.xy), stateShape.xy);
+  vec2 st = offsetUV(indexUV(entry, gpgpu_stateShape.xy), gpgpu_stateShape.xy);
 
   // Can also use the `reads` logic to take the minimum possible samples here.
-  // Sample the desired state values; creates the `data` array.
-  #if stepsPast > 1
+  // Sample the desired state values; creates the `gpgpu_data` `array`.
+  #if gpgpu_stepsPast > 1
     // Shift into past steps.
-    tapStateBy(st, stepPast, 0)
+    gpgpu_tapStateBy(st, stepPast, 0)
   #else
     // No past steps, no shift.
-    tapState(st)
+    gpgpu_tapState(st)
   #endif
 
   // Read values.
-  vec3 position0 = (data[readPosition0].positionChannels);
-  vec3 position1 = (data[readPosition1].positionChannels);
-  vec3 motion = (data[readMotion].motionChannels);
-  float life = (data[readLife].lifeChannels);
+  vec3 position0 = gpgpu_data[readPosition0].positionChannels;
+  vec3 position1 = gpgpu_data[readPosition1].positionChannels;
+  vec3 motion = gpgpu_data[readMotion].motionChannels;
+  float life = gpgpu_data[readLife].lifeChannels;
 
-  #if stepsPast > 1
-    float ratioNow = 1.0-(stepPast/float(stepsPast-1));
+  #if gpgpu_stepsPast > 1
+    float ratioNow = 1.0-(stepPast/float(gpgpu_stepsPast-1));
   #else
     float ratioNow = 1.0;
   #endif
 
   float alive = gt(life, 0.0);
-  vec2 ar = aspect(viewShape);
+  vec2 ar = aspect(gpgpu_viewShape);
   vec4 vertex = mix(noPosition, vec4(position1.xy*ar, position1.z, 1), alive);
   float depth = clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
   float a = clamp(pow(life/lifetime.t, 0.3)*pow(ratioNow, 0.3), 0.0, 1.0);
@@ -127,10 +128,12 @@ void main() {
    * @see [SO](https://stackoverflow.com/a/7158573)
    * @todo Might need the viewport `x` and `y` offset as well as `w` and `h`?
    */
-  center = vec3(viewShape*((1.0+vertex.xy)/vertex.w)*0.5, vertex.z);
+  center = vec3(gpgpu_viewShape*((1.0+vertex.xy)/vertex.w)*0.5, vertex.z);
 
   float speed = length(mix(motion, position1-position0, useVerlet)/dt);
 
-  color = a*vec4(mix(0.2, 1.0, ratioNow), mix(0.2, 1.0, entry/float(indexes)),
-    clamp(pow(speed*pace.s, pace.t), 0.0, 1.0), a);
+  color = a*vec4(mix(0.2, 1.0, ratioNow),
+    mix(0.2, 1.0, entry/float(gpgpu_entries)),
+    clamp(pow(speed*pace.s, pace.t), 0.0, 1.0),
+    a);
 }

@@ -337,7 +337,7 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  *
  * // Automatically packed values - values across fewer textures/passes.
  * state.maps = mapGroups({ ...maps, buffersMax: 1 });
- * state.size = { indexes: 2**5 };
+ * state.size = { entries: 2**5 };
  * macroValues(state); // =>
  * '#define texture_1 0\n'+
  * '#define channels_1 rgba\n'+
@@ -348,7 +348,7 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  * '#define texture_2 1\n'+
  * '#define channels_2 b\n'+
  * '\n'+
- * '#define indexes 32\n'+
+ * '#define entries 32\n'+
  * '#define textures 2\n'+
  * '#define passes 2\n'+
  * '#define stepsPast 1\n'+
@@ -367,7 +367,7 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  * '#define texture_2 1\n'+
  * '#define channels_2 b\n'+
  * '\n'+
- * '#define indexes 32\n'+
+ * '#define entries 32\n'+
  * '#define textures 2\n'+
  * '#define passes 1\n'+
  * '#define stepsPast 1\n'+
@@ -392,7 +392,7 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  * @param {number} [state.bound=boundDef] How many steps are bound as outputs,
  *   unavailable as inputs.
  * @param {object} [state.size] Any size information about the GL resources.
- * @param {number} [state.size.indexes] The number of data entries per `texture`
+ * @param {number} [state.size.entries] The number of data entries per `texture`
  *   (the `texture`'s area), if given. See `toData`.
  * @param {object|false} [state.cache=cacheDef] Any object to cache any inputs'
  *   results in, `false`y to skip caching; uses `cacheDef` if not given.
@@ -413,11 +413,11 @@ export function macroValues(state, on) {
 
   const { values, textures, passes: { length: passesL } } = maps;
   const stepsL = steps.length ?? steps;
-  const indexes = size?.indexes;
+  const entries = size?.entries;
 
   const c = cache &&
     `macro@${key}@${n
-      }|${bound}|${id(values)}|${id(textures)}|${stepsL}|${passesL}|${indexes}`;
+      }|${bound}|${id(values)}|${id(textures)}|${stepsL}|${passesL}|${entries}`;
 
   to = cache?.[c] ??
     reduce((s, texture, t, _, i = 0) => reduce((s, v) =>
@@ -425,7 +425,7 @@ export function macroValues(state, on) {
           `#define ${n}channels_${v} ${rgba.slice(i, i += values[v])}\n\n`,
         texture, s),
       textures, '')+
-    ((indexes)? `#define indexes ${indexes}\n` : '')+
+    ((entries)? `#define ${n}entries ${entries}\n` : '')+
     `#define ${n}textures ${textures.length}\n`+
     `#define ${n}passes ${passesL}\n`+
     `#define ${n}stepsPast ${stepsL-bound}\n`+
@@ -831,8 +831,8 @@ export function macroTaps(state, on) {
   /** Common parameters, passed as `(..., stepBy, textureBy)` */
   const by = `stepBy, textureBy`;
   /** Aliases default names for brevity, main functions offer more control. */
-  const aka = `#define ${f}(uv)${lf+f}`;
-  const akaBy = `#define ${f}By(uv, ${by})${lf+f}`;
+  const aka = `#define ${f}(uv)`+lf+f;
+  const akaBy = `#define ${f}By(uv, ${by})`+lf+f;
   /** The current `sample`, as `[step, texture]`. */
   const st = n+'samples_';
   /** Prefix for private temporary variables. */
@@ -1020,7 +1020,7 @@ export function macroTaps(state, on) {
  * // Automatically packed values - values across fewer `texture`s/passes.
  * // Only a single `texture` output per pass - values across more passes.
  * const state = {
- *   passNow: 0, steps: 2, size: { indexes: 2**5 },
+ *   passNow: 0, steps: 2, size: { entries: 2**5 },
  *   maps: mapStep({ values, derives, channelsMax: 4, buffersMax: 1 })
  * };
  *
@@ -1034,7 +1034,7 @@ export function macroTaps(state, on) {
  * '#define gpgpu_texture_2 1\n'+
  * '#define gpgpu_channels_2 b\n'+
  * '\n'+
- * '#define indexes 32\n'+
+ * '#define gpgpu_entries 32\n'+
  * '#define gpgpu_textures 2\n'+
  * '#define gpgpu_passes 2\n'+
  * '#define gpgpu_stepsPast 1\n'+
@@ -1061,7 +1061,7 @@ export function macroTaps(state, on) {
  * '#define texture_2 1\n'+
  * '#define channels_2 b\n'+
  * '\n'+
- * '#define indexes 32\n'+
+ * '#define entries 32\n'+
  * '#define textures 2\n'+
  * '#define passes 2\n'+
  * '#define stepsPast 2\n'+
