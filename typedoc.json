@@ -2,7 +2,7 @@
   "plugin": ["typedoc-theme-hierarchy"],
   "theme": "hierarchy",
   "sort": ["source-order", "alphabetical"],
-  "categoryOrder": ["Main", "*"],
+  "categoryOrder": ["Root", "*"],
   "includeVersion": true,
   "githubPages": false,
   "tsconfig": "./tsconfig.json",

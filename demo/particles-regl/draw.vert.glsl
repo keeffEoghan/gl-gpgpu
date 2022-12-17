@@ -74,7 +74,7 @@ void main() {
     #ifdef indexFormsStates
       vec2 stepEntry = indexStates(index, stepsPast, form);
     #else
-      vec2 stepEntry = indexEntries(index, count, form);
+      vec2 stepEntry = indexEntries(index, indexes, form);
     #endif
 
     float stepPast = stepEntry.s;
@@ -131,6 +131,6 @@ void main() {
 
   float speed = length(mix(motion, position1-position0, useVerlet)/dt);
 
-  color = a*vec4(mix(0.2, 1.0, ratioNow), mix(0.2, 1.0, entry/float(count)),
+  color = a*vec4(mix(0.2, 1.0, ratioNow), mix(0.2, 1.0, entry/float(indexes)),
     clamp(pow(speed*pace.s, pace.t), 0.0, 1.0), a);
 }

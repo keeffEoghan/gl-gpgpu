@@ -4,6 +4,8 @@
  *
  * @see {@link macros.macroPass}
  * @see {@link macros.macroValues}
+ *
+ * @todo Simple light shading.
  */
 
 #ifdef GL_EXT_frag_depth

@@ -12,7 +12,7 @@ import wrap from '@epok.tech/fn-lists/wrap';
 import { boundDef, preDef } from './const';
 
 /**
- * Sets up `GL` `uniform` inputs for `gpgpu` calls, such as in `getStep`.
+ * Sets up `GL` `uniform` inputs for `gpgpu` calls, such as in `toStep`.
  *
  * The `uniform`s are defined as callback hooks to be called on each render pass
  * with global context and local state `object`s, allowing the use of different
@@ -28,7 +28,7 @@ import { boundDef, preDef } from './const';
  * const state = { pre: '', steps: 2, maps: mapStep({ values: [1, 2, 3] }) };
  * const api = {};
  *
- * getUniforms(getState(api, { ...state, merge: false }, {})); // =>
+ * toUniforms(toData(api, { ...state, merge: false }, {})); // =>
  * {
  *   stepNow: (context, state) => {},
  *   stateShape: (context, state) => {},
@@ -41,7 +41,7 @@ import { boundDef, preDef } from './const';
  *   states: (context, state) => null
  * };
  *
- * getUniforms(getState(api, { ...state, steps: 3, merge: false }, {})); // =>
+ * toUniforms(toData(api, { ...state, steps: 3, merge: false }, {})); // =>
  * {
  *   stepNow: (context, state) => {},
  *   stateShape: (context, state) => {},
@@ -57,7 +57,7 @@ import { boundDef, preDef } from './const';
  *   states: (context, state) => null
  * };
  *
- * getUniforms(getState(api, { ...state, merge: true }, {})); // =>
+ * toUniforms(toData(api, { ...state, merge: true }, {})); // =>
  * {
  *   stepNow: (context, state) => {},
  *   stateShape: (context, state) => {},
@@ -71,27 +71,27 @@ import { boundDef, preDef } from './const';
  * };
  * ```
  *
- * @see {@link step.getStep}
- * @see {@link state.getState}
+ * @see {@link step.toStep}
+ * @see {@link data.toData}
  * @see {@link maps.mapGroups}
  * @see {@link macros.macroSamples}
  * @see {@link macros.macroTaps}
  *
- * @param {object} state The `gpgpu` state. See `getState` and `mapGroups`.
+ * @param {object} state The `gpgpu` state. See `toData` and `mapGroups`.
  * @param {array|number} state.steps The `array` of steps, or number of steps.
- *   See `getState`.
+ *   See `toData`.
  * @param {{textures?:number[][]}} state.maps How values are grouped into
  *   data-`texture`s (per-pass per-step). See `mapGroups`.
  * @param {string} [state.pre=preDef] Namespace prefix; `preDef` if not given.
  * @param {{all?:{texture?:object}}} [state.merge] Any merged state `texture`;
- *   uses separate state data-`texture`s if not given. See `getState`.
+ *   uses separate state data-`texture`s if not given. See `toData`.
  *
  * @param {{shape?:number[],merge?:{shape?:number[]}}} [state.size] Any size of
  *   `state` data-`texture`s (as `vec2(width, height)`); with:
  *   - `shape`: Any `state` shape.
  *   - `merge.shape`: Any merged `states` shape, otherwise `state` shape.
  *
- *   See `getState`.
+ *   See `toData`.
  *
  * @param {number} [state.bound=boundDef] Number of steps bound for output, not
  *   used for input; for platforms preventing read/write of the same `texture`.
@@ -121,11 +121,11 @@ import { boundDef, preDef } from './const';
  *   - `merge`: Any `object` containing merged data-`texture`.
  *     - `texture`: Any merged data-`texture`.
  *   - `textures`: Textures per-step, as `array`s of `object`s with a `texture`
- *     property. See `getState`.
+ *     property. See `toData`.
  *
  *   The `to` set up with `uniform` callback hooks for the given `state`, to
  *   be called on each render pass for the latest `uniform` values; with:
- *   - `stepNow`: Gives any current step. See `getStep`.
+ *   - `stepNow`: Gives any current step. See `toStep`.
  *   - `stateShape`: Gives any shape of any data-`texture`s; as
  *     `vec4(vec2(width, height), vec2(width, height))`; channels are `null`ish
  *     if there's no valid shape; with:
@@ -143,13 +143,14 @@ import { boundDef, preDef } from './const';
  *       by constant index (steps ago); otherwise `null`.
  *
  *   These property names may be prefixed with any given `state.pre`.
- *   See `getState` and `getStep`.
+ *   See `toData` and `toStep`.
  */
-export function getUniforms(state, to = state.uniforms ?? {}) {
-  const { pre: n = preDef, steps, maps, bound = boundDef } = state;
+export function toUniforms(state = {}, to = state.uniforms ??= {}) {
+  const { steps, maps, pre: n = preDef, bound = boundDef } = state;
   const { textures } = maps;
   const stepsL = steps.length ?? steps;
   const texturesL = textures.length;
+  // Local caches.
   const stateShape = [];
   const viewShape = [];
 
@@ -199,9 +200,9 @@ export function getUniforms(state, to = state.uniforms ?? {}) {
  * A `function` hook to update a `GL` `uniform` value for a render pass.
  *
  * **See**
- * - {@link getUniforms}
- * - {@link state.getState}
- * - {@link state.texture}
+ * - {@link toUniforms}
+ * - {@link data.toData}
+ * - {@link api.texture}
  *
  * **Returns**
  * A `GL` uniform to be bound via a `GL` API.
@@ -218,13 +219,13 @@ export function getUniforms(state, to = state.uniforms ?? {}) {
  *     bound?:number,
  *     merge?:{texture:object},
  *     textures:{texture:object}[][]
- *   }} state Local properties (the `gpgpu` `state`); with:
- *   - `stepNow`: The current step of the `gpgpu` `state`.
+ *   }} state Local properties (the `gpgpu` state); with:
+ *   - `stepNow`: The current step of the `gpgpu` state.
  *   - `bound`: Number of steps bound to output; can't be bound as inputs.
  *   - `merge`: Any `object` containing merged data-`texture`.
  *     - `texture`: Any merged data-`texture`.
  *   - `textures`: Textures per-step, as `array`s of `object`s with a `texture`
- *     property. See `getState`.
+ *     property. See `toData`.
  *
  * @returns {number|number[]|texture|object}
  */

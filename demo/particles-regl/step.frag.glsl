@@ -6,7 +6,7 @@
  * preprocessor macros control the combination according to which `values` are
  * currently bound for `output` to the next `state`.
  *
- * @see {@link step.getStep}
+ * @see {@link step.toStep}
  * @see {@link macros.macroPass}
  */
 

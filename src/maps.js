@@ -1,22 +1,22 @@
 /**
- * The `gpgpu` mappings for step/draw shaders input/output.
+ * The `gpgpu` maps of data for optimal inputs/outputs on a platform.
  *
- * These maps show shaders how to make use of a system's supported features, how
- * to pack/unpack their data from `framebuffer`s/`texture`s, perform minimal
+ * These maps show how to make optimal use of a platform's supported features,
+ * how to pack/unpack their data from `framebuffer`s/`texture`s, perform minimal
  * needed samples to retrieve any past values they must derive from, etc.
  *
  * Shaders may declare values they output, values they derive from, groupings of
  * in/dependent values - without handling how these concerns map to the
- * particular system resources they're using.
+ * particular platform resources they're using.
  *
- * System limits/features/extensions are accounted for, to produce the most
+ * Platform limits/features/extensions are accounted for, to produce the most
  * efficient mappings available with the least I/O when it comes to drawing
- * (draw passes, texture samples, etc).
+ * (draw passes, `texture` samples, etc).
  *
  * @module
  * @category JS
  *
- * @todo Allow passes within/across textures; separate data and texture shapes.
+ * @todo Allow passes within/across `texture`s; separate data/`texture` shapes.
  */
 
 import map from '@epok.tech/fn-lists/map';
@@ -26,9 +26,6 @@ import each from '@epok.tech/fn-lists/each';
 import { valuesDef, channelsMaxDef, buffersMaxDef } from './const';
 
 const { isInteger } = Number;
-
-/** Cache for optimisation. */
-export const cache = { packed: [] };
 
 /**
  * Determines whether a given value is valid and can be stored within the
@@ -70,13 +67,15 @@ export const validValue = (value, channelsMax = channelsMaxDef) =>
  *   one or more textures/passes. See `mapGroups`.
  * @param {number} [channelsMax=channelsMaxDef] The maximum number of channels
  *   per texture. See `mapGroups`.
- * @param {array} [to=[]] An array to store the result; a new array by default.
+ * @param {array} [to=[]] An `array` to store the result; a new `array` if not
+ *   given.
  *
  * @returns {array.<number>} `to` The indexes of the given `values`, reordered
  *   to pack into the fewest buckets of `channelsMax` size or less; stored in
  *   the given `to` array.
  */
 export function packValues(values, channelsMax = channelsMaxDef, to = []) {
+  // Fill `to` with indexes of `values`, and ensure it's the same length.
   map((_, i) => i, values, to).length = values.length;
 
   /** Counts the number of empty channels in the current group. */
@@ -228,15 +227,14 @@ export function packValues(values, channelsMax = channelsMaxDef, to = []) {
  *   `to.textures` to the index of the pass containing it.
  */
 export function mapGroups(maps = {}, to = maps) {
-  if(!maps) { return to; }
-
   const {
       values = valuesDef(),
-      channelsMax = channelsMaxDef, buffersMax = buffersMaxDef,
+      buffersMax = buffersMaxDef, channelsMax = channelsMaxDef,
       // Pack `values` into blocks of `channelsMax` to minimise resources.
-      packed = packValues(values, channelsMax, cache.packed)
+      packed = packValues(values, channelsMax)
     } = maps;
 
+  // Ensure any properties changed are included.
   to.values = values;
   to.buffersMax = buffersMax;
   to.channelsMax = channelsMax;
@@ -247,7 +245,7 @@ export function mapGroups(maps = {}, to = maps) {
   const valueToTexture = to.valueToTexture = [];
   const valueToPass = to.valueToPass = [];
   const textureToPass = to.textureToPass = [];
-  // Counts the number of channels written in a single draw pass.
+  /** Counts the number of channels written in a single draw pass. */
   let channels = 0;
   // Get the value, via `packed` if valid, or directly as given in `values`.
   const getValue = ((packed)? ((_, i) => values[i]) : ((v) => v));
@@ -376,16 +374,13 @@ export function mapGroups(maps = {}, to = maps) {
  * @returns {true|array.<true,number,array.<true,number,array.<true,number>>>}
  *   `[to.derives]` How new values derive from past values, as given.
  */
-export function mapSamples(maps, to = maps) {
-  const derives = maps?.derives;
+export function mapSamples(maps = {}, to = maps) {
+  const { derives, passes, textures, valueToTexture } = maps;
 
   if(!derives) { return to; }
 
-  const { passes, textures, valueToTexture } = maps;
   const reads = to.reads = [];
   const cache = {};
-
-  to.derives = derives;
 
   const all = (step = 0) =>
     cache[step] ??= map((t, v) => [step, v], valueToTexture);
@@ -452,7 +447,6 @@ export function mapSamples(maps, to = maps) {
  *   per-`texture` per-pass per-step, meta information, and given parameters;
  *   and minimal samples and reads for any given `maps.derives`.
  */
-export const mapStep = (maps, to = maps) =>
-  mapSamples(maps, mapGroups(maps, to));
+export const mapStep = (maps, to = maps) => mapSamples(mapGroups(maps, to), to);
 
 export default mapStep;

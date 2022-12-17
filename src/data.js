@@ -1,12 +1,13 @@
 /**
- * The `gpgpu` state and `GL` resources.
+ * The `gpgpu` state and `GL` data resources.
  *
- * Handles `framebuffer`s, `texture`s; and meta info.
+ * Handles `framebuffer`s, `texture`s; and the main meta info.
  *
  * @module
  * @category JS
  *
- * @todo Allow passes into or across textures; separate data and texture shapes.
+ * @todo Allow passes into or across `texture`s; separate shapes of data and
+ *   `texture`s.
  * @todo In-place updates of complex resources and meta info.
  */
 
@@ -17,7 +18,7 @@ import reduce from '@epok.tech/fn-lists/reduce';
 import { getWidth, getHeight, getScaled } from './size';
 
 import {
-    widthDef, heightDef, scaleDef, stepsDef, valuesDef, channelsMinDef, typeDef,
+    widthDef, heightDef, stepsDef, valuesDef, channelsMinDef, typeDef,
     minDef, magDef, wrapDef, depthDef, stencilDef, mergeDef
   } from './const';
 
@@ -36,12 +37,12 @@ const { isInteger } = Number;
  *   let maps = mapGroups({ values: [1, 2, 3], buffersMax: 4, packed: 0 });
  *   let state = { steps: 2, side: 10, maps };
  *
- *   const s0 = getState(api, state, {}); // =>
+ *   const s0 = toData(api, state, {}); // =>
  *   {
- *     ...state, passNow: undefined, stepNow: undefined,
+ *     ...state,
  *     size: {
  *       steps: 2, passes: 2, textures: 4,
- *       width: 10, height: 10, shape: [10, 10], count: 100
+ *       width: 10, height: 10, shape: [10, 10], indexes: 100
  *     },
  *     steps: [[s0.passes[0][0].framebuffer], [s0.passes[1][0].framebuffer]],
  *     // This setup results in fewer passes, as more buffers can be bound.
@@ -103,14 +104,14 @@ const { isInteger } = Number;
  *
  *   // Example with no `webgl_draw_buffers` extension support, only 1 buffer.
  *   maps = mapGroups({ values: [1, 2, 3], buffersMax: 1, packed: 0 });
- *   state = { type: 'uint8', steps: 2, scale: 5, maps, stepNow: 1 };
+ *   state = { type: 'uint8', steps: 2, scale: 5, maps };
  *
- *   const s1 = getState(api, state, {}); // =>
+ *   const s1 = toData(api, state, {}); // =>
  *   {
- *     ...state, passNow: undefined, stepNow: 1,
+ *     ...state,
  *     size: {
  *       steps: 2, passes: 4, textures: 4,
- *       width: 32, height: 32, shape: [32, 32], count: 1024
+ *       width: 32, height: 32, shape: [32, 32], indexes: 1024
  *     },
  *     steps: [
  *       [s1.passes[0][0].framebuffer, s1.passes[0][1].framebuffer],
@@ -194,7 +195,7 @@ const { isInteger } = Number;
  * @see {@link api.framebuffer}
  * @see {@link maps.mapGroups}
  * @see {@link maps.mapSamples}
- * @see {@link step.getStep}
+ * @see {@link step.toStep}
  * @see {@link macros.macroSamples}
  * @see {@link macros.macroTaps}
  * @see {@link macros.macroPass}
@@ -242,8 +243,6 @@ const { isInteger } = Number;
  * @param {number} [state.maps.textures] How values are grouped into `texture`s.
  *   See `mapGroups`.
  *
- * @param {number} [state.stepNow] The currently active state step, if any.
- * @param {number} [state.passNow] The currently active draw pass, if any.
  * @param {string} [state.type=typeDef] Any `texture` data type value.
  * @param {string} [state.min=minDef] Any `texture` minification filter value.
  * @param {string} [state.mag=magDef] Any `texture` magnification filter value.
@@ -273,7 +272,7 @@ const { isInteger } = Number;
  *   The default merged `texture` is laid out as `[texture, step]` on the
  *   `[x, y]` axes, respectively; if other layouts are needed, the merge
  *   `texture` can be given here to be used as-is, and the merging/copying and
- *   lookup logic in their respective hooks. See `getStep` and `macroTaps`.
+ *   lookup logic in their respective hooks. See `toStep` and `macroTaps`.
  *   If a merge `texture` is given, size information is interpreted in a similar
  *   way and precedence as it is from `state`. See `getWidth` and `getHeight`.
  *
@@ -298,7 +297,7 @@ const { isInteger } = Number;
  *   `state` object by default.
  *
  * @returns {object} `to` The state object, set up with the data resources and
- *   meta information, for use with `getStep` and drawing:
+ *   meta information, for use with `toStep` and drawing:
  * @returns {object.<number,array.<number,array.<number>>>} `to.maps` Any given
  *   `state.maps`. See `mapGroups`.
  * @returns {array.<array.<object.<texture,string,number,array.<number>>>>}
@@ -312,12 +311,12 @@ const { isInteger } = Number;
  *   `to.passes`, with `array`s of `texture`s from `to.textures`, and meta
  *   information; set up here, or the given `state.steps` if it's an `array`.
  *   State data may be drawn into the `framebuffer`s accordingly.
- *   See `mapGroups` and `getStep`.
+ *   See `mapGroups` and `toStep`.
  * @returns {object|undefined} `[to.merge]` If merging, a given or new merged
- *   `texture` and copier `framebuffer`, with meta info. See `getStep` and
+ *   `texture` and copier `framebuffer`, with meta info. See `toStep` and
  *   `macroTaps`.
- * @returns {object.<texture,string,number>|undefined} `[to.merge.all]` Any given
- *   `state.merge.all`, or newly-created merged `texture` and meta info.
+ * @returns {object.<texture,string,number>|undefined} `[to.merge.all]` Any
+ *   given `state.merge.all`, or newly-created merged `texture` and meta info.
  * @returns {object.<framebuffer,string,number>|undefined} `[to.merge.next]` Any
  *   given `state.merge.next`, or newly-created `framebuffer` and meta info; for
  *   copying each pass's data into the `merge`d `texture`.
@@ -335,15 +334,13 @@ const { isInteger } = Number;
  * @returns {number} `to.size.height` Height of `framebuffer`s and `texture`s.
  * @returns {array.<number>} `to.size.shape` Shape of `framebuffer`s and
  *   `texture`s, as `[to.size.width, to.size.height]`.
- * @returns {number} `to.size.count` Number of entries in each `texture`.
+ * @returns {number} `to.size.indexes` Number of entries in each `texture`.
  * @returns {object.<number,string,array.<number>>|undefined} `[to.size.merge]`
  *   Any size/type information about any created or given `merge`d `texture`.
- * @returns {number} `to.stepNow` The currently active state step, as given.
- * @returns {number} `to.passNow` The currently active draw pass, as given.
  */
-export function getState({ texture, framebuffer }, state = {}, to = state) {
+export function toData({ texture, framebuffer }, state = {}, to = state) {
   const {
-      steps = stepsDef, stepNow, passNow, maps, merge = mergeDef, scale,
+      maps, scale, steps = stepsDef, merge = mergeDef,
       // Resource format settings.
       type = typeDef, min = minDef, mag = magDef, wrap = wrapDef,
       depth = depthDef, stencil = stencilDef
@@ -353,16 +350,23 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
   const width = Math.floor(getWidth(state) ?? scaled ?? widthDef);
   const height = Math.floor(getHeight(state) ?? scaled ?? heightDef);
 
-  to.maps = maps;
-  to.stepNow = stepNow;
-  to.passNow = passNow;
+  // Ensure any properties changed are included.
+  to.steps = steps;
+  to.merge = merge;
+  to.type = type;
+  to.min = min;
+  to.mag = mag;
+  to.wrap = wrap;
+  to.depth = depth;
+  to.stencil = stencil;
+  to.width = width;
+  to.height = height;
 
   const {
-      values = valuesDef(), channelsMin = channelsMinDef, textures: texturesMap
+      values = (maps.values = valuesDef),
+      channelsMin = (maps.channelsMin = channelsMinDef),
+      textures: texturesMap
     } = maps;
-
-  maps.channelsMin = channelsMin;
-  maps.values = values;
 
   /**
    * All `framebuffer` attachments need the same number of channels; enough to
@@ -388,7 +392,7 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
     type, depth, stencil, channelsMin: mergeChannels ?? channelsMin,
     steps: steps.length ?? steps,
     passes: 0, framebuffers: 0, textures: 0, colors: 0,
-    width, height, shape: [width, height], count: width*height
+    width, height, shape: [width, height], indexes: width*height
   };
 
   /** The `texture`s created for the `step`/`pass` render flow. */
@@ -526,9 +530,9 @@ export function getState({ texture, framebuffer }, state = {}, to = state) {
     next: merge.next ?? addPass(null, false)()
   };
 
-  size.merge = { width: mw, height: mh, shape: [mw, mh], count: mw*mh };
+  size.merge = { width: mw, height: mh, shape: [mw, mh], indexes: mw*mh };
 
   return to;
 }
 
-export default getState;
+export default toData;

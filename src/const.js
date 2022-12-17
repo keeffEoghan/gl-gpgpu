@@ -4,12 +4,26 @@
  * @module
  * @category JS
  */
+import { positions, count } from '@epok.tech/gl-screen-triangle';
 
-import { positions } from '@epok.tech/gl-screen-triangle';
 import vertGLSL from './index.vert.glsl';
 
 /** Default vertex shader `GLSL` code. */
 export const vertDef = vertGLSL;
+
+/**
+ * Default vertex positions `attribute`; 3 points of a large flat triangle.
+ *
+ * @see {@link step.toStep}
+ */
+export const positionsDef = positions;
+
+/**
+ * Default vertex `count`; 3 points of a large flat triangle.
+ *
+ * @see {@link step.toStep}
+ */
+export const countDef = count;
 
 // The required and optional `GL` extensions for a `gpgpu` state.
 
@@ -27,7 +41,11 @@ export const extensionsHalfFloat =
 /** Default optional `GL` extensions; update more data in one render pass. */
 export const optionalExtensions = ['webgl_draw_buffers'];
 
-/** Prefix namespace to avoid naming clashes; recommended. */
+/**
+ * Prefix namespace to avoid naming clashes; recommended.
+ *
+ * @see {@link index.vert.glsl}
+ */
 export const preDef = 'gpgpu_';
 
 /**
@@ -137,3 +155,52 @@ export const stencilDef = false;
 
 /** Whether states merge into one `texture`; one merged `texture` by default. */
 export const mergeDef = true;
+
+/**
+ * A `RegExp` to find the `GLSL` version `number` in a `GL` parameter
+ * `SHADING_LANGUAGE_VERSION` formatted `string`.
+ */
+export const glslRx = /[0-9\.]+/;
+
+/**
+ * Set a maximum to guard against number overflow.
+ *
+ * @see [SO](https://stackoverflow.com/a/67791670/716898)
+ */
+export const stepMaxDef = (2**15)-1;
+
+/**
+ * Default clear settings to clear each pass's `framebuffer`.
+ *
+ * @see {@link step.toStep}
+ * @see {@link api.clear}
+ * @see {@link api.framebuffer}
+ *
+ * @type {{color:[0,0,0,0],depth:1,stencil:0,framebuffer?:framebuffer}}
+ * @prop {framebuffer} [framebuffer] Any `framebuffer` to clear, set upon each
+ *   pass.
+ */
+export const clearPassDef = { color: [0, 0, 0, 0], depth: 1, stencil: 0 };
+
+/**
+ * Default `getFramebuffer` options, to bind a given `color` to it.
+ *
+ * @see {@link step.updateMerge}
+ * @see {@link api.framebuffer}
+ * @see {@link api.getFramebuffer}
+ *
+ * @prop {texture|null} color Any `texture` to bind as a `framebuffer` output.
+ */
+export const copyFrameDef = { color: null };
+
+/**
+ * Default `texture.subimage` options, to bind a given `color`.
+ *
+ * @see {@link step.updateMerge}
+ * @see {@link api.texture}
+ * @see {@link api.subimage}
+ *
+ * @prop {true} copy Indicates `texture.subimage` should copy data from the
+ *   currently-bound `framebuffer`.
+ */
+export const copyImageDef = { copy: true };

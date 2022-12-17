@@ -15,12 +15,12 @@
 
 /**
  * @callback getFramebuffer
- * A `function` to create or update a `GL` `framebuffer`; via a `GL` API.
+ * A `function` to create or update a `GL` `framebuffer`; via a `GL` `api`.
  *
  * **See**
  *
  * - {@link framebuffer}
- * - {@link state.getState}
+ * - {@link data.toData}
  *
  * **This**
  *
@@ -52,12 +52,12 @@
 
 /**
  * @callback useFramebuffer
- * Bind a `GL` `framebuffer` while calling a given `function`; via a `GL` API.
+ * Bind a `GL` `framebuffer` while calling a given `function`; via a `GL` `api`.
  *
  * **See**
  *
  * - {@link framebuffer}
- * - {@link step.getStep}
+ * - {@link step.toStep}
  *
  * **This**
  *
@@ -68,12 +68,12 @@
 
 /**
  * @typedef {object} framebuffer
- * A `GL` `framebuffer`, or an `object` serving that purpose; via a `GL` API.
+ * A `GL` `framebuffer`, or an `object` serving that purpose; via a `GL` `api`.
  *
  * **See**
  *
  * - {@link getFramebuffer}
- * - {@link state.getState}
+ * - {@link data.toData}
  *
  * @prop {getFramebuffer} call Update this `framebuffer` in-place.
  * @prop {useFramebuffer} use Bind this `framebuffer` for the given `function`.
@@ -81,13 +81,13 @@
 
 /**
  * @callback getTexture
- * A `function` hook to create or update a `GL` `texture`; via a `GL` API.
+ * A `function` hook to create or update a `GL` `texture`; via a `GL` `api`.
  *
  * **See**
  *
  * - {@link api}
  * - {@link texture}
- * - {@link state.getState}
+ * - {@link data.toData}
  *
  * **Returns**
  *
@@ -107,14 +107,14 @@
 /**
  * @callback subimage
  * Copy from a given source `texture` to part of `this` output `texture`; via
- * a `GL` API.
+ * a `GL` `api`.
  *
  * **See**
  *
  * - {@link api}
  * - {@link texture}
  * - {@link getTexture}
- * - {@link step.getStep}
+ * - {@link step.toStep}
  *
  * **Returns**
  *
@@ -133,12 +133,12 @@
 
 /**
  * @typedef {object} texture
- * A `GL` `texture`, or an `object` serving that purpose; via a `GL` API.
+ * A `GL` `texture`, or an `object` serving that purpose; via a `GL` `api`.
  *
  * **See**
  *
  * - {@link getTexture}
- * - {@link state.getState}
+ * - {@link data.toData}
  *
  * @prop {getTexture} call Update this `texture` in-place.
  * @prop {subimage} subimage Copy from a source `texture` into part of `this`
@@ -147,13 +147,15 @@
 
 /**
  * @callback getBuffer
- * A `function` to set up a `GL` buffer; via a `GL` API.
+ * A `function` to set up a `GL` buffer; via a `GL` `api`.
  *
  * **See**
  *
+ * - {@link buffer}
  * - {@link attributes.getAttributes}
  *
- * @param {number[]|{[k:string|number]:number}} data Buffer data.
+ * @param {number[]|{[k:string|number]:number}|buffer} data Data to create a new
+ *   `buffer`; or an existing `buffer` to use as-is.
  *
  * @returns {buffer}
  */
@@ -161,20 +163,17 @@
 /**
  * @typedef {object} buffer
  * A `GL` `buffer` for vertex `attribute`s, or an `object` serving that purpose;
- * via a `GL` API.
- *
- * @prop {number} [count] The buffer element/vertex count.
- * @prop {number} [length] The length of the buffer data `array`.
+ * via a `GL` `api`.
  */
 
 /**
  * @callback clear
- * A `function` to clear `GL` output view or `framebuffer`; via a `GL` API.
+ * A `function` to clear `GL` output view or `framebuffer`; via a `GL` `api`.
  *
  * **See**
  *
- * - {@link api.framebuffer}
- * - {@link step.getStep}
+ * - {@link framebuffer}
+ * - {@link step.toStep}
  *
  * @param {{
  *     color?:number[],
@@ -192,16 +191,16 @@
 /**
  * @callback command
  * A `function` to create a `GL` render pass execution `function`, to be called
- * later, given options, for a render pass; via a `GL` API.
+ * later, given options, for a render pass; via a `GL` `api`.
  *
  * **See**
  *
- * - {@link api.buffer}
- * - {@link api.attributes}
- * - {@link api.framebuffer}
- * - {@link step.getStep}
- * - {@link inputs.getUniforms}
- * - {@link inputs.getUniform}
+ * - {@link buffer}
+ * - {@link attributes}
+ * - {@link framebuffer}
+ * - {@link step.toStep}
+ * - {@link uniforms.toUniforms}
+ * - {@link uniforms.getUniform}
  *
  * **Returns**
  *
@@ -220,9 +219,9 @@
  *   - `frag`: Hook to get any `GLSL` fragment shader `string`.
  *   - `count`: Any `number` of elements to render.
  *   - `attributes`: Map of any `GL` `attribute` `buffer`s.
- *     See `attributes`, `buffer`, `getStep`.
+ *     See `attributes`, `buffer`, `toStep`.
  *   - `uniforms`: Map of any `GL` `uniform` hooks.
- *     See `uniforms`, `getUniforms`, and `getUniform`.
+ *     See `uniforms`, `toUniforms`, and `getUniform`.
  *   - `depth`: Any `GL` depth settings (e.g: `options.depth.enable`).
  *   - `framebuffer`: Hook to get any `framebuffer` to render into.
  *     See `framebuffer`.

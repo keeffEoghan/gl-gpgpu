@@ -310,7 +310,7 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  *
  * @see {@link hasMacros}
  * @see {@link maps.mapGroups}
- * @see {@link state.getState}
+ * @see {@link data.toData}
  * @see {@link cacheDef}
  *
  * @example ```javascript
@@ -337,7 +337,7 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  *
  * // Automatically packed values - values across fewer textures/passes.
  * state.maps = mapGroups({ ...maps, buffersMax: 1 });
- * state.size = { count: 2**5 };
+ * state.size = { indexes: 2**5 };
  * macroValues(state); // =>
  * '#define texture_1 0\n'+
  * '#define channels_1 rgba\n'+
@@ -348,7 +348,7 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  * '#define texture_2 1\n'+
  * '#define channels_2 b\n'+
  * '\n'+
- * '#define count 32\n'+
+ * '#define indexes 32\n'+
  * '#define textures 2\n'+
  * '#define passes 2\n'+
  * '#define stepsPast 1\n'+
@@ -367,7 +367,7 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  * '#define texture_2 1\n'+
  * '#define channels_2 b\n'+
  * '\n'+
- * '#define count 32\n'+
+ * '#define indexes 32\n'+
  * '#define textures 2\n'+
  * '#define passes 1\n'+
  * '#define stepsPast 1\n'+
@@ -375,7 +375,7 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  * '\n';
  * ```
  *
- * @param {object} state Properties used to generate the macros. See `getState`.
+ * @param {object} state Properties used to generate the macros. See `toData`.
  * @param {string} [on] Any further macro `hooks` specifier; if given, both
  *   the hook key and this specifier are checked (e.g: `key` and `key_on`).
  * @param {string|function|object|false} [state.macros] How macros are handled
@@ -388,17 +388,17 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  * @param {array.<array.<number>>} state.maps.textures The groupings of values
  *   into `texture`s. See `mapGroups`.
  * @param {array} state.maps.passes Passes drawn per-step. See `mapGroups`.
- * @param {array|number} state.steps States drawn across frames. See `getState`.
+ * @param {array|number} state.steps States drawn across frames. See `toData`.
  * @param {number} [state.bound=boundDef] How many steps are bound as outputs,
  *   unavailable as inputs.
  * @param {object} [state.size] Any size information about the GL resources.
- * @param {number} [state.size.count] The number of data entries per `texture`
- *   (the `texture`'s area), if given. See `getState`.
+ * @param {number} [state.size.indexes] The number of data entries per `texture`
+ *   (the `texture`'s area), if given. See `toData`.
  * @param {object|false} [state.cache=cacheDef] Any object to cache any inputs'
  *   results in, `false`y to skip caching; uses `cacheDef` if not given.
  *
- * @returns {string} The `GLSL` preprocessor macros defining the mappings from
- *   values to `texture`s/channels.
+ * @returns {string} The `GLSL` preprocessor macros defining the maps from
+ *   values to `texture`s and channels.
  */
 export function macroValues(state, on) {
   const key = hooks.macroValues;
@@ -406,15 +406,18 @@ export function macroValues(state, on) {
 
   if(to != null) { return to; }
 
-  const { maps, steps, bound = boundDef, size, pre: n = preDef } = state;
-  const { cache = cacheDef } = state;
+  const {
+      maps, steps, bound = boundDef, size, pre: n = preDef,
+      cache = cacheDef
+    } = state;
+
   const { values, textures, passes: { length: passesL } } = maps;
   const stepsL = steps.length ?? steps;
-  const count = size?.count;
+  const indexes = size?.indexes;
 
   const c = cache &&
-    `macro@${key}@${
-      n}|${bound}|${id(values)}|${id(textures)}|${stepsL}|${passesL}|${count}`;
+    `macro@${key}@${n
+      }|${bound}|${id(values)}|${id(textures)}|${stepsL}|${passesL}|${indexes}`;
 
   to = cache?.[c] ??
     reduce((s, texture, t, _, i = 0) => reduce((s, v) =>
@@ -422,7 +425,7 @@ export function macroValues(state, on) {
           `#define ${n}channels_${v} ${rgba.slice(i, i += values[v])}\n\n`,
         texture, s),
       textures, '')+
-    ((count)? `#define count ${count}\n` : '')+
+    ((indexes)? `#define indexes ${indexes}\n` : '')+
     `#define ${n}textures ${textures.length}\n`+
     `#define ${n}passes ${passesL}\n`+
     `#define ${n}stepsPast ${stepsL-bound}\n`+
@@ -440,7 +443,7 @@ export function macroValues(state, on) {
  *
  * @see {@link hasMacros}
  * @see {@link maps.mapGroups}
- * @see {@link state.getState}
+ * @see {@link data.toData}
  * @see {@link cacheDef}
  *
  * @example ```javascript
@@ -504,7 +507,7 @@ export function macroValues(state, on) {
  * '\n';
  * ```
  *
- * @param {object} state Properties for generating the macros. See `getState`:
+ * @param {object} state Properties for generating the macros. See `toData`:
  * @param {string} [on] Any further macro `hooks` specifier; if given, both
  *   the hook key and this specifier are checked (e.g: `key` and `key_on`).
  * @param {string|function|object|false} [state.macros] How macros are handled.
@@ -567,7 +570,7 @@ export function macroOutput(state, on) {
  * @see {@link hasMacros}
  * @see {@link getGLSLList}
  * @see {@link maps.mapStep}
- * @see {@link state.getState}
+ * @see {@link data.toData}
  * @see {@link cacheDef}
  *
  * @example ```javascript
@@ -663,7 +666,7 @@ export function macroOutput(state, on) {
  * '\n';
  * ```
  *
- * @param {object} state Properties used to generate the macros. See `getState`.
+ * @param {object} state Properties used to generate the macros. See `toData`.
  * @param {string} [on] Any further macro `hooks` specifier; if given, both the
  *   hook key and this specifier are checked (e.g: `key` and `key_on`).
  * @param {string|function|object|false} [state.macros] How macros are handled.
@@ -691,8 +694,10 @@ export function macroSamples(state, on) {
 
   if(to != null) { return to; }
 
-  const { passNow: p = 0, maps, glsl, pre: n = preDef } = state;
-  const { cache = cacheDef } = state;
+  const {
+      passNow: p = 0, maps, glsl, pre: n = preDef, cache = cacheDef
+    } = state;
+
   const { samples, reads } = maps;
   const passSamples = samples?.[p];
   const passReads = reads?.[p];
@@ -739,8 +744,8 @@ export function macroSamples(state, on) {
  * @see {@link hasMacros}
  * @see {@link getGLSLList}
  * @see {@link maps.mapStep}
- * @see {@link state.getState}
- * @see {@link inputs.getUniforms}
+ * @see {@link data.toData}
+ * @see {@link inputs.toUniforms}
  * @see {@link cacheDef}
  *
  * @example ```javascript
@@ -775,7 +780,7 @@ export function macroSamples(state, on) {
  * '@todo';
  * ```
  *
- * @param {object} state Properties used to generate the macros. See `getState`.
+ * @param {object} state Properties used to generate the macros. See `toData`.
  * @param {string} [on] Any further macro `hooks` specifier; if given, both
  *   the hook key and this specifier are checked (e.g: `key` and `key_on`).
  * @param {string|function|object|false} [state.macros] How macros are handled.
@@ -788,7 +793,7 @@ export function macroSamples(state, on) {
  * @param {array.<array.<array.<number>>>} [state.maps.samples] The minimal set
  *   of texture samples to use. See `mapSamples`.
  * @param {object} [state.merge] Any merged state texture; uses separate state
- *   textures if not given. See `getState`.
+ *   textures if not given. See `toData`.
  * @param {number} [state.glsl=1] The `GLSL` language version.
  *   See `getGLSLList`.
  * @param {object|false} [state.cache=cacheDef] Any object to cache any inputs'
@@ -804,8 +809,11 @@ export function macroTaps(state, on) {
 
   if(to != null) { return to; }
 
-  const { passNow: p = 0, maps, merge, glsl, pre: n = preDef } = state;
-  const { cache = cacheDef } = state;
+  const {
+      passNow: p = 0, maps, merge, glsl, pre: n = preDef,
+      cache = cacheDef
+    } = state;
+
   const passSamples = maps.samples?.[p];
   const index = !merge;
 
@@ -1003,7 +1011,7 @@ export function macroTaps(state, on) {
  * @see {@link macroTaps}
  * @see {@link macroSamples}
  * @see {@link maps.mapStep}
- * @see {@link state.getState}
+ * @see {@link data.toData}
  *
  * @example ```javascript
  * const values = [2, 4, 1];
@@ -1012,7 +1020,7 @@ export function macroTaps(state, on) {
  * // Automatically packed values - values across fewer `texture`s/passes.
  * // Only a single `texture` output per pass - values across more passes.
  * const state = {
- *   passNow: 0, steps: 2, size: { count: 2**5 },
+ *   passNow: 0, steps: 2, size: { indexes: 2**5 },
  *   maps: mapStep({ values, derives, channelsMax: 4, buffersMax: 1 })
  * };
  *
@@ -1026,7 +1034,7 @@ export function macroTaps(state, on) {
  * '#define gpgpu_texture_2 1\n'+
  * '#define gpgpu_channels_2 b\n'+
  * '\n'+
- * '#define count 32\n'+
+ * '#define indexes 32\n'+
  * '#define gpgpu_textures 2\n'+
  * '#define gpgpu_passes 2\n'+
  * '#define gpgpu_stepsPast 1\n'+
@@ -1053,7 +1061,7 @@ export function macroTaps(state, on) {
  * '#define texture_2 1\n'+
  * '#define channels_2 b\n'+
  * '\n'+
- * '#define count 32\n'+
+ * '#define indexes 32\n'+
  * '#define textures 2\n'+
  * '#define passes 2\n'+
  * '#define stepsPast 2\n'+
@@ -1101,7 +1109,7 @@ export function macroTaps(state, on) {
  * '@todo';
  * ```
  *
- * @param {object} state Properties for generating the macros. See `getState`
+ * @param {object} state Properties for generating the macros. See `toData`
  *   and `mapGroups`.
  * @param {string} [on] Any further macro `hooks` specifier; if given, both
  *   the hook key and this specifier are checked (e.g: `key` and `key_on`).

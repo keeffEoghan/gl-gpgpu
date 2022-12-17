@@ -59,6 +59,7 @@ aside {
   bottom: 0;
   left: 0;
   right: 0;
+  max-width: 35em;
   max-height: 50%;
   overflow-y: auto;
   font-family: sans-serif;
@@ -69,6 +70,7 @@ aside {
 
   @media (any-hover: none) { opacity: 1; }
 
+  &.show,
   &:hover,
   &:focus,
   &:focus-within {
@@ -76,8 +78,6 @@ aside {
     transition: opacity 200ms ease-in;
   }
 }
-
-section { max-width: 35em; }
 
 br {
   display: block;
@@ -109,7 +109,7 @@ p {
   font-style: normal;
   font-weight: 900;
   color: inherit;
-  background: #0008;
+  background: #000c;
   text-align: center;
   cursor: pointer;
   border: 1px solid currentColor;

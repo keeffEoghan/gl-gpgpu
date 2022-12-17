@@ -16,7 +16,7 @@ import { extensionsFloat, extensionsHalfFloat, optionalExtensions }
 
 import { macroPass } from '../../src/macros';
 import { mapStep } from '../../src/maps';
-import { getUniforms } from '../../src/inputs';
+import { toUniforms } from '../../src/uniforms';
 import { getDrawIndexes } from '../../src/size';
 import indexForms from '../../src/index-forms';
 
@@ -27,7 +27,7 @@ import drawFrag from './draw.frag.glsl';
 self.gpgpu = gpgpu;
 self.macroPass = macroPass;
 self.mapStep = mapStep;
-self.getUniforms = getUniforms;
+self.toUniforms = toUniforms;
 self.getDrawIndexes = getDrawIndexes;
 self.indexForms = indexForms;
 
@@ -39,8 +39,9 @@ const scroll = () => setTimeout(() => canvas.scrollIntoView(true), 0);
 scroll();
 
 function toggleError(e) {
-  document.querySelector('.error').classList[(e)? 'remove' : 'add']('hide');
   canvas.classList[(e)? 'add' : 'remove']('hide');
+  document.querySelector('.error').classList[(e)? 'remove' : 'add']('hide');
+  document.querySelector('aside').classList[(e)? 'add' : 'remove']('show');
   scroll();
 }
 
@@ -135,10 +136,10 @@ const bound = 1;
  * @todo Drawing issues with `scale` and `steps` both over 10.
  */
 const limits = { scale: [0, Math.log2(maxTextureSize)] };
-/** A scale that seems to work well from experimentation with `WebGL` limits. */
+/** A scale that seems to work well from experimentation with `GL` limits. */
 const niceScale = clamp(8, ...limits.scale);
 
-/** The data entries count scale, from user input or default best-guess. */
+/** The data entries scale, from user input or default best-guess. */
 const scale = clamp((parseFloat(query.get('scale'), 10) || niceScale),
   ...limits.scale);
 
@@ -201,7 +202,7 @@ document.querySelector('#long').href = `?${
   setQuery([['steps', 9+bound], ['scale', 8], ['wide'], ['depth']])}#long`;
 
 document.querySelector('#trace').href = `?${
-  setQuery([['steps', 3e2], ['scale', 2], ['wide'], ['depth']])}#trace`;
+  setQuery([['steps', 3e2], ['scale', 4], ['wide'], ['depth']])}#trace`;
 
 document.querySelector('#trails').href =
   `?${setQuery([['form', ((form)? ((form+1)%3 || null) : 1)]])}#trails`;
@@ -282,36 +283,33 @@ const state = gpgpu(regl, {
   },
   // Prefix is usually recommended; use none here to check for naming clashes.
   pre: '',
-  // Properties for each step of state, and each pass of each step.
-  step: {
-    // A fragment shader to compute each state step, with `gl-gpgpu` macros.
-    // Vertex shaders can also be given.
-    frag: stepFrag,
-    // Macros are prepended to `frag` shader per-pass, cached in `frags`.
-    frags: [],
-    // Custom uniforms in addition to those `gl-gpgpu` provides.
-    uniforms: {
-      dt: (_, { props: { timer: t, rate: r } }) => t.dt*r,
-      dt0: (_, { props: { timer: t, rate: r } }) => t.dts[0]*r,
-      dt1: (_, { props: { timer: t, rate: r } }) => t.dts[1]*r,
-      time: (_, { props: { timer: t, rate: r } }) => t.time*r,
+  // A fragment shader to compute each state step, with `gl-gpgpu` macros.
+  // Vertex shaders can also be given.
+  frag: stepFrag,
+  // Macros are prepended to `frag` shader per-pass, cached in `frags`.
+  frags: [],
+  // Custom uniforms in addition to those `gl-gpgpu` provides.
+  uniforms: {
+    dt: (_, { props: { timer: t, rate: r } }) => t.dt*r,
+    dt0: (_, { props: { timer: t, rate: r } }) => t.dts[0]*r,
+    dt1: (_, { props: { timer: t, rate: r } }) => t.dts[1]*r,
+    time: (_, { props: { timer: t, rate: r } }) => t.time*r,
 
-      loop: (_, { props: { timer: t, loop: l } }) =>
-        Math.sin(t.time/l*Math.PI)*l,
+    loop: (_, { props: { timer: t, loop: l } }) =>
+      Math.sin(t.time/l*Math.PI)*l,
 
-      lifetime: regl.prop('props.lifetime'),
-      useVerlet: regl.prop('props.useVerlet'),
-      epsilon: regl.prop('props.epsilon'),
-      moveCap: regl.prop('props.moveCap'),
-      source: regl.prop('props.source'),
-      sink: regl.prop('props.sink'),
-      g: regl.prop('props.g'),
-      scale: regl.prop('props.scale'),
+    lifetime: regl.prop('props.lifetime'),
+    useVerlet: regl.prop('props.useVerlet'),
+    epsilon: regl.prop('props.epsilon'),
+    moveCap: regl.prop('props.moveCap'),
+    source: regl.prop('props.source'),
+    sink: regl.prop('props.sink'),
+    g: regl.prop('props.g'),
+    scale: regl.prop('props.scale'),
 
-      // One option in these arrays is used, by Euler/Verlet respectively.
-      spout: (_, { props: { spout: ss, useVerlet: u } }) => ss[+u],
-      // drag: (_, { props: { drag: ds, useVerlet: u } }) => ds[+u]
-    }
+    // One option in these arrays is used, by Euler/Verlet respectively.
+    spout: (_, { props: { spout: ss, useVerlet: u } }) => ss[+u],
+    // drag: (_, { props: { drag: ds, useVerlet: u } }) => ds[+u]
   },
   // Custom properties to be passed to shaders mixed in with `gl-gpgpu` ones.
   props: {
@@ -389,9 +387,9 @@ console.log('drawSteps', drawSteps, 'useLines', useLines);
 /**
  * Vertex counts by form; how many steps a form covers, for all entries;
  * respectively for: none, points, lines.
- * Note `state.size.count` will equal the value returned by `countDrawIndexes`.
+ * Note `state.size.indexes` equals the value returned by `countDrawIndexes`.
  */
-const drawCounts = map((_, f) => indexForms(drawSteps, f, state.size.count),
+const drawCounts = map((_, f) => indexForms(drawSteps, f, state.size.indexes),
   range(2+useLines), 0);
 
 const viewScale = ({ drawingBufferWidth: w, drawingBufferHeight: h }) =>
@@ -400,6 +398,9 @@ const viewScale = ({ drawingBufferWidth: w, drawingBufferHeight: h }) =>
 /** Reuse the `gpgpu` state, mix in drawing-specific state. */
 const drawState = {
   ...state,
+  // Omit some properties unused in drawing for some clarity.
+  count: undefined, vert: undefined, frag: undefined, attributes: undefined,
+  // Override other properties for drawing.
   bound: drawBound,
   // Drawing, not data - so no `output` macros. Also, don't need `frag` macros.
   macros: { output: 0, frag: 0 },
@@ -407,7 +408,6 @@ const drawState = {
     // How many vertexes per form.
     form: clamp(form || 2, 1, 1+useLines),
     // Vertex counts by form; how many steps a form covers, for all entries.
-    count: null,
     counts: drawCounts,
     // Which primitives can be drawn.
     primitive: null,
@@ -420,7 +420,7 @@ const drawState = {
     // Speed-to-colour scaling, as `[multiply, power]`.
     pace: [[1e-3, 0.6], [3e2, 0.6]]
   },
-  // Map everything similarly to the GPGPU step, `mapStep` can be reused to
+  // Map everything similarly to the `gpgpu` step, `mapStep` can be reused to
   // create new mappings with some additions for drawing.
   maps: mapStep({
     ...state.maps,
@@ -441,16 +441,16 @@ const drawState = {
   })
 };
 
-/** The `WebGL` render command pipeline state. */
-const drawCommand = {
-  // Use GPGPU macro mappings by prepending macros from a single pass.
+/** The `GL` render command pipeline state. */
+const drawPipeline = {
+  // Use `gpgpu` `macro` mappings by prepending `macro`s from a single pass.
   vert: macroPass(drawState)+drawVert,
   frag: drawFrag,
   // Maximum count here to set up buffers, can be partly used later.
   attributes: { index: getDrawIndexes(Math.max(...drawCounts)) },
-  // Hook up GPGPU uniforms by adding them here.
-  uniforms: getUniforms(drawState, {
-    ...drawState.step.uniforms,
+  // Hook up `gpgpu` uniforms by adding them here.
+  uniforms: toUniforms(drawState, {
+    ...drawState.uniforms,
     scale: regl.prop('props.scale'),
     // How many vertexes per form.
     form: regl.prop('drawProps.form'),
@@ -459,7 +459,7 @@ const drawCommand = {
   }),
   lineWidth: (c, p) => clamp(p.drawProps.wide*viewScale(c), ...lineWidthDims),
   // Vertex counts by form; how many steps a form covers, for all entries.
-  count: (_, { drawProps: { count: c, counts: cs, form: f } }) => c ?? cs[f],
+  count: (_, { count: c, drawProps: { counts: cs, form: f } }) => c ?? cs[f],
   depth: { enable: true },
   blend: { enable: true, func: { src: 'one', dst: 'one minus src alpha' } },
 
@@ -467,10 +467,10 @@ const drawCommand = {
     p ?? ps[f]
 };
 
-console.log((self.drawState = drawState), (self.drawCommand = drawCommand));
+console.log((self.drawState = drawState), (self.drawPipeline = drawPipeline));
 
 /** Function to execute the render command pipeline state every frame. */
-const draw = regl(drawCommand);
+const draw = regl(drawPipeline);
 
 function stepTime(state) {
   const { dts } = state;
@@ -487,7 +487,7 @@ regl.frame(() => {
   try {
     stepTime(state.props.timer);
     // Compute the next step of state.
-    state.step.run();
+    state.step();
     drawState.stepNow = (state.stepNow+1)-drawBound;
     regl.clear(clearView);
     draw(drawState);
@@ -535,8 +535,8 @@ canvas.addEventListener((('onpointerup' in self)? 'pointerup'
 
     console.log('useVerlet', v, 'form', f,
       // See how this derives other properties.
-      'count', drawCommand.count(0, drawState),
-      'primitive', drawCommand.primitive(0, drawState));
+      'count', drawPipeline.count(0, drawState),
+      'primitive', drawPipeline.primitive(0, drawState));
   });
 
 /** Move either the source or the sink, according to primary pointer. */

@@ -2,7 +2,7 @@
 
 [![GPGPU particles demo](https://epok.tech/gl-gpgpu/api/media/demo-particles-regl-frames.png)](https://epok.tech/gl-gpgpu "GPGPU demo, particles with `regl`")
 
-[GPGPU state-stepping](#gpgpu-state-stepping) - declaratively maps optimal draw passes, shaders, `WebGL` resources, inputs, outputs - lets you focus on your logic, [BYO-renderer](#byo-renderer).
+[GPGPU state-stepping](#gpgpu-state-stepping) - declaratively maps optimal draw passes, shaders, `GL` resources, inputs, outputs - lets you focus on your logic, [BYO-renderer](#byo-renderer).
 
 ## Installation
 
@@ -19,7 +19,7 @@ yarn add @epok.tech/gl-gpgpu
 
 [See the demo](https://epok.tech/gl-gpgpu) and [its source code](https://github.com/keeffEoghan/gl-gpgpu/tree/master/demo/particles-regl) or [video](https://youtu.be/ddt3YA2J1ys) - below is shown a [partial example of GPGPU logic setup](#partial-example).
 
-[See the API documentation](https://epok.tech/gl-gpgpu/api) for a fuller guide.
+[See the _API_ documentation](https://epok.tech/gl-gpgpu/api) for a fuller guide.
 
 ## GPGPU State-Stepping
 
@@ -31,7 +31,7 @@ When the variety of capabilities across myriad devices also comes into play, man
 
 Given a simple description of your logic and the platform's capabilities, `gl-gpgpu` creates [easily-customisable](#customisable-components) mappings and resources which allow your logic to run optimally:
 - Logic is declaratively described as state values, and how new states derive from past states.
-- Resources are given from the `WebGL` API or library you use, making best use of each platform's capabilities to run your logic in as few passes and lookups as possible.
+- Resources are given from the `GL` _API_ or library you use, making best use of each platform's capabilities to run your logic in as few passes and lookups as possible.
 
 You are left free to focus on your logic, using `gl-gpgpu` macro flags and shader inputs and outputs (all safely and customisably namespaced), which allow you to easily:
 - Split your code into separate concerns, executed for you in as few passes as possible.
@@ -41,9 +41,9 @@ The `gl-gpgpu` mappings make a good, flexible base upon which to build complex a
 
 ## BYO-Renderer
 
-Bring Your Own Renderer to use with `gl-gpgpu`, which can hook into any given `WebGL` renderer API for easy compatibility.
+_Bring Your Own Renderer_ to use with `gl-gpgpu`, which can hook into any given `GL` renderer _API_ for easy compatibility.
 
-To handle resource creation and rendering, pass an API object for the needed hooks - parameters match the functional [`regl` API](https://github.com/regl-project/regl/), but you may mix in whatever tools you like by providing hook functions which provide compatible responses.
+To handle resource creation and rendering, pass an _API_ object for the needed hooks - parameters match the functional [`regl` _API_](https://github.com/regl-project/regl/), but you may mix in whatever tools you like by providing hook functions which provide compatible responses.
 
 Ample descriptive metadata and information are provided to your hooks, while assumptions or alterations of their responses are avoided - so you can connect `gl-gpgpu` to the underlying graphics implementation however you wish.
 
@@ -53,17 +53,19 @@ All `gl-gpgpu` modules may be used in the given main process structure, or impor
 
 Many configurations and hooks are provided into each part of the process.
 
-This offers a deeply-customisable API, with few constraints, assumptions, or opinions of how to structure your code.
+This offers a deeply-customisable _API_, with few constraints, assumptions, or opinions of how to structure your code.
 
 ## Constant or Arbitrary Lookups
 
 Choose to use distinct data textures for each part of state, or merge all states into one data texture upon each pass - depending on whether you want to look up states arbitrarily or by constant expressions (respectively), and platform capabilities and performance considerations.
 
-## WebGL Versions
+## GL Versions
 
-This technique is best-suited to `WebGL1` - it is compatible with `WebGL2` too, including the `sampler3D` and `sampler2DArray` types, as well as the usual `sampler2D`.
+This technique is best-suited to `WebGL1`.
 
-However, [transform-feedback handles similar features natively](https://webgl2fundamentals.org/webgl/lessons/webgl-gpgpu.html#first-example-particles), using buffers rather than textures - this is a better option in many cases, so it's usually recommended to check the `WebGL` version to use either a `gl-gpgpu` or a `WebGL2` transform-feedback implementation.
+It's compatible with `WebGL2` too, including the `sampler3D` and `sampler2DArray` types, as well as the usual `sampler2D` - however, [transform-feedback handles similar features natively](https://webgl2fundamentals.org/webgl/lessons/webgl-gpgpu.html#first-example-particles) using `buffer`s rather than `texture`s, a better option in most cases - so it's usually better to check the `GL` version to use either a `gl-gpgpu` or a `WebGL2` transform-feedback implementation.
+
+It may also be compatible with other `GL` implementations via given _API_ hooks.
 
 ## Partial Example
 
@@ -143,16 +145,13 @@ const state = gpgpu(regl, {
   },
   // Prefix is usually recommended; use none here to check for naming clashes.
   pre: '',
-  // Properties for each step of state, and each pass of each step.
-  step: {
-    // A fragment shader to compute each state step, with `gl-gpgpu` macros.
-    // Vertex shaders can also be given.
-    frag,
-    // Prepended macros to `frag` shader per-pass and cache in `frags`.
-    frags: [],
-    // Custom uniforms in addition to those `gl-gpgpu` provides.
-    uniforms: {}
-  }
+  // A fragment shader to compute each state step, with `gl-gpgpu` macros.
+  // Vertex shaders can also be given.
+  frag,
+  // Prepended macros to `frag` shader per-pass and cache in `frags`.
+  frags: [],
+  // Custom uniforms in addition to those `gl-gpgpu` provides.
+  uniforms: {}
 });
 
 // Output of this example test:
@@ -170,13 +169,13 @@ s(state.maps.textures) === s([[0, 2], [1]]);
 s(state.maps.valueToTexture) === s([0, 1, 0]);
 
 // `valueToTexture` (indexes `textures`)
-((state.size.count === 1048576) &&
-  (state.size.count === (2**10)**2) &&
-  (state.size.count === (2**state.scale)**2) &&
-  (state.size.count === state.size.width*state.size.height));
+((state.size.indexes === 1048576) &&
+  (state.size.indexes === (2**10)**2) &&
+  (state.size.indexes === (2**state.scale)**2) &&
+  (state.size.indexes === state.size.width*state.size.height));
 
 // Compute the next step of state.
-state.step.run();
+state.step();
 ```
 
 `GLSL` fragment shader logic `step.frag.glsl`:
