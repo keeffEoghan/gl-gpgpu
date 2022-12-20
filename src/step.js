@@ -162,14 +162,14 @@ export function updateMerge(state) {
  * @param {object} [to=state] The `object` to set up. Modifies the given `state`
  *   `object` by default.
  *
- * @returns {object} `to` The given `to` step `object`; set up with a `gpgpu`
- *   `step` `function` and related properties, to be passed a `gpgpu` state.
+ * @returns {object} `to` The given `to` `object`; set up with a `gpgpu` step
+ *   `function` and related properties, to use with the `gpgpu` state.
  * @returns {string} `to.vert` The given/new `state.vert` vertex shader `GLSL`.
  * @returns {string} `to.frag` The given `state.frag` fragment shader `GLSL`.
  * @returns {string[]} `[to.verts]` Any cached pre-processed vertex shaders
- *   `GLSL`, if `state.step.verts` was given.
+ *   `GLSL`, if `state.verts` was given.
  * @returns {string[]} `[to.frags]` Any cached pre-processed fragment shaders
- *   `GLSL`, if `state.step.verts` was given.
+ *   `GLSL`, if `state.verts` was given.
  * @returns {object} `to.uniforms` The given `state.uniforms`.
  * @returns {number} `to.count` The given or new `state.count`.
  * @returns {buffer} `to.positions` The given or new `state.positions`; via
@@ -252,9 +252,14 @@ export function toStep(api, state = {}, to = state) {
   /** Executes the next step and all its passes. */
   to.step = (state = to) => {
     const {
-        steps, merge, pass, onPass, onStep, stepNow = state.stepNow = 0,
+        steps, merge, pass, onPass, onStep,
         stepMax = stepMaxDef, clearPass = clearPassDef
       } = state;
+
+    let { stepNow = 0 } = state;
+
+    /** Guard for number overflow; set to 0 to ignore or handle in `GLSL`. */
+    stepNow = state.stepNow = (stepNow+1)%(stepMax || Infinity);
 
     const mergeUpdate = merge?.update;
     const stepProps = onStep?.(state, wrap(stepNow, steps)) ?? state;
@@ -274,8 +279,6 @@ export function toStep(api, state = {}, to = state) {
       },
       stepProps.maps.passes);
 
-    /** Guard for number overflow; set to 0 to ignore or handle in `GLSL`. */
-    state.stepNow = ((stepMax)? (stepNow+1)%stepMax : stepNow+1);
     delete clearPass.framebuffer;
 
     return state;
