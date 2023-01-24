@@ -16,11 +16,12 @@ precision highp float;
 gpgpu_useSamples
 // Only the first value derives from all values, giving these minimal `reads`.
 gpgpu_useReads_0
-// All `derives` here are in one pass (`0`), and in the same order as `values`.
+// These first `derives` are all in one pass, `0`, in the order of `values`.
 // See `values` for indexing `reads_0_${derives index == values index}`.
 #define readPosition1 gpgpu_reads_0_0
 #define readMotion gpgpu_reads_0_1
 #define readLife gpgpu_reads_0_2
+// Additional `derives` are individually specified.
 #define readPosition0 gpgpu_reads_0_3
 
 attribute float index;
@@ -44,6 +45,8 @@ uniform vec3 lifetime;
 uniform vec2 pace;
 uniform float useVerlet;
 uniform float form;
+uniform float loop;
+uniform float shake;
 
 varying vec4 color;
 varying vec3 center;
@@ -51,7 +54,9 @@ varying float radius;
 
 #pragma glslify: aspect = require(@epok.tech/glsl-aspect/contain)
 #pragma glslify: gt = require(glsl-conditionals/when_gt)
+#pragma glslify: random = require(glsl-random)
 
+#pragma glslify: onSphere = require(./on-sphere)
 #pragma glslify: indexUV = require(../../src/lookup/index-uv)
 #pragma glslify: offsetUV = require(../../src/lookup/offset-uv)
 
@@ -104,19 +109,22 @@ void main() {
   vec3 position1 = gpgpu_data[readPosition1].positionChannels;
   vec3 motion = gpgpu_data[readMotion].motionChannels;
   float life = gpgpu_data[readLife].lifeChannels;
-
-  #if gpgpu_stepsPast > 1
-    float ratioNow = 1.0-(stepPast/float(gpgpu_stepsPast-1));
-  #else
-    float ratioNow = 1.0;
-  #endif
-
   float alive = gt(life, 0.0);
+
+  vec2 ago = vec2(stepPast/max(float(gpgpu_stepsPast-1), 1.0),
+    max(stepPast-1.0, 0.0)/max(float(gpgpu_stepsPast-2), 1.0));
+
   vec2 ar = aspect(gpgpu_viewShape);
-  vec4 vertex = mix(noPosition, vec4(position1.xy*ar, position1.z, 1), alive);
+
+  /** Shake randomly on a sphere around older positions. */
+  vec3 position = vec3(position1.xy*ar, position1.z)+
+    (shake*pow(ago.y, 2.0)*onSphere(random(position1.xy), fract(position1.z)));
+
+  /** @todo Perspective camera transform. */
+  vec4 vertex = mix(noPosition, vec4(position, 1), alive);
   float depth = clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
-  float a = clamp(pow(life/lifetime.t, 0.3)*pow(ratioNow, 0.3), 0.0, 1.0);
-  float size = pointSize*depth*a;
+  float alpha = clamp(pow(life/lifetime.t, 0.3)*pow(1.0-ago.x, 0.3), 0.0, 1.0);
+  float size = pointSize*depth*alpha;
 
   gl_Position = vertex;
   gl_PointSize = size;
@@ -132,8 +140,8 @@ void main() {
 
   float speed = length(mix(motion, position1-position0, useVerlet)/dt);
 
-  color = a*vec4(mix(0.2, 1.0, ratioNow),
+  color = alpha*vec4(mix(1.0, 0.2, ago.x),
     mix(0.2, 1.0, entry/float(gpgpu_entries)),
     clamp(pow(speed*pace.s, pace.t), 0.0, 1.0),
-    a);
+    alpha);
 }

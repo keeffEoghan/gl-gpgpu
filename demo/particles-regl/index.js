@@ -176,8 +176,13 @@ const form = Math.floor(parseFloat(query.get('form'), 10) || 0);
 /** How wide the form is; to be scaled by `viewScale`. */
 const wide = parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio;
 
+/** How much to shake around older state positions. */
+let shake = parseFloat(query.get('shake'), 10);
+
+!shake && shake !== 0 && (shake = 1e-2);
+
 /**
- * Variable-step (delta-time) if given falsey/`NaN`; fixed-step (add-step)
+ * Variable-step (delta-time) if given `false`y/`NaN`; fixed-step (add-step)
  * if given another number; uses default fixed-step if not given.
  */
 const hasTimestep = query.has('timestep');
@@ -188,7 +193,7 @@ const timestep = ((hasTimestep)? parseFloat(query.get('timestep'), 10) || null
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
   'steps:', steps, 'scale:', scale, 'form:', form, 'wide:', wide,
-  'depth:', fragDepth, 'timestep:', timestep, 'merge:', merge);
+  'depth:', fragDepth, 'shake:', shake, 'timestep:', timestep, 'merge:', merge);
 
 // Set up the links.
 
@@ -208,7 +213,7 @@ document.querySelector('#trails').href =
   `?${setQuery([['form', ((form)? ((form+1)%3 || null) : 1)]])}#trails`;
 
 document.querySelector('#timestep').href =
-  `?${setQuery([['timestep', ((hasTimestep)? null : 0)]])}#timestep`;
+  `?${setQuery([['timestep', ((hasTimestep)? null : '')]])}#timestep`;
 
 document.querySelector('#merge').href =
   `?${setQuery([['merge',
@@ -292,9 +297,7 @@ const state = gpgpu(regl, {
     dt0: (_, { props: { timer: t, rate: r } }) => t.dts[0]*r,
     dt1: (_, { props: { timer: t, rate: r } }) => t.dts[1]*r,
     time: (_, { props: { timer: t, rate: r } }) => t.time*r,
-
-    loop: (_, { props: { timer: t, loop: l } }) =>
-      Math.sin(t.time/l*Math.PI)*l,
+    loop: (_, { props: { timer: t, loop: l } }) => Math.sin(t.time/l*Math.PI)*l,
 
     lifetime: regl.prop('props.lifetime'),
     useVerlet: regl.prop('props.useVerlet'),
@@ -412,6 +415,8 @@ const drawState = {
     primitives: [, 'points', 'lines'],
     // How wide the form is; to be scaled by `viewScale`.
     wide,
+    // How much to shake around older state positions.
+    shake,
 
     // One option in these arrays is used, by Euler/Verlet respectively.
 
@@ -449,9 +454,9 @@ const drawPipeline = {
   // Hook up `gpgpu` uniforms by adding them here.
   uniforms: toUniforms(drawState, {
     ...drawState.uniforms,
-    scale: regl.prop('props.scale'),
     // How many vertexes per form.
     form: regl.prop('drawProps.form'),
+    shake: regl.prop('drawProps.shake'),
     pace: (_, { drawProps: dp, props: p }) => dp.pace[+p.useVerlet],
     pointSize: (c, p) => clamp(p.drawProps.wide*viewScale(c), ...pointSizeDims)
   }),

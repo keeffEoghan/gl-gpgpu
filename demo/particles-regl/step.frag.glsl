@@ -98,15 +98,7 @@ varying vec2 uv;
 #endif
 
 #if defined(positionOutput) || defined(motionOutput)
-  #pragma glslify: tau = require(glsl-constants/TWO_PI)
-
-  /** @see [Spherical distribution](https://observablehq.com/@rreusser/equally-distributing-points-on-a-sphere) */
-  vec3 randomOnSphere(float randomAngle, float randomDepth) {
-    float a = randomAngle*tau;
-    float u = (randomDepth*2.0)-1.0;
-
-    return vec3(sqrt(1.0-(u*u))*vec2(cos(a), sin(a)), u);
-  }
+  #pragma glslify: onSphere = require(./on-sphere)
 #endif
 
 /**
@@ -176,7 +168,7 @@ void main() {
 
     /** Spawn randomly on a sphere around the source, move in that direction. */
     vec3 spoutSpawn = random(loop-(uv*dt0))*
-      randomOnSphere(random((uv+loop)/dt1), random((uv-loop)*dt0));
+      onSphere(random((uv+loop)/dt1), random((uv-loop)*dt0));
   #endif
 
   #ifdef positionOutput
