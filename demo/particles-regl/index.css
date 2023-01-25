@@ -35,11 +35,40 @@ img {
 }
 
 a {
+  position: relative;
+  z-index: 0;
   color: inherit;
   font-weight: 900;
   font-style: italic;
   cursor: pointer;
   text-decoration: none;
+
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    z-index: -1;
+    background: currentColor;
+    transform-origin: bottom;
+    transition: transform 300ms ease-in-out,
+      opacity 300ms ease-in-out,
+      filter 300ms ease-in-out;
+  }
+
+  &:hover,
+  &:focus,
+  &:active {
+    &::after {
+      transform: scaleY(10);
+      opacity: 0.5;
+      filter: invert(1);
+      filter: invert(100%);
+    }
+  }
 }
 
 canvas {
@@ -131,10 +160,12 @@ p {
     color: #000;
     background-color: #fffa;
   }
+
+  &::after { display: none; }
 }
 
 label,
-.link-code {
+.link-icon {
   display: inline-block;
   position: sticky;
   top: 0.5em;
@@ -144,7 +175,7 @@ label,
   box-shadow: 0 0 0.5em 0 #000;
 }
 
-.link-code {
+.link-icon {
   line-height: 1;
   aspect-ratio: 1/1;
   font-family: monospace;

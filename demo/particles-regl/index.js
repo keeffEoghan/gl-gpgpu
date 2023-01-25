@@ -175,25 +175,23 @@ const form = Math.floor(parseFloat(query.get('form'), 10) || 0);
 
 /** How wide the form is; to be scaled by `viewScale`. */
 const wide = parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio;
-
-/** How much to shake around older state positions. */
-let shake = parseFloat(query.get('shake'), 10);
-
-!shake && shake !== 0 && (shake = 1e-2);
+/** How much to fizz around older state positions. */
+const fizz = parseFloat(query.get('fizz') ?? 1e-2/stepsPast, 10) || 0;
+/** How much to shake the sink around while idling. */
+const shake = parseFloat(query.get('shake') ?? 5e-2, 10) || 0;
 
 /**
  * Variable-step (delta-time) if given `false`y/`NaN`; fixed-step (add-step)
  * if given another number; uses default fixed-step if not given.
  */
-const hasTimestep = query.has('timestep');
+const timeQuery = query.get('timestep');
 
 /** Whether to use a fixed timestep or render variably as soon as possible. */
-const timestep = ((hasTimestep)? parseFloat(query.get('timestep'), 10) || null
-  : 1e3/60);
+const timestep = parseFloat(timeQuery ?? 1e3/60, 10) || null;
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
-  'steps:', steps, 'scale:', scale, 'form:', form, 'wide:', wide,
-  'depth:', fragDepth, 'shake:', shake, 'timestep:', timestep, 'merge:', merge);
+  'steps:', steps, 'scale:', scale, 'form:', form, 'wide:', wide, 'fizz:', fizz,
+  'shake:', shake, 'depth:', fragDepth, 'timestep:', timestep, 'merge:', merge);
 
 // Set up the links.
 
@@ -213,7 +211,7 @@ document.querySelector('#trails').href =
   `?${setQuery([['form', ((form)? ((form+1)%3 || null) : 1)]])}#trails`;
 
 document.querySelector('#timestep').href =
-  `?${setQuery([['timestep', ((hasTimestep)? null : '')]])}#timestep`;
+  `?${setQuery([['timestep', ((timeQuery == null)? '' : null)]])}#timestep`;
 
 document.querySelector('#merge').href =
   `?${setQuery([['merge',
@@ -299,12 +297,28 @@ const state = gpgpu(regl, {
     time: (_, { props: { timer: t, rate: r } }) => t.time*r,
     loop: (_, { props: { timer: t, loop: l } }) => Math.sin(t.time/l*Math.PI)*l,
 
+    // Shake the sink around while idling.
+    sink: (_, { props: { sink: { at, idle: to, shake }, timer: t } }) => {
+      const l = (Math.min(t.idle/4e3, 1)**3)*shake;
+
+      if(!l) { return at; }
+
+      const a = Math.random()*Math.PI*2;
+      const [x, y, z, g] = at;
+
+      to[0] = x+(Math.cos(a)*l);
+      to[1] = y+(Math.sin(a)*l);
+      to[2] = z;
+      to[3] = g;
+
+      return to;
+    },
+
+    source: regl.prop('props.source'),
     lifetime: regl.prop('props.lifetime'),
     useVerlet: regl.prop('props.useVerlet'),
     epsilon: regl.prop('props.epsilon'),
     moveCap: regl.prop('props.moveCap'),
-    source: regl.prop('props.source'),
-    sink: regl.prop('props.sink'),
     g: regl.prop('props.g'),
     scale: regl.prop('props.scale'),
 
@@ -317,9 +331,9 @@ const state = gpgpu(regl, {
     // Set up the timer.
     timer: timer((timestep)?
         // Fixed-step (add-step).
-        { step: timestep, dts: range(2, 0) }
+        { step: timestep, dts: range(2, 0), idle: 0 }
         // Real-time (variable delta-time).
-      : { step: '-', now: () => regl.now()*1e3, dts: range(2, 0) }),
+      : { step: '-', now: () => regl.now()*1e3, dts: range(2, 0), idle: 0 }),
 
     // Speed up or slow down the passage of time.
     rate: 1,
@@ -338,12 +352,18 @@ const state = gpgpu(regl, {
     // The position around which particles spawn.
     source: [0, 0, 0.4],
     // Sink position, and universal gravitational constant.
-    sink: [
-      // Sink position.
-      0, 0, 0.6,
-      // Universal gravitational constant (scaled).
-      6.674e-11*5e10
-    ],
+    sink: {
+      // Main sink values.
+      at: [
+        // Sink position.
+        0, 0, 0.6,
+        // Universal gravitational constant (scaled).
+        6.674e-11*5e10
+      ],
+      // Shake the sink around while idling.
+      shake,
+      idle: []
+    },
     // Constant acceleration of gravity; and whether to use it or the `sink`.
     g: [
       // Constant acceleration of gravity.
@@ -415,8 +435,8 @@ const drawState = {
     primitives: [, 'points', 'lines'],
     // How wide the form is; to be scaled by `viewScale`.
     wide,
-    // How much to shake around older state positions.
-    shake,
+    // How much to fizz around older state positions.
+    fizz,
 
     // One option in these arrays is used, by Euler/Verlet respectively.
 
@@ -456,7 +476,7 @@ const drawPipeline = {
     ...drawState.uniforms,
     // How many vertexes per form.
     form: regl.prop('drawProps.form'),
-    shake: regl.prop('drawProps.shake'),
+    fizz: regl.prop('drawProps.fizz'),
     pace: (_, { drawProps: dp, props: p }) => dp.pace[+p.useVerlet],
     pointSize: (c, p) => clamp(p.drawProps.wide*viewScale(c), ...pointSizeDims)
   }),
@@ -479,7 +499,7 @@ function stepTime(state) {
   const { dts } = state;
 
   dts[0] = dts[1];
-  dts[1] = timer(state).dt;
+  state.idle += (dts[1] = timer(state).dt);
 
   return state;
 }
@@ -491,6 +511,7 @@ regl.frame(() => {
     stepTime(state.props.timer);
     // Compute the next step of state.
     state.step();
+    // Update the draw state.
     drawState.stepNow = (state.stepNow+1)-drawBound;
     regl.clear(clearView);
     draw(drawState);
@@ -548,7 +569,7 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
   (e) => {
     const { clientX: x, clientY: y, type, pointerType, isPrimary = true } = e;
     const { left, top, width: w, height: h } = canvas.getBoundingClientRect();
-    const { source: i, sink: o, invert } = state.props;
+    const { source: i, sink: { at: o }, invert } = state.props;
     const touch = ((type === 'touchmove') || (pointerType === 'touch'));
     /** Move source or sink, switch by primary/other pointer/s or inversion. */
     const to = ((isPrimary)? ((invert)? o : i) : ((invert)? i : o));
@@ -558,6 +579,8 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
     to[1] = -((((y-((h-size)*0.5)-top)/size)*2)-1);
     // For touch devices, don't pause spawn if touch moves while held down.
     touch && (hold = true);
+    // Reset the idle time for any movement.
+    state.props.timer.idle = 0;
   });
 
 /** Switch primary pointer control between source and sink. */

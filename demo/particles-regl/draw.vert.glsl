@@ -46,7 +46,7 @@ uniform vec2 pace;
 uniform float useVerlet;
 uniform float form;
 uniform float loop;
-uniform float shake;
+uniform float fizz;
 
 varying vec4 color;
 varying vec3 center;
@@ -110,20 +110,16 @@ void main() {
   vec3 motion = gpgpu_data[readMotion].motionChannels;
   float life = gpgpu_data[readLife].lifeChannels;
   float alive = gt(life, 0.0);
-
-  vec2 ago = vec2(stepPast/max(float(gpgpu_stepsPast-1), 1.0),
-    max(stepPast-1.0, 0.0)/max(float(gpgpu_stepsPast-2), 1.0));
-
+  float ago = stepPast/max(float(gpgpu_stepsPast-1), 1.0);
   vec2 ar = aspect(gpgpu_viewShape);
-
-  /** Shake randomly on a sphere around older positions. */
-  vec3 position = vec3(position1.xy*ar, position1.z)+
-    (shake*pow(ago.y, 2.0)*onSphere(random(position1.xy), fract(position1.z)));
+  /** Fizz randomly on a sphere around older positions. */
+  vec3 fizzTo = onSphere(random(position1.xy), fract(position1.z));
+  vec3 position = position1+(fizz*max(stepPast-2.0, 0.0)*fizzTo);
 
   /** @todo Perspective camera transform. */
-  vec4 vertex = mix(noPosition, vec4(position, 1), alive);
+  vec4 vertex = mix(noPosition, vec4(position.xy*ar, position.z, 1), alive);
   float depth = clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
-  float alpha = clamp(pow(life/lifetime.t, 0.3)*pow(1.0-ago.x, 0.3), 0.0, 1.0);
+  float alpha = clamp(pow(life/lifetime.t, 0.3)*pow(1.0-ago, 0.3), 0.0, 1.0);
   float size = pointSize*depth*alpha;
 
   gl_Position = vertex;
@@ -140,7 +136,7 @@ void main() {
 
   float speed = length(mix(motion, position1-position0, useVerlet)/dt);
 
-  color = alpha*vec4(mix(1.0, 0.2, ago.x),
+  color = alpha*vec4(mix(1.0, 0.2, ago),
     mix(0.2, 1.0, entry/float(gpgpu_entries)),
     clamp(pow(speed*pace.s, pace.t), 0.0, 1.0),
     alpha);
