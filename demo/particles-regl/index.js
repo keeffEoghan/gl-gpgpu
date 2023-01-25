@@ -178,7 +178,7 @@ const wide = parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio;
 /** How much to fizz around older state positions. */
 const fizz = parseFloat(query.get('fizz') ?? 1e-2/stepsPast, 10) || 0;
 /** How much to shake the sink around while idling. */
-const shake = parseFloat(query.get('shake') ?? 5e-2, 10) || 0;
+const shake = parseFloat(query.get('shake') ?? 7e-2, 10) || 0;
 
 /**
  * Variable-step (delta-time) if given `false`y/`NaN`; fixed-step (add-step)
