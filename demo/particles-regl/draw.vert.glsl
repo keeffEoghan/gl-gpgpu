@@ -39,14 +39,22 @@ uniform float gpgpu_stepNow;
 uniform vec4 gpgpu_stateShape;
 uniform vec2 gpgpu_viewShape;
 
+uniform mat4 projection;
+uniform mat4 view;
 uniform float pointSize;
 uniform float dt;
+uniform float time;
 uniform vec3 lifetime;
 uniform vec2 pace;
 uniform float useVerlet;
 uniform float form;
 uniform float loop;
+uniform vec2 hues;
+
 uniform float fizz;
+uniform float fizzMax;
+uniform float fizzRate;
+uniform float fizzCurve;
 
 varying vec4 color;
 varying vec3 center;
@@ -55,6 +63,9 @@ varying float radius;
 #pragma glslify: aspect = require(@epok.tech/glsl-aspect/contain)
 #pragma glslify: gt = require(glsl-conditionals/when_gt)
 #pragma glslify: random = require(glsl-random)
+#pragma glslify: map = require(glsl-map)
+#pragma glslify: tau = require(glsl-constants/TWO_PI)
+#pragma glslify: hsl2rgb = require(glsl-hsl2rgb)
 
 #pragma glslify: onSphere = require(./on-sphere)
 #pragma glslify: indexUV = require(../../src/lookup/index-uv)
@@ -112,17 +123,23 @@ void main() {
   float alive = gt(life, 0.0);
   float ago = stepPast/max(float(gpgpu_stepsPast-1), 1.0);
   vec2 ar = aspect(gpgpu_viewShape);
+
   /** Fizz randomly on a sphere around older positions. */
-  vec3 fizzTo = onSphere(random(position1.xy), fract(position1.z));
-  vec3 position = position1+(fizz*max(stepPast-2.0, 0.0)*fizzTo);
+  float fizzBy = pow(clamp(stepPast/fizz, 0.0, 1.0), fizzCurve)*fizzMax;
+  float fizzAt = (time/fizzBy)*mix(fizzRate, -fizzRate, mod(entry, 2.0));
+  float fizzAngle = (random(position1.xy)+fizzAt)*tau;
+  float fizzDepth = (sin(random(vec2(position1.z, ago))+fizzAt)+1.0)*0.5;
+  vec3 position = position1+(fizzBy*onSphere(fizzAngle, fizzDepth));
 
   /** @todo Perspective camera transform. */
   vec4 vertex = mix(noPosition, vec4(position.xy*ar, position.z, 1), alive);
+  // vec4 vertex = projection*view*mix(noPosition, vec4(position, 1), alive);
   float depth = clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
-  float alpha = clamp(pow(life/lifetime.t, 0.3)*pow(1.0-ago, 0.3), 0.0, 1.0);
+  float alpha = clamp(pow(life/lifetime.t, 0.1)*pow(1.0-ago, 0.4), 0.0, 1.0);
   float size = pointSize*depth*alpha;
 
   gl_Position = vertex;
+  // gl_Position = projection*view*vertex;
   gl_PointSize = size;
 
   radius = size*0.5;
@@ -134,10 +151,10 @@ void main() {
    */
   center = vec3(gpgpu_viewShape*((1.0+vertex.xy)/vertex.w)*0.5, vertex.z);
 
-  float speed = length(mix(motion, position1-position0, useVerlet)/dt);
+  float speed = length(mix(motion, position1-position0, useVerlet))/dt;
 
-  color = alpha*vec4(mix(1.0, 0.2, ago),
-    mix(0.2, 1.0, entry/float(gpgpu_entries)),
-    clamp(pow(speed*pace.s, pace.t), 0.0, 1.0),
+  color = vec4(hsl2rgb(fract(mix(hues.s, hues.t, entry/float(gpgpu_entries))),
+      mix(0.8, 0.1, ago),
+      mix(0.3, 0.8, clamp(pow(speed*pace.s, pace.t), 0.0, 1.0))),
     alpha);
 }

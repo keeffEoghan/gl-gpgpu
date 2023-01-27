@@ -88,7 +88,6 @@ uniform vec4 g;
 
 varying vec2 uv;
 
-#pragma glslify: map = require(glsl-map)
 #pragma glslify: le = require(glsl-conditionals/when_le)
 #pragma glslify: random = require(glsl-random)
 
@@ -97,7 +96,12 @@ varying vec2 uv;
   #pragma glslify: verlet = require(@epok.tech/glsl-verlet/p-p-a)
 #endif
 
+#ifdef lifeOutput
+  #pragma glslify: map = require(glsl-map)
+#endif
+
 #if defined(positionOutput) || defined(motionOutput)
+  #pragma glslify: tau = require(glsl-constants/TWO_PI)
   #pragma glslify: onSphere = require(./on-sphere)
 #endif
 
@@ -168,7 +172,7 @@ void main() {
 
     /** Spawn randomly on a sphere around the source, move in that direction. */
     vec3 spoutSpawn = random(loop-(uv*dt0))*
-      onSphere(random((uv+loop)/dt1), random((uv-loop)*dt0));
+      onSphere(random((uv+loop)/dt1)*tau, random((uv-loop)*dt0));
   #endif
 
   #ifdef positionOutput

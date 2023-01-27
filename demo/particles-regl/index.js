@@ -2,6 +2,8 @@
 
 import getRegl from 'regl';
 import clamp from 'clamp';
+import { perspective } from '@thi.ng/matrices/perspective';
+import { lookAt } from '@thi.ng/matrices/lookat';
 import timer from '@epok.tech/fn-time';
 import reduce from '@epok.tech/fn-lists/reduce';
 import map from '@epok.tech/fn-lists/map';
@@ -51,14 +53,15 @@ toggleError();
 
 const getQuery = (search = location.search) => new URLSearchParams(search);
 
-function setQuery(entries, query = getQuery()) {
-  each(([k, v = null]) => ((v === null)? query.delete(k) : query.set(k, v)),
-    entries);
+function setQuery(entries, q = getQuery()) {
+  entries &&
+    each(([k, v = null]) => ((v === null)? q.delete(k) : q.set(k, v)), entries);
 
-  return query;
+  return q;
 }
 
-let query = getQuery();
+const query = getQuery();
+
 const fragDepth = query.get('depth') === 'frag';
 
 // Set up GL.
@@ -175,10 +178,27 @@ const form = Math.floor(parseFloat(query.get('form'), 10) || 0);
 
 /** How wide the form is; to be scaled by `viewScale`. */
 const wide = parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio;
-/** How much to fizz around older state positions. */
-const fizz = parseFloat(query.get('fizz') ?? 1e-2/stepsPast, 10) || 0;
+
+/** How many older state positions to fizz around, and other inputs. */
+const fizz = {
+  at: parseFloat(query.get('fizz') ?? clamp(stepsPast, 5, 2e2), 10) || 0,
+  max: parseFloat(query.get('fizz-max') ?? clamp(stepsPast*1e-3, 7e-3, 15e-3),
+    10) || 0,
+  rate: parseFloat(query.get('fizz-rate') ?? 2e-5, 10) || 0,
+  curve: parseFloat(query.get('fizz-curve') ?? 1.7, 10) || 0
+};
+
+/** How much to shake the source around while idling. */
+const shakeSource = parseFloat(query.get('shake-source') ?? 2e-3, 10) || 0;
 /** How much to shake the sink around while idling. */
-const shake = parseFloat(query.get('shake') ?? 7e-2, 10) || 0;
+const shakeSink = parseFloat(query.get('shake-sink') ?? 7e-2, 10) || 0;
+
+/** Hue range between 2 values. */
+const hues = query.getAll('hue');
+
+// Parse any present hues, fill any missing hues, using only up to 2 hues.
+map((h, i) => parseFloat(h, 10) || hues[i-1]+0.33 || 0.9,
+  range(hues, '', hues.length, hues.length = 2), 0);
 
 /**
  * Variable-step (delta-time) if given `false`y/`NaN`; fixed-step (add-step)
@@ -190,32 +210,37 @@ const timeQuery = query.get('timestep');
 const timestep = parseFloat(timeQuery ?? 1e3/60, 10) || null;
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
-  'steps:', steps, 'scale:', scale, 'form:', form, 'wide:', wide, 'fizz:', fizz,
-  'shake:', shake, 'depth:', fragDepth, 'timestep:', timestep, 'merge:', merge);
+  'steps:', steps, 'scale:', scale, 'timestep:', timestep, 'merge:', merge,
+  'depth:', fragDepth, 'form:', form, 'wide:', wide, 'fizz:', fizz,
+  'hues:', hues, 'shakeSource:', shakeSource, 'shakeSink:', shakeSink);
 
 // Set up the links.
 
-document.querySelector('#verlet').href = `?${
-  setQuery([['steps', 2+bound], ['scale', 9], ['wide'], ['depth']])}#verlet`;
+function setupLink(a, to) {
+  const { search, hash } = a;
+  const has = (search.length > 1) && getQuery(search).entries();
 
-document.querySelector('#euler').href = `?${
-  setQuery([['steps', 1+bound], ['scale', 9], ['wide'], ['depth']])}#euler`;
+  return a.href = '?'+
+    setQuery((has && to)? [...has, ...to] : ((has)? [...has] : to))+hash;
+}
 
-document.querySelector('#long').href = `?${
-  setQuery([['steps', 9+bound], ['scale', 8], ['wide'], ['depth']])}#long`;
+setupLink(document.querySelector('#verlet'),
+  [['steps', 2+bound], ['scale', 9]]);
 
-document.querySelector('#trace').href = `?${
-  setQuery([['steps', 3e2], ['scale', 4], ['wide'], ['depth']])}#trace`;
+setupLink(document.querySelector('#euler'), [['steps', 1+bound], ['scale', 9]]);
+setupLink(document.querySelector('#long'), [['steps', 9+bound], ['scale', 8]]);
+setupLink(document.querySelector('#trace'), [['steps', 3e2], ['scale', 4]]);
+setupLink(document.querySelector('#bubbles'));
+setupLink(document.querySelector('#million'));
 
-document.querySelector('#trails').href =
-  `?${setQuery([['form', ((form)? ((form+1)%3 || null) : 1)]])}#trails`;
+setupLink(document.querySelector('#trails'),
+  [['form', ((form)? ((form+1)%3 || null) : 1)]]);
 
-document.querySelector('#timestep').href =
-  `?${setQuery([['timestep', ((timeQuery == null)? '' : null)]])}#timestep`;
+setupLink(document.querySelector('#timestep'),
+  [['timestep', ((timeQuery == null)? '' : null)]]);
 
-document.querySelector('#merge').href =
-  `?${setQuery([['merge',
-    ((!useMerge)? false : ((useMerge === 'false')? true : null))]])}#merge`;
+setupLink(document.querySelector('#merge'),
+  [['merge', ((!useMerge)? false : ((useMerge === 'false')? true : null))]]);
 
 /**
  * How state values map to any past state values they derive from.
@@ -258,6 +283,23 @@ derives[valuesIndex.life] = [
 
 console.log(derives, '`derives`');
 
+/** Shake source or sink around while idling. */
+function shake(at, shaken, by, idle) {
+  const l = (Math.min(idle/4e3, 1)**3)*by;
+
+  if(!l) { return at; }
+
+  const a = Math.random()*Math.PI*2;
+  const [x, y, z, g] = at;
+
+  shaken[0] = x+(Math.cos(a)*l);
+  shaken[1] = y+(Math.sin(a)*l);
+  shaken[2] = z;
+  g != null && (shaken[3] = g);
+
+  return shaken;
+}
+
 /** The main `gl-gpgpu` state. */
 const state = gpgpu(regl, {
   // Logic given as state values, `gl-gpgpu` maps optimal inputs and outputs.
@@ -297,24 +339,14 @@ const state = gpgpu(regl, {
     time: (_, { props: { timer: t, rate: r } }) => t.time*r,
     loop: (_, { props: { timer: t, loop: l } }) => Math.sin(t.time/l*Math.PI)*l,
 
+    // Shake the source around while idling.
+    source: (_, { props: { source: { at, shaken, shake: by }, timer: t } }) =>
+      shake(at, shaken, by, t.idle),
+
     // Shake the sink around while idling.
-    sink: (_, { props: { sink: { at, idle: to, shake }, timer: t } }) => {
-      const l = (Math.min(t.idle/4e3, 1)**3)*shake;
+    sink: (_, { props: { sink: { at, shaken, shake: by }, timer: t } }) =>
+      shake(at, shaken, by, t.idle),
 
-      if(!l) { return at; }
-
-      const a = Math.random()*Math.PI*2;
-      const [x, y, z, g] = at;
-
-      to[0] = x+(Math.cos(a)*l);
-      to[1] = y+(Math.sin(a)*l);
-      to[2] = z;
-      to[3] = g;
-
-      return to;
-    },
-
-    source: regl.prop('props.source'),
     lifetime: regl.prop('props.lifetime'),
     useVerlet: regl.prop('props.useVerlet'),
     epsilon: regl.prop('props.epsilon'),
@@ -350,19 +382,21 @@ const state = gpgpu(regl, {
     // Whether to invert particle flow towards rather than away from source.
     invert: false,
     // The position around which particles spawn.
-    source: [0, 0, 0.4],
+    source: {
+      at: [0, 0, 0.4],
+      // Shake around while idling.
+      shake: shakeSource, shaken: []
+    },
     // Sink position, and universal gravitational constant.
     sink: {
-      // Main sink values.
       at: [
         // Sink position.
         0, 0, 0.6,
         // Universal gravitational constant (scaled).
         6.674e-11*5e10
       ],
-      // Shake the sink around while idling.
-      shake,
-      idle: []
+      // Shake around while idling.
+      shake: shakeSink, shaken: []
     },
     // Constant acceleration of gravity; and whether to use it or the `sink`.
     g: [
@@ -426,6 +460,8 @@ const drawState = {
   // Drawing, not data - so no `output` macros. Also, don't need `frag` macros.
   macros: { output: 0, frag: 0 },
   drawProps: {
+    projection: [],
+    view: lookAt([], [0, 0, 4], [0, 0, 0], [0, 1, 0]),
     // How many vertexes per form.
     form: clamp(form || 2, 1, 1+useLines),
     // Vertex counts by form; how many steps a form covers, for all entries.
@@ -435,13 +471,15 @@ const drawState = {
     primitives: [, 'points', 'lines'],
     // How wide the form is; to be scaled by `viewScale`.
     wide,
-    // How much to fizz around older state positions.
+    // How many older state positions to fizz around, and other inputs.
     fizz,
+    // Hue range to colour particles.
+    hues,
 
     // One option in these arrays is used, by Euler/Verlet respectively.
 
     // Speed-to-colour scaling, as `[multiply, power]`.
-    pace: [[1e-3, 0.6], [3e2, 0.6]]
+    pace: [[1e-3, 0.4], [3e2, 0.4]]
   },
   // Map everything similarly to the `gpgpu` step, `mapStep` can be reused to
   // create new mappings with some additions for drawing.
@@ -474,9 +512,15 @@ const drawPipeline = {
   // Hook up `gpgpu` uniforms by adding them here.
   uniforms: toUniforms(drawState, {
     ...drawState.uniforms,
+    projection: regl.prop('drawProps.projection'),
+    view: regl.prop('drawProps.view'),
     // How many vertexes per form.
     form: regl.prop('drawProps.form'),
-    fizz: regl.prop('drawProps.fizz'),
+    fizz: regl.prop('drawProps.fizz.at'),
+    fizzMax: regl.prop('drawProps.fizz.max'),
+    fizzRate: regl.prop('drawProps.fizz.rate'),
+    fizzCurve: regl.prop('drawProps.fizz.curve'),
+    hues: regl.prop('drawProps.hues'),
     pace: (_, { drawProps: dp, props: p }) => dp.pace[+p.useVerlet],
     pointSize: (c, p) => clamp(p.drawProps.wide*viewScale(c), ...pointSizeDims)
   }),
@@ -569,10 +613,10 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
   (e) => {
     const { clientX: x, clientY: y, type, pointerType, isPrimary = true } = e;
     const { left, top, width: w, height: h } = canvas.getBoundingClientRect();
-    const { source: i, sink: { at: o }, invert } = state.props;
+    const { source: { at: i }, sink: { at: o }, invert } = state.props;
     const touch = ((type === 'touchmove') || (pointerType === 'touch'));
-    /** Move source or sink, switch by primary/other pointer/s or inversion. */
-    const to = ((isPrimary)? ((invert)? o : i) : ((invert)? i : o));
+    /** Move source or sink, switch by primary/other pointer/s `xor` invert. */
+    const to = ((isPrimary !== invert)? i : o);
     const size = Math.min(w, h);
 
     to[0] = (((x-((w-size)*0.5)-left)/size)*2)-1;
@@ -589,10 +633,12 @@ canvas.addEventListener('dblclick', (e) => {
   stopEvent(e);
 });
 
-/** Resize the canvas. */
+/** Resize the canvas and any dependent properties. */
 function resize() {
-  canvas.width = innerWidth*pixelRatio;
-  canvas.height = innerHeight*pixelRatio;
+  const w = canvas.width = innerWidth*pixelRatio;
+  const h = canvas.height = innerHeight*pixelRatio;
+
+  perspective(drawState.drawProps.projection, 60, w/h, 1e-4, 1e4);
 }
 
 addEventListener('resize', resize);

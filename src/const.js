@@ -165,9 +165,10 @@ export const glslRx = /[0-9\.]+/;
 /**
  * Set a maximum to guard against number overflow.
  *
+ * @todo Should be `(2**15)-1` for `mediump`, but seems to fail above `2**13`.
  * @see [SO](https://stackoverflow.com/a/67791670/716898)
  */
-export const stepMaxDef = (2**15)-1;
+export const stepMaxDef = 2**13;
 
 /**
  * Default clear settings to clear each pass's `framebuffer`.

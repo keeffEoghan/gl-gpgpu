@@ -53,27 +53,23 @@ a {
     height: 1px;
     z-index: -1;
     background: currentColor;
-    transform-origin: bottom;
+    transform-origin: 0 80%;
     transition: transform 300ms ease-in-out,
-      opacity 300ms ease-in-out,
-      filter 300ms ease-in-out;
+      opacity 300ms ease-in-out;
   }
 
   &:hover,
   &:focus,
   &:active {
     &::after {
-      transform: scaleY(10);
+      transform: scaleY(5);
       opacity: 0.5;
-      filter: invert(1);
-      filter: invert(100%);
     }
   }
 }
 
 canvas {
   position: relative;
-  background-color: #000;
   cursor: pointer;
   touch-action: none;
   tap-highlight-color: transparent;
