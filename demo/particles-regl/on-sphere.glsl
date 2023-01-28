@@ -1,10 +1,11 @@
-/** @see [Spherical distribution](https://observablehq.com/@rreusser/equally-distributing-points-on-a-sphere) */
-
+/**
+ * @param {float} angle An angle, in radians, expects range `[0, 2*pi]`.
+ * @param {float} depth A depth, expects range `[-1, 1]`.
+ *
+ * @see [Spherical distribution](https://observablehq.com/@rreusser/equally-distributing-points-on-a-sphere)
+ */
 vec3 onSphere(float angle, float depth) {
-  float a = angle;
-  float u = (depth*2.0)-1.0;
-
-  return vec3(sqrt(1.0-(u*u))*vec2(cos(a), sin(a)), u);
+  return vec3(sqrt(1.0-(depth*depth))*vec2(cos(angle), sin(angle)), depth);
 }
 
 #pragma glslify: export(onSphere)

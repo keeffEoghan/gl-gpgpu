@@ -67,40 +67,48 @@ gpgpu_useSamples
 /** Current step from `gl-gpgpu`; needed for `tapStates` or `tapStatesBy`. */
 uniform float gpgpu_stepNow;
 
-// Custom inputs for this demo.
+// Common shader inputs and parts.
 
-uniform float dt0;
 uniform float dt1;
 uniform float loop;
-/** A particle's lifetime range, and whether it's allowed to respawn. */
-uniform vec3 lifetime;
-uniform float useVerlet;
-uniform float epsilon;
-uniform float moveCap;
-uniform vec2 scale;
-uniform vec2 spout;
-uniform vec3 source;
-/** Sink position, and universal gravitational constant. */
-uniform vec4 sink;
-/** Constant acceleration of gravity; and whether to use it or the `sink`. */
-uniform vec4 g;
-// uniform vec3 drag;
 
 varying vec2 uv;
 
-#pragma glslify: le = require(glsl-conditionals/when_le)
+#pragma glslify: lt = require(glsl-conditionals/when_lt)
 #pragma glslify: random = require(glsl-random)
 
+// Any shader inputs or parts can also be split up by usage in different passes.
+
 #ifdef positionOutput
+  uniform float moveCap;
+  uniform vec2 scale;
+  uniform vec3 source;
+
   /** @todo Try Velocity Verlet integration. */
   #pragma glslify: verlet = require(@epok.tech/glsl-verlet/p-p-a)
 #endif
 
+#ifdef motionOutput
+  uniform float epsilon;
+  /** Sink position, and universal gravitational constant. */
+  uniform vec4 sink;
+  /** Constant acceleration of gravity; and whether to use it or the `sink`. */
+  uniform vec4 g;
+  // uniform vec3 drag;
+#endif
+
 #ifdef lifeOutput
+  /** A particle's lifetime range, and whether it's allowed to respawn. */
+  uniform vec3 lifetime;
+
   #pragma glslify: map = require(glsl-map)
 #endif
 
 #if defined(positionOutput) || defined(motionOutput)
+  uniform float dt0;
+  uniform float useVerlet;
+  uniform vec2 spout;
+
   #pragma glslify: tau = require(glsl-constants/TWO_PI)
   #pragma glslify: onSphere = require(./on-sphere)
 #endif
@@ -161,8 +169,8 @@ void main() {
   // also be coded in separate files called from here, however they're coded
   // inline here for brevity, relevance, and easy access to shared variables.
 
-  /** Whether the particle is ready to respawn. */
-  float spawn = le(life, 0.0);
+  /** Whether the particle is ready to respawn; initially 0, so must be less. */
+  float spawn = lt(life, 0.0);
 
   #if defined(positionOutput) || defined(motionOutput)
     // Workaround for switching Euler/Verlet; interpret `motion` data as
@@ -211,7 +219,6 @@ void main() {
 
     /** Use sink point, or constant acceleration due to gravity. */
     acceleration = mix(gravity, g.xyz, g.w);
-
     /** Can also combine other forces, e.g: drag. */
     // acceleration += dragAcc(mix(velocity, acceleration*dt1, useVerlet), drag);
 
@@ -222,10 +229,10 @@ void main() {
     motionOutput = mix(motionTo, motionNew, spawn);
   #endif
   #ifdef lifeOutput
-    float lifeTo = max(life-dt1, 0.0);
+    float lifeTo = life-dt1;
     float lifeNew = map(random(uv*loop), 0.0, 1.0, lifetime.s, lifetime.t);
-    /** Whether the oldest of this trail has faded. */
-    float faded = le(lifeLast, 0.0);
+    /** Whether the oldest state has faded; initially 0, so must be less. */
+    float faded = lt(lifeLast, 0.0);
 
     /**
      * Output the next life value to its channels in the state texture.

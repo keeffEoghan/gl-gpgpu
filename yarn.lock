@@ -78,9 +78,9 @@ __metadata:
     "@epok.tech/glsl-verlet": ^0.1.1
     "@epok.tech/is-type": ^0.1.0
     "@parcel/transformer-glsl": 2.7.0
+    "@thi.ng/math": ^5.4.0
     "@thi.ng/matrices": ^2.1.40
     "@thi.ng/vectors": ^7.1.1
-    clamp: ^1.0.1
     glsl-conditionals: ^1.0.0
     glsl-constants: ^1.0.0
     glsl-hsl2rgb: ^1.1.0
@@ -1594,13 +1594,6 @@ __metadata:
   version: 1.0.3
   resolution: "chrome-trace-event@npm:1.0.3"
   checksum: cb8b1fc7e881aaef973bd0c4a43cd353c2ad8323fb471a041e64f7c2dd849cde4aad15f8b753331a32dda45c973f032c8a03b8177fc85d60eaa75e91e08bfb97
-  languageName: node
-  linkType: hard
-
-"clamp@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "clamp@npm:1.0.1"
-  checksum: 799bd7083736eb975cd4a9a7e8f1a1e38cc3cb6be0384f9732c1da263accb3205385e5c2880e661a0d5a74e0066bfbf8fcd17dd2f509595ce52dd04c84522833
   languageName: node
   linkType: hard
 

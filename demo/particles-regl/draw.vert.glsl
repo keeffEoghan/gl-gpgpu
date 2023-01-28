@@ -39,9 +39,8 @@ uniform float gpgpu_stepNow;
 uniform vec4 gpgpu_stateShape;
 uniform vec2 gpgpu_viewShape;
 
-uniform mat4 projection;
-uniform mat4 view;
-uniform float pointSize;
+uniform mat4 transform;
+uniform float wide;
 uniform float dt;
 uniform float time;
 uniform vec3 lifetime;
@@ -56,9 +55,9 @@ uniform float fizzMax;
 uniform float fizzRate;
 uniform float fizzCurve;
 
+/** Center and radius for points or lines; only points have `gl_PointCoord`. */
+varying vec4 sphere;
 varying vec4 color;
-varying vec3 center;
-varying float radius;
 
 #pragma glslify: aspect = require(@epok.tech/glsl-aspect/contain)
 #pragma glslify: gt = require(glsl-conditionals/when_gt)
@@ -82,7 +81,9 @@ varying float radius;
   #endif
 #endif
 
-const vec4 noPosition = vec4(0, 0, -1, 0);
+const vec4 clipped = vec4(0);
+// const vec4 clipped = vec4(0, 0, -1, 0);
+// const vec4 clipped = vec4(0, 0, -1e9, 0);
 
 void main() {
   #if gpgpu_stepsPast > 1
@@ -128,28 +129,30 @@ void main() {
   float fizzBy = pow(clamp(stepPast/fizz, 0.0, 1.0), fizzCurve)*fizzMax;
   float fizzAt = (time/fizzBy)*mix(fizzRate, -fizzRate, mod(entry, 2.0));
   float fizzAngle = (random(position1.xy)+fizzAt)*tau;
-  float fizzDepth = (sin(random(vec2(position1.z, ago))+fizzAt)+1.0)*0.5;
+  float fizzDepth = sin(random(vec2(position1.z, ago))+fizzAt);
   vec3 position = position1+(fizzBy*onSphere(fizzAngle, fizzDepth));
 
-  /** @todo Perspective camera transform. */
-  vec4 vertex = mix(noPosition, vec4(position.xy*ar, position.z, 1), alive);
-  // vec4 vertex = projection*view*mix(noPosition, vec4(position, 1), alive);
+  vec4 vertex = mix(clipped, vec4(position.xy*ar, position.z, 1), alive);
+  // vec4 vertex = transform*mix(clipped, vec4(position.xy*ar, position.z, 1), alive);
+  // vec4 vertex = mix(clipped, vec4(position, 1), alive);
+  // vec4 vertex = transform*mix(clipped, vec4(position, 1), alive);
   float depth = clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
   float alpha = clamp(pow(life/lifetime.t, 0.1)*pow(1.0-ago, 0.4), 0.0, 1.0);
-  float size = pointSize*depth*alpha;
+  float size = wide*clamp(depth*alpha, 0.0, 1.0);
 
   gl_Position = vertex;
-  // gl_Position = projection*view*vertex;
-  gl_PointSize = size;
-
-  radius = size*0.5;
+  // gl_Position = transform*vertex;
+  // gl_PointSize = size;
+  gl_PointSize = wide;
 
   /**
    * Convert vertex position to `gl_FragCoord` window-space.
    * @see [SO](https://stackoverflow.com/a/7158573)
    * @todo Might need the viewport `x` and `y` offset as well as `w` and `h`?
    */
-  center = vec3(gpgpu_viewShape*((1.0+vertex.xy)/vertex.w)*0.5, vertex.z);
+  vec2 frag = gpgpu_viewShape*((1.0+vertex.xy)/vertex.w)*0.5;
+
+  sphere = vec4(frag, vertex.z, size*0.5);
 
   float speed = length(mix(motion, position1-position0, useVerlet))/dt;
 

@@ -1,9 +1,18 @@
 /** Demo implementation of 3D particle Verlet/Euler integration simulation. */
 
 import getRegl from 'regl';
-import clamp from 'clamp';
+import { clamp } from '@thi.ng/math/interval';
+import { identity44 } from '@thi.ng/matrices/identity';
+import { rotationAroundAxis44 } from '@thi.ng/matrices/rotation-around-axis';
 import { perspective } from '@thi.ng/matrices/perspective';
 import { lookAt } from '@thi.ng/matrices/lookat';
+import { viewport } from '@thi.ng/matrices/viewport';
+import { project3 } from '@thi.ng/matrices/project';
+import { unproject } from '@thi.ng/matrices/project';
+import { concat } from '@thi.ng/matrices/concat';
+import { mulM44 } from '@thi.ng/matrices/mulm';
+import { mulV344 } from '@thi.ng/matrices/mulv';
+import { invert44 } from '@thi.ng/matrices/invert';
 import timer from '@epok.tech/fn-time';
 import reduce from '@epok.tech/fn-lists/reduce';
 import map from '@epok.tech/fn-lists/map';
@@ -181,9 +190,8 @@ const wide = parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio;
 
 /** How many older state positions to fizz around, and other inputs. */
 const fizz = {
-  at: parseFloat(query.get('fizz') ?? clamp(stepsPast, 5, 2e2), 10) || 0,
-  max: parseFloat(query.get('fizz-max') ?? clamp(stepsPast*1e-3, 7e-3, 15e-3),
-    10) || 0,
+  at: parseFloat(query.get('fizz') ?? clamp(steps, 5, 2e2), 10) || 0,
+  max: parseFloat(query.get('fizz-max') ?? clamp(steps, 7, 15)*1e-3, 10) || 0,
   rate: parseFloat(query.get('fizz-rate') ?? 2e-5, 10) || 0,
   curve: parseFloat(query.get('fizz-curve') ?? 1.7, 10) || 0
 };
@@ -197,8 +205,8 @@ const shakeSink = parseFloat(query.get('shake-sink') ?? 7e-2, 10) || 0;
 const hues = query.getAll('hue');
 
 // Parse any present hues, fill any missing hues, using only up to 2 hues.
-map((h, i) => parseFloat(h, 10) || hues[i-1]+0.33 || 0.9,
-  range(hues, '', hues.length, hues.length = 2), 0);
+map((h, i) => parseFloat(h ?? ((i)? hues[i-1]+0.25 : 0.95), 10) || 0,
+  range(hues, null, hues.length, hues.length = 2), 0);
 
 /**
  * Variable-step (delta-time) if given `false`y/`NaN`; fixed-step (add-step)
@@ -206,8 +214,9 @@ map((h, i) => parseFloat(h, 10) || hues[i-1]+0.33 || 0.9,
  */
 const timeQuery = query.get('timestep');
 
+const timestepDef = 1e3/60;
 /** Whether to use a fixed timestep or render variably as soon as possible. */
-const timestep = parseFloat(timeQuery ?? 1e3/60, 10) || null;
+const timestep = parseFloat(timeQuery ?? timestepDef, 10) || null;
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
   'steps:', steps, 'scale:', scale, 'timestep:', timestep, 'merge:', merge,
@@ -383,7 +392,7 @@ const state = gpgpu(regl, {
     invert: false,
     // The position around which particles spawn.
     source: {
-      at: [0, 0, 0.4],
+      at: [0, 0, -0.2],
       // Shake around while idling.
       shake: shakeSource, shaken: []
     },
@@ -391,7 +400,7 @@ const state = gpgpu(regl, {
     sink: {
       at: [
         // Sink position.
-        0, 0, 0.6,
+        0, 0, 0.2,
         // Universal gravitational constant (scaled).
         6.674e-11*5e10
       ],
@@ -460,8 +469,18 @@ const drawState = {
   // Drawing, not data - so no `output` macros. Also, don't need `frag` macros.
   macros: { output: 0, frag: 0 },
   drawProps: {
-    projection: [],
-    view: lookAt([], [0, 0, 4], [0, 0, 0], [0, 1, 0]),
+    // Transformation matrices.
+    projection: perspective([], 60, 1, 1e-2, 1e2),
+    view: lookAt([], [0, 0, -1], [0, 0, 1], [0, 1, 0]),
+    model: {
+      matrix: identity44([]),
+      rotation: identity44([]),
+      axis: [0, 1, 0],
+      angle: (timestep || timestepDef)*1e-4*Math.PI*2
+    },
+    transform: [],
+    unprojection: [],
+    viewport: viewport([], -1, 1, -1, 1),
     // How many vertexes per form.
     form: clamp(form || 2, 1, 1+useLines),
     // Vertex counts by form; how many steps a form covers, for all entries.
@@ -479,7 +498,7 @@ const drawState = {
     // One option in these arrays is used, by Euler/Verlet respectively.
 
     // Speed-to-colour scaling, as `[multiply, power]`.
-    pace: [[1e-3, 0.4], [3e2, 0.4]]
+    pace: [[1e-3, 0.6], [3e2, 0.6]]
   },
   // Map everything similarly to the `gpgpu` step, `mapStep` can be reused to
   // create new mappings with some additions for drawing.
@@ -512,8 +531,16 @@ const drawPipeline = {
   // Hook up `gpgpu` uniforms by adding them here.
   uniforms: toUniforms(drawState, {
     ...drawState.uniforms,
+
+    // Transformation matrices.
     projection: regl.prop('drawProps.projection'),
     view: regl.prop('drawProps.view'),
+    model: regl.prop('drawProps.model.matrix'),
+
+    // Multiply the matrices once here into a single transform.
+    transform: (_, { drawProps: { transform, projection, view, model } }) =>
+      concat(transform, projection, view, model.matrix),
+
     // How many vertexes per form.
     form: regl.prop('drawProps.form'),
     fizz: regl.prop('drawProps.fizz.at'),
@@ -522,7 +549,7 @@ const drawPipeline = {
     fizzCurve: regl.prop('drawProps.fizz.curve'),
     hues: regl.prop('drawProps.hues'),
     pace: (_, { drawProps: dp, props: p }) => dp.pace[+p.useVerlet],
-    pointSize: (c, p) => clamp(p.drawProps.wide*viewScale(c), ...pointSizeDims)
+    wide: (c, p) => clamp(p.drawProps.wide*viewScale(c), ...pointSizeDims)
   }),
   lineWidth: (c, p) => clamp(p.drawProps.wide*viewScale(c), ...lineWidthDims),
   // Vertex counts by form; how many steps a form covers, for all entries.
@@ -548,20 +575,14 @@ function stepTime(state) {
   return state;
 }
 
-const clearView = { color: [0, 0, 0, 0], depth: 1 };
+function rotateModel() {
+  const to = drawState.drawProps.model;
+  const { matrix: m, rotation: r, axis, angle } = to;
 
-regl.frame(() => {
-  try {
-    stepTime(state.props.timer);
-    // Compute the next step of state.
-    state.step();
-    // Update the draw state.
-    drawState.stepNow = (state.stepNow+1)-drawBound;
-    regl.clear(clearView);
-    draw(drawState);
-  }
-  catch(e) { toggleError(e); }
-});
+  to.matrix = mulM44(m, rotationAroundAxis44(r, axis, angle), m);
+}
+
+const clearView = { color: [0, 0, 0, 0], depth: 1 };
 
 function stopEvent(e) {
   e.stopPropagation();
@@ -621,6 +642,12 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
 
     to[0] = (((x-((w-size)*0.5)-left)/size)*2)-1;
     to[1] = -((((y-((h-size)*0.5)-top)/size)*2)-1);
+    // to[1] = ((((y-((h-size)*0.5)-top)/size)*2)-1);
+    // Convert from screen space to world space with perspective.
+    // project3(to, drawState.drawProps.projection, drawState.drawProps.viewport, to);
+    // unproject(to, drawState.drawProps.projection, drawState.drawProps.viewport, to);
+    // mulV344(to, drawState.drawProps.projection, to);
+    // mulV344(to, drawState.drawProps.unprojection, to);
     // For touch devices, don't pause spawn if touch moves while held down.
     touch && (hold = true);
     // Reset the idle time for any movement.
@@ -637,9 +664,39 @@ canvas.addEventListener('dblclick', (e) => {
 function resize() {
   const w = canvas.width = innerWidth*pixelRatio;
   const h = canvas.height = innerHeight*pixelRatio;
+  const ar = w/h;
+  const { projection: p, unprojection: u, viewport: v } = drawState.drawProps;
 
-  perspective(drawState.drawProps.projection, 60, w/h, 1e-4, 1e4);
+  invert44(u, perspective(p, 60, ar, 1e-2, 1e2));
+  viewport(v, -1, 1, -1, 1);
 }
 
 addEventListener('resize', resize);
 resize();
+
+/** Update state for a frame. */
+function frameStep() {
+  try {
+    stepTime(state.props.timer);
+    // Compute the next step of state.
+    state.step();
+  }
+  catch(e) { toggleError(e); }
+}
+
+// Call the number of steps past initially to initialise all the states.
+for(let s = 0; s < stepsPast; ++s) { frameStep(); }
+
+// Further calls each animation frame, update state and draw.
+regl.frame(() => {
+  try {
+    frameStep();
+    // Update the draw state.
+    drawState.stepNow = (state.stepNow+1)-drawBound;
+    // Rotate the scene each frame.
+    rotateModel();
+    regl.clear(clearView);
+    draw(drawState);
+  }
+  catch(e) { toggleError(e); }
+});
