@@ -74,7 +74,7 @@ uniform float loop;
 
 varying vec2 uv;
 
-#pragma glslify: lt = require(glsl-conditionals/when_lt)
+#pragma glslify: le = require(glsl-conditionals/when_le)
 #pragma glslify: random = require(glsl-random)
 
 // Any shader inputs or parts can also be split up by usage in different passes.
@@ -94,7 +94,6 @@ varying vec2 uv;
   uniform vec4 sink;
   /** Constant acceleration of gravity; and whether to use it or the `sink`. */
   uniform vec4 g;
-  // uniform vec3 drag;
 #endif
 
 #ifdef lifeOutput
@@ -112,16 +111,6 @@ varying vec2 uv;
   #pragma glslify: tau = require(glsl-constants/TWO_PI)
   #pragma glslify: onSphere = require(./on-sphere)
 #endif
-
-/**
- * Drag acceleration, constrained within the given velocity.
- * @see [Wikipedia on Verlet](https://en.wikipedia.org/wiki/Verlet_integration#Algorithmic_representation)
- */
-// vec3 dragAcc(vec3 velocity, vec3 drag) {
-//   vec3 l = abs(velocity);
-
-//   return clamp(-0.5*sign(velocity)*dot(velocity, velocity)*drag, -l, l);
-// }
 
 void main() {
   // Sample the desired state values - creates the `gpgpu_data` `array`.
@@ -169,8 +158,8 @@ void main() {
   // also be coded in separate files called from here, however they're coded
   // inline here for brevity, relevance, and easy access to shared variables.
 
-  /** Whether the particle is ready to respawn; initially 0, so must be less. */
-  float spawn = lt(life, 0.0);
+  /** Whether the particle is ready to respawn. */
+  float spawn = le(life, 0.0);
 
   #if defined(positionOutput) || defined(motionOutput)
     // Workaround for switching Euler/Verlet; interpret `motion` data as
@@ -179,8 +168,8 @@ void main() {
     vec3 acceleration = motion;
 
     /** Spawn randomly on a sphere around the source, move in that direction. */
-    vec3 spoutSpawn = random(loop-(uv*dt0))*
-      onSphere(random((uv+loop)/dt1)*tau, random((uv-loop)*dt0));
+    vec3 spoutSpawn = random(loop-uv+dt0)*
+      onSphere(random(uv+loop-dt1)*tau, mix(-1.0, 1.0, random(loop-uv-dt0)));
   #endif
 
   #ifdef positionOutput
@@ -219,8 +208,6 @@ void main() {
 
     /** Use sink point, or constant acceleration due to gravity. */
     acceleration = mix(gravity, g.xyz, g.w);
-    /** Can also combine other forces, e.g: drag. */
-    // acceleration += dragAcc(mix(velocity, acceleration*dt1, useVerlet), drag);
 
     vec3 motionTo = mix(velocity+(acceleration*dt1), acceleration, useVerlet);
     vec3 motionNew = spout.y*spoutSpawn;
@@ -231,8 +218,8 @@ void main() {
   #ifdef lifeOutput
     float lifeTo = life-dt1;
     float lifeNew = map(random(uv*loop), 0.0, 1.0, lifetime.s, lifetime.t);
-    /** Whether the oldest state has faded; initially 0, so must be less. */
-    float faded = lt(lifeLast, 0.0);
+    /** Whether the oldest state has faded. */
+    float faded = le(lifeLast, 0.0);
 
     /**
      * Output the next life value to its channels in the state texture.

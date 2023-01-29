@@ -365,7 +365,6 @@ const state = gpgpu(regl, {
 
     // One option in these arrays is used, by Euler/Verlet respectively.
     spout: (_, { props: { spout: ss, useVerlet: u } }) => ss[+u],
-    // drag: (_, { props: { drag: ds, useVerlet: u } }) => ds[+u]
   },
   // Custom properties to be passed to shaders mixed in with `gl-gpgpu` ones.
   props: {
@@ -421,8 +420,6 @@ const state = gpgpu(regl, {
 
     // The distance from the `source`, and speed, that particles spawn with.
     spout: [[0, 3e3], [0, 2e2]],
-    // Drag coefficient.
-    // drag: [range(3, 1e-3), range(3, 1e-1)]
   }
 });
 
@@ -674,23 +671,11 @@ function resize() {
 addEventListener('resize', resize);
 resize();
 
-/** Update state for a frame. */
-function frameStep() {
+regl.frame(() => {
   try {
     stepTime(state.props.timer);
     // Compute the next step of state.
     state.step();
-  }
-  catch(e) { toggleError(e); }
-}
-
-// Call the number of steps past initially to initialise all the states.
-for(let s = 0; s < stepsPast; ++s) { frameStep(); }
-
-// Further calls each animation frame, update state and draw.
-regl.frame(() => {
-  try {
-    frameStep();
     // Update the draw state.
     drawState.stepNow = (state.stepNow+1)-drawBound;
     // Rotate the scene each frame.
