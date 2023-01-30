@@ -14,9 +14,8 @@
 
 precision highp float;
 
-// uniform vec2 scale;
-// uniform vec2 depthRange;
 uniform float wide;
+uniform vec2 depthRange;
 
 /** Center and radius for points or lines; only points have `gl_PointCoord`. */
 varying vec4 sphere;
@@ -43,21 +42,19 @@ void main() {
   vec3 axis = vec3(cf, sqrt(z2));
   vec3 normal = axis/sphere.w;
 
-  // float depth = gl_FragCoord.z-(axis.z*(scale.s*pow(10.0, scale.t)));
-  // float depth = gl_FragCoord.z-
-  //   map(axis.z, depthRange.s, depthRange.t, 0.0, 1.0);
-  // float depth = gl_FragCoord.z-(axis.z/wide);
-  float depth = gl_FragCoord.z-(axis.z/wide);
+  /** Scale the `axis` into clip space. */
+  float depth = clamp(map(gl_FragCoord.z-(axis.z/wide),
+      depthRange.s, depthRange.t, 0.0, 1.0),
+    0.0, 1.0);
 
   /** @todo Attenuated point lights shading. */
   // gl_FragColor = vec4(normal, 1);
   // gl_FragColor = color;
   // gl_FragColor = vec4(color.rgb, color.a*normal.z);
-  // gl_FragColor = vec4(color.rgb, color.a*exp(depth));
-  gl_FragColor = vec4(color.rgb, color.a*exp(depth)*normal.z);
+  // gl_FragColor = vec4(color.rgb*mix(0.2, 1.0, depth), color.a);
+  gl_FragColor = vec4(color.rgb*mix(0.25, 1.0, depth), color.a*normal.z);
 
   #ifdef GL_EXT_frag_depth
-    /** Scale the `axis` into clip space. */
     gl_FragDepthEXT = depth;
   #endif
 }

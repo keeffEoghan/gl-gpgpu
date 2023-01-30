@@ -47,7 +47,6 @@ uniform vec3 lifetime;
 uniform vec2 pace;
 uniform float useVerlet;
 uniform float form;
-uniform float loop;
 uniform vec2 hues;
 
 uniform float fizz;
@@ -127,14 +126,14 @@ void main() {
 
   /** Fizz randomly on a sphere around older positions. */
   float fizzBy = pow(clamp(stepPast/fizz, 0.0, 1.0), fizzCurve)*fizzMax;
-  float fizzAt = (time/fizzBy)*mix(fizzRate, -fizzRate, mod(entry, 2.0));
-  float fizzAngle = (random(position1.xy)+fizzAt)*tau;
-  float fizzDepth = sin(random(vec2(position1.z, ago))+fizzAt);
-  vec3 position = position1+(fizzBy*onSphere(fizzAngle, fizzDepth));
+  float fizzAt = time*fizzRate*mix(-1.0, 1.0, mod(entry, 2.0))/(1.0+fizzBy);
+  float fizzAngle = (random(position1.xy*entry)+fizzAt)*tau;
+  float fizzDepth = sin(random(vec2(position1.z*entry, life))+fizzAt);
+  vec3 fizzed = fizzBy*onSphere(fizzAngle, fizzDepth);
 
+  vec3 position = position1+fizzed;
   // vec4 vertex = mix(clipped, vec4(position.xy*ar, position.z, 1), alive);
-  vec4 vertex = mix(clipped, vec4(position.xy*ar, 0, 1), alive);
-  // vec4 vertex = transform*mix(clipped, vec4(position.xy*ar, position.z, 1), alive);
+  vec4 vertex = transform*mix(clipped, vec4(position.xy*ar, position.z, 1), alive);
   // vec4 vertex = mix(clipped, vec4(position, 1), alive);
   // vec4 vertex = transform*mix(clipped, vec4(position, 1), alive);
   float fade = clamp(pow(life/lifetime.t, 0.2)*pow(1.0-ago, 0.4), 0.0, 1.0);
@@ -142,6 +141,7 @@ void main() {
   // float size = wide*clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
   // float size = wide*fade;
 
+  // vertex = vec4(map(st, vec2(0), vec2(1), vec2(-0.9), vec2(0.9)), 0, 1);
   gl_Position = vertex;
   // gl_Position = transform*vertex;
   gl_PointSize = size;

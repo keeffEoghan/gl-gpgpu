@@ -392,8 +392,8 @@ export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
  * @param {number} [state.bound=boundDef] How many steps are bound as outputs,
  *   unavailable as inputs.
  * @param {object} [state.size] Any size information about the GL resources.
- * @param {number} [state.size.entries] The number of data entries per `texture`
- *   (the `texture`'s area), if given. See `toData`.
+ * @param {number} [state.size.entries] The number of data entries per state,
+ *   if given. See `toData`.
  * @param {object|false} [state.cache=cacheDef] Any object to cache any inputs'
  *   results in, `false`y to skip caching; uses `cacheDef` if not given.
  *

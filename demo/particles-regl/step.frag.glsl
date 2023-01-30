@@ -179,8 +179,8 @@ void main() {
 
     /** Spawn randomly on a sphere around the source, move in that direction. */
     vec3 spoutSpawn = random(loop-(uv*(1.0+dt0)))*
-      onSphere(random((uv+loop)/(1.0-dt1))*tau,
-        mix(-1.0, 1.0, random((uv-loop)*(1.0+dt1))));
+      onSphere(random((uv.st*loop)/(1.0+dt0))*tau,
+        mix(-1.0, 1.0, random((-uv.ts*loop)/(1.0+dt1))));
   #endif
 
   #ifdef positionOutput

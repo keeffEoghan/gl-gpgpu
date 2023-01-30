@@ -191,20 +191,25 @@ const prefill = query.get('prefill') !== 'false';
 const form = Math.floor(parseFloat(query.get('form'), 10) || 0);
 
 /** How wide the form is; to be scaled by `viewScale`. */
-const wide = parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio;
+const wide = parseFloat(query.get('wide') || 3e-3*pixelRatio, 10) || 0;
+
+/** The amount to spin the scene initially. */
+const spin0 = parseFloat(query.get('spin-0'), 10) || 0;
+/** The pace to spin the scene each frame. */
+const spinPace = parseFloat(query.get('spin-pace') || 5e-5, 10) || 0;
 
 /** How many older state positions to fizz around, and other inputs. */
 const fizz = {
   at: parseFloat(query.get('fizz') || clamp(steps, 5, 2e2), 10) || 0,
   max: parseFloat(query.get('fizz-max') || clamp(steps, 7, 15)*1e-3, 10) || 0,
-  rate: parseFloat(query.get('fizz-rate') || 2e-5, 10) || 0,
+  rate: parseFloat(query.get('fizz-rate') || 2e-3, 10) || 0,
   curve: parseFloat(query.get('fizz-curve') || 1.7, 10) || 0
 };
 
-/** Z-coordinate of the source. */
-const sourceZ = parseFloat(query.get('source-z') || -0.3, 10) || 0;
 /** How much to scale the spout speeds. */
 const spoutPace = parseFloat(query.get('spout-pace') || 1, 10) || 0;
+/** Distance on the z-axis from the origin to the source and sink. */
+const originGap = parseFloat(query.get('origin-gap') || 0.2, 10) || 0;
 /** How much to shake the source around while idling. */
 const shakeSource = parseFloat(query.get('shake-source') || 2e-3, 10) || 0;
 /** How much to shake the sink around while idling. */
@@ -230,7 +235,8 @@ const timestep = parseFloat(timeQuery ?? timestepDef, 10) || null;
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
   'merge:', merge, 'scale:', scale, 'steps:', steps, 'prefill:', prefill,
   'timestep:', timestep, 'depth:', fragDepth, 'form:', form, 'wide:', wide,
-  'fizz:', fizz, 'hues:', hues, 'sourceZ:', sourceZ, 'spoutPace:', spoutPace,
+  'spin0:', spin0, 'spinPace:', spinPace, 'fizz:', fizz, 'hues:', hues,
+  'spoutPace:', spoutPace, 'originGap:', originGap,
   'shakeSource:', shakeSource, 'shakeSink:', shakeSink);
 
 // Set up the links.
@@ -250,7 +256,8 @@ setupLink(document.querySelector('#euler'), [['steps', 1+bound], ['scale', 9]]);
 setupLink(document.querySelector('#long'), [['steps', 9+bound], ['scale', 8]]);
 setupLink(document.querySelector('#trace'), [['steps', 3e2], ['scale', 4]]);
 setupLink(document.querySelector('#bubbles'));
-setupLink(document.querySelector('#million'));
+setupLink(document.querySelector('#molecular'));
+setupLink(document.querySelector('#millions'));
 
 setupLink(document.querySelector('#trails'),
   [['form', ((form)? ((form+1)%3 || null) : 1)]]);
@@ -304,7 +311,7 @@ console.log(derives, '`derives`');
 
 /** Shake source or sink around while idling. */
 function shake(at, shaken, by, idle) {
-  const l = (Math.min(idle/4e3, 1)**3)*by;
+  const l = (Math.min(idle/5e3, 1)**5)*by;
 
   if(!l) { return at; }
 
@@ -401,7 +408,7 @@ const state = gpgpu(regl, {
     invert: false,
     // The position around which particles spawn.
     source: {
-      at: [0, 0, sourceZ],
+      at: [0, 0, -originGap],
       // Shake around while idling.
       shake: shakeSource, shaken: []
     },
@@ -409,7 +416,7 @@ const state = gpgpu(regl, {
     sink: {
       at: [
         // Sink position.
-        0, 0, 0.3,
+        0, 0, originGap,
         // Universal gravitational constant (scaled).
         6.674e-11*5e10
       ],
@@ -476,7 +483,10 @@ const drawState = {
   // Drawing, not data - so no `output` macros. Also, don't need `frag` macros.
   macros: { output: 0, frag: 0 },
   drawProps: {
-    depthRange: [1e-2, 1e2],
+    // 3D
+    // depthRange: [1e-2, 1e2],
+    // 2D
+    depthRange: [-5.0, 5.0],
     // Transformation matrices.
     projection: identity44([]),
     view: lookAt([], [0, 0, -1], [0, 0, 1], [0, 1, 0]),
@@ -484,7 +494,8 @@ const drawState = {
       matrix: identity44([]),
       rotation: identity44([]),
       axis: [0, 1, 0],
-      angle: (timestep || timestepDef)*1e-4*Math.PI*2
+      angle: (timestep || timestepDef)*spinPace*Math.PI*2,
+      angle0: spin0*Math.PI*2
     },
     transform: [],
     unprojection: [],
@@ -496,7 +507,7 @@ const drawState = {
     // Which primitives can be drawn, by form.
     primitives: [, 'points', 'lines'],
     // Which primitive dimensions can be drawn, by form.
-    primitivesWide: [, pointSizeDims, lineWidthDims],
+    widths: [, pointSizeDims, lineWidthDims],
     // How wide the form is; to be scaled by `viewScale`.
     wide,
     // How many older state positions to fizz around, and other inputs.
@@ -547,8 +558,9 @@ const drawPipeline = {
     model: regl.prop('drawProps.model.matrix'),
 
     // Multiply the matrices once here into a single transform.
-    transform: (_, { drawProps: { transform, projection, view, model } }) =>
-      concat(transform, projection, view, model.matrix),
+    // transform: (_, { drawProps: { transform, projection, view, model } }) =>
+    //   concat(transform, projection, view, model.matrix),
+    transform: regl.prop('drawProps.model.matrix'),
 
     depthRange: regl.prop('drawProps.depthRange'),
     // How many vertexes per form.
@@ -559,8 +571,9 @@ const drawPipeline = {
     fizzCurve: regl.prop('drawProps.fizz.curve'),
     hues: regl.prop('drawProps.hues'),
     pace: (_, { drawProps: dp, props: p }) => dp.pace[+p.useVerlet],
-    wide: (c, { drawProps: { wide: w, primitivesWide: pw } }) =>
-      clamp(wide*viewScale(c), ...pw)
+
+    wide: (c, { drawProps: { wide: w, widths: ws, form: f } }) =>
+      clamp(wide*viewScale(c), ...ws[f])
   }),
   lineWidth: (c, p) => clamp(p.drawProps.wide*viewScale(c), ...lineWidthDims),
   // Vertex counts by form; how many steps a form covers, for all entries.
@@ -577,6 +590,8 @@ console.log((self.drawState = drawState), (self.drawPipeline = drawPipeline));
 /** Function to execute the render command pipeline state every frame. */
 const draw = regl(drawPipeline);
 
+const clearView = { color: [0, 0, 0, 0], depth: 1 };
+
 function stepTime(state) {
   const { dts } = state;
 
@@ -586,14 +601,16 @@ function stepTime(state) {
   return state;
 }
 
-function rotateModel() {
+/** Rotate the model by a given angle and/or a constant rate. */
+function rotateModel(by = 0) {
   const to = drawState.drawProps.model;
   const { matrix: m, rotation: r, axis, angle } = to;
 
-  to.matrix = mulM44(m, rotationAroundAxis44(r, axis, angle), m);
+  to.matrix = mulM44(m, rotationAroundAxis44(r, axis, angle+by), m);
 }
 
-const clearView = { color: [0, 0, 0, 0], depth: 1 };
+/** Rotate the model to its starting angle. */
+rotateModel(drawState.drawProps.model.angle0);
 
 function stopEvent(e) {
   e.stopPropagation();
