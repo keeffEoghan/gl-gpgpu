@@ -14,9 +14,15 @@
 
 precision highp float;
 
+// uniform vec2 scale;
+// uniform vec2 depthRange;
+uniform float wide;
+
 /** Center and radius for points or lines; only points have `gl_PointCoord`. */
 varying vec4 sphere;
 varying vec4 color;
+
+#pragma glslify: map = require(glsl-map)
 
 void main() {
   /**
@@ -25,44 +31,33 @@ void main() {
    * @see [SO](https://stackoverflow.com/a/31829666/716898)
    * @see [SO](https://stackoverflow.com/questions/53271461/drawing-a-sphere-normal-map-in-the-fragment-shader)
    * @see [Shadertoy](https://www.shadertoy.com/view/XsfXDr)
+   * @see [Figure 13.2. Circle Point Computation](https://nicolbolas.github.io/oldtut/Illumination/Tutorial%2013.html)
    */
+  float r2 = sphere.w*sphere.w;
   vec2 cf = gl_FragCoord.xy-sphere.xy;
   float cfl2 = dot(cf, cf);
-  float r2 = sphere.w*sphere.w;
 
   if(cfl2 > r2) { discard; }
 
   float z2 = r2-cfl2;
   vec3 axis = vec3(cf, sqrt(z2));
-  vec3 normal = normalize(axis);
+  vec3 normal = axis/sphere.w;
 
-  // float d2 = cfl2/r2;
-  // float d = sqrt(cfl2)/sqrt(r2);
-  // vec4 c = vec4(color.rgb, mix(color.a, 0.0, clamp(d2, 0.0, 1.0)));
-  // vec4 c = vec4(color.rgb, mix(color.a, 0.0, clamp(d, 0.0, 1.0)));
+  // float depth = gl_FragCoord.z-(axis.z*(scale.s*pow(10.0, scale.t)));
+  // float depth = gl_FragCoord.z-
+  //   map(axis.z, depthRange.s, depthRange.t, 0.0, 1.0);
+  // float depth = gl_FragCoord.z-(axis.z/wide);
+  float depth = gl_FragCoord.z-(axis.z/wide);
 
   /** @todo Attenuated point lights shading. */
-  // gl_FragColor = c*c.a;
-  gl_FragColor = color*color.a;
   // gl_FragColor = vec4(normal, 1);
+  // gl_FragColor = color;
+  // gl_FragColor = vec4(color.rgb, color.a*normal.z);
+  // gl_FragColor = vec4(color.rgb, color.a*exp(depth));
+  gl_FragColor = vec4(color.rgb, color.a*exp(depth)*normal.z);
 
   #ifdef GL_EXT_frag_depth
-    // gl_FragDepthEXT = gl_FragCoord.z-axis.z;
-    gl_FragDepthEXT = gl_FragCoord.z-(normal.z*sphere.w);
-
-    // gl_FragDepthEXT = sphere.z;
-    // gl_FragDepthEXT = sphere.z-z2;
-    // gl_FragDepthEXT = sphere.z-axis.z;
-    // gl_FragDepthEXT = sphere.z+(axis.z*sphere.w);
-    // gl_FragDepthEXT = sphere.z+(normal.z*sphere.w);
-    // gl_FragDepthEXT = sphere.z-(normal*sphere.w).z;
-    // gl_FragDepthEXT = normal.z*sphere.w;
-
-    // float d2 = cfl2/r2;
-    // float d = sqrt(cfl2)/sqrt(r2);
-
-    // gl_FragDepthEXT = sphere.z+d2;
-    // gl_FragDepthEXT = sphere.z+d;
-    // gl_FragDepthEXT = sphere.z+(d*d);
+    /** Scale the `axis` into clip space. */
+    gl_FragDepthEXT = depth;
   #endif
 }

@@ -132,18 +132,19 @@ void main() {
   float fizzDepth = sin(random(vec2(position1.z, ago))+fizzAt);
   vec3 position = position1+(fizzBy*onSphere(fizzAngle, fizzDepth));
 
-  vec4 vertex = mix(clipped, vec4(position.xy*ar, position.z, 1), alive);
+  // vec4 vertex = mix(clipped, vec4(position.xy*ar, position.z, 1), alive);
+  vec4 vertex = mix(clipped, vec4(position.xy*ar, 0, 1), alive);
   // vec4 vertex = transform*mix(clipped, vec4(position.xy*ar, position.z, 1), alive);
   // vec4 vertex = mix(clipped, vec4(position, 1), alive);
   // vec4 vertex = transform*mix(clipped, vec4(position, 1), alive);
-  float depth = clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
-  float alpha = clamp(pow(life/lifetime.t, 0.1)*pow(1.0-ago, 0.4), 0.0, 1.0);
-  float size = wide*clamp(depth*alpha, 0.0, 1.0);
+  float fade = clamp(pow(life/lifetime.t, 0.2)*pow(1.0-ago, 0.4), 0.0, 1.0);
+  float size = wide*fade*clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
+  // float size = wide*clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
+  // float size = wide*fade;
 
   gl_Position = vertex;
   // gl_Position = transform*vertex;
-  // gl_PointSize = size;
-  gl_PointSize = wide;
+  gl_PointSize = size;
 
   /**
    * Convert vertex position to `gl_FragCoord` window-space.
@@ -159,5 +160,5 @@ void main() {
   color = vec4(hsl2rgb(fract(mix(hues.s, hues.t, entry/float(gpgpu_entries))),
       mix(0.8, 0.1, ago),
       mix(0.3, 0.8, clamp(pow(speed*pace.s, pace.t), 0.0, 1.0))),
-    alpha);
+    fade);
 }

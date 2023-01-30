@@ -86,6 +86,7 @@ const pixelRatio = Math.max(devicePixelRatio, 1.5) || 1.5;
 
 const regl = self.regl = getRegl({
   canvas, pixelRatio,
+  attributes: { premultipliedAlpha: false },
   extensions: extend.required, optionalExtensions: extend.optional,
   onDone: toggleError
 });
@@ -127,33 +128,34 @@ console.log(values, '`values`');
 const { maxTextureUnits, maxTextureSize, lineWidthDims, pointSizeDims } =
   regl.limits;
 
-/** Whether to merge states into one texture; separate textures if not given. */
-const useMerge = query.get('merge');
-
 /**
+ * Whether to merge states into one texture; separate textures if not given.
  * Merge by default for maximum platform compatibility.
- * @todo Should work in one of these cases:
+ *
+ * @todo These should work:
  * ```
- *   const merge = ((useMerge)? (useMerge !== 'false') : (stepsPast > 1));
- *   const merge = ((useMerge)? (useMerge !== 'false') : (form !== 1));
+ *   merge = ((merge)? (merge !== 'false') : (stepsPast > 1));
+ *   merge = ((merge)? (merge !== 'false') : (form !== 1));
  * ```
  */
-const merge = !useMerge || (useMerge !== 'false');
-
-/** How many steps are used for output at a given time. */
-const bound = 1;
+const merge = query.get('merge') !== 'false';
 
 /**
  * Better stay farther under maximum texture size, for errors/crashes.
+ *
  * @todo Drawing issues with `scale` and `steps` both over 10.
  */
 const limits = { scale: [0, Math.log2(maxTextureSize)] };
+
 /** A scale that seems to work well from experimentation with `GL` limits. */
 const niceScale = clamp(8, ...limits.scale);
 
 /** The data entries scale, from user input or default best-guess. */
-const scale = clamp((parseFloat(query.get('scale'), 10) || niceScale),
+const scale = clamp((parseFloat(query.get('scale') || niceScale, 10) || 0),
   ...limits.scale);
+
+/** How many steps are used for output. */
+const bound = 1;
 
 /** The steps of state to track. */
 limits.steps = [
@@ -179,6 +181,9 @@ const stepsPast = steps-bound;
 /** Whether to allow Verlet integration; within available resource limits. */
 const canVerlet = stepsPast > 1;
 
+/** Whether to prefill initial states before spawning, or start with all `0`. */
+const prefill = query.get('prefill') !== 'false';
+
 /**
  * Form vertexes to draw; if not given, uses trails of 'lines' if there are
  * enough steps, or 'points' if not.
@@ -190,22 +195,26 @@ const wide = parseFloat(query.get('wide'), 10) || 4e-3*pixelRatio;
 
 /** How many older state positions to fizz around, and other inputs. */
 const fizz = {
-  at: parseFloat(query.get('fizz') ?? clamp(steps, 5, 2e2), 10) || 0,
-  max: parseFloat(query.get('fizz-max') ?? clamp(steps, 7, 15)*1e-3, 10) || 0,
-  rate: parseFloat(query.get('fizz-rate') ?? 2e-5, 10) || 0,
-  curve: parseFloat(query.get('fizz-curve') ?? 1.7, 10) || 0
+  at: parseFloat(query.get('fizz') || clamp(steps, 5, 2e2), 10) || 0,
+  max: parseFloat(query.get('fizz-max') || clamp(steps, 7, 15)*1e-3, 10) || 0,
+  rate: parseFloat(query.get('fizz-rate') || 2e-5, 10) || 0,
+  curve: parseFloat(query.get('fizz-curve') || 1.7, 10) || 0
 };
 
+/** Z-coordinate of the source. */
+const sourceZ = parseFloat(query.get('source-z') || -0.3, 10) || 0;
+/** How much to scale the spout speeds. */
+const spoutPace = parseFloat(query.get('spout-pace') || 1, 10) || 0;
 /** How much to shake the source around while idling. */
-const shakeSource = parseFloat(query.get('shake-source') ?? 2e-3, 10) || 0;
+const shakeSource = parseFloat(query.get('shake-source') || 2e-3, 10) || 0;
 /** How much to shake the sink around while idling. */
-const shakeSink = parseFloat(query.get('shake-sink') ?? 7e-2, 10) || 0;
+const shakeSink = parseFloat(query.get('shake-sink') || 7e-2, 10) || 0;
 
 /** Hue range between 2 values. */
 const hues = query.getAll('hue');
 
 // Parse any present hues, fill any missing hues, using only up to 2 hues.
-map((h, i) => parseFloat(h ?? ((i)? hues[i-1]+0.25 : 0.95), 10) || 0,
+map((h, i) => parseFloat(h || ((i)? hues[i-1]+0.25 : 0), 10) || 0,
   range(hues, null, hues.length, hues.length = 2), 0);
 
 /**
@@ -219,9 +228,10 @@ const timestepDef = 1e3/60;
 const timestep = parseFloat(timeQuery ?? timestepDef, 10) || null;
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
-  'steps:', steps, 'scale:', scale, 'timestep:', timestep, 'merge:', merge,
-  'depth:', fragDepth, 'form:', form, 'wide:', wide, 'fizz:', fizz,
-  'hues:', hues, 'shakeSource:', shakeSource, 'shakeSink:', shakeSink);
+  'merge:', merge, 'scale:', scale, 'steps:', steps, 'prefill:', prefill,
+  'timestep:', timestep, 'depth:', fragDepth, 'form:', form, 'wide:', wide,
+  'fizz:', fizz, 'hues:', hues, 'sourceZ:', sourceZ, 'spoutPace:', spoutPace,
+  'shakeSource:', shakeSource, 'shakeSink:', shakeSink);
 
 // Set up the links.
 
@@ -249,7 +259,7 @@ setupLink(document.querySelector('#timestep'),
   [['timestep', ((timeQuery == null)? '' : null)]]);
 
 setupLink(document.querySelector('#merge'),
-  [['merge', ((!useMerge)? false : ((useMerge === 'false')? true : null))]]);
+  [['merge', ((merge)? false : null)]]);
 
 /**
  * How state values map to any past state values they derive from.
@@ -337,7 +347,7 @@ const state = gpgpu(regl, {
   },
   // A fragment shader to compute each state step, with `gl-gpgpu` macros.
   // Vertex shaders can also be given.
-  frag: stepFrag,
+  frag: ((prefill)? '#define prefill\n\n' : '')+stepFrag,
   // Macros are prepended to `frag` shader per-pass, cached in `frags`.
   frags: [],
   // Custom uniforms in addition to those `gl-gpgpu` provides.
@@ -391,7 +401,7 @@ const state = gpgpu(regl, {
     invert: false,
     // The position around which particles spawn.
     source: {
-      at: [0, 0, -0.2],
+      at: [0, 0, sourceZ],
       // Shake around while idling.
       shake: shakeSource, shaken: []
     },
@@ -399,7 +409,7 @@ const state = gpgpu(regl, {
     sink: {
       at: [
         // Sink position.
-        0, 0, 0.2,
+        0, 0, 0.3,
         // Universal gravitational constant (scaled).
         6.674e-11*5e10
       ],
@@ -419,7 +429,7 @@ const state = gpgpu(regl, {
     // One option in these arrays is used, by Euler/Verlet respectively.
 
     // The distance from the `source`, and speed, that particles spawn with.
-    spout: [[0, 3e3], [0, 2e2]],
+    spout: [[0, 3e3*spoutPace], [0, 2e2*spoutPace]],
   }
 });
 
@@ -466,8 +476,9 @@ const drawState = {
   // Drawing, not data - so no `output` macros. Also, don't need `frag` macros.
   macros: { output: 0, frag: 0 },
   drawProps: {
+    depthRange: [1e-2, 1e2],
     // Transformation matrices.
-    projection: perspective([], 60, 1, 1e-2, 1e2),
+    projection: identity44([]),
     view: lookAt([], [0, 0, -1], [0, 0, 1], [0, 1, 0]),
     model: {
       matrix: identity44([]),
@@ -480,11 +491,12 @@ const drawState = {
     viewport: viewport([], -1, 1, -1, 1),
     // How many vertexes per form.
     form: clamp(form || 2, 1, 1+useLines),
-    // Vertex counts by form; how many steps a form covers, for all entries.
+    // Vertex counts, by form; how many steps a form covers, for all entries.
     counts: drawCounts,
-    // Which primitives can be drawn.
-    primitive: null,
+    // Which primitives can be drawn, by form.
     primitives: [, 'points', 'lines'],
+    // Which primitive dimensions can be drawn, by form.
+    primitivesWide: [, pointSizeDims, lineWidthDims],
     // How wide the form is; to be scaled by `viewScale`.
     wide,
     // How many older state positions to fizz around, and other inputs.
@@ -538,6 +550,7 @@ const drawPipeline = {
     transform: (_, { drawProps: { transform, projection, view, model } }) =>
       concat(transform, projection, view, model.matrix),
 
+    depthRange: regl.prop('drawProps.depthRange'),
     // How many vertexes per form.
     form: regl.prop('drawProps.form'),
     fizz: regl.prop('drawProps.fizz.at'),
@@ -546,7 +559,8 @@ const drawPipeline = {
     fizzCurve: regl.prop('drawProps.fizz.curve'),
     hues: regl.prop('drawProps.hues'),
     pace: (_, { drawProps: dp, props: p }) => dp.pace[+p.useVerlet],
-    wide: (c, p) => clamp(p.drawProps.wide*viewScale(c), ...pointSizeDims)
+    wide: (c, { drawProps: { wide: w, primitivesWide: pw } }) =>
+      clamp(wide*viewScale(c), ...pw)
   }),
   lineWidth: (c, p) => clamp(p.drawProps.wide*viewScale(c), ...lineWidthDims),
   // Vertex counts by form; how many steps a form covers, for all entries.
@@ -662,20 +676,31 @@ function resize() {
   const w = canvas.width = innerWidth*pixelRatio;
   const h = canvas.height = innerHeight*pixelRatio;
   const ar = w/h;
-  const { projection: p, unprojection: u, viewport: v } = drawState.drawProps;
+  const { drawProps } = drawState;
+  const { depthRange, projection: p, unprojection: u, viewport: v } = drawProps;
 
-  invert44(u, perspective(p, 60, ar, 1e-2, 1e2));
+  invert44(u, perspective(p, 60, ar, ...depthRange));
   viewport(v, -1, 1, -1, 1);
 }
 
 addEventListener('resize', resize);
 resize();
 
-regl.frame(() => {
+/** Compute the next step of state for a frame. */
+function frameStep() {
   try {
     stepTime(state.props.timer);
-    // Compute the next step of state.
     state.step();
+  }
+  catch(e) { toggleError(e); }
+}
+
+// Whether to prefill initial states before spawning, or start with all `0`.
+for(let p = prefill && stepsPast; p; --p) { frameStep(); }
+
+regl.frame(() => {
+  try {
+    frameStep();
     // Update the draw state.
     drawState.stepNow = (state.stepNow+1)-drawBound;
     // Rotate the scene each frame.

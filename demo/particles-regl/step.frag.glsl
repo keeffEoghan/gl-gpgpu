@@ -74,8 +74,18 @@ uniform float loop;
 
 varying vec2 uv;
 
-#pragma glslify: le = require(glsl-conditionals/when_le)
 #pragma glslify: random = require(glsl-random)
+#pragma glslify: lt = require(glsl-conditionals/when_lt)
+#pragma glslify: le = require(glsl-conditionals/when_le)
+
+float canSpawn(float life) {
+  // Whether to prefill initial states before spawning, or start with all `0`.
+  #ifdef prefill
+    return lt(life, 0.0);
+  #else
+    return le(life, 0.0);
+  #endif
+}
 
 // Any shader inputs or parts can also be split up by usage in different passes.
 
@@ -159,7 +169,7 @@ void main() {
   // inline here for brevity, relevance, and easy access to shared variables.
 
   /** Whether the particle is ready to respawn. */
-  float spawn = le(life, 0.0);
+  float spawn = canSpawn(life);
 
   #if defined(positionOutput) || defined(motionOutput)
     // Workaround for switching Euler/Verlet; interpret `motion` data as
@@ -168,8 +178,9 @@ void main() {
     vec3 acceleration = motion;
 
     /** Spawn randomly on a sphere around the source, move in that direction. */
-    vec3 spoutSpawn = random(loop-uv+dt0)*
-      onSphere(random(uv+loop-dt1)*tau, mix(-1.0, 1.0, random(loop-uv-dt0)));
+    vec3 spoutSpawn = random(loop-(uv*(1.0+dt0)))*
+      onSphere(random((uv+loop)/(1.0-dt1))*tau,
+        mix(-1.0, 1.0, random((uv-loop)*(1.0+dt1))));
   #endif
 
   #ifdef positionOutput
@@ -219,7 +230,7 @@ void main() {
     float lifeTo = life-dt1;
     float lifeNew = map(random(uv*loop), 0.0, 1.0, lifetime.s, lifetime.t);
     /** Whether the oldest state has faded. */
-    float faded = le(lifeLast, 0.0);
+    float faded = canSpawn(lifeLast);
 
     /**
      * Output the next life value to its channels in the state texture.
