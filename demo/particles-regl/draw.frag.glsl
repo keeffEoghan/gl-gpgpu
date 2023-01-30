@@ -22,6 +22,7 @@ varying vec4 sphere;
 varying vec4 color;
 
 #pragma glslify: map = require(glsl-map)
+#pragma glslify: le = require(glsl-conditionals/when_le)
 
 void main() {
   /**
@@ -48,11 +49,14 @@ void main() {
     0.0, 1.0);
 
   /** @todo Attenuated point lights shading. */
-  // gl_FragColor = vec4(normal, 1);
-  // gl_FragColor = color;
-  // gl_FragColor = vec4(color.rgb, color.a*normal.z);
-  // gl_FragColor = vec4(color.rgb*mix(0.2, 1.0, depth), color.a);
-  gl_FragColor = vec4(color.rgb*mix(0.25, 1.0, depth), color.a*normal.z);
+  // vec4 blend = vec4(normal, 1);
+  // vec4 blend = color;
+  // vec4 blend = vec4(color.rgb, color.a*normal.z);
+  // vec4 blend = vec4(color.rgb*mix(0.2, 1.0, depth), color.a);
+  vec4 blend = vec4(color.rgb*mix(0.2, 1.0, depth), color.a*normal.z);
+
+  // Blend less if the maximum width is 1 pixel.
+  gl_FragColor = mix(blend, color, le(wide, 1.0)*0.7);
 
   #ifdef GL_EXT_frag_depth
     gl_FragDepthEXT = depth;

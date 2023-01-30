@@ -573,7 +573,7 @@ const drawPipeline = {
     pace: (_, { drawProps: dp, props: p }) => dp.pace[+p.useVerlet],
 
     wide: (c, { drawProps: { wide: w, widths: ws, form: f } }) =>
-      clamp(wide*viewScale(c), ...ws[f])
+      clamp(w*viewScale(c), ...ws[f])
   }),
   lineWidth: (c, p) => clamp(p.drawProps.wide*viewScale(c), ...lineWidthDims),
   // Vertex counts by form; how many steps a form covers, for all entries.

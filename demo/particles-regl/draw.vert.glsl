@@ -159,6 +159,6 @@ void main() {
 
   color = vec4(hsl2rgb(fract(mix(hues.s, hues.t, entry/float(gpgpu_entries))),
       mix(0.8, 0.1, ago),
-      mix(0.3, 0.8, clamp(pow(speed*pace.s, pace.t), 0.0, 1.0))),
+      mix(0.4, 0.8, clamp(pow(speed*pace.s, pace.t), 0.0, 1.0))),
     fade);
 }
