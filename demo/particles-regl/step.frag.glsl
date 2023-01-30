@@ -78,15 +78,6 @@ varying vec2 uv;
 #pragma glslify: lt = require(glsl-conditionals/when_lt)
 #pragma glslify: le = require(glsl-conditionals/when_le)
 
-float canSpawn(float life) {
-  // Whether to prefill initial states before spawning, or start with all `0`.
-  #ifdef prefill
-    return lt(life, 0.0);
-  #else
-    return le(life, 0.0);
-  #endif
-}
-
 // Any shader inputs or parts can also be split up by usage in different passes.
 
 #ifdef positionOutput
@@ -121,6 +112,15 @@ float canSpawn(float life) {
   #pragma glslify: tau = require(glsl-constants/TWO_PI)
   #pragma glslify: onSphere = require(./on-sphere)
 #endif
+
+float canSpawn(float life) {
+  // Whether to prefill initial states before spawning, or start with all `0`.
+  #ifdef prefill
+    return lt(life, 0.0);
+  #else
+    return le(life, 0.0);
+  #endif
+}
 
 void main() {
   // Sample the desired state values - creates the `gpgpu_data` `array`.
@@ -178,9 +178,9 @@ void main() {
     vec3 acceleration = motion;
 
     /** Spawn randomly on a sphere around the source, move in that direction. */
-    vec3 spoutSpawn = random((-uv.st*loop)/(0.9828+dt0))*
-      onSphere(random((uv.st*loop)/(0.5035+dt0))*tau,
-        mix(-1.0, 1.0, random((-uv.ts*loop)/(0.1928+dt1))));
+    vec3 spoutSpawn = random((-uv.st*(0.6+loop))/(0.1+dt0))*
+      onSphere(random((uv.st*(0.3+loop))/(0.9+dt0))*tau,
+        mix(-1.0, 1.0, random((-uv.ts*(0.2+loop))/(0.8+dt1))));
   #endif
 
   #ifdef positionOutput
