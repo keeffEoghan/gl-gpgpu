@@ -74,7 +74,6 @@ __metadata:
     "@epok.tech/fn-lists": ^0.1.4
     "@epok.tech/fn-time": ^0.2.1
     "@epok.tech/gl-screen-triangle": ^1.2.1
-    "@epok.tech/glsl-aspect": ^1.0.3
     "@epok.tech/glsl-verlet": ^0.1.1
     "@epok.tech/is-type": ^0.1.0
     "@parcel/transformer-glsl": 2.7.0
@@ -102,13 +101,6 @@ __metadata:
   version: 1.2.1
   resolution: "@epok.tech/gl-screen-triangle@npm:1.2.1"
   checksum: 551e98be3cb147835f4d4bfb1d4a67937d4aaacb6bb5a77e35f3a9f882d6462be5051279e6abd36f8e1a6270d9ddaa55ba6339b1ee1667517fa5611528f715fc
-  languageName: node
-  linkType: hard
-
-"@epok.tech/glsl-aspect@npm:^1.0.3":
-  version: 1.0.3
-  resolution: "@epok.tech/glsl-aspect@npm:1.0.3"
-  checksum: 55fa8a176d5ce8a9fd446363c130d70d94775ce6ee2ff7f10047ddf96000df01e14f18fd848d5f67c66b5ec85b96b08d258cb2f82aa7ada1091b2c15babc6f63
   languageName: node
   linkType: hard
 

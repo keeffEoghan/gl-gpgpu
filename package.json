@@ -40,7 +40,6 @@
   },
   "devDependencies": {
     "@epok.tech/fn-time": "^0.2.1",
-    "@epok.tech/glsl-aspect": "^1.0.3",
     "@epok.tech/glsl-verlet": "^0.1.1",
     "@parcel/transformer-glsl": "2.7.0",
     "@thi.ng/math": "^5.4.0",

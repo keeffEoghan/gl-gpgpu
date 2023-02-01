@@ -79,6 +79,10 @@ canvas {
 .hide { display: none; }
 
 aside {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
   position: absolute;
   z-index: 1;
   bottom: 0;
@@ -86,10 +90,9 @@ aside {
   right: 0;
   max-width: 35em;
   max-height: 50%;
-  overflow-y: auto;
   font-family: sans-serif;
   color: #fff;
-  opacity: 0.5;
+  /* opacity: 0.5; */
   transition: opacity 1500ms ease-out;
   will-change: opacity;
 
@@ -104,6 +107,23 @@ aside {
   }
 }
 
+header {
+  flex: 0 0 auto;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.3em;
+  margin: 0.25em 0;
+  font-size: 1.2em;
+}
+
+section {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 0.25em 0.5em;
+}
+
 br {
   display: block;
   content: '';
@@ -112,10 +132,11 @@ br {
 p {
   display: inline;
   line-height: 2.2em;
-  padding: 0.5em;
   margin: 0;
-  background-color: #333;
+  padding: 0.5em;
+  border: 0px solid transparent;
   border-radius: 0.3em;
+  background-color: #333;
   box-decoration-break: clone;
 }
 
@@ -128,13 +149,13 @@ p {
 .link {
   display: inline-block;
   font-size: 1em;
-  margin: 0.2em;
+  margin: 0.2em 0;
   padding: 0.3em 0.6em;
   line-height: 1.7em;
   font-style: normal;
   font-weight: 900;
   color: inherit;
-  background: #000c;
+  background: #000b;
   text-align: center;
   cursor: pointer;
   border: 1px solid currentColor;
@@ -162,38 +183,38 @@ p {
 
 label,
 .link-icon {
-  display: inline-block;
-  position: sticky;
-  top: 0.5em;
-  margin: 0.5em 0;
-  padding: 0.5em;
-  font-size: 1.2em;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 0.5em 0.5em 0.6em 0.5em;
+  margin: 0;
   box-shadow: 0 0 0.5em 0 #000;
 }
 
-.link-icon {
-  line-height: 1;
-  aspect-ratio: 1/1;
-  font-family: monospace;
-  border-radius: 2em;
-  background: #000;
-}
-
 label {
+  height: 2.8em;
   font-weight: 900;
   font-family: monospace;
-  cursor: sw-resize;
+  cursor: se-resize;
   color: #333;
   background-color: #fff;
   outline-offset: -3px;
   border: 1px solid currentColor;
-  border-radius: 2px 2em 2em 2px;
+  border-radius: 2px 3em 3em 2px;
   z-index: 1;
 
   &::before {
-    content: '\2199\a0';
+    content: '\2198\a0';
     display: inline-block;
   }
+}
+
+.link-icon {
+  height: 2.3em;
+  aspect-ratio: 1 / 1;
+  font-family: monospace;
+  border-radius: 2em;
 }
 
 #flip-guide {
@@ -204,10 +225,10 @@ label {
   width: 0;
   height: 0;
 
-  &:focus + label { outline: 2px solid #33f; }
+  &:focus + header > label { outline: 2px solid #33f; }
 
   &:not(:checked) {
-    & + label {
+    & + header > label {
       cursor: ne-resize;
 
       &::before { content: '\2197\a0'; }

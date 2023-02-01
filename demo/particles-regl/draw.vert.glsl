@@ -40,6 +40,7 @@ uniform vec4 gpgpu_stateShape;
 uniform vec2 gpgpu_viewShape;
 
 uniform mat4 transform;
+uniform vec2 aspect;
 uniform float wide;
 uniform float dt;
 uniform float time;
@@ -55,10 +56,9 @@ uniform float fizzRate;
 uniform float fizzCurve;
 
 /** Center and radius for points or lines; only points have `gl_PointCoord`. */
-varying vec4 sphere;
+varying vec3 sphere;
 varying vec4 color;
 
-#pragma glslify: aspect = require(@epok.tech/glsl-aspect/contain)
 #pragma glslify: gt = require(glsl-conditionals/when_gt)
 #pragma glslify: random = require(glsl-random)
 #pragma glslify: map = require(glsl-map)
@@ -80,9 +80,7 @@ varying vec4 color;
   #endif
 #endif
 
-const vec4 clipped = vec4(0);
-// const vec4 clipped = vec4(0, 0, -1, 0);
-// const vec4 clipped = vec4(0, 0, -1e9, 0);
+const vec4 hide = vec4(0);
 
 void main() {
   #if gpgpu_stepsPast > 1
@@ -122,7 +120,6 @@ void main() {
   float life = gpgpu_data[readLife].lifeChannels;
   float alive = gt(life, 0.0);
   float ago = stepPast/max(float(gpgpu_stepsPast-1), 1.0);
-  vec2 ar = aspect(gpgpu_viewShape);
 
   /** Fizz randomly on a sphere around older positions. */
   float fizzBy = pow(clamp(stepPast/fizz, 0.0, 1.0), fizzCurve)*fizzMax;
@@ -132,28 +129,25 @@ void main() {
   vec3 fizzed = fizzBy*onSphere(fizzAngle, fizzDepth);
 
   vec3 position = position1+fizzed;
-  // vec4 vertex = mix(clipped, vec4(position.xy*ar, position.z, 1), alive);
-  vec4 vertex = transform*mix(clipped, vec4(position.xy*ar, position.z, 1), alive);
-  // vec4 vertex = mix(clipped, vec4(position, 1), alive);
-  // vec4 vertex = transform*mix(clipped, vec4(position, 1), alive);
-  float fade = clamp(pow(life/lifetime.t, 0.2)*pow(1.0-ago, 0.4), 0.0, 1.0);
-  float size = wide*fade*clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
-  // float size = wide*clamp(1.0-(vertex.z/vertex.w), 0.1, 1.0);
-  // float size = wide*fade;
+  // vec3 position = vec3(mix(vec2(-1), vec2(1), st), 0);
+  vec4 clip = (transform*vec4(position, 1));
 
-  // vertex = vec4(map(st, vec2(0), vec2(1), vec2(-0.9), vec2(0.9)), 0, 1);
+  clip.xy *= aspect;
+
+  vec4 vertex = mix(hide, clip, alive);
+  float fade = clamp(pow(life/lifetime.t, 0.2)*pow(1.0-ago, 0.4), 0.0, 1.0);
+  float size = wide*fade/vertex.w;
+
   gl_Position = vertex;
-  // gl_Position = transform*vertex;
   gl_PointSize = size;
 
   /**
    * Convert vertex position to `gl_FragCoord` window-space.
    * @see [SO](https://stackoverflow.com/a/7158573)
+   * @see [SO](https://stackoverflow.com/a/54237532/716898)
    * @todo Might need the viewport `x` and `y` offset as well as `w` and `h`?
    */
-  vec2 frag = gpgpu_viewShape*((1.0+vertex.xy)/vertex.w)*0.5;
-
-  sphere = vec4(frag, vertex.z, size*0.5);
+  sphere = vec3(gpgpu_viewShape*(((vertex.xy/vertex.w)*0.5)+0.5), size*0.5);
 
   float speed = length(mix(motion, position1-position0, useVerlet))/dt;
 

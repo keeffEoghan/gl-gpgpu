@@ -2,7 +2,9 @@
 
 import getRegl from 'regl';
 import { clamp } from '@thi.ng/math/interval';
-import { identity44 } from '@thi.ng/matrices/identity';
+import { mix } from '@thi.ng/math/mix';
+import { fit } from '@thi.ng/math/fit';
+import { identity44, identity23 } from '@thi.ng/matrices/identity';
 import { rotationAroundAxis44 } from '@thi.ng/matrices/rotation-around-axis';
 import { perspective } from '@thi.ng/matrices/perspective';
 import { lookAt } from '@thi.ng/matrices/lookat';
@@ -12,7 +14,13 @@ import { unproject } from '@thi.ng/matrices/project';
 import { concat } from '@thi.ng/matrices/concat';
 import { mulM44 } from '@thi.ng/matrices/mulm';
 import { mulV344 } from '@thi.ng/matrices/mulv';
-import { invert44 } from '@thi.ng/matrices/invert';
+import { invert44, invert23 } from '@thi.ng/matrices/invert';
+import { mul2 } from '@thi.ng/vectors/mul';
+import { div2 } from '@thi.ng/vectors/div';
+import { divN2 } from '@thi.ng/vectors/divn';
+import { powN2 } from '@thi.ng/vectors/pown';
+import { setC2, setC3 } from '@thi.ng/vectors/setc';
+import { mulN2 } from '@thi.ng/vectors/muln';
 import timer from '@epok.tech/fn-time';
 import reduce from '@epok.tech/fn-lists/reduce';
 import map from '@epok.tech/fn-lists/map';
@@ -71,6 +79,7 @@ function setQuery(entries, q = getQuery()) {
 
 const query = getQuery();
 
+// Check for any extensions that need to be applied.
 const fragDepth = query.get('depth') === 'frag';
 
 // Set up GL.
@@ -268,6 +277,10 @@ setupLink(document.querySelector('#timestep'),
 setupLink(document.querySelector('#merge'),
   [['merge', ((merge)? false : null)]]);
 
+// Toggle the guide according to query.
+document.querySelector('#flip-guide')
+  .checked = query.get('flip-guide') !== 'false';
+
 /**
  * How state values map to any past state values they derive from.
  * Denoted as an array, nested 1-3 levels deep:
@@ -310,13 +323,13 @@ derives[valuesIndex.life] = [
 console.log(derives, '`derives`');
 
 /** Shake source or sink around while idling. */
-function shake(at, shaken, by, idle) {
+function shake(position, shaken, by, idle) {
   const l = (Math.min(idle/5e3, 1)**5)*by;
 
-  if(!l) { return at; }
+  if(!l) { return position; }
 
   const a = Math.random()*Math.PI*2;
-  const [x, y, z, g] = at;
+  const [x, y, z, g] = position;
 
   shaken[0] = x+(Math.cos(a)*l);
   shaken[1] = y+(Math.sin(a)*l);
@@ -325,6 +338,68 @@ function shake(at, shaken, by, idle) {
 
   return shaken;
 }
+
+/** Custom properties to be passed to shaders mixed in with `gl-gpgpu` ones. */
+const props = {
+  // Set up the timer.
+  timer: timer((timestep)?
+      // Fixed-step (add-step).
+      { step: timestep, dts: range(2, 0), idle: 0 }
+      // Real-time (variable delta-time).
+    : { step: '-', now: () => regl.now()*1e3, dts: range(2, 0), idle: 0 }),
+
+  // Speed up or slow down the passage of time.
+  rate: 1,
+  // Loop time over this period to avoid instability of parts of the demo.
+  loop: 3e3,
+  // A particle's lifetime range, and whether it's allowed to spawn.
+  lifetime: [3e2, 4e3, +true],
+  // Whether to use Verlet (midpoint) or Euler (forward) integration.
+  useVerlet: +canVerlet,
+  // A small number greater than 0; avoids speeds exploding.
+  epsilon: 1e-5,
+  // How faar a particle can move in any frame.
+  moveCap: 4e-2,
+  // Whether to primarily control the sink or source.
+  flip: false,
+  // The position around which particles spawn.
+  source: {
+    // The initial source, may be transformed into `to`.
+    at: [0, 0, -originGap],
+    // Any transformed source.
+    to: undefined,
+    // If shaken around while idling, transform `to` or `at` into `shaken`.
+    shake: shakeSource, shaken: []
+  },
+  // Sink position, and universal gravitational constant.
+  sink: {
+    // The initial sink, may be transformed into `to`.
+    at: [
+      // Sink position.
+      0, 0, originGap,
+      // Universal gravitational constant (scaled).
+      6.674e-11*5e10
+    ],
+    // Any transformed sink.
+    to: undefined,
+    // If shaken around while idling, transform `to` or `at` into `shaken`.
+    shake: shakeSink, shaken: []
+  },
+  // Constant acceleration of gravity; and whether to use it or the `sink`.
+  g: [
+    // Constant acceleration of gravity.
+    0, -9.80665, 0,
+    // Whether to use it or the `sink`.
+    +false
+  ],
+  // For numeric accuracy, encoded as exponent `[b, p] => b*(10**p)`.
+  scale: [1, -7],
+
+  // One option in these arrays is used, by Euler/Verlet respectively.
+
+  // The distance from the `source`, and speed, that particles spawn with.
+  spout: [[0, 3e3*spoutPace], [0, 2e2*spoutPace]],
+};
 
 /** The main `gl-gpgpu` state. */
 const state = gpgpu(regl, {
@@ -357,6 +432,8 @@ const state = gpgpu(regl, {
   frag: ((prefill)? '#define prefill\n\n' : '')+stepFrag,
   // Macros are prepended to `frag` shader per-pass, cached in `frags`.
   frags: [],
+  // Custom properties to be passed to shaders mixed in with `gl-gpgpu` ones.
+  props,
   // Custom uniforms in addition to those `gl-gpgpu` provides.
   uniforms: {
     dt: (_, { props: { timer: t, rate: r } }) => t.dt*r,
@@ -366,12 +443,12 @@ const state = gpgpu(regl, {
     loop: (_, { props: { timer: t, loop: l } }) => Math.sin(t.time/l*Math.PI)*l,
 
     // Shake the source around while idling.
-    source: (_, { props: { source: { at, shaken, shake: by }, timer: t } }) =>
-      shake(at, shaken, by, t.idle),
+    source: (_, { props: { source: { to, at, shaken, shake: by }, timer } }) =>
+      shake(to ?? at, shaken, by, timer.idle),
 
     // Shake the sink around while idling.
-    sink: (_, { props: { sink: { at, shaken, shake: by }, timer: t } }) =>
-      shake(at, shaken, by, t.idle),
+    sink: (_, { props: { sink: { to, at, shaken, shake: by }, timer } }) =>
+      shake(to ?? at, shaken, by, timer.idle),
 
     lifetime: regl.prop('props.lifetime'),
     useVerlet: regl.prop('props.useVerlet'),
@@ -382,61 +459,6 @@ const state = gpgpu(regl, {
 
     // One option in these arrays is used, by Euler/Verlet respectively.
     spout: (_, { props: { spout: ss, useVerlet: u } }) => ss[+u],
-  },
-  // Custom properties to be passed to shaders mixed in with `gl-gpgpu` ones.
-  props: {
-    // Set up the timer.
-    timer: timer((timestep)?
-        // Fixed-step (add-step).
-        { step: timestep, dts: range(2, 0), idle: 0 }
-        // Real-time (variable delta-time).
-      : { step: '-', now: () => regl.now()*1e3, dts: range(2, 0), idle: 0 }),
-
-    // Speed up or slow down the passage of time.
-    rate: 1,
-    // Loop time over this period to avoid instability of parts of the demo.
-    loop: 3e3,
-    // A particle's lifetime range, and whether it's allowed to spawn.
-    lifetime: [3e2, 4e3, +true],
-    // Whether to use Verlet (midpoint) or Euler (forward) integration.
-    useVerlet: +canVerlet,
-    // A small number greater than 0; avoids speeds exploding.
-    epsilon: 1e-5,
-    // How faar a particle can move in any frame.
-    moveCap: 4e-2,
-    // Whether to invert particle flow towards rather than away from source.
-    invert: false,
-    // The position around which particles spawn.
-    source: {
-      at: [0, 0, -originGap],
-      // Shake around while idling.
-      shake: shakeSource, shaken: []
-    },
-    // Sink position, and universal gravitational constant.
-    sink: {
-      at: [
-        // Sink position.
-        0, 0, originGap,
-        // Universal gravitational constant (scaled).
-        6.674e-11*5e10
-      ],
-      // Shake around while idling.
-      shake: shakeSink, shaken: []
-    },
-    // Constant acceleration of gravity; and whether to use it or the `sink`.
-    g: [
-      // Constant acceleration of gravity.
-      0, -9.80665, 0,
-      // Whether to use it or the `sink`.
-      +false
-    ],
-    // For numeric accuracy, encoded as exponent `[b, p] => b*(10**p)`.
-    scale: [1, -7],
-
-    // One option in these arrays is used, by Euler/Verlet respectively.
-
-    // The distance from the `source`, and speed, that particles spawn with.
-    spout: [[0, 3e3*spoutPace], [0, 2e2*spoutPace]],
   }
 });
 
@@ -448,6 +470,15 @@ console.log(state.maps.packed, '`packed` (indexes `values`)');
 console.log(...state.maps.textures, '`textures` (indexes `values`)');
 console.log(state.maps.valueToTexture, '`valueToTexture` (indexes `textures`)');
 console.groupEnd();
+
+function stepTime(state) {
+  const { dts } = state;
+
+  dts[0] = dts[1];
+  state.idle += (dts[1] = timer(state).dt);
+
+  return state;
+}
 
 // Set up rendering.
 
@@ -470,6 +501,13 @@ console.log('drawSteps', drawSteps, 'useLines', useLines);
 const drawCounts = map((_, f) => indexForms(drawSteps, f, state.size.entries),
   range(2+useLines), 0);
 
+/**
+ * @see [glsl-aspect](https://github.com/keeffEoghan/glsl-aspect/blob/master/index.glsl)
+ * @see [glsl-aspect/contain](https://github.com/keeffEoghan/glsl-aspect/blob/master/contain.glsl)
+ */
+const aspectContain = (size, to = []) =>
+  powN2(to, divN2(to, size, Math.min(...size)), -1);
+
 const viewScale = ({ drawingBufferWidth: w, drawingBufferHeight: h }) =>
   Math.min(w, h);
 
@@ -483,23 +521,21 @@ const drawState = {
   // Drawing, not data - so no `output` macros. Also, don't need `frag` macros.
   macros: { output: 0, frag: 0 },
   drawProps: {
-    // 3D
-    // depthRange: [1e-2, 1e2],
-    // 2D
-    depthRange: [-5.0, 5.0],
+    aspect: { to: [1, 1], size: [1, 1] },
+    depthRange: [0.1, 10],
     // Transformation matrices.
-    projection: identity44([]),
-    view: lookAt([], [0, 0, -1], [0, 0, 1], [0, 1, 0]),
     model: {
-      matrix: identity44([]),
+      matrix: identity44([]), inverse: identity44([]),
+      // Continuous rotation.
       rotation: identity44([]),
       axis: [0, 1, 0],
       angle: (timestep || timestepDef)*spinPace*Math.PI*2,
       angle0: spin0*Math.PI*2
     },
-    transform: [],
-    unprojection: [],
-    viewport: viewport([], -1, 1, -1, 1),
+    view: lookAt([], [0, 0, -1], [0, 0, 1], [0, 1, 0]),
+    projection: { matrix: identity44([]), inverse: identity44([]) },
+    transform: { matrix: identity44([]), inverse: identity44([]) },
+    viewport: { matrix: identity23([]), inverse: identity23([]) },
     // How many vertexes per form.
     form: clamp(form || 2, 1, 1+useLines),
     // Vertex counts, by form; how many steps a form covers, for all entries.
@@ -551,18 +587,15 @@ const drawPipeline = {
   // Hook up `gpgpu` uniforms by adding them here.
   uniforms: toUniforms(drawState, {
     ...drawState.uniforms,
+    aspect: regl.prop('drawProps.aspect.to'),
+    depthRange: regl.prop('drawProps.depthRange'),
 
     // Transformation matrices.
-    projection: regl.prop('drawProps.projection'),
-    view: regl.prop('drawProps.view'),
     model: regl.prop('drawProps.model.matrix'),
+    view: regl.prop('drawProps.view'),
+    projection: regl.prop('drawProps.projection.matrix'),
+    transform: regl.prop('drawProps.transform.matrix'),
 
-    // Multiply the matrices once here into a single transform.
-    // transform: (_, { drawProps: { transform, projection, view, model } }) =>
-    //   concat(transform, projection, view, model.matrix),
-    transform: regl.prop('drawProps.model.matrix'),
-
-    depthRange: regl.prop('drawProps.depthRange'),
     // How many vertexes per form.
     form: regl.prop('drawProps.form'),
     fizz: regl.prop('drawProps.fizz.at'),
@@ -589,24 +622,23 @@ console.log((self.drawState = drawState), (self.drawPipeline = drawPipeline));
 
 /** Function to execute the render command pipeline state every frame. */
 const draw = regl(drawPipeline);
-
 const clearView = { color: [0, 0, 0, 0], depth: 1 };
 
-function stepTime(state) {
-  const { dts } = state;
+/** Update the transformation matrices. */
+function updateTransform() {
+  const { drawProps } = drawState;
+  const { transform, model: m, view: v, projection: p } = drawProps;
+  const { matrix: tm, inverse: ti } = transform;
 
-  dts[0] = dts[1];
-  state.idle += (dts[1] = timer(state).dt);
-
-  return state;
+  return invert44(ti, concat(tm, p.matrix, v, m.matrix));
 }
 
 /** Rotate the model by a given angle and/or a constant rate. */
 function rotateModel(by = 0) {
-  const to = drawState.drawProps.model;
-  const { matrix: m, rotation: r, axis, angle } = to;
+  const { model } = drawState.drawProps;
+  const { rotation: r, axis, angle, matrix: mm, inverse: mi } = model;
 
-  to.matrix = mulM44(m, rotationAroundAxis44(r, axis, angle+by), m);
+  return invert44(mi, mulM44(mm, rotationAroundAxis44(r, axis, angle+by), mm));
 }
 
 /** Rotate the model to its starting angle. */
@@ -662,20 +694,22 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
   (e) => {
     const { clientX: x, clientY: y, type, pointerType, isPrimary = true } = e;
     const { left, top, width: w, height: h } = canvas.getBoundingClientRect();
-    const { source: { at: i }, sink: { at: o }, invert } = state.props;
+    const { source: i, sink: o, flip } = state.props;
     const touch = ((type === 'touchmove') || (pointerType === 'touch'));
-    /** Move source or sink, switch by primary/other pointer/s `xor` invert. */
-    const to = ((isPrimary !== invert)? i : o);
-    const size = Math.min(w, h);
+    /** Move source or sink, switch by primary/other pointer/s `xor` flip. */
+    const pick = ((isPrimary !== flip)? i : o);
+    // Transform from screen space to world space via perspective.
+    const { at, to = pick.to = [] } = pick;
+    const { drawProps } = drawState;
+    const { depthRange, aspect, transform: t, viewport: v } = drawProps;
 
-    to[0] = (((x-((w-size)*0.5)-left)/size)*2)-1;
-    to[1] = -((((y-((h-size)*0.5)-top)/size)*2)-1);
-    // to[1] = ((((y-((h-size)*0.5)-top)/size)*2)-1);
-    // Convert from screen space to world space with perspective.
-    // project3(to, drawState.drawProps.projection, drawState.drawProps.viewport, to);
-    // unproject(to, drawState.drawProps.projection, drawState.drawProps.viewport, to);
-    // mulV344(to, drawState.drawProps.projection, to);
-    // mulV344(to, drawState.drawProps.unprojection, to);
+    // setC3(to, mix(-1, 1, (x-left)/w), mix(1, -1, (y-top)/h),
+    //   fit(at[2], -1, 1, 0, 2.3));
+    setC3(to, mix(-1, 1, (x-left)/w), mix(1, -1, (y-top)/h), 0.5);
+    // console.log('???', to[2]);
+    div2(to, to, aspect.to);
+    unproject(to, t.inverse, v.inverse, to);
+
     // For touch devices, don't pause spawn if touch moves while held down.
     touch && (hold = true);
     // Reset the idle time for any movement.
@@ -684,20 +718,24 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
 
 /** Switch primary pointer control between source and sink. */
 canvas.addEventListener('dblclick', (e) => {
-  state.props.invert = !state.props.invert;
+  state.props.flip = !state.props.flip;
   stopEvent(e);
 });
 
 /** Resize the canvas and any dependent properties. */
 function resize() {
-  const w = canvas.width = innerWidth*pixelRatio;
-  const h = canvas.height = innerHeight*pixelRatio;
-  const ar = w/h;
   const { drawProps } = drawState;
-  const { depthRange, projection: p, unprojection: u, viewport: v } = drawProps;
+  const { aspect, depthRange, projection: p, viewport: v } = drawProps;
+  const { size, to: a } = aspect;
+  const { matrix: pm, inverse: pi } = p;
+  const { matrix: vm, inverse: vi } = v;
+  const [w, h] = mulN2(size, setC2(size, innerWidth, innerHeight), pixelRatio);
 
-  invert44(u, perspective(p, 60, ar, ...depthRange));
-  viewport(v, -1, 1, -1, 1);
+  canvas.width = w;
+  canvas.height = h;
+  aspectContain(size, a);
+  invert44(pi, perspective(pm, 60, 1, ...depthRange));
+  invert23(vi, viewport(vm, -1, 1, -1, 1));
 }
 
 addEventListener('resize', resize);
@@ -722,6 +760,9 @@ regl.frame(() => {
     drawState.stepNow = (state.stepNow+1)-drawBound;
     // Rotate the scene each frame.
     rotateModel();
+    // Update the transformation matrices.
+    updateTransform();
+    // Clear and draw.
     regl.clear(clearView);
     draw(drawState);
   }

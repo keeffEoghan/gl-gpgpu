@@ -18,11 +18,11 @@ uniform float wide;
 uniform vec2 depthRange;
 
 /** Center and radius for points or lines; only points have `gl_PointCoord`. */
-varying vec4 sphere;
+varying vec3 sphere;
 varying vec4 color;
 
 #pragma glslify: map = require(glsl-map)
-#pragma glslify: le = require(glsl-conditionals/when_le)
+#pragma glslify: gt = require(glsl-conditionals/when_gt)
 
 void main() {
   /**
@@ -33,15 +33,18 @@ void main() {
    * @see [Shadertoy](https://www.shadertoy.com/view/XsfXDr)
    * @see [Figure 13.2. Circle Point Computation](https://nicolbolas.github.io/oldtut/Illumination/Tutorial%2013.html)
    */
-  float r2 = sphere.w*sphere.w;
+  float r = sphere.z;
+  float r2 = r*r;
   vec2 cf = gl_FragCoord.xy-sphere.xy;
   float cfl2 = dot(cf, cf);
+  float thick = gt(wide, 1.0);
 
-  if(cfl2 > r2) { discard; }
+  // Don't round if maximum width isn't thick enough.
+  if(thick*cfl2 > r2) { discard; }
 
   float z2 = r2-cfl2;
   vec3 axis = vec3(cf, sqrt(z2));
-  vec3 normal = axis/sphere.w;
+  vec3 normal = axis/r;
 
   /** Scale the `axis` into clip space. */
   float depth = clamp(map(gl_FragCoord.z-(axis.z/wide),
@@ -49,14 +52,16 @@ void main() {
     0.0, 1.0);
 
   /** @todo Attenuated point lights shading. */
-  // vec4 blend = vec4(normal, 1);
-  // vec4 blend = color;
-  // vec4 blend = vec4(color.rgb, color.a*normal.z);
-  // vec4 blend = vec4(color.rgb*mix(0.2, 1.0, depth), color.a);
-  vec4 blend = vec4(color.rgb*mix(0.2, 1.0, depth), color.a*normal.z);
+  // vec4 shade = vec4(normal, 1);
+  // vec4 shade = color;
+  // vec4 shade = vec4(color.rgb, color.a*normal.z);
+  // vec4 shade = vec4(color.rgb*mix(1.0, 0.0, depth), color.a);
+  vec4 shade = vec4(color.rgb*mix(1.0, 0.0, depth), color.a*normal.z);
 
-  // Blend less if the maximum width is 1 pixel.
-  gl_FragColor = mix(blend, color, le(wide, 1.0)*0.7);
+  // Shade less if the maximum width is too thin.
+  gl_FragColor = mix(color, shade, mix(0.2, 1.0, thick));
+  // gl_FragColor = color;
+  // gl_FragColor = shade;
 
   #ifdef GL_EXT_frag_depth
     gl_FragDepthEXT = depth;
