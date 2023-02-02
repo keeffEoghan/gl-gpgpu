@@ -45,7 +45,7 @@ uniform float wide;
 uniform float dt;
 uniform float time;
 uniform vec3 lifetime;
-uniform vec2 pace;
+uniform vec2 paceColor;
 uniform float useVerlet;
 uniform float form;
 uniform vec2 hues;
@@ -135,7 +135,10 @@ void main() {
   clip.xy *= aspect;
 
   vec4 vertex = mix(hide, clip, alive);
-  float fade = clamp(pow(life/lifetime.t, 0.2)*pow(1.0-ago, 0.4), 0.0, 1.0);
+
+  float fade = clamp(pow(life/lifetime.s, 0.4), 0.0, 1.0)*
+    clamp(pow(1.0-ago, 0.7), 0.0, 1.0);
+
   float size = wide*fade/vertex.w;
 
   gl_Position = vertex;
@@ -149,10 +152,12 @@ void main() {
    */
   sphere = vec3(gpgpu_viewShape*(((vertex.xy/vertex.w)*0.5)+0.5), size*0.5);
 
-  float speed = length(mix(motion, position1-position0, useVerlet))/dt;
+  vec3 velocity = mix(motion, position1-position0, useVerlet)/dt;
+  // float speed = dot(velocity, velocity);
+  float speed = 0.0;
 
   color = vec4(hsl2rgb(fract(mix(hues.s, hues.t, entry/float(gpgpu_entries))),
-      mix(0.8, 0.1, ago),
-      mix(0.4, 0.8, clamp(pow(speed*pace.s, pace.t), 0.0, 1.0))),
+      mix(0.9, 0.1, ago),
+      mix(0.5, 0.8, clamp(pow(speed*paceColor.s, paceColor.t), 0.0, 1.0))),
     fade);
 }

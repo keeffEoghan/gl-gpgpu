@@ -82,7 +82,7 @@ varying vec2 uv;
 
 #ifdef positionOutput
   uniform float moveCap;
-  uniform vec2 scale;
+  uniform vec2 pace;
   uniform vec3 source;
 
   /** @todo Try Velocity Verlet integration. */
@@ -185,7 +185,7 @@ void main() {
 
   #ifdef positionOutput
     /** For numeric accuracy, encoded as exponent `[b, p] => b*(10**p)`. */
-    float size = scale.s*pow(10.0, scale.t);
+    float speed = pace.s*pow(10.0, pace.t);
 
     /**
      * Constrain Verlet movement; handle here for better numerical accuracy.
@@ -196,9 +196,9 @@ void main() {
       clamp((distance(position1, position0)/moveCap)-1.0, 0.0, 1.0));
 
     // Use either Euler integration...
-    vec3 positionTo = mix(position1+(velocity*dt1*size),
+    vec3 positionTo = mix(position1+(velocity*dt1*speed),
       // ... or Verlet integration...
-      verlet(back, position1, acceleration*size, dt0, dt1),
+      verlet(back, position1, acceleration*speed, dt0, dt1),
       // ... according to which is currently active.
       useVerlet);
 
