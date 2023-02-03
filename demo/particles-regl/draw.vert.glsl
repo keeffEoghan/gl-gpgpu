@@ -55,6 +55,7 @@ uniform float fizzMax;
 uniform float fizzRate;
 uniform float fizzCurve;
 
+varying vec3 position;
 /** Center and radius for points or lines; only points have `gl_PointCoord`. */
 varying vec3 sphere;
 varying vec4 color;
@@ -128,20 +129,19 @@ void main() {
   float fizzDepth = sin(random(vec2(position1.z*entry, life))+fizzAt);
   vec3 fizzed = fizzBy*onSphere(fizzAngle, fizzDepth);
 
-  vec3 position = position1+fizzed;
-  // vec3 position = vec3(mix(vec2(-1), vec2(1), st), 0);
-  vec4 clip = (transform*vec4(position, 1));
+  position = position1+fizzed;
+  // position = vec3(mix(vec2(-1), vec2(1), st), 0);
 
-  clip.xy *= aspect;
+  vec4 to = mix(hide, transform*vec4(position, 1), alive);
 
-  vec4 vertex = mix(hide, clip, alive);
+  to.xy *= aspect;
 
-  float fade = clamp(pow(life/lifetime.s, 0.4), 0.0, 1.0)*
-    clamp(pow(1.0-ago, 0.7), 0.0, 1.0);
+  float fade = clamp(pow(life/lifetime.s, 0.3), 0.0, 1.0)*
+    clamp(pow(1.0-ago, 0.8), 0.0, 1.0);
 
-  float size = wide*fade/vertex.w;
+  float size = wide*fade/to.w;
 
-  gl_Position = vertex;
+  gl_Position = to;
   gl_PointSize = size;
 
   /**
@@ -150,14 +150,13 @@ void main() {
    * @see [SO](https://stackoverflow.com/a/54237532/716898)
    * @todo Might need the viewport `x` and `y` offset as well as `w` and `h`?
    */
-  sphere = vec3(gpgpu_viewShape*(((vertex.xy/vertex.w)*0.5)+0.5), size*0.5);
+  sphere = vec3(gpgpu_viewShape*(((to.xy/to.w)*0.5)+0.5), size*0.5);
 
   vec3 velocity = mix(motion, position1-position0, useVerlet)/dt;
-  // float speed = dot(velocity, velocity);
-  float speed = 0.0;
+  float speedColor = pow(dot(velocity, velocity)*paceColor.s, paceColor.t);
 
   color = vec4(hsl2rgb(fract(mix(hues.s, hues.t, entry/float(gpgpu_entries))),
       mix(0.9, 0.1, ago),
-      mix(0.5, 0.8, clamp(pow(speed*paceColor.s, paceColor.t), 0.0, 1.0))),
+      mix(0.4, 0.8, clamp(speedColor, 0.0, 1.0))),
     fade);
 }

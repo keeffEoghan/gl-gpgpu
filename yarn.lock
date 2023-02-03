@@ -82,9 +82,11 @@ __metadata:
     "@thi.ng/vectors": ^7.1.1
     glsl-conditionals: ^1.0.0
     glsl-constants: ^1.0.0
+    glsl-diffuse-oren-nayar: ^1.0.2
     glsl-hsl2rgb: ^1.1.0
     glsl-map: ^1.0.1
     glsl-random: ^0.0.5
+    glsl-specular-beckmann: ^1.1.2
     parcel: ^2.7.0
     postcss: ^8.1.0
     postcss-import: ^15.0.0
@@ -2022,6 +2024,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"glsl-diffuse-oren-nayar@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "glsl-diffuse-oren-nayar@npm:1.0.2"
+  checksum: 9e7f69c0a69114510ac044121120d9b50aad624bb1bd8b5b7da94f9d4d8dcee6ab5d7eb608f636e0f927e0dd5048d4d9cfed458e0891d007fc3a6878cd9af11d
+  languageName: node
+  linkType: hard
+
 "glsl-hsl2rgb@npm:^1.1.0":
   version: 1.1.0
   resolution: "glsl-hsl2rgb@npm:1.1.0"
@@ -2061,6 +2070,13 @@ __metadata:
     resolve: ^0.6.1
     xtend: ^2.1.2
   checksum: 8bc83f4c56c06d771761c32042fff8fed60f4bcc320d5fc3ec86cf115eb3c0bb5bacf3ca5f80cb88133399734d02c65788845bca9eb90244e08c41e98ddb0275
+  languageName: node
+  linkType: hard
+
+"glsl-specular-beckmann@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "glsl-specular-beckmann@npm:1.1.2"
+  checksum: 8f0d9877556eafac32e25ee69b94cb5c326698a05719b9563d69be0760991372483efc3869d702d528d7e2ae0f2f2abc75602883b4af4beda2142e8a43ecb53d
   languageName: node
   linkType: hard
 

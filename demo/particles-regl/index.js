@@ -17,7 +17,7 @@ import { div2 } from '@thi.ng/vectors/div';
 import { divN2 } from '@thi.ng/vectors/divn';
 import { sub3 } from '@thi.ng/vectors/sub';
 import { add3 } from '@thi.ng/vectors/add';
-import { powN2 } from '@thi.ng/vectors/pown';
+import { invert2 } from '@thi.ng/vectors/invert';
 import { setC2, setC3 } from '@thi.ng/vectors/setc';
 import { dist3 } from '@thi.ng/vectors/dist';
 import { normalize3 } from '@thi.ng/vectors/normalize';
@@ -192,7 +192,7 @@ const stepsPast = steps-bound;
 const canVerlet = stepsPast > 1;
 
 /** Whether to prefill initial states before spawning, or start with all `0`. */
-const prefill = query.get('prefill') !== 'false';
+const prefill = query.get('prefill') === 'true';
 
 /**
  * Form vertexes to draw; if not given, uses trails of 'lines' if there are
@@ -201,7 +201,7 @@ const prefill = query.get('prefill') !== 'false';
 const form = Math.floor(parseFloat(query.get('form'), 10) || 0);
 
 /** How wide the form is; to be scaled by `viewScale`. */
-const wide = parseFloat(query.get('wide') || 2e-3*pixelRatio, 10) || 0;
+const wide = parseFloat(query.get('wide') || 1e-3*pixelRatio, 10) || 0;
 
 /** The amount to spin the scene initially. */
 const spin0 = parseFloat(query.get('spin-0'), 10) || 0;
@@ -221,9 +221,9 @@ const spoutPace = parseFloat(query.get('spout-pace') || 1, 10) || 0;
 /** Offset on the z-axis from the origin to the source. */
 const gapZ = parseFloat(query.get('gap-z') || -0.2, 10) || 0;
 /** How much to shake the source around while idling. */
-const shakeSource = parseFloat(query.get('shake-source') || 3e-4, 10) || 0;
+const shakeSource = parseFloat(query.get('shake-source') || 1e-4, 10) || 0;
 /** How much to shake the sink around while idling. */
-const shakeSink = parseFloat(query.get('shake-sink') || 2e-2, 10) || 0;
+const shakeSink = parseFloat(query.get('shake-sink') || 3e-2, 10) || 0;
 
 /** Hue range between 2 values. */
 const hues = query.getAll('hue');
@@ -367,29 +367,25 @@ const props = {
   // A small number greater than 0; avoids speeds exploding.
   epsilon: 1e-5,
   // How faar a particle can move in any frame.
-  moveCap: 4e-2,
+  moveCap: 7e-3,
   // Whether to primarily control the sink or source.
   flip: false,
   // The position around which particles spawn.
   source: {
-    // The initial source, may be transformed into `to`.
+    // The initial source, may be transformed into a new property `to`.
     at: [0, 0, gapZ],
-    // Any transformed source.
-    to: undefined,
     // If shaken around while idling, transform `to` or `at` into `shaken`.
     shake: shakeSource, shaken: []
   },
   // Sink position, and universal gravitational constant.
   sink: {
-    // The initial sink, may be transformed into `to`.
+    // The initial sink, may be transformed into a new property `to`.
     at: [
       // Sink position.
       0, 0, 0,
       // Universal gravitational constant (scaled).
-      6.674e-11*5e10
+      6.674e-11*2e10
     ],
-    // Any transformed sink.
-    to: undefined,
     // If shaken around while idling, transform `to` or `at` into `shaken`.
     shake: shakeSink, shaken: []
   },
@@ -406,7 +402,7 @@ const props = {
   // One option in these arrays is used, by Euler/Verlet respectively.
 
   // The distance from the `source`, and speed, that particles spawn with.
-  spout: [[0, 6e3*spoutPace], [0, 4e2*spoutPace]],
+  spout: [[0, 3e3*spoutPace], [0, 2e2*spoutPace]],
 };
 
 /** The main `gl-gpgpu` state. */
@@ -509,15 +505,14 @@ console.log('drawSteps', drawSteps, 'useLines', useLines);
 const drawCounts = map((_, f) => indexForms(drawSteps, f, state.size.entries),
   range(2+useLines), 0);
 
+/** Use `min` for contain, `max` for cover. */
+const viewScale = Math.min;
+
 /**
  * @see [glsl-aspect](https://github.com/keeffEoghan/glsl-aspect/blob/master/index.glsl)
  * @see [glsl-aspect/contain](https://github.com/keeffEoghan/glsl-aspect/blob/master/contain.glsl)
  */
-const aspectContain = (size, to = []) =>
-  powN2(to, divN2(to, size, Math.min(...size)), -1);
-
-const viewScale = ({ drawingBufferWidth: w, drawingBufferHeight: h }) =>
-  Math.min(w, h);
+const aspect = (size, ar) => invert2(ar, divN2(ar, size, viewScale(...size)));
 
 /** Reuse the `gpgpu` state, mix in drawing-specific state. */
 const drawState = {
@@ -547,12 +542,28 @@ const drawState = {
     },
     projection: { matrix: identity44([]), inverse: identity44([]) },
     transform: { matrix: identity44([]), inverse: identity44([]) },
-
-    aspect: { to: [1, 1], size: [1, 1] },
+    // View dimensions.
+    size: [1, 1],
+    // View aspect ratio scale, per x- and y-axes.
+    aspect: [1, 1],
     // The depth near and far planes, and bit scale.
     depths: [1e-2, 1, 1/depthBits],
+    light: {
+      ambient: [0.3, 0.3, 0.3],
+      // Point-lights: position (`at` transforms `to`); color, attenuate factor.
+      points: [
+        // A cyan point-light with higher linear attenuation.
+        { at: [1, -1, -1], color: [0.5, 1, 1], factor: [1, 0.1, 0] },
+        // A magenta point-light with higher quadratic attenuation.
+        { at: [-1, -1, -1], color: [1, 0.5, 1], factor: [1, 0, 0.1] },
+        // A white spherical-light with radius `0.2` - see https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
+        { at: [0, 1, 0], color: [20, 20, 20], factor: [1, 2/0.2, 0.2**-2] }
+      ]
+    },
+    // Material roughness and albedo.
+    material: [0.6, 0.9],
     // Fog brightness, start offset, and exponential power.
-    fog: [1/255, 0.3, 10],
+    fog: [1/255, 0.1, 10],
     // How many vertexes per form.
     form: clamp(form || 2, 1, 1+useLines),
     // Vertex counts, by form; how many steps a form covers, for all entries.
@@ -571,7 +582,7 @@ const drawState = {
     // One option in these arrays is used, by Euler/Verlet respectively.
 
     // Speed-to-colour scaling, as `[multiply, power]`.
-    paceColor: [[1e-3, 0.6], [3e2, 0.6]]
+    paceColor: [[2e-7, 0.3], [6e6, 0.3]]
   },
   // Map everything similarly to the `gpgpu` step, `mapStep` can be reused to
   // create new mappings with some additions for drawing.
@@ -597,22 +608,23 @@ const drawState = {
 /** The `GL` render command pipeline state. */
 const drawPipeline = {
   // Use `gpgpu` `macro` mappings by prepending `macro`s from a single pass.
-  vert: macroPass(drawState)+drawVert,
-  frag: drawFrag,
+  vert: (_, p) => macroPass(p)+
+    `#define lightPointsL ${p.drawProps.light.points.length}\n\n`+drawVert,
+
+  frag: (_, p) =>
+    `#define lightPointsL ${p.drawProps.light.points.length}\n\n`+drawFrag,
+
   // Maximum count here to set up buffers, can be partly used later.
   attributes: { index: getDrawIndexes(Math.max(...drawCounts)) },
   // Hook up `gpgpu` uniforms by adding them here.
   uniforms: toUniforms(drawState, {
     ...drawState.uniforms,
 
-    // Transformation matrices.
-    model: regl.prop('drawProps.model.matrix'),
-    view: regl.prop('drawProps.view.matrix'),
-    projection: regl.prop('drawProps.projection.matrix'),
     transform: regl.prop('drawProps.transform.matrix'),
-
-    aspect: regl.prop('drawProps.aspect.to'),
+    eye: regl.prop('drawProps.view.eye'),
+    aspect: regl.prop('drawProps.aspect'),
     depths: regl.prop('drawProps.depths'),
+    material: regl.prop('drawProps.material'),
     fog: regl.prop('drawProps.fog'),
     // How many vertexes per form.
     form: regl.prop('drawProps.form'),
@@ -621,12 +633,35 @@ const drawPipeline = {
     fizzRate: regl.prop('drawProps.fizz.rate'),
     fizzCurve: regl.prop('drawProps.fizz.curve'),
     hues: regl.prop('drawProps.hues'),
+    lightAmbient: regl.prop('drawProps.light.ambient'),
+
+    /** Convert point-lights from object-oriented to flat data-oriented. */
+    ...reduce((o, _, l) => {
+        const n = 'lightPoint';
+        const i = `[${l}]`;
+
+        o[n+'Positions'+i] = (_, p) => {
+          const { light, model } = p.drawProps;
+          const lp = light.points[l];
+          const { at, to = lp.to = [] } = lp;
+
+          return mulV344(to, model.matrix, at);
+        };
+
+        o[n+'Colors'+i] = regl.prop(`drawProps.light.points${i}.color`);
+        o[n+'Factors'+i] = regl.prop(`drawProps.light.points${i}.factor`);
+
+        return o;
+      },
+      drawState.drawProps.light.points, {}),
+
     paceColor: (_, { drawProps: dp, props: p }) => dp.paceColor[+p.useVerlet],
 
-    wide: (c, { drawProps: { wide: w, widths: ws, form: f } }) =>
-      clamp(w*viewScale(c), ...ws[f])
+    wide: (_, { drawProps: { wide: w, widths: ws, form: f, size: s } }) =>
+      clamp(w*viewScale(...s), ...ws[f])
   }),
-  lineWidth: (c, p) => clamp(p.drawProps.wide*viewScale(c), ...lineWidthDims),
+  lineWidth: (_, { drawProps: { wide: w, size: s } }) =>
+    clamp(w*viewScale(...s), ...lineWidthDims),
   // Vertex counts by form; how many steps a form covers, for all entries.
   count: (_, { count: c, drawProps: { counts: cs, form: f } }) => c ?? cs[f],
   depth: { enable: true },
@@ -642,10 +677,7 @@ console.log((self.drawState = drawState), (self.drawPipeline = drawPipeline));
 const draw = regl(drawPipeline);
 const clearView = { color: [0, 0, 0, 0], depth: 1 };
 
-/**
- * Update the model matrix and inverse.
- * Rotate the model by a given angle and/or a constant rate.
- */
+/** Rotate the model by an angle; update the matrix and inverse. */
 function rotateModel(by = 0) {
   const { model } = drawState.drawProps;
   const { rotation: r, axis, angle, matrix: mm, inverse: mi } = model;
@@ -730,7 +762,7 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
     const pick = ((isPrimary !== flip)? i : o);
     /** Transform from screen-space to world-space. */
     const { at, to = pick.to = [] } = pick;
-    const { aspect, transform, model, view } = drawState.drawProps;
+    const { aspect: ar, transform, model, view } = drawState.drawProps;
     const { inverse: ti } = transform;
     const { inverse: mi } = model;
     const { eye, ray: [ro, rv] } = view;
@@ -738,7 +770,7 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
     /** Screen-space pointer as a `ray` target. */
     setC3(rv, fit(x, left, w, -1, 1), fit(y, top, h, 1, -1), 1);
     /** Aspect ratio scale and un-project the `ray` target. */
-    mulV344(rv, ti, div2(rv, rv, aspect.to));
+    mulV344(rv, ti, div2(rv, rv, ar));
     /** Un-transform `eye` as `ray` origin, subtract `ray` target as vector. */
     sub3(rv, rv, mulV344(ro, mi, eye));
     /** Cast along `ray` by the initial `eye` to `at` distance, as `to`. */
@@ -759,14 +791,13 @@ canvas.addEventListener('dblclick', (e) => {
 /** Resize the canvas and any dependent properties. */
 function resize() {
   const { drawProps } = drawState;
-  const { aspect, depths: [near, far], projection: p } = drawProps;
+  const { size, aspect: ar, depths: [near, far], projection: p } = drawProps;
   const { matrix: pm, inverse: pi } = p;
-  const { size, to: ar } = aspect;
   const [w, h] = mulN2(size, setC2(size, innerWidth, innerHeight), pixelRatio);
 
   canvas.width = w;
   canvas.height = h;
-  aspectContain(size, ar);
+  aspect(size, ar);
   /** Aspect ratio is handled separately, so set to 1 in the projection. */
   invert44(pi, perspective(pm, 60, 1, near, far));
 }
