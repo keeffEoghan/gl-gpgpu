@@ -332,7 +332,7 @@ export function mapGroups(maps = {}, to = maps) {
  * @param {object} maps How values are grouped per-`texture` per-pass per-step.
  *   See `mapGroups`.
  * @param {true|array} [maps.derives] How any new values derive from past
- *   values. If not given `false`y, this returns with no changes.
+ *   values. If given `false`y, this returns with no changes.
  * @param {true|number|array} [maps.derives.[]] L1
  * @param {true|number|array} [maps.derives.[].[]] L2
  * @param {true|number} [maps.derives.[].[].[]] L3

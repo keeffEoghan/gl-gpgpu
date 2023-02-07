@@ -14,14 +14,15 @@
 
 precision highp float;
 
-uniform vec3 eye;
 uniform float wide;
-/** The depth near and far planes, and bit scale. */
+/** Scale depths over near and far range, and precision (arbitrarily). */
 uniform vec3 depths;
-/** Fog brightness, start offset, and exponential power. */
+/** Fog start offset, exponential power, maximum effect. */
 uniform vec3 fog;
-/** Material roughness and albedo. */
-uniform vec2 material;
+/** The clear and fog color. */
+uniform vec4 clear;
+/** Material roughness, albedo, and skin thinness. */
+uniform vec3 material;
 uniform vec3 lightAmbient;
 
 #ifndef lightPointsL
@@ -32,14 +33,12 @@ uniform vec3 lightAmbient;
   uniform vec3 lightPointFactors[lightPointsL];
 #endif
 
-varying vec3 position;
+/** View-space position. */
+varying vec4 positionView;
 /** Center and radius for points or lines; only points have `gl_PointCoord`. */
 varying vec3 sphere;
 varying vec4 color;
-
-/** Normals at the near and far depth planes, respectively. */
-const vec3 normal0 = vec3(0, 0, -1);
-const vec3 normal1 = vec3(0, 0, 1);
+varying vec3 emissive;
 
 #pragma glslify: map = require(glsl-map)
 #pragma glslify: lt = require(glsl-conditionals/when_lt)
@@ -87,7 +86,7 @@ void main() {
    * @see [Shadertoy](https://www.shadertoy.com/view/XsfXDr)
    * @see [Figure 13.2. Circle Point Computation](https://nicolbolas.github.io/oldtut/Illumination/Tutorial%2013.html)
    */
-  float r = sphere.z;
+  float r = sphere.b;
   float r2 = r*r;
   vec2 cf = gl_FragCoord.xy-sphere.xy;
   float cfl2 = dot(cf, cf);
@@ -97,16 +96,12 @@ void main() {
   if(thick*cfl2 > r2) { discard; }
 
   /** Vector pointing from the `sphere`'s center towards the eye. */
-  vec3 axis = vec3(cf, -sqrt(r2-cfl2));
+  vec3 axis = vec3(cf, sqrt(r2-cfl2));
   vec3 normal = axis/r;
 
-  /** The `sphere`'s fragment depth; scale `axis.z` to depth to clip space. */
-  float depth = map(gl_FragCoord.z+((axis.z/wide)*depths.b),
+  /** The `sphere`'s fragment depth; scaled (arbitrarily) into depth space. */
+  float depth = map(gl_FragCoord.z-(depths.b*abs(axis.z/wide)),
     depths.s, depths.t, 0.0, 1.0);
-
-  /** Normal is flat if the sphere is clipped beyond the depth range. */
-  normal = mix(mix(normal, normal0, lt(depth, 0.0)), normal1, gt(depth, 1.0));
-  depth = clamp(depth, 0.0, 1.0);
 
   #ifdef GL_EXT_frag_depth
     gl_FragDepthEXT = depth;
@@ -114,7 +109,10 @@ void main() {
 
   vec4 shade = color;
   vec3 lit = lightAmbient;
-  vec3 pe = normalize(eye-position);
+  vec3 pe = -positionView.xyz;
+  float peL = length(pe);
+
+  pe = pe/peL;
 
   #if lightPointsL > 0
     for(int l = 0; l < lightPointsL; ++l) {
@@ -122,23 +120,21 @@ void main() {
       vec3 lightColor = lightPointColors[l];
       vec3 lightFactor = lightPointFactors[l];
       float rough = material.r;
-      float shine = material.g;
-      vec3 pl = lightPosition-position;
+      float albedo = material.g;
+      vec3 pl = lightPosition-positionView.xyz;
       vec2 plL = vec2(dot(pl, pl));
 
       pl /= (plL.s = sqrt(plL.s));
 
       lit += lightColor*attenuate(plL, lightFactor)*
-        (diffuse(pl, pe, normal, rough, shine)+specular(pl, pe, normal, rough));
+        (diffuse(pl, pe, normal, rough, albedo)+
+          specular(pl, pe, normal, rough));
     }
   #endif
 
-  shade.rgb *= lit;
-
-  shade.rgb = mix(shade.rgb, vec3(fog.s),
-    clamp(pow(depth, fog.p)-fog.t, 0.0, 1.0));
-
-  shade.a *= mix(1.0, -normal.z, mix(0.0, 0.8, thick));
+  shade.rgb = (shade.rgb*lit)+emissive;
+  shade = mix(shade, clear, clamp(pow(peL-fog.x, fog.y), 0.0, fog.z));
+  shade.a *= mix(1.0, 1.0-abs(normal.z*material.z), thick);
 
   shade.rgb *= shade.a;
   gl_FragColor = shade;

@@ -3,7 +3,7 @@
 import getRegl from 'regl';
 import { clamp } from '@thi.ng/math/interval';
 import { mix } from '@thi.ng/math/mix';
-import { fit } from '@thi.ng/math/fit';
+import { fit, fitClamped } from '@thi.ng/math/fit';
 import { identity44 } from '@thi.ng/matrices/identity';
 import { rotationAroundAxis44 } from '@thi.ng/matrices/rotation-around-axis';
 import { perspective } from '@thi.ng/matrices/perspective';
@@ -192,7 +192,7 @@ const stepsPast = steps-bound;
 const canVerlet = stepsPast > 1;
 
 /** Whether to prefill initial states before spawning, or start with all `0`. */
-const prefill = query.get('prefill') === 'true';
+const prefill = query.get('prefill') !== 'false';
 
 /**
  * Form vertexes to draw; if not given, uses trails of 'lines' if there are
@@ -208,29 +208,40 @@ const spin0 = parseFloat(query.get('spin-0'), 10) || 0;
 /** The pace to spin the scene each frame. */
 const spinPace = parseFloat(query.get('spin-pace') || 5e-5, 10) || 0;
 
-/** How many older state positions to fizz around, and other inputs. */
-const fizz = {
-  at: parseFloat(query.get('fizz') || clamp(steps, 6, 2e2), 10) || 0,
-  max: parseFloat(query.get('fizz-max') || clamp(steps, 4, 15)*2e-4, 10) || 0,
-  rate: parseFloat(query.get('fizz-rate') || 1e-3, 10) || 0,
-  curve: parseFloat(query.get('fizz-curve') || 1.7, 10) || 0
-};
-
 /** How much to scale the spout speeds. */
 const spoutPace = parseFloat(query.get('spout-pace') || 1, 10) || 0;
 /** Offset on the z-axis from the origin to the source. */
-const gapZ = parseFloat(query.get('gap-z') || -0.2, 10) || 0;
+const gapZ = parseFloat(query.get('gap-z') || 0.15, 10) || 0;
 /** How much to shake the source around while idling. */
 const shakeSource = parseFloat(query.get('shake-source') || 1e-4, 10) || 0;
 /** How much to shake the sink around while idling. */
 const shakeSink = parseFloat(query.get('shake-sink') || 3e-2, 10) || 0;
 
+/** How many older state positions to fizz around, and other inputs. */
+const fizz = {
+  at: parseFloat(query.get('fizz') || clamp(steps, 5, 2e2), 10) || 0,
+  max: parseFloat(query.get('fizz-max') || fitClamped(steps, 5, 20, 2e-3, 8e-3),
+    10) || 0,
+  rate: parseFloat(query.get('fizz-rate') || 5e-4, 10) || 0,
+  curve: parseFloat(query.get('fizz-curve') || 1.7, 10) || 0
+};
+
 /** Hue range between 2 values. */
 const hues = query.getAll('hue');
 
 // Parse any present hues, fill any missing hues, using only up to 2 hues.
-map((h, i) => parseFloat(h || ((i)? hues[i-1]+0.25 : 0), 10) || 0,
+map((h, i) => parseFloat(h || ((i)? hues[i-1]+(60/360) : 0), 10) || 0,
   range(hues, null, hues.length, hues.length = 2), 0);
+
+/** Whether there are lights. */
+const lit = query.get('lit') !== 'false';
+
+/** The material's roughness. */
+const rough = parseFloat(query.get('rough') || 0.7, 10) || 0;
+/** The material's albedo. */
+const albedo = parseFloat(query.get('albedo') || 0.9, 10) || 0;
+/** The material's skin thinness. */
+const skinThin = parseFloat(query.get('skin-thin'), 10) || 0;
 
 /**
  * Variable-step (delta-time) if given `false`y/`NaN`; fixed-step (add-step)
@@ -245,9 +256,10 @@ const timestep = parseFloat(timeQuery ?? timestepDef, 10) || null;
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
   'merge:', merge, 'scale:', scale, 'steps:', steps, 'prefill:', prefill,
   'timestep:', timestep, 'depth:', fragDepth, 'form:', form, 'wide:', wide,
-  'spin0:', spin0, 'spinPace:', spinPace, 'fizz:', fizz, 'hues:', hues,
-  'spoutPace:', spoutPace, 'gapZ:', gapZ,
-  'shakeSource:', shakeSource, 'shakeSink:', shakeSink);
+  'spin0:', spin0, 'spinPace:', spinPace, 'spoutPace:', spoutPace,
+  'gapZ:', gapZ, 'shakeSource:', shakeSource, 'shakeSink:', shakeSink,
+  'fizz:', fizz, 'hues:', hues, 'lit:', lit,
+  'rough:', rough, 'albedo:', albedo, 'skinThin:', skinThin);
 
 // Set up the links.
 
@@ -271,6 +283,8 @@ setupLink(document.querySelector('#millions'));
 
 setupLink(document.querySelector('#trails'),
   [['form', ((form)? ((form+1)%3 || null) : 1)]]);
+
+setupLink(document.querySelector('#lit'), [['lit', ((lit)? false : null)]]);
 
 setupLink(document.querySelector('#timestep'),
   [['timestep', ((timeQuery == null)? '' : null)]]);
@@ -536,34 +550,41 @@ const drawState = {
     view: {
       matrix: identity44([]), inverse: identity44([]),
       // Look from the `eye` at the `target` while oriented `up`.
-      eye: [0, 0, -0.5], target: [0, 0, 0], up: [0, 1, 0],
+      eye: [0, 0, 0.5], target: [0, 0, 0], up: [0, 1, 0],
       // Ray origin and direction for casting.
       ray: [[], []]
     },
     projection: { matrix: identity44([]), inverse: identity44([]) },
-    transform: { matrix: identity44([]), inverse: identity44([]) },
+    // Cached combined transformations.
+    transform: {
+      modelView: { matrix: identity44([]), inverse: identity44([]) },
+      // viewProjection: { matrix: identity44([]), inverse: identity44([]) },
+      modelViewProjection: { matrix: identity44([]), inverse: identity44([]) }
+    },
     // View dimensions.
     size: [1, 1],
     // View aspect ratio scale, per x- and y-axes.
     aspect: [1, 1],
-    // The depth near and far planes, and bit scale.
-    depths: [1e-2, 1, 1/depthBits],
+    // Scale depths over near and far range, and precision (arbitrarily).
+    depths: [1e-2, 1, 5e-2/depthBits],
     light: {
-      ambient: [0.3, 0.3, 0.3],
+      ambient: [0.2, 0.2, 0.2],
       // Point-lights: position (`at` transforms `to`); color, attenuate factor.
-      points: [
-        // A cyan point-light with higher linear attenuation.
-        { at: [1, -1, -1], color: [0.5, 1, 1], factor: [1, 0.1, 0] },
-        // A magenta point-light with higher quadratic attenuation.
-        { at: [-1, -1, -1], color: [1, 0.5, 1], factor: [1, 0, 0.1] },
+      points: ((!lit)? null : [
+        // A cyan-ish point-light with higher linear attenuation.
+        { at: [1, -1, 0], color: [0.4, 1, 1], factor: [1, 0.3, 0.1] },
+        // A magenta-ish point-light with higher quadratic attenuation.
+        { at: [-1, -1, 0], color: [1, 0.4, 1], factor: [1, 0.1, 0.3] },
         // A white spherical-light with radius `0.2` - see https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
-        { at: [0, 1, 0], color: [20, 20, 20], factor: [1, 2/0.2, 0.2**-2] }
-      ]
+        { at: [0, 1, 1], color: [30, 30, 30], factor: [1, 2/0.2, 0.2**-2] }
+      ])
     },
-    // Material roughness and albedo.
-    material: [0.6, 0.9],
-    // Fog brightness, start offset, and exponential power.
-    fog: [1/255, 0.1, 10],
+    // Material roughness, albedo, and skin thinness.
+    material: [rough, albedo, skinThin],
+    // Fog start offset, exponential power, maximum effect.
+    fog: [0, 3, 0.9],
+    // The clear and fog color.
+    clear: [0, 0, 0, 0],
     // How many vertexes per form.
     form: clamp(form || 2, 1, 1+useLines),
     // Vertex counts, by form; how many steps a form covers, for all entries.
@@ -582,7 +603,7 @@ const drawState = {
     // One option in these arrays is used, by Euler/Verlet respectively.
 
     // Speed-to-colour scaling, as `[multiply, power]`.
-    paceColor: [[2e-7, 0.3], [6e6, 0.3]]
+    paceColor: [[2e-9, 2], [2e7, 2]]
   },
   // Map everything similarly to the `gpgpu` step, `mapStep` can be reused to
   // create new mappings with some additions for drawing.
@@ -605,66 +626,69 @@ const drawState = {
   })
 };
 
+/** Hook up `gpgpu` uniforms by extending them. */
+const drawUniforms = toUniforms(drawState, {
+  ...drawState.uniforms,
+
+  modelView: regl.prop('drawProps.transform.modelView.matrix'),
+  projection: regl.prop('drawProps.projection.matrix'),
+  eye: regl.prop('drawProps.view.eye'),
+  aspect: regl.prop('drawProps.aspect'),
+  depths: regl.prop('drawProps.depths'),
+  material: regl.prop('drawProps.material'),
+  fog: regl.prop('drawProps.fog'),
+  clear: regl.prop('drawProps.clear'),
+  // How many vertexes per form.
+  form: regl.prop('drawProps.form'),
+  fizz: regl.prop('drawProps.fizz.at'),
+  fizzMax: regl.prop('drawProps.fizz.max'),
+  fizzRate: regl.prop('drawProps.fizz.rate'),
+  fizzCurve: regl.prop('drawProps.fizz.curve'),
+  hues: regl.prop('drawProps.hues'),
+  lightAmbient: regl.prop('drawProps.light.ambient'),
+
+  paceColor: (_, { drawProps: dp, props: p }) => dp.paceColor[+p.useVerlet],
+
+  wide: (_, { drawProps: { wide: w, widths: ws, form: f, size: s } }) =>
+    clamp(w*viewScale(...s), ...ws[f])
+});
+
+/** Convert point-lights from object-oriented to flat data-oriented. */
+lit && reduce((o, _, l) => {
+    const n = 'lightPoint';
+    const i = `[${l}]`;
+
+    o[n+'Positions'+i] = (_, p) => {
+      const { light, transform } = p.drawProps;
+      const lp = light.points[l];
+      const { at, to = lp.to = [] } = lp;
+
+      return mulV344(to, transform.modelView.matrix, at);
+    };
+
+    o[n+'Colors'+i] = regl.prop(`drawProps.light.points${i}.color`);
+    o[n+'Factors'+i] = regl.prop(`drawProps.light.points${i}.factor`);
+
+    return o;
+  },
+  drawState.drawProps.light.points, drawUniforms);
+
 /** The `GL` render command pipeline state. */
 const drawPipeline = {
   // Use `gpgpu` `macro` mappings by prepending `macro`s from a single pass.
   vert: (_, p) => macroPass(p)+
-    `#define lightPointsL ${p.drawProps.light.points.length}\n\n`+drawVert,
+    `#define lightPointsL ${p.drawProps.light.points?.length ?? 0}\n`+drawVert,
 
   frag: (_, p) =>
-    `#define lightPointsL ${p.drawProps.light.points.length}\n\n`+drawFrag,
+    `#define lightPointsL ${p.drawProps.light.points?.length ?? 0}\n`+drawFrag,
 
   // Maximum count here to set up buffers, can be partly used later.
   attributes: { index: getDrawIndexes(Math.max(...drawCounts)) },
-  // Hook up `gpgpu` uniforms by adding them here.
-  uniforms: toUniforms(drawState, {
-    ...drawState.uniforms,
-
-    transform: regl.prop('drawProps.transform.matrix'),
-    eye: regl.prop('drawProps.view.eye'),
-    aspect: regl.prop('drawProps.aspect'),
-    depths: regl.prop('drawProps.depths'),
-    material: regl.prop('drawProps.material'),
-    fog: regl.prop('drawProps.fog'),
-    // How many vertexes per form.
-    form: regl.prop('drawProps.form'),
-    fizz: regl.prop('drawProps.fizz.at'),
-    fizzMax: regl.prop('drawProps.fizz.max'),
-    fizzRate: regl.prop('drawProps.fizz.rate'),
-    fizzCurve: regl.prop('drawProps.fizz.curve'),
-    hues: regl.prop('drawProps.hues'),
-    lightAmbient: regl.prop('drawProps.light.ambient'),
-
-    /** Convert point-lights from object-oriented to flat data-oriented. */
-    ...reduce((o, _, l) => {
-        const n = 'lightPoint';
-        const i = `[${l}]`;
-
-        o[n+'Positions'+i] = (_, p) => {
-          const { light, model } = p.drawProps;
-          const lp = light.points[l];
-          const { at, to = lp.to = [] } = lp;
-
-          return mulV344(to, model.matrix, at);
-        };
-
-        o[n+'Colors'+i] = regl.prop(`drawProps.light.points${i}.color`);
-        o[n+'Factors'+i] = regl.prop(`drawProps.light.points${i}.factor`);
-
-        return o;
-      },
-      drawState.drawProps.light.points, {}),
-
-    paceColor: (_, { drawProps: dp, props: p }) => dp.paceColor[+p.useVerlet],
-
-    wide: (_, { drawProps: { wide: w, widths: ws, form: f, size: s } }) =>
-      clamp(w*viewScale(...s), ...ws[f])
-  }),
+  uniforms: drawUniforms,
   lineWidth: (_, { drawProps: { wide: w, size: s } }) =>
     clamp(w*viewScale(...s), ...lineWidthDims),
   // Vertex counts by form; how many steps a form covers, for all entries.
   count: (_, { count: c, drawProps: { counts: cs, form: f } }) => c ?? cs[f],
-  depth: { enable: true },
   blend: { enable: true, func: { src: 'one', dst: 'one minus src alpha' } },
 
   primitive: (_, { drawProps: { primitive: p, primitives: ps, form: f } }) =>
@@ -675,7 +699,7 @@ console.log((self.drawState = drawState), (self.drawPipeline = drawPipeline));
 
 /** Function to execute the render command pipeline state every frame. */
 const draw = regl(drawPipeline);
-const clearView = { color: [0, 0, 0, 0], depth: 1 };
+const clearView = { color: drawState.drawProps.clear, depth: 1 };
 
 /** Rotate the model by an angle; update the matrix and inverse. */
 function rotateModel(by = 0) {
@@ -692,19 +716,34 @@ function updateView() {
   return invert44(vi, lookAt(vm, eye, target, up));
 }
 
-/** Update the transformation matrix and inverse. */
-function updateTransform() {
-  const { drawProps } = drawState;
-  const { transform, model: m, view: v, projection: p } = drawProps;
-  const { matrix: tm, inverse: ti } = transform;
+/** Update the projection matrix and inverse. */
+function updateProjection() {
+  const { depths: [d0, d1], projection: p } = drawState.drawProps;
+  const { matrix: pm, inverse: pi } = p;
 
-  return invert44(ti, concat(tm, p.matrix, v.matrix, m.matrix));
+  /** Aspect ratio is handled separately, so set to 1 in the projection. */
+  invert44(pi, perspective(pm, 60, 1, d0, d1));
+}
+
+/** Update each needed cached combined transformation matrix and inverse. */
+function updateTransform() {
+  const { transform: t, model, view, projection } = drawState.drawProps;
+  const { matrix: mm, inverse: mi } = model;
+  const { matrix: vm, inverse: vi } = view;
+  const { matrix: pm, inverse: pi } = projection;
+  const { modelView: mv, viewProjection: vp, modelViewProjection: mvp } = t;
+
+  mv && invert44(mv.inverse, concat(mv.matrix, vm, mm));
+  vp && invert44(vp.inverse, concat(vp.matrix, pm, vm));
+  mvp && invert44(mvp.inverse, concat(mvp.matrix, pm, vm, mm));
 }
 
 /** Rotate the model to its starting angle. */
 rotateModel(drawState.drawProps.model.angle0);
 /** Initialise the view matrix. */
 updateView();
+/** Initialise the projection matrix. */
+updateProjection();
 
 function stopEvent(e) {
   e.stopPropagation();
@@ -763,16 +802,14 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
     /** Transform from screen-space to world-space. */
     const { at, to = pick.to = [] } = pick;
     const { aspect: ar, transform, model, view } = drawState.drawProps;
-    const { inverse: ti } = transform;
-    const { inverse: mi } = model;
     const { eye, ray: [ro, rv] } = view;
 
     /** Screen-space pointer as a `ray` target. */
     setC3(rv, fit(x, left, w, -1, 1), fit(y, top, h, 1, -1), 1);
     /** Aspect ratio scale and un-project the `ray` target. */
-    mulV344(rv, ti, div2(rv, rv, ar));
+    mulV344(rv, transform.modelViewProjection.inverse, div2(rv, rv, ar));
     /** Un-transform `eye` as `ray` origin, subtract `ray` target as vector. */
-    sub3(rv, rv, mulV344(ro, mi, eye));
+    sub3(rv, rv, mulV344(ro, model.inverse, eye));
     /** Cast along `ray` by the initial `eye` to `at` distance, as `to`. */
     add3(to, ro, normalize3(rv, rv, dist3(eye, at)));
 
@@ -791,15 +828,12 @@ canvas.addEventListener('dblclick', (e) => {
 /** Resize the canvas and any dependent properties. */
 function resize() {
   const { drawProps } = drawState;
-  const { size, aspect: ar, depths: [near, far], projection: p } = drawProps;
-  const { matrix: pm, inverse: pi } = p;
+  const { size, aspect: ar } = drawProps;
   const [w, h] = mulN2(size, setC2(size, innerWidth, innerHeight), pixelRatio);
 
   canvas.width = w;
   canvas.height = h;
   aspect(size, ar);
-  /** Aspect ratio is handled separately, so set to 1 in the projection. */
-  invert44(pi, perspective(pm, 60, 1, near, far));
 }
 
 addEventListener('resize', resize);

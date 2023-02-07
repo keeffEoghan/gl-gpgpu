@@ -39,7 +39,8 @@ uniform float gpgpu_stepNow;
 uniform vec4 gpgpu_stateShape;
 uniform vec2 gpgpu_viewShape;
 
-uniform mat4 transform;
+uniform mat4 modelView;
+uniform mat4 projection;
 uniform vec2 aspect;
 uniform float wide;
 uniform float dt;
@@ -55,10 +56,12 @@ uniform float fizzMax;
 uniform float fizzRate;
 uniform float fizzCurve;
 
-varying vec3 position;
+/** View-space position. */
+varying vec4 positionView;
 /** Center and radius for points or lines; only points have `gl_PointCoord`. */
 varying vec3 sphere;
 varying vec4 color;
+varying vec3 emissive;
 
 #pragma glslify: gt = require(glsl-conditionals/when_gt)
 #pragma glslify: random = require(glsl-random)
@@ -129,19 +132,20 @@ void main() {
   float fizzDepth = sin(random(vec2(position1.z*entry, life))+fizzAt);
   vec3 fizzed = fizzBy*onSphere(fizzAngle, fizzDepth);
 
-  position = position1+fizzed;
-  // position = vec3(mix(vec2(-1), vec2(1), st), 0);
+  // positionView = vec4(mix(vec2(-0.5), vec2(0.5), st), 0.2, 1);
+  positionView = modelView*vec4(position1+fizzed, 1);
 
-  vec4 to = mix(hide, transform*vec4(position, 1), alive);
+  vec4 to = mix(hide, projection*positionView, alive);
 
   to.xy *= aspect;
+
+  gl_Position = to;
 
   float fade = clamp(pow(life/lifetime.s, 0.3), 0.0, 1.0)*
     clamp(pow(1.0-ago, 0.8), 0.0, 1.0);
 
   float size = wide*fade/to.w;
 
-  gl_Position = to;
   gl_PointSize = size;
 
   /**
@@ -152,11 +156,12 @@ void main() {
    */
   sphere = vec3(gpgpu_viewShape*(((to.xy/to.w)*0.5)+0.5), size*0.5);
 
-  vec3 velocity = mix(motion, position1-position0, useVerlet)/dt;
-  float speedColor = pow(dot(velocity, velocity)*paceColor.s, paceColor.t);
+  float hue = fract(mix(hues.s, hues.t, entry/float(gpgpu_entries)));
 
-  color = vec4(hsl2rgb(fract(mix(hues.s, hues.t, entry/float(gpgpu_entries))),
-      mix(0.9, 0.1, ago),
-      mix(0.4, 0.8, clamp(speedColor, 0.0, 1.0))),
-    fade);
+  color = vec4(hsl2rgb(hue, mix(0.9, 0.1, ago), 0.7), fade);
+
+  vec3 velocity = mix(motion, (position1-position0)/dt, useVerlet);
+
+  emissive = hsl2rgb(hue, 1.0,
+    clamp(pow(dot(velocity, velocity)*paceColor.s, paceColor.t), 0.0, 0.8));
 }
