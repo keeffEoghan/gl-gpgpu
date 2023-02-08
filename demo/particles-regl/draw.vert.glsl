@@ -44,7 +44,7 @@ uniform mat4 projection;
 uniform vec2 aspect;
 uniform float wide;
 uniform float dt;
-uniform float time;
+uniform float loop;
 uniform vec3 lifetime;
 uniform vec2 paceColor;
 uniform float useVerlet;
@@ -127,13 +127,14 @@ void main() {
 
   /** Fizz randomly on a sphere around older positions. */
   float fizzBy = pow(clamp(stepPast/fizz, 0.0, 1.0), fizzCurve)*fizzMax;
-  float fizzAt = time*fizzRate*mix(-1.0, 1.0, mod(entry, 2.0))/(1.0+fizzBy);
-  float fizzAngle = (random(position1.xy*entry)+fizzAt)*tau;
-  float fizzDepth = sin(random(vec2(position1.z*entry, life))+fizzAt);
+  float fizzAt = loop*fizzRate*mix(-1.0, 1.0, mod(entry, 2.0))/(1.0+fizzBy);
+  float fizzAngle = (random(position1.xy+entry)+fizzAt)*tau;
+  // float fizzDepth = sin(random(vec2(position1.z, life)-entry)+fizzAt);
+  float fizzDepth = abs((fract(random(vec2(position1.z, life)-entry)+fizzAt)*2.0)-1.0);
   vec3 fizzed = fizzBy*onSphere(fizzAngle, fizzDepth);
 
-  // positionView = vec4(mix(vec2(-0.5), vec2(0.5), st), 0.2, 1);
   positionView = modelView*vec4(position1+fizzed, 1);
+  // positionView = vec4(mix(vec2(-0.5), vec2(0.5), st), 0.2, 1);
 
   vec4 to = mix(hide, projection*positionView, alive);
 
@@ -141,7 +142,7 @@ void main() {
 
   gl_Position = to;
 
-  float fade = clamp(pow(life/lifetime.s, 0.3), 0.0, 1.0)*
+  float fade = clamp(pow(life/lifetime.t, 0.3), 0.0, 1.0)*
     clamp(pow(1.0-ago, 0.8), 0.0, 1.0);
 
   float size = wide*fade/to.w;
@@ -163,5 +164,5 @@ void main() {
   vec3 velocity = mix(motion, (position1-position0)/dt, useVerlet);
 
   emissive = hsl2rgb(hue, 1.0,
-    clamp(pow(dot(velocity, velocity)*paceColor.s, paceColor.t), 0.0, 0.8));
+    clamp(pow(dot(velocity, velocity)*paceColor.s, paceColor.t), 0.0, 0.7));
 }

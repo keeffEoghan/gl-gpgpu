@@ -43,6 +43,9 @@ import stepFrag from './step.frag.glsl';
 import drawVert from './draw.vert.glsl';
 import drawFrag from './draw.frag.glsl';
 
+const { abs, floor, random, sin, cos, min, max, sqrt, log2, PI: pi } = Math;
+const tau = pi*2;
+
 self.gpgpu = gpgpu;
 self.macroPass = macroPass;
 self.mapStep = mapStep;
@@ -91,11 +94,10 @@ const extend = {
     : [...extensionsFloat, ...optionalExtensions])
 };
 
-const pixelRatio = Math.max(devicePixelRatio, 1.5) || 1.5;
+const pixelRatio = max(devicePixelRatio, 1.5) || 1.5;
 
 const regl = self.regl = getRegl({
   canvas, pixelRatio,
-  // attributes: { premultipliedAlpha: false },
   extensions: extend.required, optionalExtensions: extend.optional,
   onDone: toggleError
 });
@@ -155,7 +157,7 @@ const merge = query.get('merge') !== 'false';
  *
  * @todo Drawing issues with `scale` and `steps` both over 10.
  */
-const limits = { scale: [0, Math.log2(maxTextureSize)] };
+const limits = { scale: [0, log2(maxTextureSize)] };
 
 /** A scale that seems to work well from experimentation with `GL` limits. */
 const niceScale = clamp(8, ...limits.scale);
@@ -170,11 +172,10 @@ const bound = 1;
 /** The steps of state to track. */
 limits.steps = [
   1+bound,
-  ((merge)?
-      // Maximum steps must fit the maximum total texture size if merging.
-      Math.floor(maxTextureSize/(2**scale))
-      // Maximum steps must fit the maximum total texture units if separate.
-    : Math.floor((maxTextureUnits-bound)/reduce((s, v) => s+v, values)*4))
+  // Maximum steps must fit the maximum total texture size if merging.
+  floor((merge)? maxTextureSize/(2**scale)
+    // Maximum steps must fit the maximum total texture units if separate.
+    : (maxTextureUnits-bound)/reduce((s, v) => s+v, values)*4)
 ];
 
 console.log('limits', limits, regl.limits);
@@ -183,7 +184,7 @@ console.log('limits', limits, regl.limits);
  * 2 active states, as many others as can be bound; at least 2 past states
  * needed for Verlet integration, 1 for Euler integration.
  */
-const steps = Math.floor(clamp(parseFloat(query.get('steps'), 10) || 2+bound,
+const steps = floor(clamp(parseFloat(query.get('steps'), 10) || 2+bound,
   ...limits.steps));
 
 /** How many past steps (not bound to outputs) are in the GPGPU state. */
@@ -198,13 +199,13 @@ const prefill = query.get('prefill') !== 'false';
  * Form vertexes to draw; if not given, uses trails of 'lines' if there are
  * enough steps, or 'points' if not.
  */
-const form = Math.floor(parseFloat(query.get('form'), 10) || 0);
+const form = floor(parseFloat(query.get('form'), 10) || 0);
 
 /** How wide the form is; to be scaled by `viewScale`. */
 const wide = parseFloat(query.get('wide') || 1e-3*pixelRatio, 10) || 0;
 
 /** The amount to spin the scene initially. */
-const spin0 = parseFloat(query.get('spin-0'), 10) || 0;
+const spin0 = parseFloat(query.get('spin-0') || 1e-2*pi, 10) || 0;
 /** The pace to spin the scene each frame. */
 const spinPace = parseFloat(query.get('spin-pace') || 5e-5, 10) || 0;
 
@@ -215,7 +216,7 @@ const gapZ = parseFloat(query.get('gap-z') || 0.15, 10) || 0;
 /** How much to shake the source around while idling. */
 const shakeSource = parseFloat(query.get('shake-source') || 1e-4, 10) || 0;
 /** How much to shake the sink around while idling. */
-const shakeSink = parseFloat(query.get('shake-sink') || 3e-2, 10) || 0;
+const shakeSink = parseFloat(query.get('shake-sink') || 4e-2, 10) || 0;
 
 /** How many older state positions to fizz around, and other inputs. */
 const fizz = {
@@ -235,13 +236,15 @@ map((h, i) => parseFloat(h || ((i)? hues[i-1]+(60/360) : 0), 10) || 0,
 
 /** Whether there are lights. */
 const lit = query.get('lit') !== 'false';
+/** How much particle speed lights them up. */
+const paceLit = parseFloat(query.get('pace-lit') || 1, 10) || 0;
 
 /** The material's roughness. */
 const rough = parseFloat(query.get('rough') || 0.7, 10) || 0;
 /** The material's albedo. */
 const albedo = parseFloat(query.get('albedo') || 0.9, 10) || 0;
-/** The material's skin thinness. */
-const skinThin = parseFloat(query.get('skin-thin'), 10) || 0;
+/** The material's skin thickness. */
+const skin = parseFloat(query.get('skin') || 1, 10) || 0;
 
 /**
  * Variable-step (delta-time) if given `false`y/`NaN`; fixed-step (add-step)
@@ -258,8 +261,8 @@ console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
   'timestep:', timestep, 'depth:', fragDepth, 'form:', form, 'wide:', wide,
   'spin0:', spin0, 'spinPace:', spinPace, 'spoutPace:', spoutPace,
   'gapZ:', gapZ, 'shakeSource:', shakeSource, 'shakeSink:', shakeSink,
-  'fizz:', fizz, 'hues:', hues, 'lit:', lit,
-  'rough:', rough, 'albedo:', albedo, 'skinThin:', skinThin);
+  'fizz:', fizz, 'hues:', hues, 'lit:', lit, 'paceLit:', paceLit,
+  'rough:', rough, 'albedo:', albedo, 'skin:', skin);
 
 // Set up the links.
 
@@ -275,16 +278,19 @@ setupLink(document.querySelector('#verlet'),
   [['steps', 2+bound], ['scale', 9]]);
 
 setupLink(document.querySelector('#euler'), [['steps', 1+bound], ['scale', 9]]);
-setupLink(document.querySelector('#long'), [['steps', 9+bound], ['scale', 8]]);
+setupLink(document.querySelector('#trail'), [['steps', 9+bound], ['scale', 8]]);
 setupLink(document.querySelector('#trace'), [['steps', 3e2], ['scale', 4]]);
 setupLink(document.querySelector('#bubbles'));
 setupLink(document.querySelector('#molecular'));
 setupLink(document.querySelector('#millions'));
 
-setupLink(document.querySelector('#trails'),
+setupLink(document.querySelector('#form'),
   [['form', ((form)? ((form+1)%3 || null) : 1)]]);
 
 setupLink(document.querySelector('#lit'), [['lit', ((lit)? false : null)]]);
+
+setupLink(document.querySelector('#spin'),
+  [['spin-pace', ((spinPace)? 0 : null)]]);
 
 setupLink(document.querySelector('#timestep'),
   [['timestep', ((timeQuery == null)? '' : null)]]);
@@ -344,19 +350,19 @@ console.log(derives, '`derives`');
  * @see [Spherical distribution](https://observablehq.com/@rreusser/equally-distributing-points-on-a-sphere)
  */
 function shake(position, shaken, by, idle) {
-  const l = (Math.min(idle/5e3, 1)**5)*by;
+  const l = (min(idle/5e3, 1)**5)*by;
 
   if(!l) { return position; }
 
-  const a = Math.random()*Math.PI*2;
-  const d = mix(-1, 1, Math.random());
-  const v = (1-(d*d))*l;
-  const [x, y, z, w] = position;
+  const a = random()*tau;
+  const d = mix(-1, 1, random());
+  const n = (1-(d*d))*l;
+  const { 0: px, 1: py, 2: pz, 3: pw, length: pl } = position;
 
-  shaken[0] = x+(Math.cos(a)*v);
-  shaken[1] = y+(Math.sin(a)*v);
-  z != null && (shaken[2] = z+(d*l));
-  w != null && (shaken[3] = w);
+  setC2(shaken, px+(cos(a)*n), py+(sin(a)*n));
+  (pl > 2) && (shaken[2] = pz+(d*l));
+  (pl > 3) && (shaken[3] = pw);
+  shaken.length = pl;
 
   return shaken;
 }
@@ -364,18 +370,21 @@ function shake(position, shaken, by, idle) {
 /** Custom properties to be passed to shaders mixed in with `gl-gpgpu` ones. */
 const props = {
   // Set up the timer.
-  timer: timer((timestep)?
-      // Fixed-step (add-step).
-      { step: timestep, dts: range(2, 0), idle: 0 }
-      // Real-time (variable delta-time).
-    : { step: '-', now: () => regl.now()*1e3, dts: range(2, 0), idle: 0 }),
-
-  // Speed up or slow down the passage of time.
-  rate: 1,
-  // Loop time over this period to avoid instability of parts of the demo.
-  loop: 3e3,
+  timer: timer({
+    // Fixed-step (add-step), or real-time (variable delta-time).
+    step: timestep || '-',
+    now: ((timestep)? undefined : () => regl.now()*1e3),
+    // Track past 2 time-differences for Verlet integration.
+    dts: range(2, 0),
+    // Amount of time without applicable user-interaction.
+    idle: 0,
+    // Speed up or slow down the passage of time.
+    rate: 1,
+    // Loop time over this period to avoid instability using unbounded `time`.
+    loop: 3e3
+  }),
   // A particle's lifetime range, and whether it's allowed to spawn.
-  lifetime: [6e2, 5e3, +true],
+  lifetime: [6e2, 6e3, +true],
   // Whether to use Verlet (midpoint) or Euler (forward) integration.
   useVerlet: +canVerlet,
   // A small number greater than 0; avoids speeds exploding.
@@ -454,11 +463,12 @@ const state = gpgpu(regl, {
   props,
   // Custom uniforms in addition to those `gl-gpgpu` provides.
   uniforms: {
-    dt: (_, { props: { timer: t, rate: r } }) => t.dt*r,
-    dt0: (_, { props: { timer: t, rate: r } }) => t.dts[0]*r,
-    dt1: (_, { props: { timer: t, rate: r } }) => t.dts[1]*r,
-    time: (_, { props: { timer: t, rate: r } }) => t.time*r,
-    loop: (_, { props: { timer: t, loop: l } }) => Math.sin(t.time/l*Math.PI)*l,
+    dt: (_, { props: { timer: { dt, rate: r } } }) => dt*r,
+    dt0: (_, { props: { timer: { dts, rate: r } } }) => dts[0]*r,
+    dt1: (_, { props: { timer: { dts, rate: r } } }) => dts[1]*r,
+    time: (_, { props: { timer: { time: t, rate: r } } }) => t*r,
+    loop: (_, { props: { timer: { time: t, rate: r, loop: l } } }) =>
+      abs((((t*r)+l)%(l*2))-l),
 
     // Shake the source around while idling.
     source: (_, { props: { source: { to, at, shaken, shake: by }, timer } }) =>
@@ -520,7 +530,7 @@ const drawCounts = map((_, f) => indexForms(drawSteps, f, state.size.entries),
   range(2+useLines), 0);
 
 /** Use `min` for contain, `max` for cover. */
-const viewScale = Math.min;
+const viewScale = min;
 
 /**
  * @see [glsl-aspect](https://github.com/keeffEoghan/glsl-aspect/blob/master/index.glsl)
@@ -544,8 +554,8 @@ const drawState = {
       // Continuous rotation.
       rotation: identity44([]),
       axis: [0, 1, 0],
-      angle: (timestep || timestepDef)*spinPace*Math.PI*2,
-      angle0: spin0*Math.PI*2
+      angle: (timestep || timestepDef)*spinPace*tau,
+      angle0: spin0*tau
     },
     view: {
       matrix: identity44([]), inverse: identity44([]),
@@ -568,19 +578,30 @@ const drawState = {
     // Scale depths over near and far range, and precision (arbitrarily).
     depths: [1e-2, 1, 5e-2/depthBits],
     light: {
-      ambient: [0.2, 0.2, 0.2],
+      ambient: ((lit)? [0.3, 0.3, 0.3] : [0.1, 0.1, 0.1]),
       // Point-lights: position (`at` transforms `to`); color, attenuate factor.
       points: ((!lit)? null : [
-        // A cyan-ish point-light with higher linear attenuation.
-        { at: [1, -1, 0], color: [0.4, 1, 1], factor: [1, 0.3, 0.1] },
-        // A magenta-ish point-light with higher quadratic attenuation.
-        { at: [-1, -1, 0], color: [1, 0.4, 1], factor: [1, 0.1, 0.3] },
-        // A white spherical-light with radius `0.2` - see https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
-        { at: [0, 1, 1], color: [30, 30, 30], factor: [1, 2/0.2, 0.2**-2] }
+        // A white spherical-light with radius `0.3` - see https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
+        { at: [0, 1, 0], color: [20, 20, 20], factor: [1, 2/0.3, 0.3**-2] },
+        // A cyan-ish point-light, higher linear attenuation.
+        {
+          at: [cos(0), -1, sin(0)],
+          color: [3, 9, 9], factor: [1, 9, 3]
+        },
+        // A magenta-ish point-light, higher quadratic attenuation.
+        {
+          at: [cos(tau*0.33), -1, sin(tau*0.33)],
+          color: [9, 3, 9], factor: [1, 3, 9]
+        },
+        // A yellow-ish point-light, even attenuation.
+        {
+          at: [cos(tau*0.66), -1, sin(tau*0.66)],
+          color: [9, 9, 3], factor: [1, 5, 5]
+        }
       ])
     },
-    // Material roughness, albedo, and skin thinness.
-    material: [rough, albedo, skinThin],
+    // Material roughness, albedo, and skin thickness.
+    material: [rough, albedo, skin],
     // Fog start offset, exponential power, maximum effect.
     fog: [0, 3, 0.9],
     // The clear and fog color.
@@ -603,7 +624,7 @@ const drawState = {
     // One option in these arrays is used, by Euler/Verlet respectively.
 
     // Speed-to-colour scaling, as `[multiply, power]`.
-    paceColor: [[2e-9, 2], [2e7, 2]]
+    paceColor: [[paceLit*2e-9, 2], [paceLit*2e7, 2]]
   },
   // Map everything similarly to the `gpgpu` step, `mapStep` can be reused to
   // create new mappings with some additions for drawing.
@@ -683,7 +704,7 @@ const drawPipeline = {
     `#define lightPointsL ${p.drawProps.light.points?.length ?? 0}\n`+drawFrag,
 
   // Maximum count here to set up buffers, can be partly used later.
-  attributes: { index: getDrawIndexes(Math.max(...drawCounts)) },
+  attributes: { index: getDrawIndexes(max(...drawCounts)) },
   uniforms: drawUniforms,
   lineWidth: (_, { drawProps: { wide: w, size: s } }) =>
     clamp(w*viewScale(...s), ...lineWidthDims),
@@ -722,20 +743,20 @@ function updateProjection() {
   const { matrix: pm, inverse: pi } = p;
 
   /** Aspect ratio is handled separately, so set to 1 in the projection. */
-  invert44(pi, perspective(pm, 60, 1, d0, d1));
+  invert44(pi, perspective(pm, 50, 1, d0, d1));
 }
 
 /** Update each needed cached combined transformation matrix and inverse. */
 function updateTransform() {
   const { transform: t, model, view, projection } = drawState.drawProps;
-  const { matrix: mm, inverse: mi } = model;
-  const { matrix: vm, inverse: vi } = view;
-  const { matrix: pm, inverse: pi } = projection;
-  const { modelView: mv, viewProjection: vp, modelViewProjection: mvp } = t;
+  const { modelView: tmv, viewProjection: tvp, modelViewProjection: tmvp } = t;
+  const mm = model.matrix;
+  const vm = view.matrix;
+  const pm = projection.matrix;
 
-  mv && invert44(mv.inverse, concat(mv.matrix, vm, mm));
-  vp && invert44(vp.inverse, concat(vp.matrix, pm, vm));
-  mvp && invert44(mvp.inverse, concat(mvp.matrix, pm, vm, mm));
+  tmv && invert44(tmv.inverse, concat(tmv.matrix, vm, mm));
+  tvp && invert44(tvp.inverse, concat(tvp.matrix, pm, vm));
+  tmvp && invert44(tmvp.inverse, concat(tmvp.matrix, pm, vm, mm));
 }
 
 /** Rotate the model to its starting angle. */
@@ -795,7 +816,7 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
   (e) => {
     const { clientX: x, clientY: y, type, pointerType, isPrimary = true } = e;
     const { left, top, width: w, height: h } = canvas.getBoundingClientRect();
-    const { source: i, sink: o, flip } = state.props;
+    const { source: i, sink: o, flip, timer: t } = state.props;
     const touch = ((type === 'touchmove') || (pointerType === 'touch'));
     /** Move source or sink, switch by primary/other pointer/s `xor` flip. */
     const pick = ((isPrimary !== flip)? i : o);
@@ -816,7 +837,7 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
     // For touch devices, don't pause spawn if touch moves while held down.
     touch && (hold = true);
     // Reset the idle time for any movement.
-    state.props.timer.idle = 0;
+    t.idle = 0;
   });
 
 /** Switch primary pointer control between source and sink. */

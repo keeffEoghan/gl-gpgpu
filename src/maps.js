@@ -382,20 +382,20 @@ export function mapSamples(maps = {}, to = maps) {
   const reads = to.reads = [];
   const cache = {};
 
-  const all = (step = 0) =>
+  const allStepSamples = (step) =>
     cache[step] ??= map((t, v) => [step, v], valueToTexture);
 
   const getAddSample = (pass, value) => function add(set, derive, d) {
     let step = 0;
-    let texture;
+    let texture = derive;
 
-    if(derive === true) { return reduce(add, all(step), set); }
-    else if(isInteger(derive)) { texture = valueToTexture[derive]; }
-    else if(derive[1] === true) { return reduce(add, all(derive[0]), set); }
-    else {
-      step = derive[0];
-      texture = valueToTexture[derive[1]];
-    }
+    // Use any given step and/or texture to derive from.
+    (derive !== true) && !isInteger(derive) && ([step, texture] = derive);
+
+    // Derive from all samples at the given or most recent step if given `true`.
+    if(texture === true) { return reduce(add, allStepSamples(step), set); }
+    // Derive from the given sample.
+    else { texture = valueToTexture[texture]; }
 
     if(!(isInteger(step) && isInteger(texture))) {
       return console.error('`mapSamples`: invalid map for sample',

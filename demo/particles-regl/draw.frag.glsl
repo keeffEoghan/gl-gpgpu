@@ -21,7 +21,7 @@ uniform vec3 depths;
 uniform vec3 fog;
 /** The clear and fog color. */
 uniform vec4 clear;
-/** Material roughness, albedo, and skin thinness. */
+/** Material roughness, albedo, and skin thickness. */
 uniform vec3 material;
 uniform vec3 lightAmbient;
 
@@ -90,24 +90,21 @@ void main() {
   float r2 = r*r;
   vec2 cf = gl_FragCoord.xy-sphere.xy;
   float cfl2 = dot(cf, cf);
-  float thick = gt(wide, 1.0);
+  float isWide = gt(wide, 1.0);
 
-  // Don't round if maximum width isn't thick enough.
-  if(thick*cfl2 > r2) { discard; }
+  // Don't round if maximum width isn't enough.
+  if(isWide*cfl2 > r2) { discard; }
 
   /** Vector pointing from the `sphere`'s center towards the eye. */
   vec3 axis = vec3(cf, sqrt(r2-cfl2));
   vec3 normal = axis/r;
 
-  /** The `sphere`'s fragment depth; scaled (arbitrarily) into depth space. */
-  float depth = map(gl_FragCoord.z-(depths.b*abs(axis.z/wide)),
-    depths.s, depths.t, 0.0, 1.0);
-
   #ifdef GL_EXT_frag_depth
-    gl_FragDepthEXT = depth;
+    /** The `sphere`'s fragment depth; scaled (arbitrarily) into depth space. */
+    gl_FragDepthEXT = map(gl_FragCoord.z-(depths.b*abs(axis.z/wide)),
+      depths.s, depths.t, 0.0, 1.0);
   #endif
 
-  vec4 shade = color;
   vec3 lit = lightAmbient;
   vec3 pe = -positionView.xyz;
   float peL = length(pe);
@@ -132,9 +129,10 @@ void main() {
     }
   #endif
 
-  shade.rgb = (shade.rgb*lit)+emissive;
-  shade = mix(shade, clear, clamp(pow(peL-fog.x, fog.y), 0.0, fog.z));
-  shade.a *= mix(1.0, 1.0-abs(normal.z*material.z), thick);
+  // More transparent looking directly onto thin material, if wide enough.
+  float thick = 1.0-abs(normal.z*(1.0-material.z)*isWide);
+  float foggy = clamp(pow(peL-fog.x, fog.y), 0.0, fog.z);
+  vec4 shade = mix(vec4((color.rgb*lit)+emissive, color.a*thick), clear, foggy);
 
   shade.rgb *= shade.a;
   gl_FragColor = shade;
