@@ -143,7 +143,7 @@ void main() {
   gl_Position = to;
 
   float fade = clamp(pow(life/lifetime.t, 0.3), 0.0, 1.0)*
-    clamp(pow(1.0-ago, 0.8), 0.0, 1.0);
+    clamp(pow(1.0-ago, 0.9), 0.0, 1.0);
 
   float size = wide*fade/to.w;
 
@@ -159,7 +159,7 @@ void main() {
 
   float hue = fract(mix(hues.s, hues.t, entry/float(gpgpu_entries)));
 
-  color = vec4(hsl2rgb(hue, mix(0.9, 0.1, ago), 0.7), fade);
+  color = vec4(hsl2rgb(hue, fade, 0.7), fade);
 
   vec3 velocity = mix(motion, (position1-position0)/dt, useVerlet);
 

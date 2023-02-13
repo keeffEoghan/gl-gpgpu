@@ -181,7 +181,9 @@ p {
   &::after { display: none; }
 }
 
-label,
+.link-tweak { border-style: dashed; }
+
+.title,
 .link-icon {
   display: inline-flex;
   justify-content: center;
@@ -192,22 +194,15 @@ label,
   box-shadow: 0 0 0.5em 0 #000;
 }
 
-label {
+.title {
   height: 2.8em;
   font-weight: 900;
   font-family: monospace;
-  cursor: se-resize;
   color: #333;
   background-color: #fff;
-  outline-offset: -3px;
   border: 1px solid currentColor;
   border-radius: 2px 3em 3em 2px;
   z-index: 1;
-
-  &::before {
-    content: '\2198\a0';
-    display: inline-block;
-  }
 }
 
 .link-icon {
@@ -215,6 +210,11 @@ label {
   aspect-ratio: 1 / 1;
   font-family: monospace;
   border-radius: 2em;
+}
+
+[for="flip-guide"] {
+  outline-offset: -3px;
+  cursor: se-resize;
 }
 
 #flip-guide {
@@ -225,14 +225,10 @@ label {
   width: 0;
   height: 0;
 
-  &:focus + header > label { outline: 2px solid #33f; }
+  &:focus + header > [for="flip-guide"] { outline: 2px solid #33f; }
 
   &:not(:checked) {
-    & + header > label {
-      cursor: ne-resize;
-
-      &::before { content: '\2197\a0'; }
-    }
+    & + header > [for="flip-guide"] { cursor: ne-resize; }
 
     & ~ section { display: none; }
   }

@@ -221,7 +221,7 @@ const shakeSink = parseFloat(query.get('shake-sink') || 4e-2, 10) || 0;
 /** How many older state positions to fizz around, and other inputs. */
 const fizz = {
   at: parseFloat(query.get('fizz') || clamp(steps, 5, 2e2), 10) || 0,
-  max: parseFloat(query.get('fizz-max') || fitClamped(steps, 5, 20, 2e-3, 8e-3),
+  max: parseFloat(query.get('fizz-max') || fitClamped(steps, 5, 20, 2e-3, 4e-3),
     10) || 0,
   rate: parseFloat(query.get('fizz-rate') || 5e-4, 10) || 0,
   curve: parseFloat(query.get('fizz-curve') || 1.7, 10) || 0
@@ -234,8 +234,8 @@ const hues = query.getAll('hue');
 map((h, i) => parseFloat(h || ((i)? hues[i-1]+(60/360) : 0), 10) || 0,
   range(hues, null, hues.length, hues.length = 2), 0);
 
-/** Whether there are lights. */
-const lit = query.get('lit') !== 'false';
+/** Use lights, dark, or unlit. */
+const lit = query.get('lit');
 /** How much particle speed lights them up. */
 const paceLit = parseFloat(query.get('pace-lit') || 1, 10) || 0;
 
@@ -255,6 +255,8 @@ const timeQuery = query.get('timestep');
 const timestepDef = 1e3/60;
 /** Whether to use a fixed timestep or render variably as soon as possible. */
 const timestep = parseFloat(timeQuery ?? timestepDef, 10) || null;
+
+const guide = query.get('guide') !== 'false';
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
   'merge:', merge, 'scale:', scale, 'steps:', steps, 'prefill:', prefill,
@@ -287,7 +289,8 @@ setupLink(document.querySelector('#millions'));
 setupLink(document.querySelector('#form'),
   [['form', ((form)? ((form+1)%3 || null) : 1)]]);
 
-setupLink(document.querySelector('#lit'), [['lit', ((lit)? false : null)]]);
+setupLink(document.querySelector('#lit'),
+  [['lit', ((lit === 'dark')? false : ((lit === 'false')? null : 'dark'))]]);
 
 setupLink(document.querySelector('#spin'),
   [['spin-pace', ((spinPace)? 0 : null)]]);
@@ -298,9 +301,11 @@ setupLink(document.querySelector('#timestep'),
 setupLink(document.querySelector('#merge'),
   [['merge', ((merge)? false : null)]]);
 
+setupLink(document.querySelector('#guide'),
+  [['guide', ((guide)? false : null)]]);
+
 // Toggle the guide according to query.
-document.querySelector('#flip-guide')
-  .checked = query.get('flip-guide') !== 'false';
+document.querySelector('#flip-guide').checked = guide;
 
 /**
  * How state values map to any past state values they derive from.
@@ -349,20 +354,20 @@ console.log(derives, '`derives`');
  * @see [onSphere](./on-sphere.glsl)
  * @see [Spherical distribution](https://observablehq.com/@rreusser/equally-distributing-points-on-a-sphere)
  */
-function shake(position, shaken, by, idle) {
+function shake(at, shaken, by, idle) {
   const l = (min(idle/5e3, 1)**5)*by;
 
-  if(!l) { return position; }
+  if(!l) { return at; }
 
   const a = random()*tau;
   const d = mix(-1, 1, random());
   const n = (1-(d*d))*l;
-  const { 0: px, 1: py, 2: pz, 3: pw, length: pl } = position;
+  const { 0: ax, 1: ay, 2: az, 3: aw, length: al } = at;
 
-  setC2(shaken, px+(cos(a)*n), py+(sin(a)*n));
-  (pl > 2) && (shaken[2] = pz+(d*l));
-  (pl > 3) && (shaken[3] = pw);
-  shaken.length = pl;
+  setC2(shaken, ax+(cos(a)*n), ay+(sin(a)*n));
+  (al > 2) && (shaken[2] = az+(d*l));
+  (al > 3) && (shaken[3] = aw);
+  shaken.length = al;
 
   return shaken;
 }
@@ -381,7 +386,7 @@ const props = {
     // Speed up or slow down the passage of time.
     rate: 1,
     // Loop time over this period to avoid instability using unbounded `time`.
-    loop: 3e3
+    loop: 1e6
   }),
   // A particle's lifetime range, and whether it's allowed to spawn.
   lifetime: [6e2, 6e3, +true],
@@ -575,35 +580,35 @@ const drawState = {
     size: [1, 1],
     // View aspect ratio scale, per x- and y-axes.
     aspect: [1, 1],
-    // Scale depths over near and far range, and precision (arbitrarily).
-    depths: [1e-2, 1, 5e-2/depthBits],
     light: {
-      ambient: ((lit)? [0.3, 0.3, 0.3] : [0.1, 0.1, 0.1]),
+      ambient: range(3, ((lit === 'dark')? 0.1 : ((lit === 'false')? 1 : 0.3))),
       // Point-lights: position (`at` transforms `to`); color, attenuate factor.
-      points: ((!lit)? null : [
+      points: ((lit && (lit.search(/^(dark|false)$/g) === 0))? null : [
         // A white spherical-light with radius `0.3` - see https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
         { at: [0, 1, 0], color: [20, 20, 20], factor: [1, 2/0.3, 0.3**-2] },
         // A cyan-ish point-light, higher linear attenuation.
         {
           at: [cos(0), -1, sin(0)],
-          color: [3, 9, 9], factor: [1, 9, 3]
+          color: [1, 9, 9], factor: [1, 9, 3]
         },
         // A magenta-ish point-light, higher quadratic attenuation.
         {
           at: [cos(tau*0.33), -1, sin(tau*0.33)],
-          color: [9, 3, 9], factor: [1, 3, 9]
+          color: [9, 1, 9], factor: [1, 3, 9]
         },
         // A yellow-ish point-light, even attenuation.
         {
           at: [cos(tau*0.66), -1, sin(tau*0.66)],
-          color: [9, 9, 3], factor: [1, 5, 5]
+          color: [9, 9, 1], factor: [1, 5, 5]
         }
       ])
     },
     // Material roughness, albedo, and skin thickness.
     material: [rough, albedo, skin],
-    // Fog start offset, exponential power, maximum effect.
-    fog: [0, 3, 0.9],
+    // Scale depths over near and far range, and precision (arbitrarily).
+    depths: [1e-2, 1, 5e-2/depthBits],
+    // Fog start offset, scale, exponent, maximum effect.
+    fog: [-1, 0.4, 1, 0.9],
     // The clear and fog color.
     clear: [0, 0, 0, 0],
     // How many vertexes per form.
@@ -655,8 +660,8 @@ const drawUniforms = toUniforms(drawState, {
   projection: regl.prop('drawProps.projection.matrix'),
   eye: regl.prop('drawProps.view.eye'),
   aspect: regl.prop('drawProps.aspect'),
-  depths: regl.prop('drawProps.depths'),
   material: regl.prop('drawProps.material'),
+  depths: regl.prop('drawProps.depths'),
   fog: regl.prop('drawProps.fog'),
   clear: regl.prop('drawProps.clear'),
   // How many vertexes per form.
@@ -675,7 +680,9 @@ const drawUniforms = toUniforms(drawState, {
 });
 
 /** Convert point-lights from object-oriented to flat data-oriented. */
-lit && reduce((o, _, l) => {
+const lightPoints = drawState.drawProps.light.points;
+
+lightPoints && reduce((o, _, l) => {
     const n = 'lightPoint';
     const i = `[${l}]`;
 
@@ -692,7 +699,7 @@ lit && reduce((o, _, l) => {
 
     return o;
   },
-  drawState.drawProps.light.points, drawUniforms);
+  lightPoints, drawUniforms);
 
 /** The `GL` render command pipeline state. */
 const drawPipeline = {
@@ -743,7 +750,7 @@ function updateProjection() {
   const { matrix: pm, inverse: pi } = p;
 
   /** Aspect ratio is handled separately, so set to 1 in the projection. */
-  invert44(pi, perspective(pm, 50, 1, d0, d1));
+  invert44(pi, perspective(pm, 40, 1, d0, d1));
 }
 
 /** Update each needed cached combined transformation matrix and inverse. */
@@ -815,7 +822,7 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
     : (('ontouchmove' in self)? 'touchmove' : 'mousemove')),
   (e) => {
     const { clientX: x, clientY: y, type, pointerType, isPrimary = true } = e;
-    const { left, top, width: w, height: h } = canvas.getBoundingClientRect();
+    const { top, right, bottom, left } = canvas.getBoundingClientRect();
     const { source: i, sink: o, flip, timer: t } = state.props;
     const touch = ((type === 'touchmove') || (pointerType === 'touch'));
     /** Move source or sink, switch by primary/other pointer/s `xor` flip. */
@@ -825,8 +832,10 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
     const { aspect: ar, transform, model, view } = drawState.drawProps;
     const { eye, ray: [ro, rv] } = view;
 
+    /** Include any additional data. */
+    map((v) => v, at, to);
     /** Screen-space pointer as a `ray` target. */
-    setC3(rv, fit(x, left, w, -1, 1), fit(y, top, h, 1, -1), 1);
+    setC3(rv, fit(x, left, right, -1, 1), fit(y, top, bottom, 1, -1), 1);
     /** Aspect ratio scale and un-project the `ray` target. */
     mulV344(rv, transform.modelViewProjection.inverse, div2(rv, rv, ar));
     /** Un-transform `eye` as `ray` origin, subtract `ray` target as vector. */
@@ -845,6 +854,10 @@ canvas.addEventListener('dblclick', (e) => {
   state.props.flip = !state.props.flip;
   stopEvent(e);
 });
+
+/** Toggle fullscreen. */
+document.querySelector('#fullscreen').addEventListener('click',
+  () => canvas.requestFullscreen());
 
 /** Resize the canvas and any dependent properties. */
 function resize() {
