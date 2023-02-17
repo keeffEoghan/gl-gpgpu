@@ -130,7 +130,7 @@ void main() {
     }
   #endif
 
-  // More transparent looking directly onto thin material, if wide enough.
+  // More transparent looking directly at thin material, if wide enough.
   float thick = 1.0-abs(normal.z*(1.0-material.z)*isWide);
   float foggy = min(pow(max(peL-sphereDepth-fog.x, 0.0)*fog.y, fog.z), fog.w);
   vec3 shade = mix((color.rgb*lit)+emissive, clear.rgb, foggy);

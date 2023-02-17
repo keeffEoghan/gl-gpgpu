@@ -26,6 +26,7 @@ import each from '@epok.tech/fn-lists/each';
 import { valuesDef, channelsMaxDef, buffersMaxDef } from './const';
 
 const { isInteger } = Number;
+const { isArray } = Array;
 
 /**
  * Determines whether a given value is valid and can be stored within the
@@ -247,9 +248,10 @@ export function mapGroups(maps = {}, to = maps) {
   const textureToPass = to.textureToPass = [];
   /** Counts the number of channels written in a single draw pass. */
   let channels = 0;
-  // Get the value, via `packed` if valid, or directly as given in `values`.
-  const getValue = ((packed)? ((_, i) => values[i]) : ((v) => v));
+  /** Get the index, via any `packed`, from `values`. */
   const getIndex = ((packed)? ((i) => packed[i]) : ((i) => i));
+  /** Get the value, via any `packed`, from `values`. */
+  const getValue = ((packed)? ((_, i) => values[i]) : ((v) => v));
 
   return reduce((to, v, i) => {
       const index = getIndex(i);
@@ -302,7 +304,7 @@ export function mapGroups(maps = {}, to = maps) {
  *       // Multiple...
  *       [
  *         // Defined step...
- *         [1, 0],
+ *         { value: 1, step: 0 },
  *         // All values at any given level/step...
  *         true
  *       ]
@@ -331,28 +333,10 @@ export function mapGroups(maps = {}, to = maps) {
  *
  * @param {object} maps How values are grouped per-`texture` per-pass per-step.
  *   See `mapGroups`.
- * @param {true|array} [maps.derives] How any new values derive from past
- *   values. If given `false`y, this returns with no changes.
- * @param {true|number|array} [maps.derives.[]] L1
- * @param {true|number|array} [maps.derives.[].[]] L2
- * @param {true|number} [maps.derives.[].[].[]] L3
  *
- * @param {true|array.<true,number,array.<true,number,array.<true,number>>>} [maps.derives]
- *   How values derive from past values.
- *
- *   If given as a sparse array, each entry relates the corresponding value to
- *   any past value steps/indexes it derives from - a value not derived from
- *   past values may have an empty/null entry; a value derives from past
- *   values where its entry has:
- *   - Numbers; deriving from the most recent state at the given value index.
- *   - Lists of numbers; deriving from the given past state index (1st number
- *     denotes how many steps ago), at the given value index (2nd number).
- *
- *   The nested hierarchy thus has any `pass,[values,[value,[step, value]]]`.
- *   If any level is given as `true`, maps to sample all values, at the given
- *   step (or most recent step, if none given).
- *
- *   If no `derives` given, no samples are mapped, `to` is returned unchanged.
+ * @param {derives} [maps.derives] How the next output state `values` derive
+ *   from any past input `values`. If given no `derives`, or a
+ *   `false`y-non-integer, no samples are mapped, `to` is returned unchanged.
  *
  * @param {array.<array.<number>>} maps.passes Textures grouped into passes. See
  *   `mapGroups`.
@@ -371,35 +355,39 @@ export function mapGroups(maps = {}, to = maps) {
  *   pass of `maps.passes`.
  * @returns {array.<array.<array.<number>>>} `[to.reads]` Sparse map from
  *   each value of `derives` to its step and texture indexes in `to.samples`.
- * @returns {true|array.<true,number,array.<true,number,array.<true,number>>>}
- *   `[to.derives]` How new values derive from past values, as given.
+ * @returns {derives} `[to.derives]` How new values derive from past values, as
+ *   given.
  */
 export function mapSamples(maps = {}, to = maps) {
   const { derives, passes, textures, valueToTexture } = maps;
 
-  if(!derives) { return to; }
+  if(!derives && (derives !== 0)) { return to; }
 
   const reads = to.reads = [];
   const cache = {};
 
   const allStepSamples = (step) =>
-    cache[step] ??= map((t, v) => [step, v], valueToTexture);
+    cache[step] ??= map((t, value) => ({ step, value }), valueToTexture);
 
-  const getAddSample = (pass, value) => function add(set, derive, d) {
+  const getAddSample = (pass, valueNext) => function add(set, derive, d) {
+    /** The past step to derive from. */
     let step = 0;
-    let texture = derive;
+    /** The past value to derive from. */
+    let dp = derive;
 
-    // Use any given step and/or texture to derive from.
-    (derive !== true) && !isInteger(derive) && ([step, texture] = derive);
+    // Derive from any specified `value` and `step` nested properties.
+    (derives !== true) && !isInteger(derives) &&
+      ({ value: dp = dp, step = step } = derive);
 
     // Derive from all samples at the given or most recent step if given `true`.
-    if(texture === true) { return reduce(add, allStepSamples(step), set); }
+    if(dp === true) { return reduce(add, allStepSamples(step), set); }
+
     // Derive from the given sample.
-    else { texture = valueToTexture[texture]; }
+    const texture = valueToTexture[dp];
 
     if(!(isInteger(step) && isInteger(texture))) {
       return console.error('`mapSamples`: invalid map for sample',
-        derives, maps, pass, value, derive, d, step, texture);
+        derives, maps, pass, valueNext, derive, d, step, texture, dp);
     }
 
     // Create the set if not already created.
@@ -407,21 +395,22 @@ export function mapSamples(maps = {}, to = maps) {
     // Check for any existing matching step/texture read in the set.
     const i = to.findIndex(([s, t]) => (s === step) && (t === texture));
 
-    // Add the read for this value in this pass; creating any needed maps.
-    ((reads[pass] ??= [])[value] ??= [])
+    // Add the read for this next value in this pass; creating any needed maps.
+    ((reads[pass] ??= [])[valueNext] ??= [])
       // A new read as needed, or any existing matching read.
       .push((i < 0)? to.push([step, texture])-1 : i);
 
     return to;
   };
 
-  const getAddSamples = (pass) => (set, value) => {
-    const valueDerives = ((derives === true)? derives : derives[value]);
+  const getAddSamples = (pass) => (set, valueNext) => {
+    /** Derive next output value from any given past input values. */
+    const dn = ((isArray(derives))? derives[valueNext] : derives);
 
-    return ((!valueDerives && (valueDerives !== 0))? set
-      : (((valueDerives === true) || isInteger(valueDerives))?
-        getAddSample(pass, value)(set, valueDerives)
-      : reduce(getAddSample(pass, value), valueDerives, set)));
+    return (((!dn && (dn !== 0))? set
+      : (((dn !== derives) && isArray(dn))?
+        reduce(getAddSample(pass, valueNext), dn, set)
+      : getAddSample(pass, valueNext)(set, dn))));
   }
 
   to.samples = map((pass, p) => reduce((set, texture) =>
@@ -448,5 +437,59 @@ export function mapSamples(maps = {}, to = maps) {
  *   and minimal samples and reads for any given `maps.derives`.
  */
 export const mapStep = (maps, to = maps) => mapSamples(mapGroups(maps, to), to);
+
+/**
+ * @typedef {derive|array.<derive|array.<derive>>>} derives
+ * Denotes how next output `values` derive from any past input `values`.
+ *
+ * A nested hierarchy of the form
+ * `all-next-from-past[any-next-from-past[any-next-from-any-past]]`; each
+ * nesting level denotes how to derive:
+ * 0. `all-next-from-past`: to all next `values`, from one/all past `value`/s.
+ * 1. `any-next-from-past`: to any given next `values` (by sparse `array`
+ *   indexes in `values` order), from one/all past `value`/s.
+ * 2. `any-next-from-any-past`: to any given next `values` (by its `array` index
+ *   in parent level 1), from any past `value`/s in this level 2 `array`.
+ *
+ * The `array`s are sparse, with empty or `false`y-non-integer entries ignored.
+ *
+ * See `derive` for how to denote past input `values`.
+ *
+ * **See**
+ *
+ * - {@link derive}
+ */
+
+/**
+ * @typedef {true|number|{value:true|number,step?:number}} derive
+ * Denotes any past input `values` (and optional past `step`), that next output
+ * `values` derive from.
+ *
+ * A nested hierarchy of the form `any-value-past[any-value-step-past]`,
+ * indexing `values`, each nesting level denotes how to derive from:
+ * 0. `any-value-past`: any/all past input `value`/s, at 1st `step` past.
+ * 1. `any-value-step-past`: any/all past input `value`/s, at any given `step`
+ *   past.
+ *
+ * The `value`/s to derive from may be given as:
+ * - `true`: derives from all `values`.
+ * - `number`: derives from the given `values` index.
+ *
+ * If given a `true` or `number` (denoting `value`/s but no `step`), the next
+ * output `value` derives from the given `values` at the 1st `step` past.
+ *
+ * To specify a different `step`, pass an `object` denoting both the `value` (as
+ * above) along with a `step`; in the form `{value:true|number,step?:number}`,
+ * to derive from the `value` at any given `step` past (or the 1st `step` past
+ * if not given).
+ *
+ * Any omitted `values` are ignored.
+ *
+ * See `derives` for more on how these are derived by the next output `values`.
+ *
+ * **See**
+ *
+ * - {@link derives}
+ */
 
 export default mapStep;

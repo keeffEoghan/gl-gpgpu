@@ -153,9 +153,6 @@ export const depthDef = false;
  */
 export const stencilDef = false;
 
-/** Whether states merge into one `texture`; one merged `texture` by default. */
-export const mergeDef = true;
-
 /**
  * A `RegExp` to find the `GLSL` version `number` in a `GL` parameter
  * `SHADING_LANGUAGE_VERSION` formatted `string`.

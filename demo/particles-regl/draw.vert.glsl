@@ -126,43 +126,36 @@ void main() {
   float ago = stepPast/max(float(gpgpu_stepsPast-1), 1.0);
 
   /** Fizz randomly on a sphere around older positions. */
-  float fizzBy = pow(clamp(stepPast/fizz, 0.0, 1.0), fizzCurve)*fizzMax;
-  float fizzAt = loop*fizzRate*mix(-1.0, 1.0, mod(entry, 2.0))/(1.0+fizzBy);
-  float fizzAngle = (random(position1.xy+entry)+fizzAt)*tau;
-  // float fizzDepth = sin(random(vec2(position1.z, life)-entry)+fizzAt);
-  float fizzDepth = abs((fract(random(vec2(position1.z, life)-entry)+fizzAt)*2.0)-1.0);
-  vec3 fizzed = fizzBy*onSphere(fizzAngle, fizzDepth);
+  float fl = pow(clamp(stepPast/fizz, 0.0, 1.0), fizzCurve)*fizzMax;
+  float ft = loop*fizzRate*mix(-1.0, 1.0, mod(entry, 2.0))/(1.0+fl);
+  float fa = (random(position1.xy+entry)+ft)*tau;
+  float fd = (abs(fract(random(vec2(position1.z, life)-entry)+ft)-0.5)*4.0)-1.0;
 
-  positionView = modelView*vec4(position1+fizzed, 1);
+  positionView = modelView*vec4(position1+(fl*onSphere(fa, fd)), 1);
   // positionView = vec4(mix(vec2(-0.5), vec2(0.5), st), 0.2, 1);
 
   vec4 to = mix(hide, projection*positionView, alive);
 
   to.xy *= aspect;
-
   gl_Position = to;
 
   float fade = clamp(pow(life/lifetime.t, 0.3), 0.0, 1.0)*
     clamp(pow(1.0-ago, 0.9), 0.0, 1.0);
 
-  float size = wide*fade/to.w;
-
-  gl_PointSize = size;
+  float size = gl_PointSize = (wide*fade)/to.w;
 
   /**
    * Convert vertex position to `gl_FragCoord` window-space.
    * @see [SO](https://stackoverflow.com/a/7158573)
    * @see [SO](https://stackoverflow.com/a/54237532/716898)
-   * @todo Might need the viewport `x` and `y` offset as well as `w` and `h`?
    */
   sphere = vec3(gpgpu_viewShape*(((to.xy/to.w)*0.5)+0.5), size*0.5);
 
   float hue = fract(mix(hues.s, hues.t, entry/float(gpgpu_entries)));
-
-  color = vec4(hsl2rgb(hue, fade, 0.7), fade);
-
   vec3 velocity = mix(motion, (position1-position0)/dt, useVerlet);
 
+  color = vec4(hsl2rgb(hue, mix(1.0, 0.1, ago), 0.7), fade);
+
   emissive = hsl2rgb(hue, 1.0,
-    clamp(pow(dot(velocity, velocity)*paceColor.s, paceColor.t), 0.0, 0.7));
+    clamp(pow(dot(velocity, velocity)*paceColor.s, paceColor.t), 0.0, 0.8));
 }

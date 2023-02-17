@@ -18,9 +18,9 @@ precision highp float;
 
 // Setting up the macros and aliases `gl-gpgpu` provides.
 
-// Note that these `texture_i`/`channels_i`/`reads_i_j` indexes correspond to a
-// value at that index in the `values`/`derives` arrays provided to `gl-gpgpu`;
-// they are defined here to match that arrangement.
+// Note these `texture_${value}`/`channels_${value}`/`reads_${value}_${derive}`
+// indexes correspond to the `values` indexes via `gl-gpgpu`'s `array`s
+// `values`/`derives`; they're redefined here to match the structure with names.
 
 // The texture channels each of the `values` is stored in.
 #define positionChannels gpgpu_channels_0
@@ -32,7 +32,7 @@ gpgpu_useSamples
 
 // Set up minimal texture reads logic; only read what a value with a currently
 // bound output `derives` from other `values` for its next state.
-// See `derives` for indexing `reads_${bound value index}_${derives index}`.
+// See `derives` for indexing `reads_${value}_${derive}`.
 #ifdef gpgpu_output_0
   #define positionOutput gpgpu_output_0
   gpgpu_useReads_0
@@ -57,7 +57,7 @@ gpgpu_useSamples
 
 // The main shader.
 
-// States from `gl-gpgpu`; in separate textures or merged.
+/** States from `gl-gpgpu`; in merged textures or separate. */
 #ifdef gpgpu_mergedStates
   uniform sampler2D gpgpu_states;
 #else
@@ -123,7 +123,7 @@ float canSpawn(float life) {
 }
 
 void main() {
-  // Sample the desired state values - creates the `gpgpu_data` `array`.
+  /** Sample the desired state values - creates the `gpgpu_data` `array`. */
   gpgpu_tapState(uv)
 
   // Read values.

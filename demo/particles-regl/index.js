@@ -56,18 +56,17 @@ self.indexForms = indexForms;
 const canvas = document.querySelector('canvas');
 
 // Scroll to the top.
-const scroll = () => setTimeout(() => canvas.scrollIntoView(true), 0);
-
-scroll();
+const scroll = () => canvas.scrollIntoView(true);
+const scrollDefer = () => setTimeout(scroll, 0);
 
 function toggleError(e) {
   canvas.classList[(e)? 'add' : 'remove']('hide');
   document.querySelector('.error').classList[(e)? 'remove' : 'add']('hide');
   document.querySelector('aside').classList[(e)? 'add' : 'remove']('show');
-  scroll();
 }
 
 toggleError();
+scrollDefer();
 
 // Handle query parameters.
 
@@ -201,7 +200,7 @@ const prefill = query.get('prefill') !== 'false';
  */
 const form = floor(parseFloat(query.get('form'), 10) || 0);
 
-/** How wide the form is; to be scaled by `viewScale`. */
+/** How wide the `form` is; to be scaled by `viewScale`. */
 const wide = parseFloat(query.get('wide') || 1e-3*pixelRatio, 10) || 0;
 
 /** The amount to spin the scene initially. */
@@ -255,7 +254,9 @@ const timeQuery = query.get('timestep');
 const timestepDef = 1e3/60;
 /** Whether to use a fixed timestep or render variably as soon as possible. */
 const timestep = parseFloat(timeQuery ?? timestepDef, 10) || null;
-
+/** Whether to primarily control the source or sink */
+const flipPointer = query.get('flip-pointer') === 'true';
+/** Whether the guide is open by default. */
 const guide = query.get('guide') !== 'false';
 
 console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
@@ -263,8 +264,9 @@ console.log(location.search+':\n', ...([...query.entries()].flat()), '\n',
   'timestep:', timestep, 'depth:', fragDepth, 'form:', form, 'wide:', wide,
   'spin0:', spin0, 'spinPace:', spinPace, 'spoutPace:', spoutPace,
   'gapZ:', gapZ, 'shakeSource:', shakeSource, 'shakeSink:', shakeSink,
-  'fizz:', fizz, 'hues:', hues, 'lit:', lit, 'paceLit:', paceLit,
-  'rough:', rough, 'albedo:', albedo, 'skin:', skin);
+  'flipPointer:', flipPointer, 'fizz:', fizz, 'hues:', hues, 'lit:', lit,
+  'paceLit:', paceLit, 'rough:', rough, 'albedo:', albedo, 'skin:', skin,
+  'guide:', guide);
 
 // Set up the links.
 
@@ -308,47 +310,6 @@ setupLink(document.querySelector('#guide'),
 document.querySelector('#flip-guide').checked = guide;
 
 /**
- * How state values map to any past state values they derive from.
- * Denoted as an array, nested 1-3 levels deep:
- * 1. In `values` order, indexes `values` to derive from, 1 step past.
- * 2. Indexes `values` to derive from, 1 step past.
- * 3. Shows how many steps past, then indexes `values` to derive from.
- */
-const derives = [];
-
-// Position value derives from:
-derives[valuesIndex.position] = [
-  // Position, 2 steps past.
-  [wrap(1, stepsPast), valuesIndex.position],
-  // Position, 1 step past.
-  valuesIndex.position,
-  // Motion, 1 step past.
-  valuesIndex.motion,
-  // Life, 1 step past.
-  valuesIndex.life
-];
-
-// Motion value derives from:
-derives[valuesIndex.motion] = [
-  // Motion, 1 step past.
-  valuesIndex.motion,
-  // Life, 1 step past.
-  valuesIndex.life,
-  // Position, 1 step past.
-  valuesIndex.position
-];
-
-// Life value derives from:
-derives[valuesIndex.life] = [
-  // Life, last step past.
-  [wrap(-1, stepsPast), valuesIndex.life],
-  // Life, 1 step past.
-  valuesIndex.life
-];
-
-console.log(derives, '`derives`');
-
-/**
  * Shake source or sink around while idling.
  *
  * @see [onSphere](./on-sphere.glsl)
@@ -372,101 +333,76 @@ function shake(at, shaken, by, idle) {
   return shaken;
 }
 
-/** Custom properties to be passed to shaders mixed in with `gl-gpgpu` ones. */
-const props = {
-  // Set up the timer.
-  timer: timer({
-    // Fixed-step (add-step), or real-time (variable delta-time).
-    step: timestep || '-',
-    now: ((timestep)? undefined : () => regl.now()*1e3),
-    // Track past 2 time-differences for Verlet integration.
-    dts: range(2, 0),
-    // Amount of time without applicable user-interaction.
-    idle: 0,
-    // Speed up or slow down the passage of time.
-    rate: 1,
-    // Loop time over this period to avoid instability using unbounded `time`.
-    loop: 1e6
-  }),
-  // A particle's lifetime range, and whether it's allowed to spawn.
-  lifetime: [6e2, 6e3, +true],
-  // Whether to use Verlet (midpoint) or Euler (forward) integration.
-  useVerlet: +canVerlet,
-  // A small number greater than 0; avoids speeds exploding.
-  epsilon: 1e-5,
-  // How faar a particle can move in any frame.
-  moveCap: 7e-3,
-  // Whether to primarily control the sink or source.
-  flip: false,
-  // The position around which particles spawn.
-  source: {
-    // The initial source, may be transformed into a new property `to`.
-    at: [0, 0, gapZ],
-    // If shaken around while idling, transform `to` or `at` into `shaken`.
-    shake: shakeSource, shaken: []
-  },
-  // Sink position, and universal gravitational constant.
-  sink: {
-    // The initial sink, may be transformed into a new property `to`.
-    at: [
-      // Sink position.
-      0, 0, 0,
-      // Universal gravitational constant (scaled).
-      6.674e-11*2e10
-    ],
-    // If shaken around while idling, transform `to` or `at` into `shaken`.
-    shake: shakeSink, shaken: []
-  },
-  // Constant acceleration of gravity; and whether to use it or the `sink`.
-  g: [
-    // Constant acceleration of gravity.
-    0, -9.80665, 0,
-    // Whether to use it or the `sink`.
-    +false
-  ],
-  // Speed scale. Exponent encoding `[b, p] => b*(10**p)` for numeric accuracy.
-  pace: [1, -8],
+// Set up state flow - read and write the `gl-gpgpu` state each step.
 
-  // One option in these arrays is used, by Euler/Verlet respectively.
+/** Map how any next output `values` derive from any past input `values`. */
+const derives = [];
 
-  // The distance from the `source`, and speed, that particles spawn with.
-  spout: [[0, 3e3*spoutPace], [0, 2e2*spoutPace]],
-};
+// Next `position` state `values` derive from past state `values`:
+derives[valuesIndex.position] = [
+  // `position`, 2nd `step` past.
+  { value: valuesIndex.position, step: wrap(1, stepsPast) },
+  // `position`, 1st `step` past.
+  valuesIndex.position,
+  // `motion`, 1st `step` past.
+  valuesIndex.motion,
+  // `life`, 1st `step` past.
+  valuesIndex.life
+];
+
+// Next `motion` state `values` derive from past state `values`:
+derives[valuesIndex.motion] = [
+  // `motion`, 1st `step` past.
+  valuesIndex.motion,
+  // `life`, 1st `step` past.
+  valuesIndex.life,
+  // `position`, 1st `step` past.
+  valuesIndex.position
+];
+
+// Next `life` state `values` derive from past state `values`:
+derives[valuesIndex.life] = [
+  // `life`, farthest `step` past.
+  { value: valuesIndex.life, step: wrap(-1, stepsPast) },
+  // `life`, 1st `step` past.
+  valuesIndex.life
+];
+
+console.log(derives, '`derives`');
 
 /** The main `gl-gpgpu` state. */
 const state = gpgpu(regl, {
-  // Logic given as state values, `gl-gpgpu` maps optimal inputs and outputs.
+  // Logic given as state `values`, `gl-gpgpu` maps optimal inputs and outputs.
   maps: {
-    // How many state values (channels) are tracked independently of others.
+    // How many state `values` (channels) are tracked independently of others.
     values,
-    // How state values map to any past state values they derive from.
+    // Map how next output `values` derive from any past input `values`.
     derives
   },
   // How many steps of state to track.
   steps,
   // How many states are bound to frame-buffer outputs at any step.
   bound,
-  // How many entries to track, here encoded as the power-of-2 size per side
-  // of the data texture: `(2**scale)**2`; can also be given in other ways.
+  // How many `entries` to track, here encoded as the power-of-2 size, per side
+  // of each data-`texture`: `(2**scale)**2`; can also be given in other ways.
   scale,
-  // Whether to merge states into one texture; separate textures if not given.
+  // Whether to merge all states into one data-`texture`, or leave all
+  // data-`texture`s separate.
   merge,
   // Data type according to platform capabilities.
   // @todo Seems to move differently with `'half float'` Verlet integration.
   type: ((extensionsFloat.every(regl.hasExtension))? 'float' : 'half float'),
-  // Configure macro hooks, global or per-shader.
+  // Configure macro hooks, globally or per-shader.
   macros: {
-    // No macros needed for the `vert` shader; all other macros generated.
-    macroVert: false
+    // No `macros` needed for the `vert` shader; all other `macros` generated.
+    vert: false
   },
   // A fragment shader to compute each state step, with `gl-gpgpu` macros.
   // Vertex shaders can also be given.
   frag: ((prefill)? '#define prefill\n\n' : '')+stepFrag,
-  // Macros are prepended to `frag` shader per-pass, cached in `frags`.
+  // Cache in `frags` all `macros` prepended to `frag` shader per-pass.
   frags: [],
-  // Custom properties to be passed to shaders mixed in with `gl-gpgpu` ones.
-  props,
-  // Custom uniforms in addition to those `gl-gpgpu` provides.
+  // Custom `uniforms` to be passed to shaders, with those `gl-gpgpu` mixes in.
   uniforms: {
     dt: (_, { props: { timer: { dt, rate: r } } }) => dt*r,
     dt0: (_, { props: { timer: { dts, rate: r } } }) => dts[0]*r,
@@ -492,28 +428,92 @@ const state = gpgpu(regl, {
 
     // One option in these arrays is used, by Euler/Verlet respectively.
     spout: (_, { props: { spout: ss, useVerlet: u } }) => ss[+u],
+  },
+  // Custom properties, namespaced to avoid clashing with `gl-gpgpu` ones.
+  props: {
+    // Time control and state.
+    timer: timer({
+      // Fixed-step (add-step), or real-time (variable delta-time).
+      step: timestep || '-',
+      now: ((timestep)? undefined : () => regl.now()*1e3),
+      // Track past 2 time-differences for Verlet integration.
+      dts: range(2, 0),
+      // Amount of time without applicable user-interaction.
+      idle: 0,
+      // Speed up or slow down the passage of time.
+      rate: 1,
+      // Loop time over this period to avoid instability using unbounded `time`.
+      loop: 1e6
+    }),
+    // A particle's lifetime range, and whether it's allowed to spawn.
+    lifetime: [6e2, 6e3, +true],
+    // Whether to use Verlet (midpoint) or Euler (forward) integration.
+    useVerlet: +canVerlet,
+    // A small number greater than 0; avoids speeds exploding.
+    epsilon: 1e-5,
+    // How far a particle can move in any frame.
+    moveCap: 7e-3,
+    // Whether to primarily control the source or sink.
+    flipPointer,
+    // The position around which particles spawn.
+    source: {
+      // The initial source, may be transformed into a new property `to`.
+      at: [0, 0, gapZ],
+      // If shaken around while idling, transform `to` or `at` into `shaken`.
+      shake: shakeSource, shaken: []
+    },
+    // Sink position, and universal gravitational constant.
+    sink: {
+      // The initial sink, may be transformed into a new property `to`.
+      at: [
+        // Sink position.
+        0, 0, 0,
+        // Universal gravitational constant (scaled).
+        6.674e-11*2e10
+      ],
+      // If shaken around while idling, transform `to` or `at` into `shaken`.
+      shake: shakeSink, shaken: []
+    },
+    // Constant acceleration of gravity; and whether to use it or the `sink`.
+    g: [
+      // Constant acceleration of gravity.
+      0, -9.80665, 0,
+      // Whether to use it or the `sink`.
+      +false
+    ],
+    // Speed scale. Exponent encoding `[b, p] => b*(10**p)` for numeric accuracy.
+    pace: [1, -8],
+
+    // One option in these arrays is used, by Euler/Verlet respectively.
+
+    // The distance from the `source`, and speed, that particles spawn with.
+    spout: [[0, 3e3*spoutPace], [0, 2e2*spoutPace]],
   }
 });
 
 console.log(self.state = state);
 
 console.group('How `values` are `packed` to fit texture channels efficiently');
-console.log(state.maps.values, '`values` (referred to by index)');
-console.log(state.maps.packed, '`packed` (indexes `values`)');
-console.log(...state.maps.textures, '`textures` (indexes `values`)');
-console.log(state.maps.valueToTexture, '`valueToTexture` (indexes `textures`)');
+
+console.log('`values` (numbers of channels used together):',
+  ...state.maps.values);
+
+console.log('`packed` (if any, indexes `values`):',
+  ...state.maps.packed);
+
+console.log('`textures` (indexes `values`, via any `packed` or directly):',
+  ...state.maps.textures);
+
+console.log('`valueToTexture` (indexes `textures` via `value` index):',
+  ...state.maps.valueToTexture);
+
 console.groupEnd();
 
-function stepTime(state) {
-  const { dts } = state;
+console.log('`entries` (total number of states of `values` updated per-step):',
+  state.size.entries);
 
-  dts[0] = dts[1];
-  state.idle += (dts[1] = timer(state).dt);
 
-  return state;
-}
-
-// Set up rendering.
+// Set up rendering - reading but not writing the `gl-gpgpu` state each frame.
 
 /**
  * Draw all states with none bound as outputs.
@@ -527,7 +527,7 @@ const useLines = merge && (drawSteps > 1);
 console.log('drawSteps', drawSteps, 'useLines', useLines);
 
 /**
- * Vertex counts by form; how many steps a form covers, for all entries;
+ * Vertex counts by `form`; how many steps a `form` covers, for all entries;
  * respectively for: none, points, lines.
  * Note `state.size.entries` equals the value returned by `countDrawIndexes`.
  */
@@ -552,6 +552,7 @@ const drawState = {
   bound: drawBound,
   // Drawing, not data - so no `output` macros. Also, don't need `frag` macros.
   macros: { output: 0, frag: 0 },
+  // Custom properties, namespaced to avoid clashing with `gl-gpgpu` ones etc.
   drawProps: {
     // Transformation matrices.
     model: {
@@ -639,16 +640,18 @@ const drawState = {
     texturesMax: maxTextureUnits,
 
     /**
-     * One set of lookups/reads of all values in one pass.
-     * Passing `true` adds all values at that level of nesting:
-     * `pass|[values|[value|[step, value]]]`
-     * Thus, this example means that the _first_ value derives from:
-     * - All values 1 step past (`true`).
-     * - The position value 2 steps past.
-     * Makes `reads_0_i` macros for each `i => [step, value]` of
-     * `[[0, 0], [0, 1], [0, 2], [1, 0]]`
+     * Read all past `values` to derive one value; that is, look up all states
+     * in one draw pass.
+     *
+     * Here the entries of the first value's `derives` (`derives[0]`) `array`
+     * denote that it derives from:
+     * 0. All `values`, 1st step past; denoted by `true`.
+     * 1. The `position` value, 2nd step past.
+     *
+     * Creates macros of `reads_${value}_${derive}`, where `value == 0` and each
+     * `derive` gives a `[step, value]` of `[0, 0]`/`[0, 1]`/`[0, 2]`/`[1, 0]`.
      */
-    derives: [[true, [wrap(1, drawSteps), valuesIndex.position]]]
+    derives: [[true, { value: valuesIndex.position, step: wrap(1, drawSteps) }]]
   })
 };
 
@@ -823,10 +826,10 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
   (e) => {
     const { clientX: x, clientY: y, type, pointerType, isPrimary = true } = e;
     const { top, right, bottom, left } = canvas.getBoundingClientRect();
-    const { source: i, sink: o, flip, timer: t } = state.props;
+    const { source: i, sink: o, flipPointer, timer: t } = state.props;
     const touch = ((type === 'touchmove') || (pointerType === 'touch'));
-    /** Move source or sink, switch by primary/other pointer/s `xor` flip. */
-    const pick = ((isPrimary !== flip)? i : o);
+    /** Move source or sink, switch by primary/other pointer/s in `xor` flip. */
+    const pick = ((isPrimary !== flipPointer)? o : i);
     /** Transform from screen-space to world-space. */
     const { at, to = pick.to = [] } = pick;
     const { aspect: ar, transform, model, view } = drawState.drawProps;
@@ -851,13 +854,19 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
 
 /** Switch primary pointer control between source and sink. */
 canvas.addEventListener('dblclick', (e) => {
-  state.props.flip = !state.props.flip;
+  state.props.flipPointer = !state.props.flipPointer;
   stopEvent(e);
 });
 
 /** Toggle fullscreen. */
-document.querySelector('#fullscreen').addEventListener('click',
+document.querySelector('#fullscreen')?.addEventListener?.('click',
   () => canvas.requestFullscreen());
+
+/** Scroll back up when fallback demo video loads. */
+document.querySelector('#fallback')?.addEventListener?.('load', () => {
+  scroll();
+  scrollDefer();
+});
 
 /** Resize the canvas and any dependent properties. */
 function resize() {
@@ -872,6 +881,15 @@ function resize() {
 
 addEventListener('resize', resize);
 resize();
+
+function stepTime(state) {
+  const { dts } = state;
+
+  dts[0] = dts[1];
+  state.idle += (dts[1] = timer(state).dt);
+
+  return state;
+}
 
 /** Compute the next step of state for a frame. */
 function frameStep() {

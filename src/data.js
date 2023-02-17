@@ -19,10 +19,24 @@ import { getWidth, getHeight, getScaled } from './size';
 
 import {
     widthDef, heightDef, stepsDef, valuesDef, channelsMinDef, typeDef,
-    minDef, magDef, wrapDef, depthDef, stencilDef, mergeDef
+    minDef, magDef, wrapDef, depthDef, stencilDef
   } from './const';
 
 const { isInteger } = Number;
+
+/**
+ * Whether all states merge into one data-`texture` or remain separate by
+ * default, according to the number of `steps` and `textures` to be tracked.
+ *
+ * Uses separate data-`texture`s when the `steps` and `textures` are few enough
+ * to allow it without issue on all platforms; otherwise merges data-`texture`s.
+ *
+ * @param {number} [steps] How many `steps` of state to track.
+ * @param {number} [textures] How many data-`textures` to track per-step.
+ *
+ * @returns {boolean} Whether to merge states to one data-`texture` by default.
+ */
+const mergeDef = (steps, textures) => ((steps > 2) && (textures > 1));
 
 /**
  * Set up the `gpgpu` resources and meta info for a state of a number data.
@@ -234,14 +248,16 @@ const { isInteger } = Number;
  *   track, or the list of states if already set up.
  * @param {object} [state.maps] How `state.maps.values` are grouped
  *   per-`texture` per-pass per-step. See `mapGroups`.
- * @param {array.<number>} [state.maps.values=valuesDef()] How values of each
+ * @param {array.<number>} [state.maps.values=valuesDef()] How `values` of each
  *   data item may be grouped into `texture`s across passes; set up here if not
  *   given. See `mapGroups`.
  * @param {number} [state.maps.channelsMin=channelsMinDef] The minimum allowed
  *   channels for `framebuffer` attachments; allocates unused channels as needed
  *   to reach this limit.
- * @param {number} [state.maps.textures] How values are grouped into `texture`s.
- *   See `mapGroups`.
+ * @param {number} [state.maps.textures] How `values` are grouped into
+ *   data-`texture`s. See `mapGroups`.
+ * @param {number} [state.maps.passes] How data-`textures` are grouped into
+ *   separate `framebuffer` passes. See `mapGroups`.
  *
  * @param {string} [state.type=typeDef] Any `texture` data type value.
  * @param {string} [state.min=minDef] Any `texture` minification filter value.
@@ -252,10 +268,10 @@ const { isInteger } = Number;
  * @param {object} [state.stencil=stencilDef] Any `framebuffer` stencil
  *   attachment, or a flag for whether it should be created.
  *
- * @param {object} [state.merge=mergeDef] Whether to merge states into
- *   one `texture`; `true`y handles merging here, with any given properties used
- *   as-is (the merged `texture` already set up); `false`y uses un-merged
- *   `array`s of `texture`s.
+ * @param {object} [state.merge=mergeDef(state.maps)] Whether to merge states
+ *   into one data-`texture`; `true`y handles merging here, with any given
+ *   properties used as-is (the merged data-`texture` already set up); `false`y
+ *   uses un-merged `array`s of `texture`s.
  *
  *   Merging allows shaders to access past steps by non-constant lookups; e.g:
  *   attributes cause `"sampler array index must be a literal expression"` on
@@ -340,7 +356,7 @@ const { isInteger } = Number;
  */
 export function toData({ texture, framebuffer }, state = {}, to = state) {
   const {
-      maps, scale, steps = stepsDef, merge = mergeDef,
+      maps, scale, steps = stepsDef,
       // Resource format settings.
       type = typeDef, min = minDef, mag = magDef, wrap = wrapDef,
       depth = depthDef, stencil = stencilDef
@@ -349,6 +365,15 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
   const scaled = getScaled(scale);
   const width = Math.floor(getWidth(state) ?? scaled ?? widthDef);
   const height = Math.floor(getHeight(state) ?? scaled ?? heightDef);
+
+  const {
+      values = (maps.values = valuesDef),
+      channelsMin = (maps.channelsMin = channelsMinDef),
+      textures: texturesMap, passes: passesMap
+    } = maps;
+
+  const stepsL = steps.length ?? steps;
+  const { merge = mergeDef(stepsL, texturesMap.length) } = state;
 
   // Ensure any properties changed are included.
   to.steps = steps;
@@ -361,12 +386,6 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
   to.stencil = stencil;
   to.width = width;
   to.height = height;
-
-  const {
-      values = (maps.values = valuesDef),
-      channelsMin = (maps.channelsMin = channelsMinDef),
-      textures: texturesMap
-    } = maps;
 
   /**
    * All `framebuffer` attachments need the same number of channels; enough to
@@ -385,13 +404,12 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
    * also the same number of channels across all passes.
    */
   const mergeChannels = ((!merge)? null
-    : reduce((min, p) => passChannels(p, min), maps.passes, channelsMin));
+    : reduce((min, p) => passChannels(p, min), passesMap, channelsMin));
 
   /** Size of the created resources. */
   const size = to.size = {
     type, depth, stencil, channelsMin: mergeChannels ?? channelsMin,
-    steps: steps.length ?? steps,
-    passes: 0, framebuffers: 0, textures: 0, colors: 0,
+    steps: stepsL, passes: 0, framebuffers: 0, textures: 0, colors: 0,
     width, height, shape: [width, height], entries: width*height
   };
 
@@ -509,7 +527,7 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
    * Set up resources needed to store data per-`texture` per-pass per-step.
    * Use any given steps/passes or create new ones.
    */
-  to.steps = map((passes, step) => passes || map(addPass(step), maps.passes),
+  to.steps = map((passes, step) => passes || map(addPass(step), passesMap),
     ((isInteger(steps))? range(steps) : steps), 0);
 
   // Finish here if merge is disabled.
@@ -517,17 +535,18 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
 
   // Set up the `texture` for states to be merged into.
 
+  const { scale: mScale, all: mAll, next: mNext } = merge;
   /** Use any size info given in `merge`, as with `state` above. */
-  const mScaled = getScaled(merge.scale);
+  const mScaled = getScaled(mScale);
   /** Use any given size info, or merge along `[texture, step]` axes. */
-  const mw = getWidth(merge) ?? mScaled ?? maps.textures.length*width;
-  const mh = getHeight(merge) ?? mScaled ?? size.steps*height;
+  const mw = getWidth(merge) ?? mScaled ?? texturesMap.length*width;
+  const mh = getHeight(merge) ?? mScaled ?? stepsL*height;
 
   to.merge = {
     /** New merge `texture` and info, or use any given merge `texture`. */
-    all: merge.all ?? addTexture(mergeChannels, mw, mh)(),
+    all: mAll ?? addTexture(mergeChannels, mw, mh)(),
     /** Empty `framebuffer`, to copy data from each `texture` of each pass. */
-    next: merge.next ?? addPass(null, false)()
+    next: mNext ?? addPass(null, false)()
   };
 
   size.merge = { width: mw, height: mh, shape: [mw, mh], entries: mw*mh };
