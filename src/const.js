@@ -58,7 +58,7 @@ export const preDef = 'gpgpu_';
 export const channelsMinDef = 4;
 
 /**
- * Default minimum allowable channels for `framebuffer` attachments.
+ * Default maximum allowable channels for `framebuffer` attachments.
  * This avoids `RGB32F` `framebuffer` attachments, which errors on Firefox.
  *
  * @see {@link state.framebuffer}
@@ -67,7 +67,7 @@ export const channelsMinDef = 4;
 export const channelsMaxDef = 4;
 
 /**
- * Default maximum `texture`s bound per pass.
+ * Default maximum `texture`s that may be bound as buffer outputs per-pass.
  *
  * @see {@link state.framebuffer}
  * @see {@link state.texture}

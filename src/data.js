@@ -18,8 +18,8 @@ import reduce from '@epok.tech/fn-lists/reduce';
 import { getWidth, getHeight, getScaled } from './size';
 
 import {
-    widthDef, heightDef, stepsDef, valuesDef, channelsMinDef, typeDef,
-    minDef, magDef, wrapDef, depthDef, stencilDef
+    widthDef, heightDef, stepsDef, valuesDef, channelsMinDef, buffersMaxDef,
+    typeDef, minDef, magDef, wrapDef, depthDef, stencilDef
   } from './const';
 
 const { isInteger } = Number;
@@ -209,6 +209,7 @@ const mergeDef = (steps, textures) => ((steps > 2) && (textures > 1));
  * @see {@link api.framebuffer}
  * @see {@link maps.mapGroups}
  * @see {@link maps.mapSamples}
+ * @see {@link maps.useBuffers}
  * @see {@link step.toStep}
  * @see {@link macros.macroSamples}
  * @see {@link macros.macroTaps}
@@ -254,6 +255,10 @@ const mergeDef = (steps, textures) => ((steps > 2) && (textures > 1));
  * @param {number} [state.maps.channelsMin=channelsMinDef] The minimum allowed
  *   channels for `framebuffer` attachments; allocates unused channels as needed
  *   to reach this limit.
+ * @param {number|false} [maps.buffersMax=buffersMaxDef] Maximum `texture`s that
+ *   may be bound as buffer outputs per-pass. Binds no output `framebuffer`s if
+ *   given `false`y; useful for side-effects with no state outputs, like
+ *   rendering. See `mapGroups`.
  * @param {number} [state.maps.textures] How `values` are grouped into
  *   data-`texture`s. See `mapGroups`.
  * @param {number} [state.maps.passes] How data-`textures` are grouped into
@@ -369,6 +374,7 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
   const {
       values = (maps.values = valuesDef),
       channelsMin = (maps.channelsMin = channelsMinDef),
+      buffersMax = (maps.buffersMax = buffersMaxDef),
       textures: texturesMap, passes: passesMap
     } = maps;
 
@@ -386,6 +392,9 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
   to.stencil = stencil;
   to.width = width;
   to.height = height;
+
+  /** Whether to use output buffers in passes, or no buffers in one pass. */
+  const output = buffersMax || null;
 
   /**
    * All `framebuffer` attachments need the same number of channels; enough to
@@ -479,7 +488,7 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
   const addPass = (step, color) => (pass, index) => {
     /**
      * All a `framebuffer`'s attachments need the same number of channels;
-     * ignored if a `color`'s given as it'll be defined there instead.
+     * superseded by any given `color`'s value.
      */
     const channels = color ?? mergeChannels ??
       ((pass)? passChannels(pass, channelsMin) : channelsMin);
@@ -497,13 +506,16 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
           ((merge)? (colorPool ??= []) : []))
     };
 
-    /** The `framebuffer` for this pass. */
-    to.framebuffer = framebuffer?.(to);
+    /**
+     * The `framebuffer` for this pass; don't create or bind if `buffersMax`
+     * is `false`y.
+     */
+    to.framebuffer = output && framebuffer?.(to);
 
     // Add meta info.
 
-    /** Denotes attached `framebuffer` entry. */
-    to.entry = size.framebuffers++;
+    /** Denotes any attached `framebuffer` entry. */
+    to.entry = output && size.framebuffers++;
 
     if(pass) {
       to.map = pass;

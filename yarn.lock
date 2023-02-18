@@ -81,7 +81,7 @@ __metadata:
     "@thi.ng/matrices": ^2.1.40
     "@thi.ng/vectors": ^7.1.1
     glsl-conditionals: ^1.0.0
-    glsl-constants: ^1.0.0
+    glsl-constants: ^2.0.0
     glsl-diffuse-oren-nayar: ^1.0.2
     glsl-hsl2rgb: ^1.1.0
     glsl-map: ^1.0.1
@@ -2017,10 +2017,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glsl-constants@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "glsl-constants@npm:1.0.0"
-  checksum: 8bd1da5d6d90e9b754ce7dbd2f1ab51be9322449028915b2a3f366ab4284dea1505f834c2b725a87c68237daade3a8ecf6addc0ce19d89ed8c153e985d171c00
+"glsl-constants@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "glsl-constants@npm:2.0.0"
+  checksum: 23e1e1f004085c449dc8594bc08999906d5d02c6d9371ad78bb5e9b0802e1bee7537c9b8ba9aba34fb934439b873581cff7192dddc87db92743c455dd4135cf3
   languageName: node
   linkType: hard
 

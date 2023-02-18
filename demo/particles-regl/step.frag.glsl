@@ -109,7 +109,7 @@ varying vec2 uv;
   uniform float useVerlet;
   uniform vec2 spout;
 
-  #pragma glslify: tau = require(glsl-constants/TWO_PI)
+  #pragma glslify: tau = require(glsl-constants/TAU)
   #pragma glslify: onSphere = require(./on-sphere)
 #endif
 

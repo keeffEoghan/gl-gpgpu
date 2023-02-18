@@ -142,12 +142,6 @@ const {
 /**
  * Whether to merge states into one texture; separate textures if not given.
  * Merge by default for maximum platform compatibility.
- *
- * @todo These should work:
- * ```
- *   merge = ((merge)? (merge !== 'false') : (stepsPast > 1));
- *   merge = ((merge)? (merge !== 'false') : (form !== 1));
- * ```
  */
 const merge = query.get('merge') !== 'false';
 
@@ -305,6 +299,21 @@ setupLink(document.querySelector('#merge'),
 
 setupLink(document.querySelector('#guide'),
   [['guide', ((guide)? false : null)]]);
+
+/** Scroll back if links are clicked or change hash; just want highlights. */
+function hashScroll() {
+  const h = location.hash;
+
+  if(!document.querySelector(`.link-preset${h}, .link-tweak${h}`)) { return; }
+
+  scroll();
+  scrollDefer();
+}
+
+each((l) => l.addEventListener('click', hashScroll),
+  document.querySelectorAll('.link-preset, .link-tweak'));
+
+addEventListener('hashchange', hashScroll);
 
 // Toggle the guide according to query.
 document.querySelector('#flip-guide').checked = guide;
@@ -514,6 +523,7 @@ console.log('`entries` (total number of states of `values` updated per-step):',
 
 
 // Set up rendering - reading but not writing the `gl-gpgpu` state each frame.
+// For this demo, done separately, but sharing the same resources.
 
 /**
  * Draw all states with none bound as outputs.
@@ -636,22 +646,32 @@ const drawState = {
   // create new mappings with some additions for drawing.
   maps: mapStep({
     ...state.maps,
-    // This one pass can bind textures for input; not output across passes.
-    texturesMax: maxTextureUnits,
+
+    /**
+     * To ensure drawing happens in one pass, disregard buffers to prevent
+     * multiple passes (as happens in `state.step` to bind all `texture`s across
+     * limited buffer outputs).
+     */
+    buffersMax: null,
 
     /**
      * Read all past `values` to derive one value; that is, look up all states
      * in one draw pass.
      *
-     * Here the entries of the first value's `derives` (`derives[0]`) `array`
-     * denote that it derives from:
-     * 0. All `values`, 1st step past; denoted by `true`.
-     * 1. The `position` value, 2nd step past.
-     *
-     * Creates macros of `reads_${value}_${derive}`, where `value == 0` and each
-     * `derive` gives a `[step, value]` of `[0, 0]`/`[0, 1]`/`[0, 2]`/`[1, 0]`.
+     * This case creates `macros` of a `reads_${value}_i` list, where `value` is
+     * `0` and each entry in this list gives a `[step, value]` pair, here being
+     * `[0, 0]`, `[0, 1]`, `[0, 2]`, `[1, 0]`.
      */
-    derives: [[true, { value: valuesIndex.position, step: wrap(1, drawSteps) }]]
+    derives: [
+      // Entries of the first value's `derives` (`derives[0]`) `array` denote
+      // that it derives from:
+      [
+        // All `values` (denoted by `true`), 1st step past.
+        true,
+        // The `position` value, 2nd step past.
+        { value: valuesIndex.position, step: wrap(1, drawSteps) }
+      ]
+    ]
   })
 };
 
@@ -863,10 +883,7 @@ document.querySelector('#fullscreen')?.addEventListener?.('click',
   () => canvas.requestFullscreen());
 
 /** Scroll back up when fallback demo video loads. */
-document.querySelector('#fallback')?.addEventListener?.('load', () => {
-  scroll();
-  scrollDefer();
-});
+document.querySelector('#fallback')?.addEventListener?.('load', scrollDefer);
 
 /** Resize the canvas and any dependent properties. */
 function resize() {

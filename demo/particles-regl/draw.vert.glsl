@@ -66,7 +66,7 @@ varying vec3 emissive;
 #pragma glslify: gt = require(glsl-conditionals/when_gt)
 #pragma glslify: random = require(glsl-random)
 #pragma glslify: map = require(glsl-map)
-#pragma glslify: tau = require(glsl-constants/TWO_PI)
+#pragma glslify: tau = require(glsl-constants/TAU)
 #pragma glslify: hsl2rgb = require(glsl-hsl2rgb)
 
 #pragma glslify: onSphere = require(./on-sphere)

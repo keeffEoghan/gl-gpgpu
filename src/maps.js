@@ -44,6 +44,19 @@ export const validValue = (value, channelsMax = channelsMaxDef) =>
       value, channelsMax));
 
 /**
+ * Whether to use buffers to output state `values` in passes per-step, or no
+ * output buffers in one pass as a side-effect not updating state `values`.
+ *
+ * @param {number|false} buffersMax Maximum `texture`s that may be bound as
+ *   buffer outputs per-pass.
+ *
+ * @returns {boolean} Whether to use output buffers in passes, or no output
+ *   buffers in one pass.
+ */
+export const useBuffers = (buffersMax) =>
+  isInteger(buffersMax) && (0 < buffersMax) && (buffersMax < Infinity);
+
+/**
  * Minimise resource usage, order `values` to pack into blocks of `channelsMax`;
  * interpreted as indexes into the given `values`.
  *
@@ -126,6 +139,7 @@ export function packValues(values, channelsMax = channelsMaxDef, to = []) {
  * Groups the `values` of `gpgpu` data across draw passes and data textures.
  *
  * @see {@link packValues}
+ * @see {@link data.toData}
  *
  * @example ```
  *   const x = 2;
@@ -198,10 +212,13 @@ export function packValues(values, channelsMax = channelsMaxDef, to = []) {
  *   The order may affect the number of textures/passes needed; can maintain
  *   order as-is, or use a more efficient `packed` order. See `packValues`.
  *
- * @param {number} [maps.channelsMax=channelsMaxDef] Maximum channels per
- *   texture.
- * @param {number} [maps.buffersMax=buffersMaxDef] Maximum textures bound per
- *   pass.
+ * @param {number} [maps.channelsMax=channelsMaxDef] Maximum channels
+ *   per-`texture`.
+ * @param {number|false} [maps.buffersMax=buffersMaxDef] Maximum `texture`s that
+ *   may be bound as buffer outputs per-pass. Maps multiple passes per-step to
+ *   output all `values` if they're spread across more `textures` than this
+ *   `number`. Uses one pass and binds no output if given `false`y; useful for
+ *   side-effects with no state outputs, like rendering. See `toData`.
  * @param {array.<number>} [maps.packed] An `array` of indexes into `values`
  *   packed into an order that best fits into blocks of `channelsMax` to
  *   minimise resources; or `false`y to use `values` in their given order; uses
@@ -218,8 +235,9 @@ export function packValues(values, channelsMax = channelsMaxDef, to = []) {
  *   textures, as `array`s corresponding to `framebuffer` attachments, into
  *   which `values` are drawn; whose values are indexes into `to.values`.
  * @returns {array.<number>} `to.values` The `values`, as given.
- * @returns {number} `to.buffersMax` The max textures per pass, as given.
- * @returns {number} `to.channelsMax` The max channels per-texture, as given.
+ * @returns {number} `to.buffersMax` Maximum `texture`s that may be bound as
+ *   buffer outputs per-pass, as given.
+ * @returns {number} `to.channelsMax` Maximum channels per-`texture`, as given.
  * @returns {array.<number>} `to.valueToTexture` Inverse map from each index of
  *   `to.values` to the index of the data-texture containing it.
  * @returns {array.<number>} `to.valueToPass` Inverse map from each index of
@@ -246,6 +264,9 @@ export function mapGroups(maps = {}, to = maps) {
   const valueToTexture = to.valueToTexture = [];
   const valueToPass = to.valueToPass = [];
   const textureToPass = to.textureToPass = [];
+
+  /** Whether to use output buffers in passes, or no buffers in one pass. */
+  const output = !!buffersMax;
   /** Counts the number of channels written in a single draw pass. */
   let channels = 0;
   /** Get the index, via any `packed`, from `values`. */
@@ -267,7 +288,7 @@ export function mapGroups(maps = {}, to = maps) {
       if((channels += value) > channelsMax) {
         channels = value;
         t = textures.push(texture = [])-1;
-        (pass.length >= buffersMax) && (p = passes.push(pass = [])-1);
+        output && (pass.length >= buffersMax) && (p = passes.push(pass = [])-1);
         pass.push(t);
         textureToPass.push(p);
       }

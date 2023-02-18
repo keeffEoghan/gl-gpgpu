@@ -49,6 +49,7 @@ export const getGLSL = (version) =>
  * @see {@link maps.mapStep}
  * @see {@link maps.mapGroups}
  * @see {@link maps.mapSamples}
+ * @see {@link maps.useBuffers}
  * @see {@link data.toData}
  * @see {@link uniforms.toUniforms}
  * @see {@link step.toStep}
@@ -63,8 +64,12 @@ export const getGLSL = (version) =>
  * @param {object} [state.maps] How values are grouped per-`texture` per-pass
  *   per-step. Sets up new maps if not given or missing its mapped properties.
  *   See `mapStep`.
- * @param {number} [state.maps.buffersMax=api.limits.maxDrawbuffers] Maximum
- *   number of `texture`s per draw pass. Uses more passes above this limit.
+ * @param {number|false} [state.maps.buffersMax=api.limits.maxDrawbuffers]
+ *   Maximum `texture`s that may be bound as buffer outputs per-pass. Multiple
+ *   passes per-step are needed to output all `values` if they're spread across
+ *   more `textures` than this `number`. Uses one pass and binds no output if
+ *   given `false`y; useful for side-effects with no state outputs, like
+ *   rendering. See `useBuffers`, `mapGroups`, and `toData`.
  * @param {object} [to=state] The `object` to set up. Modifies the given `state`
  *   object by default.
  *
