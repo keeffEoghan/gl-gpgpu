@@ -1,6 +1,6 @@
 {
   "name": "@epok.tech/gl-gpgpu",
-  "version": "0.8.21",
+  "version": "0.8.22",
   "description": "GPGPU state-stepping - declaratively maps optimal draw passes, shaders, GL resources, inputs, outputs - lets you focus on your logic, BYO-renderer.",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
   "author": "Eoghan O'Keeffe <epok.tech@gmail.com> (https://epok.tech)",
@@ -16,20 +16,18 @@
     "dev:fresh": "yarn dev --no-cache",
     "dist": "yarn clean && (yarn build & yarn docs & wait)",
     "dist:fresh": "yarn clean && (yarn build:fresh & yarn docs:fresh & wait)",
-    "build": "parcel build $(yarn list:jsts | xargs) --target esm --target cjs",
+    "build": "parcel build $(yarn list:js | xargs) --target esm --target cjs",
     "build:fresh": "yarn build --no-cache",
-    "glsl:copy:to": "rsync -R $(yarn list:glsl | xargs)",
     "docs": "yarn docs:demo & yarn docs:info & wait",
     "docs:fresh": "yarn docs:demo:fresh & yarn docs:info & wait",
     "docs:demo": "parcel build --target docs",
     "docs:demo:fresh": "yarn docs:demo --no-cache",
     "docs:info": "yarn docs:info:run && yarn docs:info:gh",
     "docs:info:watch": "yarn docs:info:run --watch --preserveWatchOutput",
-    "docs:info:run": "typedoc $(yarn list:jsts | xargs)",
+    "docs:info:run": "typedoc $(yarn list:js | xargs)",
     "docs:info:gh": "mkdir -p ./docs/ && touch ./docs/.nojekyll",
     "list:all": "find ./src/. -not -type d",
-    "list:jsts": "yarn list:all | grep -i -E '\\.(j|t)s$'",
-    "list:glsl": "yarn list:all | grep -i -E '\\.glsl$'",
+    "list:js": "yarn list:all | grep -i -E '\\.(j|t)s$'",
     "clean": "yarn clean:build & yarn clean:docs & wait",
     "clean:build": "rm -rf ./cjs/ ./esm/",
     "clean:docs": "rm -rf ./docs/"
@@ -63,6 +61,7 @@
     "typedoc-theme-hierarchy": "^3.0.0",
     "typescript": "^4.8.2"
   },
+  "source": "src/index.js",
   "main": "cjs/index.js",
   "module": "esm/index.js",
   "files": [
@@ -71,6 +70,22 @@
     "esm/**/*",
     "demo/**/*"
   ],
+  "exports": {
+    "./src/*": "./src/*",
+    "./demo/*": "./demo/*",
+    "./esm/*": "./esm/*",
+    "./cjs/*": "./cjs/*",
+    "./*!((src|demo|esm|cjs)/*)": {
+      "import": "./esm/*",
+      "require": "./cjs/*",
+      "default": "./*"
+    },
+    "./*": {
+      "import": "./esm/*",
+      "require": "./cjs/*",
+      "default": "./*"
+    }
+  },
   "targets": {
     "cjs": {
       "outputFormat": "commonjs",

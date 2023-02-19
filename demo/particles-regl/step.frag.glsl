@@ -32,7 +32,8 @@ gpgpu_useSamples
 
 // Set up minimal texture reads logic; only read what a value with a currently
 // bound output `derives` from other `values` for its next state.
-// See `derives` for indexing `reads_${value}_${derive}`.
+// See `derives` for how each `reads_${value}_${derive}` is indexed
+// per-`derive`-per-`value`.
 #ifdef gpgpu_output_0
   #define positionOutput gpgpu_output_0
   gpgpu_useReads_0
@@ -57,10 +58,12 @@ gpgpu_useSamples
 
 // The main shader.
 
-/** States from `gl-gpgpu`; in merged textures or separate. */
+/** States from `gl-gpgpu`, merged or separate. */
 #ifdef gpgpu_mergedStates
+  /** States from `gl-gpgpu` in one merged `texture`. */
   uniform sampler2D gpgpu_states;
 #else
+  /** States from `gl-gpgpu` in separate `texture`/s. */
   uniform sampler2D gpgpu_states[gpgpu_stepsPast*gpgpu_textures];
 #endif
 

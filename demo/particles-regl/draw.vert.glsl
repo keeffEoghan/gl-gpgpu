@@ -16,8 +16,8 @@ precision highp float;
 gpgpu_useSamples
 // Only the first value derives from all values, giving these minimal `reads`.
 gpgpu_useReads_0
-// These first `derives` are all in one pass, `0`, in the order of `values`.
-// See `values` for indexing `reads_0_${derives index == values index}`.
+// These first `derives` are all in one pass for the `value` at `0`.
+// See `derives` for how each `reads_0_${derive}` is indexed per-`derive`.
 #define readPosition1 gpgpu_reads_0_0
 #define readMotion gpgpu_reads_0_1
 #define readLife gpgpu_reads_0_2
@@ -26,10 +26,12 @@ gpgpu_useReads_0
 
 attribute float index;
 
-// States from `gl-gpgpu`; in separate textures or merged.
+/** States from `gl-gpgpu`, merged or separate. */
 #ifdef gpgpu_mergedStates
+  /** States from `gl-gpgpu` in one merged `texture`. */
   uniform sampler2D gpgpu_states;
 #else
+  /** States from `gl-gpgpu` in separate `texture`/s. */
   uniform sampler2D gpgpu_states[gpgpu_stepsPast*gpgpu_textures];
 #endif
 

@@ -23,6 +23,16 @@ yarn add @epok.tech/gl-gpgpu
 
 [See the _API_ documentation](https://epok.tech/gl-gpgpu/api) for a fuller guide.
 
+The code can be imported according to format specified as:
+- [`CommonJS`](https://en.wikipedia.org/wiki/CommonJS), for `require`, in `cjs/`; e.g: `const { mapStep } = require('@epok.tech/gl-gpgpu/cjs/maps')`.
+- [`ES` modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules), for `import`, in `esm/`; e.g: `import { toStep } from '@epok.tech/gl-gpgpu/esm/step'`.
+- Source code, for compiling with your own tools, in `src/`; e.g: `#pragma glslify: indexUV = require(@epok.tech/gl-gpgpu/src/lookup/index-uv)`.
+- Demo code, for the browser, in `demo/`.
+
+If your tools support [`Node` conditional exports](https://nodejs.org/docs/latest-v16.x/api/packages.html#conditional-exports), they should automatically handle importing code built for the import format used, for shorter paths:
+- `CommonJS` when `require` is used; e.g: `const { mapStep } = require('@epok.tech/gl-gpgpu/maps')`.
+- `ES` modules when `import` is used; e.g: `import { toStep } from '@epok.tech/gl-gpgpu/step'`.
+
 ## GPGPU State-Stepping
 
 [GPGPU (General-Purpose Graphics Processing Unit)](https://en.wikipedia.org/wiki/General-purpose_computing_on_graphics_processing_units) methods typically use textures as 2D (or 3D) memory buffers to perform arbitrary computation on the highly-parallel GPU in shaders.
@@ -74,12 +84,17 @@ It may also be compatible with other `GL` implementations via given _API_ hooks.
 `JavaScript` setup `index.js`:
 
 ```javascript
+// The main `gl-gpgpu` module.
 import gpgpu from '@epok.tech/gl-gpgpu';
 
-import frag from './step.frag.glsl';
+// Import a renderer API to handle `gl-gpgpu` hooks - see `./src/api.js`.
+import api from '...';
+
+// Import the step logic fragment shader, shown below.
+import frag from 'step.frag.glsl';
 
 // The main `gl-gpgpu` state.
-const state = gpgpu(regl, {
+const state = gpgpu(api, {
   // How many steps of state to track.
   steps: 3,
   // Logic given as state `values`, `gl-gpgpu` maps optimal inputs and outputs.
@@ -133,9 +148,6 @@ const state = gpgpu(regl, {
   // How many `entries` to track, here encoded as the power-of-2 size per side
   // of the data texture: `(2**scale)**2`; can also be given in other ways.
   scale: 10,
-  // Whether to merge all states into one data-`texture`, or leave all
-  // data-`texture`s separate.
-  merge: true,
   // Data type according to platform capabilities.
   type: 'float',
   // Configure macro hooks, globally or per-shader.
@@ -197,7 +209,8 @@ gpgpu_useSamples
 
 // Set up minimal texture reads logic; only read what a value with a currently
 // bound output `derives` from other `values` for its next state.
-// See `derives` for indexing `reads_${value}_${derive}`.
+// See `derives` for how each `reads_${value}_${derive}` is indexed
+// per-`derive`-per-`value`.
 #ifdef output_0
   #define positionOutput gpgpu_output_0
   gpgpu_useReads_0
@@ -222,10 +235,12 @@ gpgpu_useSamples
 
 // The main shader.
 
-/** States from `gl-gpgpu`; in merged textures or separate. */
+/** States from `gl-gpgpu`, merged or separate. */
 #ifdef gpgpu_mergedStates
+  /** States from `gl-gpgpu` in one merged `texture`. */
   uniform sampler2D gpgpu_states;
 #else
+  /** States from `gl-gpgpu` in separate `texture`/s. */
   uniform sampler2D gpgpu_states[gpgpu_stepsPast*gpgpu_textures];
 #endif
 
