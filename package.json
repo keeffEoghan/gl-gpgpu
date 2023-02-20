@@ -61,31 +61,6 @@
     "typedoc-theme-hierarchy": "^3.0.0",
     "typescript": "^4.8.2"
   },
-  "source": "src/index.js",
-  "main": "cjs/index.js",
-  "module": "esm/index.js",
-  "files": [
-    "src/**/*",
-    "cjs/**/*",
-    "esm/**/*",
-    "demo/**/*"
-  ],
-  "exports": {
-    "./src/*": "./src/*",
-    "./demo/*": "./demo/*",
-    "./esm/*": "./esm/*",
-    "./cjs/*": "./cjs/*",
-    "./*!((src|demo|esm|cjs)/*)": {
-      "import": "./esm/*",
-      "require": "./cjs/*",
-      "default": "./*"
-    },
-    "./*": {
-      "import": "./esm/*",
-      "require": "./cjs/*",
-      "default": "./*"
-    }
-  },
   "targets": {
     "cjs": {
       "outputFormat": "commonjs",
@@ -115,6 +90,30 @@
       "source": "demo/particles-regl/index.html",
       "distDir": "docs/",
       "publicUrl": "./"
+    }
+  },
+  "main": "cjs/index.js",
+  "module": "esm/index.js",
+  "files": [
+    "src/**/*",
+    "cjs/**/*",
+    "esm/**/*",
+    "demo/**/*"
+  ],
+  "exports": {
+    "./src/*": "./src/*",
+    "./demo/*": "./demo/*",
+    "./esm/*": "./esm/*",
+    "./cjs/*": "./cjs/*",
+    "./*!((src|demo|esm|cjs)/*)": {
+      "import": "./esm/*",
+      "require": "./cjs/*",
+      "default": "./*"
+    },
+    "./*": {
+      "import": "./esm/*",
+      "require": "./cjs/*",
+      "default": "./*"
     }
   },
   "keywords": [
