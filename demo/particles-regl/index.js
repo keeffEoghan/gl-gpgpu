@@ -553,7 +553,7 @@ const viewScale = min;
  */
 const aspect = (size, ar) => invert2(ar, divN2(ar, size, viewScale(...size)));
 
-/** Reuse the `gpgpu` state, mix in drawing-specific state. */
+/** Reuse the `gl-gpgpu` state, mix in drawing-specific state. */
 const drawState = {
   ...state,
   // Omit some properties unused in drawing for some clarity.
@@ -642,7 +642,7 @@ const drawState = {
     // Speed-to-colour scaling, as `[multiply, power]`.
     paceColor: [[paceLit*2e-9, 2], [paceLit*2e7, 2]]
   },
-  // Map everything similarly to the `gpgpu` step, `mapStep` can be reused to
+  // Map everything similarly to the `gl-gpgpu` step, `mapStep` can be reused to
   // create new mappings with some additions for drawing.
   maps: mapStep({
     ...state.maps,
@@ -675,7 +675,7 @@ const drawState = {
   })
 };
 
-/** Hook up `gpgpu` uniforms by extending them. */
+/** Hook up `gl-gpgpu` uniforms by extending them. */
 const drawUniforms = toUniforms(drawState, {
   ...drawState.uniforms,
 
@@ -726,7 +726,7 @@ lightPoints && reduce((o, _, l) => {
 
 /** The `GL` render command pipeline state. */
 const drawPipeline = {
-  // Use `gpgpu` `macro` mappings by prepending `macro`s from a single pass.
+  // Use `gl-gpgpu` `macro` mappings by prepending `macro`s from a single pass.
   vert: (_, p) => macroPass(p)+
     `#define lightPointsL ${p.drawProps.light.points?.length ?? 0}\n`+drawVert,
 
