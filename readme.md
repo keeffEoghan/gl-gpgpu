@@ -6,7 +6,7 @@
 
 ## Warning: Documentation Work-in-Progress
 
-Note that the [comments and _API_ documentation](https://epok.tech/gl-gpgpu/api) is currently still work-in-progress and may differ from the code; but the code is in working order.
+Note that the [comments and _API_ documentation](https://epok.tech/gl-gpgpu/api) are currently still work-in-progress and may differ from the code; but the code is in working order.
 
 ## Installation
 
