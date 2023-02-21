@@ -1,10 +1,10 @@
 {
   "plugin": ["typedoc-theme-hierarchy"],
   "theme": "hierarchy",
-  "sort": ["source-order"],
-  "categoryOrder": ["Main", "*"],
-  "customCss": "./media/docs/index.css",
+  "sort": ["source-order", "alphabetical"],
+  "categoryOrder": ["Root", "*"],
   "includeVersion": true,
+  "githubPages": false,
   "tsconfig": "./tsconfig.json",
   "readme": "./readme.md",
   "media": "./media/docs",

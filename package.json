@@ -1,7 +1,7 @@
 {
   "name": "@epok.tech/gl-gpgpu",
-  "version": "0.7.0",
-  "description": "GPGPU state-stepping - declaratively maps optimal draw passes, shaders, WebGL resources, inputs, outputs - lets you focus on your logic, BYO-renderer.",
+  "version": "0.8.30",
+  "description": "GPGPU state-stepping - declaratively maps optimal draw passes, shaders, GL resources, inputs, outputs - lets you focus on your logic, BYO-renderer.",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
   "author": "Eoghan O'Keeffe <epok.tech@gmail.com> (https://epok.tech)",
   "license": "MIT",
@@ -11,20 +11,23 @@
   },
   "packageManager": "yarn@3.1.0",
   "scripts": {
-    "start": "yarn dist:safe",
+    "start": "yarn dist:fresh",
     "dev": "parcel --target docs --log-level verbose",
-    "dev:safe": "yarn dev --no-cache",
+    "dev:fresh": "yarn dev --no-cache",
     "dist": "yarn clean && (yarn build & yarn docs & wait)",
-    "dist:safe": "yarn clean && (yarn build:safe & yarn docs:safe & wait)",
-    "build": "parcel build $(yarn list:src | xargs) --target esm --target cjs",
-    "build:safe": "yarn build --no-cache",
+    "dist:fresh": "yarn clean && (yarn build:fresh & yarn docs:fresh & wait)",
+    "build": "parcel build $(yarn list:js | xargs) --target esm --target cjs",
+    "build:fresh": "yarn build --no-cache",
     "docs": "yarn docs:demo & yarn docs:info & wait",
-    "docs:safe": "yarn docs:demo:safe & yarn docs:info & wait",
+    "docs:fresh": "yarn docs:demo:fresh & yarn docs:info & wait",
     "docs:demo": "parcel build --target docs",
-    "docs:demo:safe": "yarn docs:demo --no-cache",
-    "docs:info": "typedoc $(yarn list:src | xargs) && mv ./docs/api/.nojekyll ./docs/.nojekyll",
-    "list:all": "find ./src -not -type d",
-    "list:src": "yarn list:all | grep -i -E '\\.(js|ts)$'",
+    "docs:demo:fresh": "yarn docs:demo --no-cache",
+    "docs:info": "yarn docs:info:run && yarn docs:info:gh",
+    "docs:info:watch": "yarn docs:info:run --watch --preserveWatchOutput",
+    "docs:info:run": "typedoc $(yarn list:js | xargs)",
+    "docs:info:gh": "mkdir -p ./docs/ && touch ./docs/.nojekyll",
+    "list:all": "find ./src/. -not -type d",
+    "list:js": "yarn list:all | grep -i -E '\\.(j|t)s$'",
     "clean": "yarn clean:build & yarn clean:docs & wait",
     "clean:build": "rm -rf ./cjs/ ./esm/",
     "clean:docs": "rm -rf ./docs/"
@@ -37,14 +40,17 @@
   },
   "devDependencies": {
     "@epok.tech/fn-time": "^0.2.1",
-    "@epok.tech/glsl-aspect": "^1.0.3",
     "@epok.tech/glsl-verlet": "^0.1.1",
     "@parcel/transformer-glsl": "2.7.0",
-    "clamp": "^1.0.1",
+    "@thi.ng/math": "^5.4.0",
+    "@thi.ng/matrices": "^2.1.40",
     "glsl-conditionals": "^1.0.0",
-    "glsl-constants": "^1.0.0",
+    "glsl-constants": "^2.0.0",
+    "glsl-diffuse-oren-nayar": "^1.0.2",
+    "glsl-hsl2rgb": "^1.1.0",
     "glsl-map": "^1.0.1",
     "glsl-random": "^0.0.5",
+    "glsl-specular-beckmann": "^1.1.2",
     "parcel": "^2.7.0",
     "postcss": "^8.1.0",
     "postcss-import": "^15.0.0",
@@ -55,14 +61,6 @@
     "typedoc-theme-hierarchy": "^3.0.0",
     "typescript": "^4.8.2"
   },
-  "main": "cjs/index.js",
-  "module": "esm/index.js",
-  "files": [
-    "src/**/*",
-    "cjs/**/*",
-    "esm/**/*",
-    "demo/**/*"
-  ],
   "targets": {
     "cjs": {
       "outputFormat": "commonjs",
@@ -94,9 +92,34 @@
       "publicUrl": "./"
     }
   },
+  "main": "cjs/index.js",
+  "module": "esm/index.js",
+  "files": [
+    "src/**/*",
+    "cjs/**/*",
+    "esm/**/*",
+    "demo/**/*"
+  ],
+  "exports": {
+    "./src/*": "./src/*",
+    "./demo/*": "./demo/*",
+    "./esm/*": "./esm/*",
+    "./cjs/*": "./cjs/*",
+    "./*!((src|demo|esm|cjs)/*)": {
+      "import": "./esm/*",
+      "require": "./cjs/*",
+      "default": "./*"
+    },
+    "./*": {
+      "import": "./esm/*",
+      "require": "./cjs/*",
+      "default": "./*"
+    }
+  },
   "keywords": [
     "glsl",
     "webgl",
+    "gl",
     "shader",
     "gpgpu",
     "compute",

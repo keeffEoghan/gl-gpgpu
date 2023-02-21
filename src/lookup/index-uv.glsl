@@ -33,6 +33,7 @@ vec2 indexUV(int index, vec2 size) {
 vec2 indexUV(float index, float size) {
   return remainDiv(index, size)/max(size-1.0, 1.0);
 }
+
 vec2 indexUV(int index, float size) {
   return remainDiv(index, size)/max(size-1.0, 1.0);
 }

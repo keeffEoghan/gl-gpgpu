@@ -18,16 +18,16 @@
  *
  * @param {number} [states=1] How many steps of state each entry has.
  * @param {number} [form=2] How many steps of state each form covers.
- * @param {number} [entries=1] How many entries, if any; result to be multiplied
+ * @param {number} [count=1] How many entries, if any; result to be multiplied
  *   externally if not given.
  *
  * @returns {number} The number of vertexes needed for the given `form` to cover
- *   all steps of `states`; over all `entries` if given, to be multiplied
+ *   all steps of `states`; over all `count` if given, to be multiplied
  *   externally if not given.
  *
  * @remarks [[include:src/index-forms/readme.md]]
  */
-export const indexForms = (states = 1, form = 2, entries = 1) =>
-  Math.max(1, (states-form)+1)*form*entries;
+export const indexForms = (states = 1, form = 2, count = 1) =>
+  Math.max(1, (states-form)+1)*form*count;
 
 export default indexForms;

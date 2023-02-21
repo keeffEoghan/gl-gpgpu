@@ -6,7 +6,7 @@
  * preprocessor macros control the combination according to which `values` are
  * currently bound for `output` to the next `state`.
  *
- * @see {@link step.getStep}
+ * @see {@link step.toStep}
  * @see {@link macros.macroPass}
  */
 
@@ -18,115 +18,121 @@ precision highp float;
 
 // Setting up the macros and aliases `gl-gpgpu` provides.
 
-// Note that these `texture_i`/`channels_i`/`reads_i_j` indexes correspond to a
-// value at that index in the `values`/`derives` arrays provided to `gl-gpgpu`;
-// they are defined here to match that arrangement.
+// Note these `texture_${value}`/`channels_${value}`/`reads_${value}_${derive}`
+// indexes correspond to the `values` indexes via `gl-gpgpu`'s `array`s
+// `values`/`derives`; they're redefined here to match the structure with names.
 
 // The texture channels each of the `values` is stored in.
-#define positionChannels channels_0
-#define motionChannels channels_1
-#define lifeChannels channels_2
+#define positionChannels gpgpu_channels_0
+#define motionChannels gpgpu_channels_1
+#define lifeChannels gpgpu_channels_2
 
 /** Set up sampling logic via `gl-gpgpu` macro. */
-useSamples
+gpgpu_useSamples
 
 // Set up minimal texture reads logic; only read what a value with a currently
 // bound output `derives` from other `values` for its next state.
-// See `derives` for indexing `reads_${bound value index}_${derives index}`.
-#ifdef output_0
-  #define positionOutput output_0
-  useReads_0
-  #define positionReadPosition0 reads_0_0
-  #define positionReadPosition1 reads_0_1
-  #define positionReadMotion reads_0_2
-  #define positionReadLife reads_0_3
+// See `derives` for how each `reads_${value}_${derive}` is indexed
+// per-`derive`-per-`value`.
+#ifdef gpgpu_output_0
+  #define positionOutput gpgpu_output_0
+  gpgpu_useReads_0
+  #define positionReadPosition0 gpgpu_reads_0_0
+  #define positionReadPosition1 gpgpu_reads_0_1
+  #define positionReadMotion gpgpu_reads_0_2
+  #define positionReadLife gpgpu_reads_0_3
 #endif
-#ifdef output_1
-  #define motionOutput output_1
-  useReads_1
-  #define motionReadMotion reads_1_0
-  #define motionReadLife reads_1_1
-  #define motionReadPosition reads_1_2
+#ifdef gpgpu_output_1
+  #define motionOutput gpgpu_output_1
+  gpgpu_useReads_1
+  #define motionReadMotion gpgpu_reads_1_0
+  #define motionReadLife gpgpu_reads_1_1
+  #define motionReadPosition gpgpu_reads_1_2
 #endif
-#ifdef output_2
-  #define lifeOutput output_2
-  useReads_2
-  #define lifeReadLifeLast reads_2_0
-  #define lifeReadLife1 reads_2_1
+#ifdef gpgpu_output_2
+  #define lifeOutput gpgpu_output_2
+  gpgpu_useReads_2
+  #define lifeReadLifeLast gpgpu_reads_2_0
+  #define lifeReadLife1 gpgpu_reads_2_1
 #endif
 
 // The main shader.
 
-// States from `gl-gpgpu`; in separate textures or merged.
-#ifdef mergedStates
-  uniform sampler2D states;
+/** States from `gl-gpgpu`, merged or separate. */
+#ifdef gpgpu_mergedStates
+  /** States from `gl-gpgpu` in one merged `texture`. */
+  uniform sampler2D gpgpu_states;
 #else
-  uniform sampler2D states[stepsPast*textures];
+  /** States from `gl-gpgpu` in separate `texture`/s. */
+  uniform sampler2D gpgpu_states[gpgpu_stepsPast*gpgpu_textures];
 #endif
 
-/** The current step from `gl-gpgpu`. */
-uniform float stepNow;
+/** Current step from `gl-gpgpu`; needed for `tapStates` or `tapStatesBy`. */
+uniform float gpgpu_stepNow;
 
-// Custom inputs for this demo.
+// Common shader inputs and parts.
 
-uniform float dt0;
 uniform float dt1;
 uniform float loop;
-/** A particle's lifetime range, and whether it's allowed to respawn. */
-uniform vec3 lifetime;
-uniform float useVerlet;
-uniform float epsilon;
-uniform float moveCap;
-uniform vec2 scale;
-uniform vec2 spout;
-uniform vec3 source;
-/** Sink position, and universal gravitational constant. */
-uniform vec4 sink;
-/** Constant acceleration of gravity; and whether to use it or the `sink`. */
-uniform vec4 g;
-// uniform vec3 drag;
 
 varying vec2 uv;
 
-#pragma glslify: map = require(glsl-map)
-#pragma glslify: le = require(glsl-conditionals/when_le)
 #pragma glslify: random = require(glsl-random)
+#pragma glslify: lt = require(glsl-conditionals/when_lt)
+#pragma glslify: le = require(glsl-conditionals/when_le)
+
+// Any shader inputs or parts can also be split up by usage in different passes.
 
 #ifdef positionOutput
+  uniform float moveCap;
+  uniform vec2 pace;
+  uniform vec3 source;
+
   /** @todo Try Velocity Verlet integration. */
   #pragma glslify: verlet = require(@epok.tech/glsl-verlet/p-p-a)
 #endif
 
-#if defined(positionOutput) || defined(motionOutput)
-  #pragma glslify: tau = require(glsl-constants/TWO_PI)
-
-  /** @see [Spherical distribution](https://observablehq.com/@rreusser/equally-distributing-points-on-a-sphere) */
-  vec3 randomOnSphere(float randomAngle, float randomDepth) {
-    float a = randomAngle*tau;
-    float u = (randomDepth*2.0)-1.0;
-
-    return vec3(sqrt(1.0-(u*u))*vec2(cos(a), sin(a)), u);
-  }
+#ifdef motionOutput
+  uniform float epsilon;
+  /** Sink position, and universal gravitational constant. */
+  uniform vec4 sink;
+  /** Constant acceleration of gravity; and whether to use it or the `sink`. */
+  uniform vec4 g;
 #endif
 
-/**
- * Drag acceleration, constrained within the given velocity.
- * @see [Wikipedia on Verlet](https://en.wikipedia.org/wiki/Verlet_integration#Algorithmic_representation)
- */
-// vec3 dragAcc(vec3 velocity, vec3 drag) {
-//   vec3 l = abs(velocity);
+#ifdef lifeOutput
+  /** A particle's lifetime range, and whether it's allowed to respawn. */
+  uniform vec3 lifetime;
 
-//   return clamp(-0.5*sign(velocity)*dot(velocity, velocity)*drag, -l, l);
-// }
+  #pragma glslify: map = require(glsl-map)
+#endif
+
+#if defined(positionOutput) || defined(motionOutput)
+  uniform float dt0;
+  uniform float useVerlet;
+  uniform vec2 spout;
+
+  #pragma glslify: tau = require(glsl-constants/TAU)
+  #pragma glslify: onSphere = require(./on-sphere)
+#endif
+
+float canSpawn(float life) {
+  // Whether to prefill initial states before spawning, or start with all `0`.
+  #ifdef prefill
+    return lt(life, 0.0);
+  #else
+    return le(life, 0.0);
+  #endif
+}
 
 void main() {
-  // Sample the desired state values - creates the `data` array.
-  tapState(uv)
+  /** Sample the desired state values - creates the `gpgpu_data` `array`. */
+  gpgpu_tapState(uv)
 
   // Read values.
 
   #ifdef positionOutput
-    vec3 position0 = data[positionReadPosition0].positionChannels;
+    vec3 position0 = gpgpu_data[positionReadPosition0].positionChannels;
   #endif
 
   // If reads all map to the same value sample, any of them will do.
@@ -139,8 +145,8 @@ void main() {
       #define readPosition motionReadPosition
     #endif
 
-    vec3 position1 = data[readPosition].positionChannels;
-    vec3 motion = data[readMotion].motionChannels;
+    vec3 position1 = gpgpu_data[readPosition].positionChannels;
+    vec3 motion = gpgpu_data[readMotion].motionChannels;
   #endif
 
   // If reads all map to the same value sample, any of them will do.
@@ -152,10 +158,10 @@ void main() {
     #define readLife motionReadLife
   #endif
 
-  float life = data[readLife].lifeChannels;
+  float life = gpgpu_data[readLife].lifeChannels;
 
   #ifdef lifeOutput
-    float lifeLast = data[lifeReadLifeLast].lifeChannels;
+    float lifeLast = gpgpu_data[lifeReadLifeLast].lifeChannels;
   #endif
 
   // Update and output values.
@@ -166,7 +172,7 @@ void main() {
   // inline here for brevity, relevance, and easy access to shared variables.
 
   /** Whether the particle is ready to respawn. */
-  float spawn = le(life, 0.0);
+  float spawn = canSpawn(life);
 
   #if defined(positionOutput) || defined(motionOutput)
     // Workaround for switching Euler/Verlet; interpret `motion` data as
@@ -175,13 +181,14 @@ void main() {
     vec3 acceleration = motion;
 
     /** Spawn randomly on a sphere around the source, move in that direction. */
-    vec3 spoutSpawn = random(loop-(uv*dt0))*
-      randomOnSphere(random((uv+loop)/dt1), random((uv-loop)*dt0));
+    vec3 spoutSpawn = random((-uv.st*(0.6+loop))/(0.1+dt0))*
+      onSphere(random((uv.st*(0.3+loop))/(0.9+dt0))*tau,
+        mix(-1.0, 1.0, random((-uv.ts*(0.2+loop))/(0.8+dt1))));
   #endif
 
   #ifdef positionOutput
     /** For numeric accuracy, encoded as exponent `[b, p] => b*(10**p)`. */
-    float size = scale.s*pow(10.0, scale.t);
+    float speed = pace.s*pow(10.0, pace.t);
 
     /**
      * Constrain Verlet movement; handle here for better numerical accuracy.
@@ -192,9 +199,9 @@ void main() {
       clamp((distance(position1, position0)/moveCap)-1.0, 0.0, 1.0));
 
     // Use either Euler integration...
-    vec3 positionTo = mix(position1+(velocity*dt1*size),
+    vec3 positionTo = mix(position1+(velocity*dt1*speed),
       // ... or Verlet integration...
-      verlet(back, position1, acceleration*size, dt0, dt1),
+      verlet(back, position1, acceleration*speed, dt0, dt1),
       // ... according to which is currently active.
       useVerlet);
 
@@ -216,9 +223,6 @@ void main() {
     /** Use sink point, or constant acceleration due to gravity. */
     acceleration = mix(gravity, g.xyz, g.w);
 
-    /** Can also combine other forces, e.g: drag. */
-    // acceleration += dragAcc(mix(velocity, acceleration*dt1, useVerlet), drag);
-
     vec3 motionTo = mix(velocity+(acceleration*dt1), acceleration, useVerlet);
     vec3 motionNew = spout.y*spoutSpawn;
 
@@ -226,10 +230,10 @@ void main() {
     motionOutput = mix(motionTo, motionNew, spawn);
   #endif
   #ifdef lifeOutput
-    float lifeTo = max(life-dt1, 0.0);
+    float lifeTo = life-dt1;
     float lifeNew = map(random(uv*loop), 0.0, 1.0, lifetime.s, lifetime.t);
-    /** Whether the oldest of this trail has faded. */
-    float faded = le(lifeLast, 0.0);
+    /** Whether the oldest state has faded. */
+    float faded = canSpawn(lifeLast);
 
     /**
      * Output the next life value to its channels in the state texture.

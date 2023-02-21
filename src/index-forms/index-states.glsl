@@ -1,8 +1,8 @@
 /**
- * The step and entry indexes corresponding to the steps and entries count for
- * pairs of elements (e.g: lines linking each entry's steps); as detailed in the
- * `indexForms` `JS` function.
- * Takes vertex index and steps count as input; iterates entries-then-steps.
+ * The step and entry indexes corresponding to the number of entries and steps
+ * for pairs of elements (e.g: lines linking each index's steps); as detailed in
+ * the `indexForms` `JS` `function`.
+ * Given the vertex index and number of steps; iterates entries-then-steps.
  *
  * @see {@link index-forms}
  * @see {@link util/remain-div.glsl!}
