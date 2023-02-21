@@ -4,7 +4,9 @@
 
 [GPGPU state-stepping](#gpgpu-state-stepping) - declaratively maps optimal draw passes, shaders, `GL` resources, inputs, outputs - lets you focus on your logic, [BYO-renderer](#byo-renderer).
 
-Note that the [_API_ documentation](https://epok.tech/gl-gpgpu/api) is currently still work-in-progress.
+## Warning: Documentation Work-in-Progress
+
+Note that the [comments and _API_ documentation](https://epok.tech/gl-gpgpu/api) is currently still work-in-progress and may differ from the code; but the code is in working order.
 
 ## Installation
 
