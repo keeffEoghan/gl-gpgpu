@@ -812,7 +812,7 @@ canvas.addEventListener('contextmenu', (e) => {
   stopEvent(e);
 });
 
-/** Toggle physics and graphics modes. */
+/** Switch primary pointer control between source and sink. */
 canvas.addEventListener((('onpointerup' in self)? 'pointerup'
     : (('ontouchend' in self)? 'touchend' : 'mouseup')),
   (e) => {
@@ -824,20 +824,13 @@ canvas.addEventListener((('onpointerup' in self)? 'pointerup'
     state.props.lifetime[2] = +true;
     hold = false;
 
-    // Don't switch modes if pointer was being held down, particles weren't
-    // allowed to spawn, or any non-primary button was released.
+    // Don't switch primary pointer control if pointer was being held down,
+    // particles weren't spawning, or any non-primary button was released.
     if(held || !spawned || (e.button !== 0)) { return; }
 
-    // Switch between physics/drawing modes if this wasn't press-held.
-
-    const { props: p, drawProps: d } = drawState;
-    const v = canVerlet && (p.useVerlet = 1-p.useVerlet);
-    const f = form || (d.form = 1+(useLines && ((canVerlet)? v : d.form%2)));
-
-    console.log('useVerlet', v, 'form', f,
-      // See how this derives other properties.
-      'count', drawPipeline.count(0, drawState),
-      'primitive', drawPipeline.primitive(0, drawState));
+    // Switch primary pointer control if this wasn't press-held.
+    state.props.flipPointer = !state.props.flipPointer;
+    stopEvent(e);
   });
 
 /** Move either the source or the sink, according to primary pointer. */
@@ -872,10 +865,16 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
     t.idle = 0;
   });
 
-/** Switch primary pointer control between source and sink. */
+/** Toggle physics and graphics modes. */
 canvas.addEventListener('dblclick', (e) => {
-  state.props.flipPointer = !state.props.flipPointer;
-  stopEvent(e);
+  const { props: p, drawProps: d } = drawState;
+  const v = canVerlet && (p.useVerlet = 1-p.useVerlet);
+  const f = form || (d.form = 1+(useLines && ((canVerlet)? v : d.form%2)));
+
+  console.log('useVerlet', v, 'form', f,
+    // See how this derives other properties.
+    'count', drawPipeline.count(0, drawState),
+    'primitive', drawPipeline.primitive(0, drawState));
 });
 
 /** Toggle fullscreen. */
