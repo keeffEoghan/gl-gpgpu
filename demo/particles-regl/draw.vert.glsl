@@ -47,7 +47,6 @@ uniform vec2 aspect;
 uniform float wide;
 uniform float dt;
 uniform float loop;
-uniform vec3 lifetime;
 uniform vec2 paceColor;
 uniform float useVerlet;
 uniform float form;
@@ -88,6 +87,8 @@ varying vec3 emissive;
 
 const vec4 hide = vec4(0);
 
+float triangleWave(float x) { return (abs(fract(x)-0.5)*4.0)-1.0; }
+
 void main() {
   #if gpgpu_stepsPast > 1
     // If multiple steps are given, find past step and entry.
@@ -123,15 +124,15 @@ void main() {
   vec3 position0 = gpgpu_data[readPosition0].positionChannels;
   vec3 position1 = gpgpu_data[readPosition1].positionChannels;
   vec3 motion = gpgpu_data[readMotion].motionChannels;
-  float life = gpgpu_data[readLife].lifeChannels;
-  float alive = gt(life, 0.0);
+  vec2 life = gpgpu_data[readLife].lifeChannels;
+  float alive = gt(life.x, 0.0);
   float ago = stepPast/max(float(gpgpu_stepsPast-1), 1.0);
 
   /** Fizz randomly on a sphere around older positions. */
   float fl = pow(clamp(stepPast/fizz, 0.0, 1.0), fizzCurve)*fizzMax;
   float ft = loop*fizzRate*mix(-1.0, 1.0, mod(entry, 2.0))/(1.0+fl);
   float fa = (random(position1.xy+entry)+ft)*tau;
-  float fd = (abs(fract(random(vec2(position1.z, life)-entry)+ft)-0.5)*4.0)-1.0;
+  float fd = triangleWave(random(vec2(position1.z, life.x)-entry)+ft);
 
   positionView = modelView*vec4(position1+(fl*onSphere(fa, fd)), 1);
   // positionView = vec4(mix(vec2(-0.5), vec2(0.5), st), 0.2, 1);
@@ -141,10 +142,11 @@ void main() {
   to.xy *= aspect;
   gl_Position = to;
 
-  float fade = clamp(pow(life/lifetime.t, 0.3), 0.0, 1.0)*
-    clamp(pow(1.0-ago, 0.9), 0.0, 1.0);
+  float fade = clamp(pow(1.0-ago, 0.9), 0.0, 1.0)*
+    clamp(pow(life.x/life.y, 0.5), 0.0, 1.0);
 
-  float size = gl_PointSize = (wide*fade)/to.w;
+  float scale = clamp(pow(1.0-(life.x/life.y), 0.4), 0.0, 1.0);
+  float size = gl_PointSize = (wide*fade*scale)/to.w;
 
   /**
    * Convert vertex position to `gl_FragCoord` window-space.

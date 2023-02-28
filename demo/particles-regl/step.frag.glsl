@@ -158,10 +158,10 @@ void main() {
     #define readLife motionReadLife
   #endif
 
-  float life = gpgpu_data[readLife].lifeChannels;
+  vec2 life = gpgpu_data[readLife].lifeChannels;
 
   #ifdef lifeOutput
-    float lifeLast = gpgpu_data[lifeReadLifeLast].lifeChannels;
+    vec2 lifeLast = gpgpu_data[lifeReadLifeLast].lifeChannels;
   #endif
 
   // Update and output values.
@@ -172,7 +172,7 @@ void main() {
   // inline here for brevity, relevance, and easy access to shared variables.
 
   /** Whether the particle is ready to respawn. */
-  float spawn = canSpawn(life);
+  float spawn = canSpawn(life.x);
 
   #if defined(positionOutput) || defined(motionOutput)
     // Workaround for switching Euler/Verlet; interpret `motion` data as
@@ -230,10 +230,13 @@ void main() {
     motionOutput = mix(motionTo, motionNew, spawn);
   #endif
   #ifdef lifeOutput
-    float lifeTo = life-dt1;
-    float lifeNew = map(random(uv*loop), 0.0, 1.0, lifetime.s, lifetime.t);
+    vec2 lifeTo = vec2(life.x-dt1, life.y);
+
+    vec2 lifeNew = vec2(map(random(uv*(1.0+loop)),
+      0.0, 1.0, lifetime.s, lifetime.t));
+
     /** Whether the oldest state has faded. */
-    float faded = canSpawn(lifeLast);
+    float faded = canSpawn(lifeLast.x);
 
     /**
      * Output the next life value to its channels in the state texture.

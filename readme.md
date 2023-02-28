@@ -83,6 +83,8 @@ It may also be compatible with other `GL` implementations via given _API_ hooks.
 
 ## Partial Example
 
+A partial example of GPGPU logic setup - [see above for a more complete example](#usage).
+
 `JavaScript` setup `index.js`:
 
 ```javascript

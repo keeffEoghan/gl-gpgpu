@@ -125,8 +125,8 @@ const valuesMap = (new Map())
   .set('position', 3)
   // Motion, uses 3 channels.
   .set('motion', 3)
-  // Life, uses 1 channel.
-  .set('life', 1);
+  // Life, uses 2 channels.
+  .set('life', 2);
 
 const values = [];
 const valuesIndex = {};
@@ -753,11 +753,13 @@ const draw = regl(drawPipeline);
 const clearView = { color: drawState.drawProps.clear, depth: 1 };
 
 /** Rotate the model by an angle; update the matrix and inverse. */
-function rotateModel(by = 0) {
-  const { model } = drawState.drawProps;
-  const { rotation: r, axis, angle, matrix: mm, inverse: mi } = model;
+function rotateModel(angle = drawState.drawProps.model.angle) {
+  if(!angle) { return; }
 
-  return invert44(mi, mulM44(mm, rotationAroundAxis44(r, axis, angle+by), mm));
+  const { model } = drawState.drawProps;
+  const { rotation: r, axis, matrix: mm, inverse: mi } = model;
+
+  return invert44(mi, mulM44(mm, rotationAroundAxis44(r, axis, angle), mm));
 }
 
 /** Update the view matrix and inverse. */
@@ -877,9 +879,13 @@ canvas.addEventListener('dblclick', (e) => {
     'primitive', drawPipeline.primitive(0, drawState));
 });
 
-/** Toggle fullscreen. */
+/** Toggle fullscreen by button. */
 document.querySelector('#fullscreen')?.addEventListener?.('click',
   () => canvas.requestFullscreen());
+
+/** Toggle fullscreen by key-press. */
+document.addEventListener('keyup',
+  (e) => (e.key === 'f') && canvas.requestFullscreen());
 
 /** Scroll back up when fallback demo video loads. */
 document.querySelector('#fallback')?.addEventListener?.('load', scrollDefer);
