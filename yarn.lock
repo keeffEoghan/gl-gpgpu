@@ -87,6 +87,7 @@ __metadata:
     glsl-map: ^1.0.1
     glsl-random: ^0.0.5
     glsl-specular-beckmann: ^1.1.2
+    gsl-const: ^1.0.2
     parcel: ^2.7.0
     postcss: ^8.1.0
     postcss-import: ^15.0.0
@@ -2197,6 +2198,13 @@ __metadata:
   version: 4.2.10
   resolution: "graceful-fs@npm:4.2.10"
   checksum: 3f109d70ae123951905d85032ebeae3c2a5a7a997430df00ea30df0e3a6c60cf6689b109654d6fdacd28810a053348c4d14642da1d075049e6be1ba5216218da
+  languageName: node
+  linkType: hard
+
+"gsl-const@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "gsl-const@npm:1.0.2"
+  checksum: f40e554778d5dc3c59f1c5c3e1035ed426f53df0a64641b8cfb916f706151f5599b31b889af86aaf0bba818702cda925fe5615c9b62d2dffa62b6aba67c74b53
   languageName: node
   linkType: hard
 

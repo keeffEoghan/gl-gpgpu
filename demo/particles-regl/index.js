@@ -2,7 +2,6 @@
 
 import getRegl from 'regl';
 import { clamp } from '@thi.ng/math/interval';
-import { mix } from '@thi.ng/math/mix';
 import { fit, fitClamped } from '@thi.ng/math/fit';
 import { identity44 } from '@thi.ng/matrices/identity';
 import { rotationAroundAxis44 } from '@thi.ng/matrices/rotation-around-axis';
@@ -21,6 +20,7 @@ import { invert2 } from '@thi.ng/vectors/invert';
 import { setC2, setC3 } from '@thi.ng/vectors/setc';
 import { dist3 } from '@thi.ng/vectors/dist';
 import { normalize3 } from '@thi.ng/vectors/normalize';
+import { CGS } from 'gsl-const';
 import timer from '@epok.tech/fn-time';
 import reduce from '@epok.tech/fn-lists/reduce';
 import map from '@epok.tech/fn-lists/map';
@@ -43,6 +43,9 @@ import stepFrag from './step.frag.glsl';
 import drawVert from './draw.vert.glsl';
 import drawFrag from './draw.frag.glsl';
 
+import { shake } from './shake';
+
+const { GRAVITATIONAL_CONSTANT: ugc, GRAV_ACCEL: g } = CGS;
 const { abs, floor, random, sin, cos, min, max, sqrt, log2, PI: pi } = Math;
 const tau = pi*2;
 
@@ -207,9 +210,9 @@ const spoutPace = parseFloat(query.get('spout-pace') || 1, 10) || 0;
 /** Offset on the z-axis from the origin to the source. */
 const gapZ = parseFloat(query.get('gap-z') || 0.15, 10) || 0;
 /** How much to shake the source around while idling. */
-const shakeSource = parseFloat(query.get('shake-source') || 1e-4, 10) || 0;
+const shakeSource = parseFloat(query.get('shake-source') || 5e-3, 10) || 0;
 /** How much to shake the sink around while idling. */
-const shakeSink = parseFloat(query.get('shake-sink') || 4e-2, 10) || 0;
+const shakeSink = parseFloat(query.get('shake-sink') || 2e-2, 10) || 0;
 
 /** How many older state positions to fizz around, and other inputs. */
 const fizz = {
@@ -318,30 +321,6 @@ addEventListener('hashchange', hashScroll);
 // Toggle the guide according to query.
 document.querySelector('#flip-guide').checked = guide;
 
-/**
- * Shake source or sink around while idling.
- *
- * @see [onSphere](./on-sphere.glsl)
- * @see [Spherical distribution](https://observablehq.com/@rreusser/equally-distributing-points-on-a-sphere)
- */
-function shake(at, shaken, by, idle) {
-  const l = (min(idle/5e3, 1)**5)*by;
-
-  if(!l) { return at; }
-
-  const a = random()*tau;
-  const d = mix(-1, 1, random());
-  const n = (1-(d*d))*l;
-  const { 0: ax, 1: ay, 2: az, 3: aw, length: al } = at;
-
-  setC2(shaken, ax+(cos(a)*n), ay+(sin(a)*n));
-  (al > 2) && (shaken[2] = az+(d*l));
-  (al > 3) && (shaken[3] = aw);
-  shaken.length = al;
-
-  return shaken;
-}
-
 // Set up state flow - read and write the `gl-gpgpu` state each step.
 
 /** Map how any next output `values` derive from any past input `values`. */
@@ -421,12 +400,18 @@ const state = gpgpu(regl, {
       abs((((t*r)+l)%(l*2))-l),
 
     // Shake the source around while idling.
-    source: (_, { props: { source: { to, at, shaken, shake: by }, timer } }) =>
-      shake(to ?? at, shaken, by, timer.idle),
+    source: (_, { props: { source: s, timer: { idle, dt } } }) => {
+      const { to, at, shake: state } = s;
+
+      return shake(to ?? at, state, idle, dt);
+    },
 
     // Shake the sink around while idling.
-    sink: (_, { props: { sink: { to, at, shaken, shake: by }, timer } }) =>
-      shake(to ?? at, shaken, by, timer.idle),
+    sink: (_, { props: { sink: s, timer: { idle, dt } } }) => {
+      const { to, at, shake: state } = s;
+
+      return shake(to ?? at, state, idle, dt);
+    },
 
     lifetime: regl.prop('props.lifetime'),
     useVerlet: regl.prop('props.useVerlet'),
@@ -469,7 +454,7 @@ const state = gpgpu(regl, {
       // The initial source, may be transformed into a new property `to`.
       at: [0, 0, gapZ],
       // If shaken around while idling, transform `to` or `at` into `shaken`.
-      shake: shakeSource, shaken: []
+      shake: { radius: shakeSource, yaw: 1e-2, spin: 1e-3, wait: 7e3 }
     },
     // Sink position, and universal gravitational constant.
     sink: {
@@ -478,15 +463,15 @@ const state = gpgpu(regl, {
         // Sink position.
         0, 0, 0,
         // Universal gravitational constant (scaled).
-        6.674e-11*2e10
+        ugc*2e7
       ],
       // If shaken around while idling, transform `to` or `at` into `shaken`.
-      shake: shakeSink, shaken: []
+      shake: { radius: shakeSink, yaw: 1e-3, spin: 1e-3, wait: 5e3 }
     },
     // Constant acceleration of gravity; and whether to use it or the `sink`.
     g: [
       // Constant acceleration of gravity.
-      0, -9.80665, 0,
+      0, -g*1e-2, 0,
       // Whether to use it or the `sink`.
       +false
     ],
@@ -560,7 +545,7 @@ const drawState = {
   count: undefined, vert: undefined, frag: undefined, attributes: undefined,
   // Override other properties for drawing.
   bound: drawBound,
-  // Drawing, not data - so no `output` macros. Also, don't need `frag` macros.
+  // Drawing, not updating data, so no `output` macros; no `frag` needed either.
   macros: { output: 0, frag: 0 },
   // Custom properties, namespaced to avoid clashing with `gl-gpgpu` ones etc.
   drawProps: {
@@ -592,7 +577,7 @@ const drawState = {
     // View aspect ratio scale, per x- and y-axes.
     aspect: [1, 1],
     light: {
-      ambient: range(3, ((lit === 'dark')? 0.1 : ((lit === 'false')? 1 : 0.3))),
+      ambient: range(3, ((lit === 'dark')? 0.1 : ((lit === 'false')? 1 : 0.4))),
       // Point-lights: position (`at` transforms `to`); color, attenuate factor.
       points: ((lit && (lit.search(/^(dark|false)$/g) === 0))? null : [
         // A white spherical-light with radius `0.3` - see https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/

@@ -1,6 +1,6 @@
 {
   "name": "@epok.tech/gl-gpgpu",
-  "version": "0.8.42",
+  "version": "0.8.45",
   "description": "GPGPU state-stepping - declaratively maps optimal draw passes, shaders, GL resources, inputs, outputs - lets you focus on your logic, BYO-renderer.",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
   "author": "Eoghan O'Keeffe <epok.tech@gmail.com> (https://epok.tech)",
@@ -51,6 +51,7 @@
     "glsl-map": "^1.0.1",
     "glsl-random": "^0.0.5",
     "glsl-specular-beckmann": "^1.1.2",
+    "gsl-const": "^1.0.2",
     "parcel": "^2.7.0",
     "postcss": "^8.1.0",
     "postcss-import": "^15.0.0",
