@@ -210,7 +210,7 @@ const spoutPace = parseFloat(query.get('spout-pace') || 1, 10) || 0;
 /** Offset on the z-axis from the origin to the source. */
 const gapZ = parseFloat(query.get('gap-z') || 0.15, 10) || 0;
 /** How much to shake the source around while idling. */
-const shakeSource = parseFloat(query.get('shake-source') || 5e-3, 10) || 0;
+const shakeSource = parseFloat(query.get('shake-source') || 2e-2, 10) || 0;
 /** How much to shake the sink around while idling. */
 const shakeSink = parseFloat(query.get('shake-sink') || 2e-2, 10) || 0;
 
@@ -294,6 +294,8 @@ setupLink(document.querySelector('#lit'),
 setupLink(document.querySelector('#spin'),
   [['spin-pace', ((spinPace)? 0 : null)]]);
 
+setupLink(document.querySelector('#gap'), [['gap-z', ((gapZ)? 0 : null)]]);
+
 setupLink(document.querySelector('#timestep'),
   [['timestep', ((timeQuery == null)? '' : null)]]);
 
@@ -358,6 +360,13 @@ derives[valuesIndex.life] = [
 
 console.log(derives, '`derives`');
 
+/** Shake around a position, via the `state.props`. */
+const toShake = (k) => (_, { props: { [k]: s, timer: { idle, dt } } }) => {
+  const { to, at, shake: state } = s;
+
+  return shake(to ?? at, state, idle, dt);
+};
+
 /** The main `gl-gpgpu` state. */
 const state = gpgpu(regl, {
   // Logic given as state `values`, `gl-gpgpu` maps optimal inputs and outputs.
@@ -400,18 +409,9 @@ const state = gpgpu(regl, {
       abs((((t*r)+l)%(l*2))-l),
 
     // Shake the source around while idling.
-    source: (_, { props: { source: s, timer: { idle, dt } } }) => {
-      const { to, at, shake: state } = s;
-
-      return shake(to ?? at, state, idle, dt);
-    },
-
+    source: toShake('source'),
     // Shake the sink around while idling.
-    sink: (_, { props: { sink: s, timer: { idle, dt } } }) => {
-      const { to, at, shake: state } = s;
-
-      return shake(to ?? at, state, idle, dt);
-    },
+    sink: toShake('sink'),
 
     lifetime: regl.prop('props.lifetime'),
     useVerlet: regl.prop('props.useVerlet'),
@@ -454,7 +454,7 @@ const state = gpgpu(regl, {
       // The initial source, may be transformed into a new property `to`.
       at: [0, 0, gapZ],
       // If shaken around while idling, transform `to` or `at` into `shaken`.
-      shake: { radius: shakeSource, yaw: 1e-2, spin: 1e-3, wait: 7e3 }
+      shake: { radius: shakeSource, yaw: 1e-2, spin: 3e-4, wait: 7e3 }
     },
     // Sink position, and universal gravitational constant.
     sink: {

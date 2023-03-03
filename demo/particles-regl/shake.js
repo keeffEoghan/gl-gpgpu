@@ -20,6 +20,7 @@ const { random, min, PI: pi, TAU: tau = pi*2 } = Math;
  * @param {number} state.yaw The angular speed that the `turn` can yaw by.
  * @param {number} state.spin The angular speed to `turn` the `pole` axis by.
  * @param {number} state.wait How long to idle before reaching `radius`.
+ * @param {number} state.curve A power to curve the idling to reach `radius`.
  * @param {number} idle How long has been spent idling.
  * @param {number} dt The time elapsed since the last frame.
  *
@@ -28,17 +29,18 @@ const { random, min, PI: pi, TAU: tau = pi*2 } = Math;
  */
 export function shake(at, state, idle, dt) {
   const {
-      wait, radius, yaw, spin, turn: t,
+      radius, yaw, spin, turn, wait: w, curve = 5,
       to = state.to = [], pole = state.pole = [0, random()*tau, random()*tau]
     } = state;
 
-  if(!(pole[0] = (min(idle/wait, 1)**5)*radius)) { return at; }
+  if(!(pole[0] = w && idle && (min(idle/w, 1)**curve)*radius)) { return at; }
 
-  const a = ((t == null)? random()*tau : t+(mix(-pi, pi, random())*yaw*dt))%tau;
-  const axis = axis2(state.turn = a, to);
+  const t = state.turn = ((turn == null)? random()*tau
+    : (turn+(yaw && dt && mix(-pi, pi, random())*yaw*dt)%tau));
 
   /** Scale `turn` direction by `spin` angular speed to add to `pole` angles. */
-  cartesian3(to, maddNS2(pole, axis, spin*tau*dt, pole, 1, 0, 1), at);
+  spin && dt && maddNS2(pole, axis2(t, to), spin*tau*dt, pole, 1, 0, 1);
+  cartesian3(to, pole, at);
 
   const atl = at.length;
 

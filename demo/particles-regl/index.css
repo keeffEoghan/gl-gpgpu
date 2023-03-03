@@ -70,7 +70,7 @@ a {
 
 canvas {
   position: relative;
-  cursor: pointer;
+  cursor: crosshair;
   touch-action: none;
   tap-highlight-color: transparent;
   -webkit-tap-highlight-color: transparent;
