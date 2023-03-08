@@ -76,6 +76,8 @@ canvas {
   -webkit-tap-highlight-color: transparent;
 }
 
+.idle canvas { cursor: none; }
+
 .hide { display: none; }
 
 aside {

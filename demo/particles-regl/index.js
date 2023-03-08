@@ -850,6 +850,7 @@ canvas.addEventListener((('onpointermove' in self)? 'pointermove'
     touch && (hold = true);
     // Reset the idle time for any movement.
     t.idle = 0;
+    document.body.classList.remove('idle');
   });
 
 /** Toggle physics and graphics modes. */
@@ -889,13 +890,13 @@ function resize() {
 addEventListener('resize', resize);
 resize();
 
-function stepTime(state) {
-  const { dts } = state;
+function stepTime(to) {
+  const { dt, dts } = timer(to);
 
   dts[0] = dts[1];
-  state.idle += (dts[1] = timer(state).dt);
+  to.idle += (dts[1] = dt);
 
-  return state;
+  return to;
 }
 
 /** Compute the next step of state for a frame. */
@@ -908,7 +909,7 @@ function frameStep() {
 }
 
 // Whether to prefill initial states before spawning, or start with all `0`.
-for(let p = prefill && stepsPast; p; --p) { frameStep(); }
+for(let p = prefill && stepsPast; p--;) { frameStep(); }
 
 regl.frame(() => {
   try {
@@ -922,6 +923,8 @@ regl.frame(() => {
     // Clear and draw.
     regl.clear(clearView);
     draw(drawState);
+    // Update idle view.
+    (state.props.timer.idle > 3e3) && document.body.classList.add('idle');
   }
   catch(e) { toggleError(e); }
 });

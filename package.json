@@ -1,7 +1,7 @@
 {
   "name": "@epok.tech/gl-gpgpu",
-  "version": "0.8.46",
-  "description": "GPGPU state-stepping - declaratively maps optimal draw passes, shaders, GL resources, inputs, outputs - lets you focus on your logic, BYO-renderer.",
+  "version": "0.8.47",
+  "description": "`gl-gpgpu` - GPGPU state-stepping - declaratively maps optimal draw passes, shaders, GL resources, inputs, outputs - lets you focus on your logic, BYO-renderer.",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
   "author": "Eoghan O'Keeffe <epok.tech@gmail.com> (https://epok.tech)",
   "license": "MIT",
