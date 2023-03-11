@@ -909,7 +909,7 @@ function frameStep() {
 }
 
 // Whether to prefill initial states before spawning, or start with all `0`.
-for(let p = prefill && stepsPast; p--;) { frameStep(); }
+for(let p = prefill && stepsPast; p; --p) { frameStep(); }
 
 regl.frame(() => {
   try {
