@@ -463,7 +463,7 @@ const state = gpgpu(regl, {
         // Sink position.
         0, 0, 0,
         // Universal gravitational constant (scaled).
-        ugc*2e7
+        ugc*2e6
       ],
       // If shaken around while idling, transform `to` or `at` into `shaken`.
       shake: { radius: shakeSink, yaw: 1e-3, spin: 1e-3, wait: 5e3 }

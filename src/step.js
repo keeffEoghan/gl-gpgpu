@@ -20,6 +20,8 @@ import {
     clearPassDef, copyFrameDef, copyImageDef
   } from './const';
 
+const { call } = Function;
+
 /**
  * Convenience to get the currently active `framebuffer`.
  *
@@ -35,6 +37,20 @@ import {
  */
 export const getPass = ({ passes: ps, stepNow: s, passNow: p }) =>
   wrap(s, ps)?.[p];
+
+/**
+ * Resolve a shader given as either a `string` or `function`.
+ *
+ * @param {string|(*,*)=>string} shader A shader `string`, or a `function` that
+ *   returns one when given the `context` and `state` arguments.
+ * @param {*} [context] A `context` passed to `shader` if it's a `function`.
+ * @param {*} [state] A `state` passed to `shader` if it's a `function`.
+ *
+ * @returns {string} The given `shader` if it's a `string`; otherwise if it's a
+ *   `function` the `string` returned by calling it with `context` and `state`.
+ */
+export const toShader = (shader, context, state) =>
+  ((shader.call === call)? shader(context, state) : shader);
 
 /**
  * Merged `texture` update, called upon each pass.
@@ -208,10 +224,14 @@ export function toStep(api, state = {}, to = state) {
     each((pass, p) => {
         // Create `macro`s for this pass in advance.
         state.passNow = p;
+
         // Specify a `'vert'` type `shader` for any per-`shader` `macro` hooks.
-        verts && (verts[p] ??= macroPass(state, 'vert')+vert);
+        verts &&
+          (verts[p] ??= macroPass(state, 'vert')+toShader(vert, null, state));
+
         // Specify a `'frag'` type `shader` for any per-`shader` `macro` hooks.
-        frags && (frags[p] ??= macroPass(state, 'frag')+frag);
+        frags &&
+          (frags[p] ??= macroPass(state, 'frag')+toShader(frag, null, state));
       },
       maps.passes);
 
@@ -222,17 +242,17 @@ export function toStep(api, state = {}, to = state) {
   /** A `command` to render `pass` updates via a `GL` `pipeline` description. */
   to.pass = command(to.pipeline = {
     // Uses the full-screen vertex `shader` state by default.
-    vert(_, s) {
+    vert(c, s) {
       const { passNow: p, step: { vert: v = vert, verts: vs = verts } } = state;
 
       // Specify a `'vert'` type `shader` for any per-`shader` `macro` hooks.
-      return vs?.[p] ?? macroPass(s, 'vert')+v;
+      return vs?.[p] ?? macroPass(s, 'vert')+toShader(v, c, s);
     },
-    frag(_, s) {
+    frag(c, s) {
       const { passNow: p, step: { frag: f = frag, frags: fs = frags } } = state;
 
       // Specify a `'frag'` type `shader` for any per-`shader` `macro` hooks.
-      return fs?.[p] ?? macroPass(s, 'frag')+f;
+      return fs?.[p] ?? macroPass(s, 'frag')+toShader(f, c, s);
     },
     /** Need an active `pass` with `framebuffer`, or may draw to the screen. */
     framebuffer: (_, s) => getPass(s)?.framebuffer,
@@ -344,7 +364,7 @@ function updateMergeTest(state, update = updateMerge, after = 2) {
   let f = next?.framebuffer;
 
   /** Handle `object`s or `regl`-like extended `function`s. */
-  (f.call !== Function.call) && (f = f?.call);
+  (f.call !== call) && (f = f?.call);
 
   console.warn(s, p, pass, ':');
   console.warn('- l', 0, 'r', tl*w, 'w', w, 'wl', wl);

@@ -216,12 +216,13 @@ void main() {
      * Gravitate towards the sink point (simplified).
      * @see [Wikipedia on gravitation](https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation)
      */
-    vec3 gravity = sink.xyz-position1;
+    vec3 pull = sink.xyz-position1;
+    float pullL2 = dot(pull, pull);
 
-    gravity *= sink.w/max(dot(gravity, gravity), epsilon);
+    pull *= sink.w/max(pullL2*sqrt(pullL2), epsilon);
 
     /** Use sink point, or constant acceleration due to gravity. */
-    acceleration = mix(gravity, g.xyz, g.w);
+    acceleration = mix(pull, g.xyz, g.w);
 
     vec3 motionTo = mix(velocity+(acceleration*dt1), acceleration, useVerlet);
     vec3 motionNew = spout.y*spoutSpawn;
