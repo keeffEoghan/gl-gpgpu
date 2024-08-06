@@ -1,6 +1,6 @@
 # `gl-gpgpu`
 
-[![GPGPU particles demo](https://epok.tech/gl-gpgpu/api/media/demo-particles-regl-frames.png)](https://epok.tech/gl-gpgpu "GPGPU demo, particles with `regl`")
+[![GPGPU particles demo](./media/demo-particles-regl-frames.png)](https://epok.tech/gl-gpgpu "GPGPU demo, particles with `regl`")
 
 [GPGPU state-stepping](#gpgpu-state-stepping) - declaratively maps optimal draw passes, shaders, `GL` resources, inputs, outputs - lets you focus on your logic, [BYO-renderer](#byo-renderer).
 
