@@ -1,15 +1,15 @@
 {
   "name": "@epok.tech/gl-gpgpu",
-  "version": "0.8.50",
+  "version": "0.8.60",
   "description": "`gl-gpgpu` - GPGPU state-stepping - declaratively maps optimal draw passes, shaders, GL resources, inputs, outputs - lets you focus on your logic, BYO-renderer.",
   "repository": "https://github.com/keeffEoghan/gl-gpgpu",
   "author": "Eoghan O'Keeffe <epok.tech@gmail.com> (https://epok.tech)",
   "license": "MIT",
+  "packageManager": "yarn@4.3.1",
   "engines": {
-    "node": "v16.13.0 || *",
-    "yarn": "3.1.0 || *"
+    "node": "v22.0.0 || *",
+    "yarn": "4.3.1 || *"
   },
-  "packageManager": "yarn@3.1.0",
   "scripts": {
     "start": "yarn dist:fresh",
     "dev": "parcel --target docs --log-level verbose",
@@ -18,14 +18,14 @@
     "dist:fresh": "yarn clean && (yarn build:fresh & yarn docs:fresh & wait)",
     "build": "parcel build $(yarn list:js | xargs) --target esm --target cjs",
     "build:fresh": "yarn build --no-cache",
-    "docs": "yarn docs:demo & yarn docs:info & wait",
-    "docs:fresh": "yarn docs:demo:fresh & yarn docs:info & wait",
+    "docs": "yarn docs:demo & yarn docs:api & yarn docs:gh & wait",
+    "docs:fresh": "yarn docs:demo:fresh & yarn docs:api & wait",
     "docs:demo": "parcel build --target docs",
     "docs:demo:fresh": "yarn docs:demo --no-cache",
-    "docs:info": "yarn docs:info:run && yarn docs:info:gh",
-    "docs:info:watch": "yarn docs:info:run --watch --preserveWatchOutput",
-    "docs:info:run": "typedoc $(yarn list:js | xargs)",
-    "docs:info:gh": "mkdir -p ./docs/ && touch ./docs/.nojekyll",
+    "docs:api": "yarn docs:api:run",
+    "docs:api:run": "typedoc $(yarn list:js | xargs)",
+    "docs:api:watch": "yarn docs:api:run --watch --preserveWatchOutput",
+    "docs:gh": "mkdir -p ./docs/ && touch ./docs/.nojekyll",
     "list:all": "find ./src/. -not -type d",
     "list:js": "yarn list:all | grep -i -E '\\.(j|t)s$'",
     "clean": "yarn clean:build & yarn clean:docs & wait",
@@ -41,9 +41,12 @@
   "devDependencies": {
     "@epok.tech/fn-time": "^0.2.1",
     "@epok.tech/glsl-verlet": "^0.1.1",
-    "@parcel/transformer-glsl": "2.7.0",
+    "@parcel/core": "^2.12.0",
+    "@parcel/runtime-browser-hmr": "^2.12.0",
+    "@parcel/transformer-glsl": "2.12.0",
     "@thi.ng/math": "^5.4.0",
     "@thi.ng/matrices": "^2.1.40",
+    "@types/postcss-url": "^10",
     "glsl-conditionals": "^1.0.0",
     "glsl-constants": "^2.0.0",
     "glsl-diffuse-oren-nayar": "^1.0.2",
@@ -52,15 +55,15 @@
     "glsl-random": "^0.0.5",
     "glsl-specular-beckmann": "^1.1.2",
     "gsl-const": "^1.0.2",
-    "parcel": "^2.7.0",
-    "postcss": "^8.1.0",
-    "postcss-import": "^15.0.0",
-    "postcss-nesting": "^10.1.10",
+    "parcel": "^2.12.0",
+    "postcss": "^8.4.40",
+    "postcss-import": "^16.1.0",
+    "postcss-nesting": "^12.1.5",
     "postcss-url": "^10.1.3",
     "regl": "^2.1.0",
-    "typedoc": "^0.23.16",
-    "typedoc-theme-hierarchy": "^3.0.0",
-    "typescript": "^4.8.2"
+    "typedoc": "^0.26.5",
+    "typedoc-theme-hierarchy": "^5.0.3",
+    "typescript": "^5.5.4"
   },
   "targets": {
     "cjs": {
@@ -98,15 +101,13 @@
   "files": [
     "src/**/*",
     "cjs/**/*",
-    "esm/**/*",
-    "demo/**/*"
+    "esm/**/*"
   ],
   "exports": {
     "./src/*": "./src/*",
-    "./demo/*": "./demo/*",
     "./esm/*": "./esm/*",
     "./cjs/*": "./cjs/*",
-    "./*!((src|demo|esm|cjs)/*)": {
+    "./*!((src|esm|cjs)/*)": {
       "import": "./esm/*",
       "require": "./cjs/*",
       "default": "./*"
