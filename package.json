@@ -19,7 +19,7 @@
     "build": "parcel build $(yarn list:js | xargs) --target esm --target cjs",
     "build:fresh": "yarn build --no-cache",
     "docs": "yarn docs:demo & yarn docs:api & yarn docs:gh & wait",
-    "docs:fresh": "yarn docs:demo:fresh & yarn docs:api & wait",
+    "docs:fresh": "yarn docs:demo:fresh & yarn docs:api & yarn docs:gh & wait",
     "docs:demo": "parcel build --target docs",
     "docs:demo:fresh": "yarn docs:demo --no-cache",
     "docs:api": "yarn docs:api:run",
