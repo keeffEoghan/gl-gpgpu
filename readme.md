@@ -321,4 +321,4 @@ void main() {
 
 ## Diagram
 
-![Visualization of the codebase](./diagram.svg)
+![Visualization of the codebase](./media/diagram.svg)

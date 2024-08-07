@@ -1,4 +1,6 @@
-# @see [Repo visualisation](https://githubnext.com/projects/repo-visualization/)
+# @see [Article](https://githubnext.com/projects/repo-visualization/)
+# @see [Repo](https://github.com/githubocto/repo-visualizer)
+# @see [Action marketplace](https://github.com/marketplace/actions/repo-visualizer)
 name: Create diagram
 on:
   workflow_dispatch: {}
@@ -14,4 +16,5 @@ jobs:
       - name: Update diagram
         uses: githubocto/repo-visualizer@main
         with:
-          excluded_paths: ".github"
+          root_path: "src/"
+          output_file: ./media/diagram.svg

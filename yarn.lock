@@ -87,8 +87,10 @@ __metadata:
     "@epok.tech/glsl-verlet": "npm:^0.1.1"
     "@epok.tech/is-type": "npm:^0.1.0"
     "@parcel/core": "npm:^2.12.0"
+    "@parcel/packager-raw-url": "npm:2.12.0"
     "@parcel/runtime-browser-hmr": "npm:^2.12.0"
     "@parcel/transformer-glsl": "npm:2.12.0"
+    "@parcel/transformer-webmanifest": "npm:2.12.0"
     "@thi.ng/math": "npm:^5.4.0"
     "@thi.ng/matrices": "npm:^2.1.40"
     "@thi.ng/vectors": "npm:^7.1.1"
@@ -618,6 +620,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@parcel/packager-raw-url@npm:2.12.0":
+  version: 2.12.0
+  resolution: "@parcel/packager-raw-url@npm:2.12.0"
+  dependencies:
+    "@parcel/plugin": "npm:2.12.0"
+    "@parcel/utils": "npm:2.12.0"
+  checksum: 10c0/e519363dab0c8ae1b7b33552bd4cb2d5fc966b1ed5822e965ea46ade340b627ba82983b2e99c9c191095c982ed35efa9c106eec6619e11457bb518bec4acaa28
+  languageName: node
+  linkType: hard
+
 "@parcel/packager-raw@npm:2.12.0":
   version: 2.12.0
   resolution: "@parcel/packager-raw@npm:2.12.0"
@@ -942,6 +954,18 @@ __metadata:
     posthtml-render: "npm:^3.0.0"
     semver: "npm:^7.5.2"
   checksum: 10c0/8916bdc0b36c60b32963e015c43a8bcd8cc2b15cc11b7611c49af6a4e4d63c2aabea0aa0fde31a78278eec25f88b52b3e56d8382dc2db5f3a401e63312115f3a
+  languageName: node
+  linkType: hard
+
+"@parcel/transformer-webmanifest@npm:2.12.0":
+  version: 2.12.0
+  resolution: "@parcel/transformer-webmanifest@npm:2.12.0"
+  dependencies:
+    "@mischnic/json-sourcemap": "npm:^0.1.0"
+    "@parcel/diagnostic": "npm:2.12.0"
+    "@parcel/plugin": "npm:2.12.0"
+    "@parcel/utils": "npm:2.12.0"
+  checksum: 10c0/90b19325e997a3b073f35e8f8e093efbb3742bdd891610ba2eefa4f679b0eb19d1eb450713d5ec4cf9cf16faca04dc600b96d7323109028dd33ca33c4fa575f5
   languageName: node
   linkType: hard
 

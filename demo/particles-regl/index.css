@@ -216,7 +216,7 @@ p {
 
 [for="flip-guide"] {
   outline-offset: -3px;
-  cursor: se-resize;
+  cursor: sw-resize;
 }
 
 #flip-guide {
