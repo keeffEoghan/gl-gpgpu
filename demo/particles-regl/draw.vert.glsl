@@ -44,6 +44,7 @@ uniform vec2 gpgpu_viewShape;
 uniform mat4 modelView;
 uniform mat4 projection;
 uniform vec2 aspect;
+uniform vec2 widths;
 uniform float wide;
 uniform float dt;
 uniform float loop;
@@ -146,7 +147,9 @@ void main() {
     clamp(pow(life.x/life.y, 0.5), 0.0, 1.0);
 
   float scale = clamp(pow(1.0-(life.x/life.y), 0.4), 0.0, 1.0);
-  float size = gl_PointSize = (wide*fade*scale)/to.w;
+
+  float size = gl_PointSize = 0.5*
+    clamp((wide*fade*scale)/to.w, widths.s, widths.t);
 
   /**
    * Convert vertex position to `gl_FragCoord` window-space.

@@ -22,7 +22,7 @@ const { isFinite, isInteger } = Number;
  * @param {object} [value.size] Size (width) `number`, or an `object`
  *   containing it; supersedes further aliases.
  * @param {number} [value.side] Width and height; supersedes further aliases.
- * @param {number} [value.ʼ0ʼ] Alias of `width`; supersedes `value` itself.
+ * @param {number} [value.0] Alias of `width`; supersedes `value` itself.
  *
  * @returns {number} The width as given in one of the expected properties, or
  *   any given `value` number, or `null`ish if no width could be resolved.
@@ -49,7 +49,7 @@ export function getWidth(value) {
  * @param {object} [value.size] Size (height) `number`, or an `object`
  *   containing it; supersedes further aliases.
  * @param {number} [value.side] Width and height; supersedes further aliases.
- * @param {number} [value.ʼ1ʼ] Alias of `height`; supersedes `value` itself.
+ * @param {number} [value.1] Alias of `height`; supersedes `value` itself.
  *
  * @returns {number} The height as given in one of the expected properties, or
  *   any given `value` number, or `null`ish if no height could be resolved.

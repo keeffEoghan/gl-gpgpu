@@ -30,7 +30,7 @@ import wrap from '@epok.tech/fn-lists/wrap';
 
 import gpgpu from '../../src';
 
-import { extensionsFloat, extensionsHalfFloat, optionalExtensions }
+import { extensionsFloat, extensionsHalfFloat, extensionsDrawBuffers }
   from '../../src/const';
 
 import { macroPass } from '../../src/macros';
@@ -90,17 +90,20 @@ const fragDepth = query.get('depth') === 'frag';
 // Set up GL.
 
 const extend = {
-  required: extensionsHalfFloat,
-  optional: ((fragDepth)?
-      [...extensionsFloat, ...optionalExtensions, 'ext_frag_depth']
-    : [...extensionsFloat, ...optionalExtensions])
+  halfFloat: extensionsHalfFloat(),
+  float: extensionsFloat(),
+  drawBuffers: extensionsDrawBuffers(),
+  fragDepth: ['ext_frag_depth']
 };
 
 const pixelRatio = max(devicePixelRatio, 1.5) || 1.5;
 
 const regl = self.regl = getRegl({
   canvas, pixelRatio,
-  extensions: extend.required, optionalExtensions: extend.optional,
+  extensions: extend.required = extend.halfFloat,
+  optionalExtensions: extend.optional = ((fragDepth)?
+      [...extend.float, ...extend.drawBuffers, ...extend.fragDepth]
+    : [...extend.float, ...extend.drawBuffers]),
   onDone: toggleError
 });
 
@@ -388,7 +391,7 @@ const state = gpgpu(regl, {
   merge,
   // Data type according to platform capabilities.
   // @todo Seems to move differently with `'half float'` Verlet integration.
-  type: ((extensionsFloat.every(regl.hasExtension))? 'float' : 'half float'),
+  type: ((extend.float.every(regl.hasExtension))? 'float' : 'half float'),
   // Configure macro hooks, globally or per-shader.
   macros: {
     // No `macros` needed for the `vert` shader; all other `macros` generated.
@@ -637,7 +640,7 @@ const drawState = {
      * multiple passes (as happens in `state.step` to bind all `texture`s across
      * limited buffer outputs).
      */
-    buffersMax: null,
+    buffersMax: 0,
 
     /**
      * Read all past `values` to derive one value; that is, look up all states
@@ -682,6 +685,8 @@ const drawUniforms = toUniforms(drawState, {
   lightAmbient: regl.prop('drawProps.light.ambient'),
 
   paceColor: (_, { drawProps: dp, props: p }) => dp.paceColor[+p.useVerlet],
+
+  widths: (_, { drawProps: { widths: ws, form: f } }) => ws[f],
 
   wide: (_, { drawProps: { wide: w, widths: ws, form: f, size: s } }) =>
     clamp(w*viewScale(...s), ...ws[f])
@@ -878,8 +883,7 @@ document.querySelector('#fallback')?.addEventListener?.('load', scrollDefer);
 
 /** Resize the canvas and any dependent properties. */
 function resize() {
-  const { drawProps } = drawState;
-  const { size, aspect: ar } = drawProps;
+  const { size, aspect: ar } = drawState.drawProps;
   const [w, h] = mulN2(size, setC2(size, innerWidth, innerHeight), pixelRatio);
 
   canvas.width = w;

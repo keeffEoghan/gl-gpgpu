@@ -17,10 +17,12 @@ import { macroPass } from './macros';
 
 import {
     vertDef, preDef, positionsDef, countDef, stepMaxDef,
-    clearPassDef, copyFrameDef, copyImageDef
+    clearPassDef, copyImageDef
   } from './const';
 
 const { call } = Function;
+
+const cache = {};
 
 /**
  * Convenience to get the currently active `framebuffer`.
@@ -84,19 +86,20 @@ export const toShader = (shader, context, state) =>
 export function updateMerge(state) {
   const {
       merge, stepNow: s, size,
-      copyFrame: cf = copyFrameDef, copyImage: ci = copyImageDef
+      copyImage: ci = cache.copyImageDef ??= copyImageDef()
     } = state;
 
-  const { color, map: pass } = getPass(state);
-  const { all: { texture }, next: { framebuffer } } = merge;
-  const to = texture?.subimage;
-  let f = framebuffer;
-
-  // Silent exit if there's not enough info ready now to perform the update.
-  if(!(to && f && color && pass && (s || (s === 0)))) { return texture; }
+  const { color: cs, map: pass } = getPass(state);
+  const { all: { texture: t }, next } = merge;
+  const sub = t?.subimage;
+  const { color } = next;
+  let f = next.framebuffer;
 
   /** Handle `object`s or `regl`-like extended `function`s. */
-  (f.call !== Function.call) && (f = f.call);
+  (f?.call !== Function.call) && (f = f?.call);
+
+  // Silent exit if there's not enough info ready now to perform the update.
+  if(!(sub && f && cs && pass && (s || (s === 0)))) { return t; }
 
   const { steps: sl, width: w, height: h } = size;
   /** Start at the top of the `texture`, move down row-per-step and wrap. */
@@ -107,11 +110,15 @@ export function updateMerge(state) {
    * the merged `texture`.
    */
   each((c, i) =>
-      (cf.color = c) &&
-        f.call(f, cf).use.call(f, () => to.call(texture, ci, pass[i]*w, y)),
-    color);
+    (next.color = c) &&
+      f.call(f, next).use.call(f, () => sub.call(t, ci, pass[i]*w, y)),
+    cs);
 
-  return texture;
+  /** Reset any changed properties. */
+  next.color = color;
+  f.call(f, next);
+
+  return t;
 }
 
 /**
@@ -204,7 +211,7 @@ export function toStep(api, state = {}, to = state) {
       // Update any default vertex `shader` to use the given `pre`.
       pre: n = preDef, vert = vertDef.replaceAll(preDef, n || ''),
       // Any vertex `count`, and `positions` to be passed to `buffer`.
-      count = countDef, positions = positionsDef
+      count = countDef, positions = positionsDef()
     } = state;
 
   // Ensure any properties changed are included.
@@ -273,7 +280,8 @@ export function toStep(api, state = {}, to = state) {
   to.step = (state = to) => {
     const {
         steps, merge, pass, onPass, onStep,
-        stepMax = stepMaxDef, clearPass = clearPassDef
+        stepMax = stepMaxDef,
+        clearPass = cache.clearPassDef ??= clearPassDef()
       } = state;
 
     let { stepNow = 0 } = state;

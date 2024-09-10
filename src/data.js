@@ -372,9 +372,9 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
   const height = Math.floor(getHeight(state) ?? scaled ?? heightDef);
 
   const {
-      values = (maps.values = valuesDef),
-      channelsMin = (maps.channelsMin = channelsMinDef),
-      buffersMax = (maps.buffersMax = buffersMaxDef),
+      values = maps.values = valuesDef(),
+      channelsMin = maps.channelsMin = channelsMinDef,
+      buffersMax = maps.buffersMax = buffersMaxDef,
       textures: texturesMap, passes: passesMap
     } = maps;
 
@@ -417,7 +417,7 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
 
   /** Size of the created resources. */
   const size = to.size = {
-    type, depth, stencil, channelsMin: mergeChannels ?? channelsMin,
+    type, channelsMin: mergeChannels ?? channelsMin,
     steps: stepsL, passes: 0, framebuffers: 0, textures: 0, colors: 0,
     width, height, shape: [width, height], entries: width*height
   };
@@ -490,8 +490,9 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
      * All a `framebuffer`'s attachments need the same number of channels;
      * superseded by any given `color`'s value.
      */
-    const channels = color ?? mergeChannels ??
-      ((pass)? passChannels(pass, channelsMin) : channelsMin);
+    const channels = ((color != null)? 0
+      : mergeChannels ??
+          ((pass)? passChannels(pass, channelsMin) : channelsMin));
 
     // Resources.
 
@@ -500,10 +501,12 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
       depth, stencil, width, height,
       /** Map the pass's `texture` color attachments and their meta info. */
       color: color ??
-        map(addTexture(channels, width, height, step, index), pass,
-          // Reuse any existing color attachments if merging; otherwise make
-          // dedicated color attachments for each pass.
-          ((merge)? (colorPool ??= []) : []))
+        ((pass)?
+          map(addTexture(channels, width, height, step, index), pass,
+            // Reuse any existing color attachments if merging; otherwise make
+            // dedicated color attachments for each pass.
+            ((merge)? colorPool ??= [] : []))
+        : [])
     };
 
     /**
@@ -558,7 +561,7 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
     /** New merge `texture` and info, or use any given merge `texture`. */
     all: mAll ?? addTexture(mergeChannels, mw, mh)(),
     /** Empty `framebuffer`, to copy data from each `texture` of each pass. */
-    next: mNext ?? addPass(null, false)()
+    next: mNext ?? addPass(null, colorPool[0])()
   };
 
   size.merge = { width: mw, height: mh, shape: [mw, mh], entries: mw*mh };

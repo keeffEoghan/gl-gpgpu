@@ -52,15 +52,16 @@ export const hooks = {
  *
  * @example ```javascript
  * // Macros to be handled here, the default.
- * [hasMacros(), hasMacros({}), hasMacros({ macros: true })]]
- *   .every((m) => m == null);
+ * hasMacros() == null;
+ * hasMacros({}) == null;
+ * hasMacros({ macros: true }) == null;
  *
  * // Macros to be handled here, with prefix `'pre_'` instead of `'preDef'`.
  * hasMacros({ pre: 'pre_' }) == null;
  *
  * // Macros not created.
- * [hasMacros({ macros: false }), hasMacros({ macros: 0 })]
- *   .every((m) => m === '');
+ * hasMacros({ macros: false }) === '';
+ * hasMacros({ macros: 0 }) === '';
  *
  * // Macros for `'a'` handled by external `string` hook, not here.
  * hasMacros({ macros: { a: '//A\n', b: () => '//B\n' } }, 'a') === '//A\n';
@@ -788,7 +789,7 @@ export function macroSamples(state, on) {
  * @param {string} [state.pre=preDef] Macros prefix; `preDef` if not given.
  * @param {number} [state.passNow=0] The index of the currently active pass;
  *   uses the first pass if not given.
- * @param {object} state.maps  How `values` are grouped per-texture per-pass
+ * @param {object} state.maps How `values` are grouped per-texture per-pass
  *   per-step. See `mapGroups`.
  * @param {array.<array.<array.<number>>>} [state.maps.samples] The minimal set
  *   of texture samples to use. See `mapSamples`.

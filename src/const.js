@@ -16,7 +16,7 @@ export const vertDef = vertGLSL;
  *
  * @see {@link step.toStep}
  */
-export const positionsDef = positions;
+export const positionsDef = () => [...positions];
 
 /**
  * Default vertex `count`; 3 points of a large flat triangle.
@@ -27,19 +27,24 @@ export const countDef = count;
 
 // The required and optional `GL` extensions for a `gpgpu` state.
 
-/** Default required `GL` extensions; none. */
-export const extensions = [];
-
 /** Default required `GL` extensions to render to `float` buffers. */
-export const extensionsFloat =
+export const extensionsFloat = () =>
   ['oes_texture_float', 'webgl_color_buffer_float'];
 
 /** Default required `GL` extensions to render to `half float` buffers. */
-export const extensionsHalfFloat =
+export const extensionsHalfFloat = () =>
   ['oes_texture_half_float', 'ext_color_buffer_half_float'];
 
 /** Default optional `GL` extensions; update more data in one render pass. */
-export const optionalExtensions = ['webgl_draw_buffers'];
+export const extensionsDrawBuffers = () => ['webgl_draw_buffers'];
+
+/** Default required `GL` extensions; none. */
+export const extensions = () => [];
+
+/** Default optional `GL` extensions. */
+export const optionalExtensions = extensionsDrawBuffers;
+
+export const extensionsOptional = optionalExtensions;
 
 /**
  * Prefix namespace to avoid naming clashes; recommended.
@@ -107,7 +112,7 @@ export const heightDef = 2**scaleDef;
 /** Default number steps of state to track. */
 export const stepsDef = 2;
 /** Default values to track; gives 1 set of `texture` channels. */
-export const valuesDef = [channelsMaxDef];
+export const valuesDef = () => [channelsMaxDef];
 
 // `GL` resource format defaults.
 
@@ -178,18 +183,8 @@ export const stepMaxDef = 2**13;
  * @prop {framebuffer} [framebuffer] Any `framebuffer` to clear, set upon each
  *   pass.
  */
-export const clearPassDef = { color: [0, 0, 0, 0], depth: 1, stencil: 0 };
-
-/**
- * Default `getFramebuffer` options, to bind a given `color` to it.
- *
- * @see {@link step.updateMerge}
- * @see {@link api.framebuffer}
- * @see {@link api.getFramebuffer}
- *
- * @prop {texture|null} color Any `texture` to bind as a `framebuffer` output.
- */
-export const copyFrameDef = { color: null };
+export const clearPassDef = () =>
+  ({ color: [0, 0, 0, 0], depth: 1, stencil: 0 });
 
 /**
  * Default `texture.subimage` options, to bind a given `color`.
@@ -201,4 +196,4 @@ export const copyFrameDef = { color: null };
  * @prop {true} copy Indicates `texture.subimage` should copy data from the
  *   currently-bound `framebuffer`.
  */
-export const copyImageDef = { copy: true };
+export const copyImageDef = () => ({ copy: true });
