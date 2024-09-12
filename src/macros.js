@@ -412,18 +412,28 @@ export function macroValues(state, on) {
       cache = cacheDef
     } = state;
 
-  const { values, textures, passes: { length: passesL } } = maps;
+  const { values, textures, passes: { length: passesL }, alias } = maps;
   const stepsL = steps.length ?? steps;
   const entries = size?.entries;
 
   const c = cache &&
-    `macro@${key}@${n
-      }|${bound}|${id(values)}|${id(textures)}|${stepsL}|${passesL}|${entries}`;
+    `macro@${key}@${n}|${bound}|${id(values)}|${id(textures)}|${stepsL}|${
+      passesL}|${entries}|${id(alias)}`;
 
   to = cache?.[c] ??
-    reduce((s, texture, t, _, i = 0) => reduce((s, v) =>
-          s+`#define ${n}texture_${v} ${t}\n`+
-          `#define ${n}channels_${v} ${rgba.slice(i, i += values[v])}\n\n`,
+    reduce((s, texture, t, _, i = 0) => reduce((s, v) => {
+          const to = s+
+            `#define ${n}texture_${v} ${t}\n`+
+            `#define ${n}channels_${v} ${rgba.slice(i, i += values[v])}\n\n`;
+
+          if(!alias) { return to; }
+
+          const a = alias[v];
+
+          return to+
+            `#define ${n}texture_${a} ${n}texture_${v}\n`+
+            `#define ${n}channels_${a} ${n}channels_${v}\n\n`;
+        },
         texture, s),
       textures, '')+
     ((entries)? `#define ${n}entries ${entries}\n` : '')+
@@ -535,22 +545,33 @@ export function macroOutput(state, on) {
   if(to != null) { return to; }
 
   const { passNow: p, maps, pre: n = preDef, cache = cacheDef } = state;
-  const { values, textures, passes } = maps;
+  const { values, textures, passes, alias } = maps;
   const pass = passes[p];
 
   const c = cache &&
-    `macro@${key}@${n}|${p}|${id(values)}|${id(textures)}|${id(passes)}`;
+    `macro@${key}@${n}|${p}|${id(values)}|${id(textures)}|${id(passes)}|${
+      id(alias)}`;
 
   to = cache?.[c] ??
-    `#define ${n}passNow ${p}\n`+
-    reduce((s, texture, bound, _, i = 0) => reduce((s, v) =>
-          s+'\n'+
-          `#define ${n}bound_${v} ${texture}\n`+
-          `#define ${n}attach_${v} ${bound}\n`+
-          `#define ${n}output_${v} gl_FragData[${n}attach_${v}].${
-            rgba.slice(i, i += values[v])}\n`,
+    `#define ${n}passNow ${p}\n${
+    reduce((s, texture, bound, _, i = 0) => reduce((s, v) => {
+          const to = s+'\n'+
+            `#define ${n}bound_${v} ${texture}\n`+
+            `#define ${n}attach_${v} ${bound}\n`+
+            `#define ${n}output_${v} gl_FragData[${n}attach_${v}].${
+              rgba.slice(i, i += values[v])}\n`;
+
+          if(!alias) { return to; }
+
+          const a = alias[v];
+
+          return to+'\n'+
+            `#define ${n}bound_${a} ${n}bound_${v}\n`+
+            `#define ${n}attach_${a} ${n}attach_${v}\n`+
+            `#define ${n}output_${a} ${n}output_${v}\n`;
+        },
         textures[texture], s),
-      pass, '')+'\n';
+      pass, '')}\n`;
 
   return ((cache)? cache[c] = to : to);
 }
@@ -695,25 +716,41 @@ export function macroSamples(state, on) {
 
   if(to != null) { return to; }
 
-  const {
-      passNow: p = 0, maps, glsl, pre: n = preDef, cache = cacheDef
-    } = state;
+  const { passNow: p = 0, maps, glsl, pre: n = preDef, cache = cacheDef } =
+    state;
 
-  const { samples, reads } = maps;
+  const { samples, reads, readsToValue, alias } = maps;
   const passSamples = samples?.[p];
   const passReads = reads?.[p];
+  const passReadsToValue = readsToValue?.[p];
 
   const c = cache &&
-    `macro@${key}@${n}|${p}|${id(passSamples)}|${id(passReads)}|${glsl}`;
+    `macro@${key}@${n}|${p}|${id(passSamples)}|${id(passReads)}|${
+      id(passReadsToValue)}|${id(alias)}|${glsl}`;
 
   to = cache?.[c] ??
     ((!passSamples)? ''
     : `#define ${n}useSamples${lf+
         getGLSLList('ivec2', n+'samples', passSamples, 'const', glsl)}\n`)+
     ((!passReads)? ''
-    : reduce((s, reads, v) =>
-          `${s}#define ${n}useReads_${v}${lf+
-            getGLSLList('int', n+'reads_'+v, reads, 'const', glsl)}\n`,
+    : reduce((s, reads, v) => {
+          const to = `${s}#define ${n}useReads_${v}${lf+
+            getGLSLList('int', n+'reads_'+v, reads, 'const', glsl)}\n`;
+
+          if(!alias) { return to; }
+
+          const valueReadsToValue = passReadsToValue[v];
+          const a = alias[v];
+          const ra = `${n}reads_${a}`;
+          const rv = `${n}reads_${v}`;
+
+          return `${to}#define ${n}useReads_${a}${lf+n}useReads_${v}${
+            reduce((s, _, r) => s+lf+
+                `const int ${ra}_${alias[valueReadsToValue[r]]} = ${rv}_${r};`,
+              reads, '')}${lf
+            }const int ${ra}_l = ${rv}_l;${lf
+            }int ${ra}_i(int i) { return ${rv}_i(i); }\n\n`;
+        },
         passReads, ''));
 
   return ((cache)? cache[c] = to : to);

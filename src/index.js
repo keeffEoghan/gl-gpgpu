@@ -14,7 +14,6 @@
  * @category Root
  * @category JS
  *
- * @todo Name all value macros; use `Map` instead of or as well as `Array`.
  * @todo Add a way to resize `gpgpu` resources in one go.
  * @todo Handle values with more channels than `channelsMax`...
  */
