@@ -14,7 +14,13 @@
  * @category Root
  * @category JS
  *
- * @todo Add a way to resize `gpgpu` resources in one go.
+ * @todo Add a way to look up values from previous passes in the current step:
+ *   - We have `past` state inputs and the `next` state outputs, so adjacent
+ *     states in the current pass can be called `got` states.
+ *   - All states are already accessible in the shader, just need a way to
+ *     declare the lookup is desired; maybe a negative index in `derives` should
+ *     signify that, and be handled in the `tapStates` macros?
+ * @todo Add a way to resize all `gpgpu` resources in one convenient function.
  * @todo Handle values with more channels than `channelsMax`...
  */
 

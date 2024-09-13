@@ -176,8 +176,10 @@ export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
   getGLSLListBase(type, name, a, qualify, init)+'\n'+
   // @todo Would ideally use the concatenation macro, but can't in GLSL 1.
   // `#define ${name}_i(i) ${name}_##i`;
-  `// Index macro \`${name}_i\` (e.g: \`${name}_i(0)\`) may be slow, `+
-    `use name (e.g: \`${name}_0\`) if possible.\n`+
+  `/**\n`+
+  ` * Index function \`${name}_i\` (e.g: \`${name}_i(0)\`) may be slow.\n`+
+  ` * Use name (e.g: \`${name}_0\`) if possible.\n`+
+  ` */\n`+
   `#define ${name}_i(i) ${reduce((s, v, i) =>
       ((i)? `((i == ${i})? ${name}_${i} : ${s})` : `${name}_${i}`),
     a, '')}\n`;
@@ -716,17 +718,20 @@ export function macroSamples(state, on) {
 
   if(to != null) { return to; }
 
-  const { passNow: p = 0, maps, glsl, pre: n = preDef, cache = cacheDef } =
-    state;
+  const {
+      passNow: p = 0, maps, steps, bound = boundDef,
+      glsl, pre: n = preDef, cache = cacheDef
+    } = state;
 
   const { samples, reads, readsToValue, alias } = maps;
   const passSamples = samples?.[p];
   const passReads = reads?.[p];
   const passReadsToValue = readsToValue?.[p];
+  const stepsPast = ((alias)? (steps.length ?? steps)-bound : null);
 
   const c = cache &&
     `macro@${key}@${n}|${p}|${id(passSamples)}|${id(passReads)}|${
-      id(passReadsToValue)}|${id(alias)}|${glsl}`;
+      id(passReadsToValue)}|${id(alias)}|${stepsPast}|${glsl}`;
 
   to = cache?.[c] ??
     ((!passSamples)? ''
@@ -740,16 +745,44 @@ export function macroSamples(state, on) {
           if(!alias) { return to; }
 
           const valueReadsToValue = passReadsToValue[v];
-          const a = alias[v];
-          const ra = `${n}reads_${a}`;
-          const rv = `${n}reads_${v}`;
+          const va = alias[v];
+          const nra = `${n}reads_${va}`;
+          const nrv = `${n}reads_${v}`;
 
-          return `${to}#define ${n}useReads_${a}${lf+n}useReads_${v}${
-            reduce((s, _, r) => s+lf+
-                `const int ${ra}_${alias[valueReadsToValue[r]]} = ${rv}_${r};`,
-              reads, '')}${lf
-            }const int ${ra}_l = ${rv}_l;${lf
-            }int ${ra}_i(int i) { return ${rv}_i(i); }\n\n`;
+          return to+
+            `/**\n`+
+            ` * Alias reads, depends on index reads \`${n}useReads_${v}\`.\n`+
+            ` * If using both alias and index reads, only use this not both.\n`+
+            ` */\n`+
+            `#define ${n}useReads_${va}${lf
+            }${n}useReads_${v}${
+            reduce((s, read, r) => {
+                const ra = alias[valueReadsToValue[r]];
+                const n = passSamples[read][0];
+                const o = stepsPast-n-1;
+                const to = `${nrv}_${r}`;
+                let d;
+
+                return s+lf+
+                  ((s.indexOf(d = `const int ${nra}_${ra}_new_${n}`) >= 0)? ''
+                  : `/** Alias and step past, count from new to old. */${lf+
+                    d} = ${to};${lf}`)+
+                  ((s.indexOf(d = `const int ${nra}_${ra}_old_${o}`) >= 0)? ''
+                  : `/** Alias and step last, count from old to new. */${lf+
+                    d} = ${to};${lf}`)+
+                  ((n || (s.indexOf(d = `const int ${nra}_${ra}_new`) >= 0))? ''
+                  : `/** Alias with implied newest step past. */${lf+
+                    d} = ${to};${lf}`)+
+                  ((n || (s.indexOf(d = `const int ${nra}_${ra}`) >= 0))? ''
+                  : `/** Alias with implied newest. */${lf+
+                    d} = ${to};${lf}`)+
+                  ((o || (s.indexOf(d = `const int ${nra}_${ra}_old`) >= 0))? ''
+                  : `/** Alias with implied oldest step last. */${lf+
+                    d} = ${to};${lf}`);
+              },
+              reads, ((reads.length)? lf : ''))}${lf
+            }const int ${nra}_l = ${nrv}_l;${lf
+            }int ${nra}_i(int i) { return ${nrv}_i(i); }\n\n`;
         },
         passReads, ''));
 
@@ -884,10 +917,12 @@ export function macroTaps(state, on) {
     ((!tapsL)? ''
     : ((index)?
       /** Separate un-merged `texture`s accessed by constant index. */
-      '// States in a `sampler2D[]`; looks up 1D index and 2D `uv`; '+lf+
-        'past steps go later in the list.\n'+
-      `// Pass constant array index values; \`textures\`.\n`+
-      `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+      `/**\n`+
+      ` * States in a \`sampler2D[]\`; looks up 1D index and 2D \`uv\`.\n`+
+      ` * Past steps go later in the list.\n`+
+      ` * Pass constant array index values; \`textures\`.\n`+
+      ` * Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+      ` */\n`+
       tap+`s(uv, states, textures)`+lf+
         // Compute before the loop for lighter work.
         `const int ${t}tlI = int(textures);`+lf+
@@ -899,9 +934,11 @@ export function macroTaps(state, on) {
               `(states[(int(${st+i}.s)*${t}tlI)+int(${st+i}.t)], ${t}uvI)`,
             passSamples, tapsSamples),
           '', glsl)+'\n'+
-      '// States may also be sampled by shifted step/texture.\n'+
-      `// Pass constant array index values; \`textures, ${by}\`.\n`+
-      `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+      `/**\n`+
+      ` * States may also be sampled by shifted step/texture.\n`+
+      ` * Pass constant array index values; \`textures, ${by}\`.\n`+
+      ` * Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+      ` */\n`+
       tap+`sBy(uv, states, textures, ${by})`+lf+
         // Compute before the loop for lighter work.
         `const int ${t}tlIB = int(textures);`+lf+
@@ -918,14 +955,16 @@ export function macroTaps(state, on) {
                 `], ${t}uvIB)`,
             passSamples, tapsSamples),
           '', glsl)+'\n'+
-      '// Preferred aliases: index suits states array constant access.\n'+
+      `/** Preferred aliases: index suits states array constant access. */\n`+
       aka+`s(uv, ${n}states, ${n}textures)\n`+
       akaBy+`sBy(uv, ${n}states, ${n}textures, ${by})\n`
     : /** Merged 2D `texture`. */
-      '// States merged to a `sampler2D`, scales 2D `uv` over '+
-        '`[textures, steps]`.\n'+
-      '// Step from now into the past going upwards in the texture.\n'+
-      `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+      `/**\n`+
+      ` * States merged in a \`sampler2D\`.\n`+
+      ` * Scales the 2D \`uv\` lookup over \`[textures, steps]\`.\n`+
+      ` * Step from now into the past going upwards in the texture.\n`+
+      ` * Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+      ` */\n`+
       tap+`2(uv, states, stepNow, steps, textures)`+lf+
         // Compute before the loop for lighter work.
         `vec2 ${t}l2 = vec2(textures, steps);`+lf+
@@ -945,8 +984,10 @@ export function macroTaps(state, on) {
                 `fract(${t}uv2+fract((vec2(${st+i}).ts+${t}i2)*${t}s2)))`,
             passSamples, tapsSamples),
           '', glsl)+'\n'+
-      '// States may also be sampled by shifted step/texture.\n'+
-      `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+      `/**\n`+
+      ` * States may also be sampled by shifted step/texture.\n`+
+      ` * Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+      ` */\n`+
       tap+`2By(uv, states, stepNow, steps, textures, ${by})`+lf+
         // Compute before the loop for lighter work.
         `vec2 ${t}l2B = vec2(textures, steps);`+lf+
@@ -967,7 +1008,7 @@ export function macroTaps(state, on) {
             passSamples, tapsSamples),
           '', glsl)+'\n'+
       ((!glsl3)?
-        '// Preferred aliases: 2D suits merged texture in GLSL < 1.\n'+
+        `/** Preferred aliases: 2D suits merged texture in \`GLSL\` < 1. */\n`+
         aka+`2(uv, ${n}states, ${n}stepNow, ${n}steps, ${n}textures)\n`+
         akaBy+
           `2By(uv, ${n}states, ${n}stepNow, ${n}steps, ${n}textures, ${by})\n`
@@ -975,11 +1016,14 @@ export function macroTaps(state, on) {
          * Merged 3D `texture` types, supported from `GLSL3`.
          * @todo Check and finish this.
          */
-        '// States merged to `sampler3D` or `sampler2DArray`; 2D `uv` '+
-          'to 3D; scales `x` over `textures`, `z` over `steps` as:\n'+
-        '// - `sampler3D`: the number of steps; depth, `[0, 1]`.\n'+
-        '// - `sampler2DArray`: `1` or less; layer, `[0, steps-1]`.\n'+
-        `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+        `/**\n`+
+        ` * States merged to \`sampler3D\` or \`sampler2DArray\`.\n`+
+        ` * 2D \`uv\` to 3D.\n`+
+        ` * Scales \`x\` over \`textures\`, \`z\` over \`steps\` as:\n`+
+        ` * - \`sampler3D\`: the number of steps; depth, \`[0, 1]\`.\n`+
+        ` * - \`sampler2DArray\`: \`1\` or less; layer, \`[0, steps-1]\`.\n`+
+        ` * Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+        ` */\n`+
         tap+`3(uv, states, stepNow, steps, textures)`+lf+
           /** @see `...2()` above. */
           // Compute before the loop for lighter work.
@@ -1002,8 +1046,10 @@ export function macroTaps(state, on) {
                   `(float(${st+i}.s)+${t}s3)*${t}sz3)))`,
               passSamples, tapsSamples),
             '', glsl)+'\n'+
-        '// States may also be sampled by shifted step/`texture`.\n'+
-        `// Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+        `/**\n`+
+        ` * States may also be sampled by shifted step/texture.\n`+
+        ` * Use \`${n}data\` list; ignore temporary \`${t}\` names.\n`+
+        ` */\n`+
         tap+`3By(uv, states, stepNow, steps, textures, ${by})`+lf+
           /** @see `...2By()` above. */
           // Compute before the loop for lighter work.
@@ -1026,7 +1072,7 @@ export function macroTaps(state, on) {
                   `(float(${st+i}.s)+${t}s3B)*${t}sz3B)))`,
               passSamples, tapsSamples),
             '', glsl)+'\n'+
-        '// Preferred aliases: 3D suits merged texture in `GLSL` 3+.\n'+
+        `/** Preferred aliases: 3D suits merged texture in \`GLSL\` 3+. */\n`+
         aka+`3(uv, ${n}states, ${n}stepNow, ${n}steps, ${n}textures)\n`+
         akaBy+
           `3By(uv, ${n}states, ${n}stepNow, ${n}steps, ${n}textures, ${by})\n`

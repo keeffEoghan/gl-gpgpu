@@ -8,21 +8,11 @@
 
 precision highp float;
 
-// The texture channels each of the `values` is stored in.
-#define positionChannels gpgpu_channels_0
-#define motionChannels gpgpu_channels_1
-#define lifeChannels gpgpu_channels_2
 // Set up sampling logic.
 gpgpu_useSamples
-// Only the first value derives from all values, giving these minimal `reads`.
-gpgpu_useReads_0
-// These first `derives` are all in one pass for the `value` at `0`.
-// See `derives` for how each `reads_0_${derive}` is indexed per-`derive`.
-#define readPosition1 gpgpu_reads_0_0
-#define readMotion gpgpu_reads_0_1
-#define readLife gpgpu_reads_0_2
-// Additional `derives` are individually specified.
-#define readPosition0 gpgpu_reads_0_3
+// Only the first value derives from all values, giving minimal `reads`.
+// See `derives` for how each `reads_position_${derive}` is indexed.
+gpgpu_useReads_position
 
 attribute float index;
 
@@ -121,11 +111,23 @@ void main() {
     gpgpu_tapState(st)
   #endif
 
-  // Read values.
-  vec3 position0 = gpgpu_data[readPosition0].positionChannels;
-  vec3 position1 = gpgpu_data[readPosition1].positionChannels;
-  vec3 motion = gpgpu_data[readMotion].motionChannels;
-  vec2 life = gpgpu_data[readLife].lifeChannels;
+  // Read the values.
+
+  vec3 position1 = gpgpu_data[gpgpu_reads_position_position_new_0]
+    .gpgpu_channels_position;
+
+  #if gpgpu_stepsPast > 1
+    vec3 position0 = gpgpu_data[gpgpu_reads_position_position_new_1]
+      .gpgpu_channels_position;
+  #else
+    vec3 position0 = position1;
+  #endif
+
+  vec3 motion = gpgpu_data[gpgpu_reads_position_motion].gpgpu_channels_motion;
+  vec2 life = gpgpu_data[gpgpu_reads_position_life].gpgpu_channels_life;
+
+  // Work with the values.
+
   float alive = gt(life.x, 0.0);
   float ago = stepPast/max(float(gpgpu_stepsPast-1), 1.0);
 
