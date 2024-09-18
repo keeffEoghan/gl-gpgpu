@@ -173,7 +173,7 @@ export const getGLSLListBase = (type, name, a, qualify = '', init = type) =>
  * @returns {string} The `GLSL1` array-like declaration string.
  */
 export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
-  getGLSLListBase(type, name, a, qualify, init)+'\n'+
+  getGLSLListBase(type, name, a, qualify, init)+'\n\n'+
   // @todo Would ideally use the concatenation macro, but can't in GLSL 1.
   // `#define ${name}_i(i) ${name}_##i`;
   `/**\n`+
