@@ -54,11 +54,12 @@ uniform float gpgpu_stepNow;
 uniform float dt1;
 uniform float loop;
 
-varying vec2 uv;
+/** Default UV coordinates from default `gpgpu` vertex shader. */
+varying vec2 gpgpu_uv;
 
-#pragma glslify: random = require(glsl-random)
-#pragma glslify: lt = require(glsl-conditionals/when_lt)
-#pragma glslify: le = require(glsl-conditionals/when_le)
+#pragma glslify: random = require(glsl-random);
+#pragma glslify: lt = require(glsl-conditionals/when_lt);
+#pragma glslify: le = require(glsl-conditionals/when_le);
 
 // Any shader inputs or parts can also be split up by usage in different passes.
 
@@ -68,7 +69,7 @@ varying vec2 uv;
   uniform vec3 source;
 
   /** @todo Try Velocity Verlet integration. */
-  #pragma glslify: verlet = require(@epok.tech/glsl-verlet/p-p-a)
+  #pragma glslify: verlet = require(@epok.tech/glsl-verlet/p-p-a);
 #endif
 
 #ifdef gpgpu_output_motion
@@ -83,7 +84,7 @@ varying vec2 uv;
   /** A particle's lifetime range, and whether it's allowed to respawn. */
   uniform vec3 lifetime;
 
-  #pragma glslify: map = require(glsl-map)
+  #pragma glslify: map = require(glsl-map);
 #endif
 
 #if defined(gpgpu_output_position) || defined(gpgpu_output_motion)
@@ -91,8 +92,8 @@ varying vec2 uv;
   uniform float useVerlet;
   uniform vec2 spout;
 
-  #pragma glslify: tau = require(glsl-constants/TAU)
-  #pragma glslify: onSphere = require(./on-sphere)
+  #pragma glslify: tau = require(glsl-constants/TAU);
+  #pragma glslify: onSphere = require(./on-sphere);
 #endif
 
 float canSpawn(float life) {
@@ -106,7 +107,7 @@ float canSpawn(float life) {
 
 void main() {
   /** Sample the desired state values - creates the `gpgpu_data` `array`. */
-  gpgpu_tapState(uv)
+  gpgpu_tapState(gpgpu_uv);
 
   // Read values.
 
@@ -165,9 +166,9 @@ void main() {
     vec3 acceleration = motion;
 
     /** Spawn randomly on a sphere around the source, move in that direction. */
-    vec3 spoutSpawn = random((-uv.st*(0.6+loop))/(0.1+dt0))*
-      onSphere(random((uv.st*(0.3+loop))/(0.9+dt0))*tau,
-        mix(-1.0, 1.0, random((-uv.ts*(0.2+loop))/(0.8+dt1))));
+    vec3 spoutSpawn = random((-gpgpu_uv.st*(0.6+loop))/(0.1+dt0))*
+      onSphere(random((gpgpu_uv.st*(0.3+loop))/(0.9+dt0))*tau,
+        mix(-1.0, 1.0, random((-gpgpu_uv.ts*(0.2+loop))/(0.8+dt1))));
   #endif
 
   #ifdef gpgpu_output_position
@@ -217,7 +218,7 @@ void main() {
   #ifdef gpgpu_output_life
     vec2 lifeTo = vec2(life.x-dt1, life.y);
 
-    vec2 lifeNew = vec2(map(random(uv*(1.0+loop)),
+    vec2 lifeNew = vec2(map(random(gpgpu_uv*(1.0+loop)),
       0.0, 1.0, lifetime.s, lifetime.t));
 
     /** Whether the oldest state has faded. */
