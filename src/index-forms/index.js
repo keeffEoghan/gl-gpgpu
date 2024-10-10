@@ -1,3 +1,5 @@
+const { max } = Math;
+
 /**
  * How many vertexes for a given form to cover each entry's steps of state:
  * - If 2 states or form are given, gives a setup of pairs for a line segment
@@ -28,6 +30,6 @@
  * @remarks [[include:src/index-forms/readme.md]]
  */
 export const indexForms = (states = 1, form = 2, count = 1) =>
-  Math.max(1, (states-form)+1)*form*count;
+  max(1, (states-form)+1)*form*count;
 
 export default indexForms;

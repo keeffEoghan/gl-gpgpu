@@ -15,13 +15,14 @@ import range from '@epok.tech/fn-lists/range';
 import map from '@epok.tech/fn-lists/map';
 import reduce from '@epok.tech/fn-lists/reduce';
 
-import { getWidth, getHeight, getScaled } from './size';
+import { toShape } from './size';
 
 import {
-    widthDef, heightDef, stepsDef, valuesDef, channelsMinDef, buffersMaxDef,
+    stepsDef, valuesDef, channelsMinDef, buffersMaxDef,
     typeDef, minDef, magDef, wrapDef, depthDef, stencilDef
   } from './const';
 
+const { max } = Math;
 const { isInteger } = Number;
 
 /**
@@ -216,7 +217,7 @@ const mergeDef = (steps, textures) => ((steps > 2) && (textures > 1));
  * @see {@link macros.macroPass}
  * @see {@link size.getWidth}
  * @see {@link size.getHeight}
- * @see {@link size.getScaled}
+ * @see {@link size.toScaled}
  *
  * @see [`sampler array index must be a literal expression`](https://stackoverflow.com/a/60110986/716898)
  * @see [`sampler2DArray`](https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_2d_array.html)
@@ -243,7 +244,7 @@ const mergeDef = (steps, textures) => ((steps > 2) && (textures > 1));
  * @param {number} [state.side] Data size of width/height.
  *   See `getWidth` and `getHeight`.
  * @param {number} [state.scale=scaleDef] Data size of width/height as a square
- *   power-of-two size, 2 raised to this power. See `getScaled`.
+ *   power-of-two size, 2 raised to this power. See `toScaled`.
  *
  * @param {number|array} [state.steps=stepsDef] How many steps of state to
  *   track, or the list of states if already set up.
@@ -361,15 +362,14 @@ const mergeDef = (steps, textures) => ((steps > 2) && (textures > 1));
  */
 export function toData({ texture, framebuffer }, state = {}, to = state) {
   const {
-      maps, scale, steps = stepsDef,
+      maps, steps = stepsDef,
       // Resource format settings.
       type = typeDef, min = minDef, mag = magDef, wrap = wrapDef,
       depth = depthDef, stencil = stencilDef
     } = state;
 
-  const scaled = getScaled(scale);
-  const width = Math.floor(getWidth(state) ?? scaled ?? widthDef);
-  const height = Math.floor(getHeight(state) ?? scaled ?? heightDef);
+  const shape = toShape(state);
+  const [width, height] = shape;
 
   const {
       values = maps.values = valuesDef(),
@@ -402,7 +402,7 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
    */
   const passChannels = (pass, min) =>
     reduce((min, t) =>
-        Math.max(min, reduce((sum, v) => sum+values[v], texturesMap[t], 0)),
+        max(min, reduce((sum, v) => sum+values[v], texturesMap[t], 0)),
       pass, min);
 
   /**
@@ -419,7 +419,7 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
   const size = to.size = {
     type, channelsMin: mergeChannels ?? channelsMin,
     steps: stepsL, passes: 0, framebuffers: 0, textures: 0, colors: 0,
-    width, height, shape: [width, height], entries: width*height
+    shape, width, height, entries: width*height
   };
 
   /** The `texture`s created for the `step`/`pass` render flow. */
@@ -550,12 +550,10 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
 
   // Set up the `texture` for states to be merged into.
 
-  const { scale: mScale, all: mAll, next: mNext } = merge;
-  /** Use any size info given in `merge`, as with `state` above. */
-  const mScaled = getScaled(mScale);
+  const { all: mAll, next: mNext } = merge;
   /** Use any given size info, or merge along `[texture, step]` axes. */
-  const mw = getWidth(merge) ?? mScaled ?? texturesMap.length*width;
-  const mh = getHeight(merge) ?? mScaled ?? stepsL*height;
+  const mShape = toShape(merge, [texturesMap.length*width, stepsL*height]);
+  const [mw, mh] = mShape;
 
   to.merge = {
     /** New merge `texture` and info, or use any given merge `texture`. */
@@ -564,7 +562,7 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
     next: mNext ?? addPass(null, colorPool[0])()
   };
 
-  size.merge = { width: mw, height: mh, shape: [mw, mh], entries: mw*mh };
+  size.merge = { width: mw, height: mh, shape: mShape, entries: mw*mh };
 
   return to;
 }

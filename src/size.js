@@ -6,6 +6,9 @@
 import map from '@epok.tech/fn-lists/map';
 import range from '@epok.tech/fn-lists/range';
 
+import { widthDef, heightDef } from './const';
+
+const { floor } = Math;
 const { isFinite, isInteger } = Number;
 
 /**
@@ -102,4 +105,14 @@ export const getDrawIndexes = (size) =>
  *
  * @returns 2 raised to the given numeric power, or `null` if not given.
  */
-export const getScaled = (scale) => ((isFinite(scale))? 2**scale : null);
+export const toScaled = (scale) => ((isFinite(scale))? 2**scale : null);
+
+export function toShape(state, to = []) {
+  const scaled = toScaled(state.scale);
+  const [tw, th] = to;
+
+  to[0] = floor(getWidth(state) ?? scaled ?? tw ?? widthDef);
+  to[1] = floor(getHeight(state) ?? scaled ?? th ?? heightDef);
+
+  return to;
+}

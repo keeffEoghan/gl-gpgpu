@@ -93,20 +93,13 @@ export function gpgpu(api, state = {}, to = state) {
   /** The parsed `GLSL` version. */
   to.glsl = getGLSL(glsl);
 
-  /**
-   * Temporary updates to set up `maps` then `state`.
-   * Any `maps.buffersMax` supersedes any `maxDrawbuffers` from the `api`.
-   */
+  /** Any `maps.buffersMax` supersedes any `maxDrawbuffers` from the `api`. */
   maps.buffersMax ??= maxDrawbuffers;
   state.maps = mapStep(maps, to.maps ??= {});
 
   toData(api, state, to);
   toUniforms(state, to.uniforms ??= {});
   toStep(api, state, to);
-
-  // Undo any temporary changes made above to the given `maps` and `state`.
-  /** @todo Improve, this is awkward. */
-  (state.maps = maps).buffersMax = buffersMax;
 
   return to;
 }
