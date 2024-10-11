@@ -107,12 +107,11 @@ export const getDrawIndexes = (size) =>
  */
 export const toScaled = (scale) => ((isFinite(scale))? 2**scale : null);
 
-export function toShape(state, to = []) {
-  const scaled = toScaled(state.scale);
-  const [tw, th] = to;
+export function toShape(value, to = []) {
+  let s;
 
-  to[0] = floor(getWidth(state) ?? scaled ?? tw ?? widthDef);
-  to[1] = floor(getHeight(state) ?? scaled ?? th ?? heightDef);
+  to[0] = floor(getWidth(value) ?? (s ??= toScaled(value.scale)) ?? widthDef);
+  to[1] = floor(getHeight(value) ?? (s ??= toScaled(value.scale)) ?? heightDef);
 
   return to;
 }
