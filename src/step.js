@@ -281,7 +281,9 @@ export function toStep(api, state = {}, to = state) {
   to.stepBy = (state = to, by = 1) => {
     const { stepNow = 0, stepMax = stepMaxDef } = state;
 
-    return state.stepNow = wrap(stepNow+by, stepMax || Infinity);
+    state.stepNow = wrap(stepNow+by, stepMax || Infinity);
+
+    return state;
   };
 
   /** Executes the next step and all its passes. */
