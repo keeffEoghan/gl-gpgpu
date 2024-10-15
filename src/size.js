@@ -17,12 +17,12 @@ const { isFinite, isInteger } = Number;
  * @see {@link data.toData}
  *
  * @param {object} value Size (width) `number`, or an `object` containing it.
+ * @param {object} [value.size] Size (width) `number`, or an `object`
+ *   containing it; supersedes further aliases.
  * @param {number} [value.width] Width; supersedes further aliases.
  * @param {number} [value.w] Alias of `width`; supersedes further aliases.
  * @param {number} [value.x] Alias of `width`; supersedes further aliases.
  * @param {object} [value.shape] Shape (width) `number`, or an `object`
- *   containing it; supersedes further aliases.
- * @param {object} [value.size] Size (width) `number`, or an `object`
  *   containing it; supersedes further aliases.
  * @param {number} [value.side] Width and height; supersedes further aliases.
  * @param {number} [value.0] Alias of `width`; supersedes `value` itself.
@@ -33,8 +33,8 @@ const { isFinite, isInteger } = Number;
 export function getWidth(value) {
   const { width, w, x, shape, size, side, 0: v0 } = value;
 
-  return width ?? w ?? x ??
-    (shape && getWidth(shape)) ?? (size && getWidth(size)) ??
+  return (size && getWidth(size)) ?? width ?? w ?? x ??
+    (shape && getWidth(shape)) ??
     side ?? v0 ?? ((isFinite(value))? value : null);
 }
 
@@ -44,12 +44,12 @@ export function getWidth(value) {
  * @see {@link data.toData}
  *
  * @param {object} value Size (height) `number`, or an `object` containing it.
+ * @param {object} [value.size] Size (height) `number`, or an `object`
+ *   containing it; supersedes further aliases.
  * @param {number} [value.height] Height; supersedes further aliases.
  * @param {number} [value.h] Alias of `height`; supersedes further aliases.
  * @param {number} [value.y] Alias of `height`; supersedes further aliases.
  * @param {object} [value.shape] Shape (height) `number`, or an `object`
- *   containing it; supersedes further aliases.
- * @param {object} [value.size] Size (height) `number`, or an `object`
  *   containing it; supersedes further aliases.
  * @param {number} [value.side] Width and height; supersedes further aliases.
  * @param {number} [value.1] Alias of `height`; supersedes `value` itself.
@@ -60,8 +60,8 @@ export function getWidth(value) {
 export function getHeight(value) {
   const { height, h, y, shape, size, side, 1: v1 } = value;
 
-  return height ?? h ?? y ??
-    (shape && getHeight(shape)) ?? (size && getHeight(size)) ??
+  return (size && getHeight(size)) ?? height ?? h ?? y ??
+    (shape && getHeight(shape)) ??
     side ?? v1 ?? ((isFinite(value))? value : null);
 }
 

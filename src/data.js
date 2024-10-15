@@ -554,13 +554,18 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
 
   /** Resize `texture`s, `framebuffer`s, and update `size`. */
   to.resize = (value = to, state = to) => {
-    const { size, steps, merge } = state;
+    const { size, passes, textures, merge } = state;
     const [w, h] = toShape(value ?? state, size.shape ??= []);
 
     size.entries = (size.width = w)*(size.height = h);
-    each((fs) => each((f) => f.resize(w, h), fs), steps);
 
-    return merge?.resize?.(null, state) ?? state;
+    each((s) => each((p) => p.framebuffer.resize(p.width = w, p.height = h), s),
+      passes);
+
+    each((p) => each((t) => t.texture.resize(t.width = w, t.height = h), p),
+      textures);
+
+    return merge?.resize?.(value, state) ?? state;
   };
 
   // Finish here if merge is disabled.
@@ -579,28 +584,27 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
   const [mw, mh] = toShape(m, ms.shape ??= []);
 
   ms.entries ??= (ms.width = mw)*(ms.height = mh);
-
   /** New merge `texture` and info, or use any given merge `texture`. */
   m.all = mAll ?? addTexture(mergeChannels, mw, mh)();
   /** Empty `framebuffer`, to copy data from each `texture` of each pass. */
   m.next = mNext ?? addPass(null, colorPool[0])();
 
   /** Resize `texture`s, `framebuffer`s, and update `size`. */
-  m.resize = (value, state = to) => {
+  m.resize = (value = to, state = to) => {
     const { merge, size, maps } = state;
     const { size: ms = size.merge = {}, all, next } = merge;
     const { textures: texturesMap } = maps;
     const shape = toShape(value ?? state, ms.shape ??= []);
     const [w, h] = shape;
 
-    next.resize(w, h);
+    next.framebuffer.resize(next.width = w, next.height = h);
     ms.width = texturesMap.length*w;
     ms.height = size.steps*h;
 
     const [mw, mh] = toShape(ms, shape);
 
     ms.entries = (ms.width = mw)*(ms.height = mh);
-    all.resize(mw, mh);
+    all.texture.resize(all.width = mw, all.height = mh);
 
     return state;
   };
