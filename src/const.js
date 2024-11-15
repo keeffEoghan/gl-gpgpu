@@ -89,7 +89,7 @@ export const boundDef = 1;
  * Default length of the data `texture`s sides to allocate; gives a square
  * power-of-two `texture` raising 2 to this power.
  */
-export const scaleDef = 9;
+export const scaleDef = 0;
 
 /**
  * Default width of the data `texture`s sides to allocate; gives a square

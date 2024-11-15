@@ -38,12 +38,12 @@ gpgpu_useSamples
 // The main shader.
 
 /** States from `gl-gpgpu`, merged or separate. */
-#ifdef gpgpu_mergedStates
+#ifdef gpgpu_splits
+  /** States from `gl-gpgpu` in separate `texture`/s. */
+  uniform sampler2D gpgpu_states[gpgpu_splits];
+#else
   /** States from `gl-gpgpu` in one merged `texture`. */
   uniform sampler2D gpgpu_states;
-#else
-  /** States from `gl-gpgpu` in separate `texture`/s. */
-  uniform sampler2D gpgpu_states[gpgpu_stepsPast*gpgpu_textures];
 #endif
 
 /** Current step from `gl-gpgpu`; needed for `tapStates` or `tapStatesBy`. */

@@ -410,20 +410,25 @@ export function macroValues(state, on) {
   if(to != null) { return to; }
 
   const {
-      maps, steps, bound = boundDef, size, pre: n = preDef,
+      maps, steps, bound = boundDef, merge, size, pre: n = preDef,
       cache = cacheDef
     } = state;
 
   const { values, textures, passes: { length: passesL }, alias } = maps;
   const stepsL = steps.length ?? steps;
   const entries = size?.entries;
+  const split = !merge;
 
   const c = cache &&
     `macro@${key}@${n}|${bound}|${id(values)}|${id(textures)}|${stepsL}|${
-      passesL}|${entries}|${id(alias)}`;
+      passesL}|${entries}|${split}|${id(alias)}`;
 
-  to = cache?.[c] ??
-    reduce((s, texture, t, _, i = 0) => reduce((s, v) => {
+  if((to = cache?.[c]) != null) { return to; }
+
+  const texturesL = textures.length;
+  const stepsPast = stepsL-bound;
+
+  to = reduce((s, texture, t, _, i = 0) => reduce((s, v) => {
           const to = s+
             `#define ${n}texture_${v} ${t}\n`+
             `#define ${n}channels_${v} ${rgba.slice(i, i += values[v])}\n\n`;
@@ -438,12 +443,13 @@ export function macroValues(state, on) {
         },
         texture, s),
       textures, '')+
-    ((entries)? `#define ${n}entries ${entries}\n` : '')+
-    `#define ${n}textures ${textures.length}\n`+
+    ((entries || (entries === 0))? `#define ${n}entries ${entries}\n` : '')+
+    `#define ${n}textures ${texturesL}\n`+
     `#define ${n}passes ${passesL}\n`+
-    `#define ${n}stepsPast ${stepsL-bound}\n`+
+    `#define ${n}bound ${bound}\n`+
     `#define ${n}steps ${stepsL}\n`+
-    `#define ${n}bound ${bound}\n\n`;
+    `#define ${n}stepsPast ${stepsPast}\n`+
+    `#define ${n}${(split)? `splits` : `merged`} ${texturesL*stepsPast}\n\n`;
 
   return ((cache)? cache[c] = to : to);
 }
@@ -886,10 +892,10 @@ export function macroTaps(state, on) {
     } = state;
 
   const passSamples = maps.samples?.[p];
-  const index = !merge;
+  const split = !merge;
 
   const c = cache &&
-    `macro@${key}@${n}|${p}|${id(passSamples)}|${index}|${glsl}`;
+    `macro@${key}@${n}|${p}|${id(passSamples)}|${split}|${glsl}`;
 
   if((to = cache?.[c]) != null) { return to; }
 
@@ -915,10 +921,9 @@ export function macroTaps(state, on) {
   const tapsL = tapsSamples.length = passSamples?.length ?? 0;
 
   /** The main `texture`-sampling logic. */
-  to = ((index)? '' : `#define ${n}mergedStates\n\n`)+
-    ((!tapsL)? ''
-    : ((index)?
-      /** Separate un-merged `texture`s accessed by constant index. */
+  to = ((!tapsL)? ''
+    : ((split)?
+      /** Split un-merged `texture`s accessed by constant index. */
       `/**\n`+
       ` * States in a \`sampler2D[]\`; looks up 1D index and 2D \`uv\`.\n`+
       ` * Past steps go later in the list.\n`+
@@ -1152,7 +1157,7 @@ export function macroTaps(state, on) {
  */
 export const macroPass = (state, on) =>
   hasMacros(state, hooks.macroPass, on) ??
-    macroValues(state, on)+macroOutput(state, on)+macroSamples(state, on)+
-    macroTaps(state, on);
+    macroValues(state, on)+macroOutput(state, on)+
+    macroSamples(state, on)+macroTaps(state, on);
 
 export default macroPass;
