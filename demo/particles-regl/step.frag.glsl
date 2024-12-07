@@ -18,15 +18,6 @@ precision highp float;
 
 // Setting up the macros and aliases `gl-gpgpu` provides.
 
-// Note these `texture_${value}`/`channels_${value}`/`reads_${value}_${derive}`
-// indexes correspond to the `values` indexes via `gl-gpgpu`'s `array`s
-// `values`/`derives`; they're redefined here to match the structure with names.
-
-// The texture channels each of the `values` is stored in.
-#define positionChannels gpgpu_channels_0
-#define motionChannels gpgpu_channels_1
-#define lifeChannels gpgpu_channels_2
-
 /** Set up sampling logic via `gl-gpgpu` macro. */
 gpgpu_useSamples
 
@@ -34,37 +25,25 @@ gpgpu_useSamples
 // bound output `derives` from other `values` for its next state.
 // See `derives` for how each `reads_${value}_${derive}` is indexed
 // per-`derive`-per-`value`.
-#ifdef gpgpu_output_0
-  #define positionOutput gpgpu_output_0
-  gpgpu_useReads_0
-  #define positionReadPosition0 gpgpu_reads_0_0
-  #define positionReadPosition1 gpgpu_reads_0_1
-  #define positionReadMotion gpgpu_reads_0_2
-  #define positionReadLife gpgpu_reads_0_3
+#ifdef gpgpu_output_position
+  gpgpu_useReads_position
 #endif
-#ifdef gpgpu_output_1
-  #define motionOutput gpgpu_output_1
-  gpgpu_useReads_1
-  #define motionReadMotion gpgpu_reads_1_0
-  #define motionReadLife gpgpu_reads_1_1
-  #define motionReadPosition gpgpu_reads_1_2
+#ifdef gpgpu_output_motion
+  gpgpu_useReads_motion
 #endif
-#ifdef gpgpu_output_2
-  #define lifeOutput gpgpu_output_2
-  gpgpu_useReads_2
-  #define lifeReadLifeLast gpgpu_reads_2_0
-  #define lifeReadLife1 gpgpu_reads_2_1
+#ifdef gpgpu_output_life
+  gpgpu_useReads_life
 #endif
 
 // The main shader.
 
 /** States from `gl-gpgpu`, merged or separate. */
-#ifdef gpgpu_mergedStates
+#ifdef gpgpu_splits
+  /** States from `gl-gpgpu` in separate `texture`/s. */
+  uniform sampler2D gpgpu_states[gpgpu_splits];
+#else
   /** States from `gl-gpgpu` in one merged `texture`. */
   uniform sampler2D gpgpu_states;
-#else
-  /** States from `gl-gpgpu` in separate `texture`/s. */
-  uniform sampler2D gpgpu_states[gpgpu_stepsPast*gpgpu_textures];
 #endif
 
 /** Current step from `gl-gpgpu`; needed for `tapStates` or `tapStatesBy`. */
@@ -75,24 +54,25 @@ uniform float gpgpu_stepNow;
 uniform float dt1;
 uniform float loop;
 
-varying vec2 uv;
+/** Default UV coordinates from default `gpgpu` vertex shader. */
+varying vec2 gpgpu_uv;
 
-#pragma glslify: random = require(glsl-random)
-#pragma glslify: lt = require(glsl-conditionals/when_lt)
-#pragma glslify: le = require(glsl-conditionals/when_le)
+#pragma glslify: random = require(glsl-random);
+#pragma glslify: lt = require(glsl-conditionals/when_lt);
+#pragma glslify: le = require(glsl-conditionals/when_le);
 
 // Any shader inputs or parts can also be split up by usage in different passes.
 
-#ifdef positionOutput
+#ifdef gpgpu_output_position
   uniform float moveCap;
   uniform vec2 pace;
   uniform vec3 source;
 
   /** @todo Try Velocity Verlet integration. */
-  #pragma glslify: verlet = require(@epok.tech/glsl-verlet/p-p-a)
+  #pragma glslify: verlet = require(@epok.tech/glsl-verlet/p-p-a);
 #endif
 
-#ifdef motionOutput
+#ifdef gpgpu_output_motion
   uniform float epsilon;
   /** Sink position, and universal gravitational constant. */
   uniform vec4 sink;
@@ -100,20 +80,20 @@ varying vec2 uv;
   uniform vec4 g;
 #endif
 
-#ifdef lifeOutput
+#ifdef gpgpu_output_life
   /** A particle's lifetime range, and whether it's allowed to respawn. */
   uniform vec3 lifetime;
 
-  #pragma glslify: map = require(glsl-map)
+  #pragma glslify: map = require(glsl-map);
 #endif
 
-#if defined(positionOutput) || defined(motionOutput)
+#if defined(gpgpu_output_position) || defined(gpgpu_output_motion)
   uniform float dt0;
   uniform float useVerlet;
   uniform vec2 spout;
 
-  #pragma glslify: tau = require(glsl-constants/TAU)
-  #pragma glslify: onSphere = require(./on-sphere)
+  #pragma glslify: tau = require(glsl-constants/TAU);
+  #pragma glslify: onSphere = require(./on-sphere);
 #endif
 
 float canSpawn(float life) {
@@ -127,41 +107,46 @@ float canSpawn(float life) {
 
 void main() {
   /** Sample the desired state values - creates the `gpgpu_data` `array`. */
-  gpgpu_tapState(uv)
+  gpgpu_tapState(gpgpu_uv);
 
   // Read values.
 
-  #ifdef positionOutput
-    vec3 position0 = gpgpu_data[positionReadPosition0].positionChannels;
-  #endif
-
   // If reads all map to the same value sample, any of them will do.
-  #if defined(positionOutput) || defined(motionOutput)
-    #if defined(positionOutput)
-      #define readMotion positionReadMotion
-      #define readPosition positionReadPosition1
-    #elif defined(motionOutput)
-      #define readMotion motionReadMotion
-      #define readPosition motionReadPosition
+  #if defined(gpgpu_output_position) || defined(gpgpu_output_motion)
+    #if defined(gpgpu_output_position)
+      #define readMotion gpgpu_reads_position_motion
+      #define readPosition1 gpgpu_reads_position_position_new_0
+    #elif defined(gpgpu_output_motion)
+      #define readMotion gpgpu_reads_motion_motion
+      #define readPosition1 gpgpu_reads_motion_position
     #endif
 
-    vec3 position1 = gpgpu_data[readPosition].positionChannels;
-    vec3 motion = gpgpu_data[readMotion].motionChannels;
+    vec3 position1 = gpgpu_data[readPosition1].gpgpu_channels_position;
+    vec3 motion = gpgpu_data[readMotion].gpgpu_channels_motion;
+  #endif
+
+  #ifdef gpgpu_output_position
+    #if gpgpu_stepsPast > 1
+      vec3 position0 = gpgpu_data[gpgpu_reads_position_position_new_1]
+        .gpgpu_channels_position;
+    #else
+      vec3 position0 = position1;
+    #endif
   #endif
 
   // If reads all map to the same value sample, any of them will do.
-  #if defined(positionOutput)
-    #define readLife positionReadLife
-  #elif defined(lifeOutput)
-    #define readLife lifeReadLife
-  #elif defined(motionOutput)
-    #define readLife motionReadLife
+  #if defined(gpgpu_output_position)
+    #define readLife gpgpu_reads_position_life
+  #elif defined(gpgpu_output_life)
+    #define readLife gpgpu_reads_life_life_new
+  #elif defined(gpgpu_output_motion)
+    #define readLife gpgpu_reads_motion_life
   #endif
 
-  vec2 life = gpgpu_data[readLife].lifeChannels;
+  vec2 life = gpgpu_data[readLife].gpgpu_channels_life;
 
-  #ifdef lifeOutput
-    vec2 lifeLast = gpgpu_data[lifeReadLifeLast].lifeChannels;
+  #ifdef gpgpu_output_life
+    vec2 lifeLast = gpgpu_data[gpgpu_reads_life_life_old].gpgpu_channels_life;
   #endif
 
   // Update and output values.
@@ -174,19 +159,19 @@ void main() {
   /** Whether the particle is ready to respawn. */
   float spawn = canSpawn(life.x);
 
-  #if defined(positionOutput) || defined(motionOutput)
+  #if defined(gpgpu_output_position) || defined(gpgpu_output_motion)
     // Workaround for switching Euler/Verlet; interpret `motion` data as
     // acceleration/velocity, respectively.
     vec3 velocity = motion;
     vec3 acceleration = motion;
 
     /** Spawn randomly on a sphere around the source, move in that direction. */
-    vec3 spoutSpawn = random((-uv.st*(0.6+loop))/(0.1+dt0))*
-      onSphere(random((uv.st*(0.3+loop))/(0.9+dt0))*tau,
-        mix(-1.0, 1.0, random((-uv.ts*(0.2+loop))/(0.8+dt1))));
+    vec3 spoutSpawn = random((-gpgpu_uv.st*(0.6+loop))/(0.1+dt0))*
+      onSphere(random((gpgpu_uv.st*(0.3+loop))/(0.9+dt0))*tau,
+        mix(-1.0, 1.0, random((-gpgpu_uv.ts*(0.2+loop))/(0.8+dt1))));
   #endif
 
-  #ifdef positionOutput
+  #ifdef gpgpu_output_position
     /** For numeric accuracy, encoded as exponent `[b, p] => b*(10**p)`. */
     float speed = pace.s*pow(10.0, pace.t);
 
@@ -209,9 +194,9 @@ void main() {
     vec3 positionSpawn = source+(spout.x*spoutSpawn);
 
     /** Output the next position value to its channels in the state texture. */
-    positionOutput = mix(positionTo, positionSpawn, spawn);
+    gpgpu_output_position = mix(positionTo, positionSpawn, spawn);
   #endif
-  #ifdef motionOutput
+  #ifdef gpgpu_output_motion
     /**
      * Gravitate towards the sink point (simplified).
      * @see [Wikipedia on gravitation](https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation)
@@ -228,12 +213,12 @@ void main() {
     vec3 motionNew = spout.y*spoutSpawn;
 
     /** Output the next motion value to its channels in the state texture. */
-    motionOutput = mix(motionTo, motionNew, spawn);
+    gpgpu_output_motion = mix(motionTo, motionNew, spawn);
   #endif
-  #ifdef lifeOutput
+  #ifdef gpgpu_output_life
     vec2 lifeTo = vec2(life.x-dt1, life.y);
 
-    vec2 lifeNew = vec2(map(random(uv*(1.0+loop)),
+    vec2 lifeNew = vec2(map(random(gpgpu_uv*(1.0+loop)),
       0.0, 1.0, lifetime.s, lifetime.t));
 
     /** Whether the oldest state has faded. */
@@ -244,6 +229,6 @@ void main() {
      * Only spawn life once the oldest step reaches the end of its lifetime
      * (past and current life are both 0), and if it's allowed to respawn.
      */
-    lifeOutput = mix(lifeTo, lifeNew, spawn*faded*lifetime.z);
+    gpgpu_output_life = mix(lifeTo, lifeNew, spawn*faded*lifetime.z);
   #endif
 }

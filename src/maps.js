@@ -385,6 +385,7 @@ export function mapSamples(maps = {}, to = maps) {
   if(!derives && (derives !== 0)) { return to; }
 
   const reads = to.reads = [];
+  const readsToValue = to.readsToValue = [];
   const cache = {};
 
   const allStepSamples = (step) =>
@@ -420,6 +421,9 @@ export function mapSamples(maps = {}, to = maps) {
     ((reads[pass] ??= [])[valueNext] ??= [])
       // A new read as needed, or any existing matching read.
       .push((i < 0)? to.push([step, texture])-1 : i);
+
+    // Add a reverse lookup from read index to value index.
+    ((readsToValue[pass] ??= [])[valueNext] ??= []).push(dp);
 
     return to;
   };

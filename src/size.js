@@ -6,6 +6,9 @@
 import map from '@epok.tech/fn-lists/map';
 import range from '@epok.tech/fn-lists/range';
 
+import { widthDef, heightDef } from './const';
+
+const { floor } = Math;
 const { isFinite, isInteger } = Number;
 
 /**
@@ -14,15 +17,15 @@ const { isFinite, isInteger } = Number;
  * @see {@link data.toData}
  *
  * @param {object} value Size (width) `number`, or an `object` containing it.
+ * @param {object} [value.size] Size (width) `number`, or an `object`
+ *   containing it; supersedes further aliases.
  * @param {number} [value.width] Width; supersedes further aliases.
  * @param {number} [value.w] Alias of `width`; supersedes further aliases.
  * @param {number} [value.x] Alias of `width`; supersedes further aliases.
  * @param {object} [value.shape] Shape (width) `number`, or an `object`
  *   containing it; supersedes further aliases.
- * @param {object} [value.size] Size (width) `number`, or an `object`
- *   containing it; supersedes further aliases.
  * @param {number} [value.side] Width and height; supersedes further aliases.
- * @param {number} [value.ʼ0ʼ] Alias of `width`; supersedes `value` itself.
+ * @param {number} [value.0] Alias of `width`; supersedes `value` itself.
  *
  * @returns {number} The width as given in one of the expected properties, or
  *   any given `value` number, or `null`ish if no width could be resolved.
@@ -30,8 +33,8 @@ const { isFinite, isInteger } = Number;
 export function getWidth(value) {
   const { width, w, x, shape, size, side, 0: v0 } = value;
 
-  return width ?? w ?? x ??
-    (shape && getWidth(shape)) ?? (size && getWidth(size)) ??
+  return (size && getWidth(size)) ?? width ?? w ?? x ??
+    (shape && getWidth(shape)) ??
     side ?? v0 ?? ((isFinite(value))? value : null);
 }
 
@@ -41,15 +44,15 @@ export function getWidth(value) {
  * @see {@link data.toData}
  *
  * @param {object} value Size (height) `number`, or an `object` containing it.
+ * @param {object} [value.size] Size (height) `number`, or an `object`
+ *   containing it; supersedes further aliases.
  * @param {number} [value.height] Height; supersedes further aliases.
  * @param {number} [value.h] Alias of `height`; supersedes further aliases.
  * @param {number} [value.y] Alias of `height`; supersedes further aliases.
  * @param {object} [value.shape] Shape (height) `number`, or an `object`
  *   containing it; supersedes further aliases.
- * @param {object} [value.size] Size (height) `number`, or an `object`
- *   containing it; supersedes further aliases.
  * @param {number} [value.side] Width and height; supersedes further aliases.
- * @param {number} [value.ʼ1ʼ] Alias of `height`; supersedes `value` itself.
+ * @param {number} [value.1] Alias of `height`; supersedes `value` itself.
  *
  * @returns {number} The height as given in one of the expected properties, or
  *   any given `value` number, or `null`ish if no height could be resolved.
@@ -57,8 +60,8 @@ export function getWidth(value) {
 export function getHeight(value) {
   const { height, h, y, shape, size, side, 1: v1 } = value;
 
-  return height ?? h ?? y ??
-    (shape && getHeight(shape)) ?? (size && getHeight(size)) ??
+  return (size && getHeight(size)) ?? height ?? h ?? y ??
+    (shape && getHeight(shape)) ??
     side ?? v1 ?? ((isFinite(value))? value : null);
 }
 
@@ -102,4 +105,13 @@ export const getDrawIndexes = (size) =>
  *
  * @returns 2 raised to the given numeric power, or `null` if not given.
  */
-export const getScaled = (scale) => ((isFinite(scale))? 2**scale : null);
+export const toScaled = (scale) => ((isFinite(scale))? 2**scale : null);
+
+export function toShape(value, to = []) {
+  let s;
+
+  to[0] = floor(getWidth(value) ?? (s ??= toScaled(value.scale)) ?? widthDef);
+  to[1] = floor(getHeight(value) ?? (s ??= toScaled(value.scale)) ?? heightDef);
+
+  return to;
+}

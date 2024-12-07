@@ -30,7 +30,7 @@ import wrap from '@epok.tech/fn-lists/wrap';
 
 import gpgpu from '../../src';
 
-import { extensionsFloat, extensionsHalfFloat, optionalExtensions }
+import { extensionsFloat, extensionsHalfFloat, extensionsDrawBuffers }
   from '../../src/const';
 
 import { macroPass } from '../../src/macros';
@@ -58,6 +58,20 @@ self.indexForms = indexForms;
 
 const canvas = document.querySelector('canvas');
 
+// Handle query parameters.
+
+const getQuery = (search = location.search) => new URLSearchParams(search);
+
+function setQuery(entries, q = getQuery()) {
+  entries &&
+    each(([k, v = null]) => ((v === null)? q.delete(k) : q.set(k, v)), entries);
+
+  return q;
+}
+
+const query = getQuery();
+const scrollOK = (query.get('scroll') !== 'false');
+
 // Scroll to the top.
 const scroll = () => canvas.scrollIntoView(true);
 const scrollDefer = () => setTimeout(scroll, 0);
@@ -71,36 +85,26 @@ function toggleError(e) {
 toggleError();
 scrollDefer();
 
-// Handle query parameters.
-
-const getQuery = (search = location.search) => new URLSearchParams(search);
-
-function setQuery(entries, q = getQuery()) {
-  entries &&
-    each(([k, v = null]) => ((v === null)? q.delete(k) : q.set(k, v)), entries);
-
-  return q;
-}
-
-const query = getQuery();
-
 // Check for any extensions that need to be applied.
 const fragDepth = query.get('depth') === 'frag';
 
 // Set up GL.
 
 const extend = {
-  required: extensionsHalfFloat,
-  optional: ((fragDepth)?
-      [...extensionsFloat, ...optionalExtensions, 'ext_frag_depth']
-    : [...extensionsFloat, ...optionalExtensions])
+  halfFloat: extensionsHalfFloat(),
+  float: extensionsFloat(),
+  drawBuffers: extensionsDrawBuffers(),
+  fragDepth: ['ext_frag_depth']
 };
 
 const pixelRatio = max(devicePixelRatio, 1.5) || 1.5;
 
 const regl = self.regl = getRegl({
   canvas, pixelRatio,
-  extensions: extend.required, optionalExtensions: extend.optional,
+  extensions: extend.required = extend.halfFloat,
+  optionalExtensions: extend.optional = ((fragDepth)?
+      [...extend.float, ...extend.drawBuffers, ...extend.fragDepth]
+    : [...extend.float, ...extend.drawBuffers]),
   onDone: toggleError
 });
 
@@ -133,8 +137,9 @@ const valuesMap = (new Map())
 
 const values = [];
 const valuesIndex = {};
+const alias = [];
 
-valuesMap.forEach((v, k) => valuesIndex[k] = values.push(v)-1);
+valuesMap.forEach((v, k) => alias[valuesIndex[k] = values.push(v)-1] = k);
 console.log(values, '`values`');
 
 /** Limits of this device and these `values`. */
@@ -374,7 +379,9 @@ const state = gpgpu(regl, {
     // How many state `values` (channels) are tracked independently of others.
     values,
     // Map how next output `values` derive from any past input `values`.
-    derives
+    derives,
+    // Give the values names for more convenient macros and order-independence.
+    alias
   },
   // How many steps of state to track.
   steps,
@@ -388,7 +395,7 @@ const state = gpgpu(regl, {
   merge,
   // Data type according to platform capabilities.
   // @todo Seems to move differently with `'half float'` Verlet integration.
-  type: ((extensionsFloat.every(regl.hasExtension))? 'float' : 'half float'),
+  type: ((extend.float.every(regl.hasExtension))? 'float' : 'half float'),
   // Configure macro hooks, globally or per-shader.
   macros: {
     // No `macros` needed for the `vert` shader; all other `macros` generated.
@@ -405,6 +412,7 @@ const state = gpgpu(regl, {
     dt0: (_, { props: { timer: { dts, rate: r } } }) => dts[0]*r,
     dt1: (_, { props: { timer: { dts, rate: r } } }) => dts[1]*r,
     time: (_, { props: { timer: { time: t, rate: r } } }) => t*r,
+
     loop: (_, { props: { timer: { time: t, rate: r, loop: l } } }) =>
       abs((((t*r)+l)%(l*2))-l),
 
@@ -637,7 +645,7 @@ const drawState = {
      * multiple passes (as happens in `state.step` to bind all `texture`s across
      * limited buffer outputs).
      */
-    buffersMax: null,
+    buffersMax: 0,
 
     /**
      * Read all past `values` to derive one value; that is, look up all states
@@ -682,6 +690,8 @@ const drawUniforms = toUniforms(drawState, {
   lightAmbient: regl.prop('drawProps.light.ambient'),
 
   paceColor: (_, { drawProps: dp, props: p }) => dp.paceColor[+p.useVerlet],
+
+  widths: (_, { drawProps: { widths: ws, form: f } }) => ws[f],
 
   wide: (_, { drawProps: { wide: w, widths: ws, form: f, size: s } }) =>
     clamp(w*viewScale(...s), ...ws[f])
@@ -873,13 +883,17 @@ document.querySelector('#fullscreen')?.addEventListener?.('click',
 document.addEventListener('keyup',
   (e) => (e.key === 'f') && canvas.requestFullscreen());
 
-/** Scroll back up when fallback demo video loads. */
-document.querySelector('#fallback')?.addEventListener?.('load', scrollDefer);
+const $fallback = document.querySelector('#fallback');
+
+if($fallback && (query.get('fallback') !== 'false')) {
+  /** Scroll back up when fallback demo video loads. */
+  $fallback.addEventListener('load', scrollDefer);
+  $fallback.src = $fallback.dataset.src;
+}
 
 /** Resize the canvas and any dependent properties. */
 function resize() {
-  const { drawProps } = drawState;
-  const { size, aspect: ar } = drawProps;
+  const { size, aspect: ar } = drawState.drawProps;
   const [w, h] = mulN2(size, setC2(size, innerWidth, innerHeight), pixelRatio);
 
   canvas.width = w;

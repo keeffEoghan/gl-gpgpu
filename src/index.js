@@ -13,6 +13,15 @@
  * @module (root)
  * @category Root
  * @category JS
+ *
+ * @todo Add a way to look up values from previous passes in the current step:
+ *   - We have `past` state inputs and the `next` state outputs, so adjacent
+ *     states in the current pass can be called `got` states.
+ *   - All states are already accessible in the shader, just need a way to
+ *     declare the lookup is desired; maybe a negative index in `derives` should
+ *     signify that, and be handled in the `tapStates` macros?
+ * @todo Add a way to resize all `gpgpu` resources in one convenient function.
+ * @todo Handle values with more channels than `channelsMax`...
  */
 
 import './api';
@@ -84,20 +93,13 @@ export function gpgpu(api, state = {}, to = state) {
   /** The parsed `GLSL` version. */
   to.glsl = getGLSL(glsl);
 
-  /**
-   * Temporary updates to set up `maps` then `state`.
-   * Any `maps.buffersMax` supersedes any `maxDrawbuffers` from the `api`.
-   */
+  /** Any `maps.buffersMax` supersedes any `maxDrawbuffers` from the `api`. */
   maps.buffersMax ??= maxDrawbuffers;
   state.maps = mapStep(maps, to.maps ??= {});
 
   toData(api, state, to);
   toUniforms(state, to.uniforms ??= {});
   toStep(api, state, to);
-
-  // Undo any temporary changes made above to the given `maps` and `state`.
-  /** @todo Improve, this is awkward. */
-  (state.maps = maps).buffersMax = buffersMax;
 
   return to;
 }

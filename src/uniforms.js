@@ -182,7 +182,7 @@ export function toUniforms(state = {}, to = state.uniforms ??= {}) {
      * Only returns a value if not using a `merge`d `texture`; otherwise `null`.
      */
     each((_, t) => to[n+`states[${(ago*texturesL)+t}]`] =
-        (_, { merge: m, stepNow: s, bound: b = bound, textures: ts }) =>
+        (_, { merge: m, stepNow: s = 0, bound: b = bound, textures: ts }) =>
           ((m)? null : wrap(s-b-ago, ts)?.[t]?.texture),
       textures);
 

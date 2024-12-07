@@ -8,31 +8,21 @@
 
 precision highp float;
 
-// The texture channels each of the `values` is stored in.
-#define positionChannels gpgpu_channels_0
-#define motionChannels gpgpu_channels_1
-#define lifeChannels gpgpu_channels_2
 // Set up sampling logic.
 gpgpu_useSamples
-// Only the first value derives from all values, giving these minimal `reads`.
-gpgpu_useReads_0
-// These first `derives` are all in one pass for the `value` at `0`.
-// See `derives` for how each `reads_0_${derive}` is indexed per-`derive`.
-#define readPosition1 gpgpu_reads_0_0
-#define readMotion gpgpu_reads_0_1
-#define readLife gpgpu_reads_0_2
-// Additional `derives` are individually specified.
-#define readPosition0 gpgpu_reads_0_3
+// Only the first value derives from all values, giving minimal `reads`.
+// See `derives` for how each `reads_position_${derive}` is indexed.
+gpgpu_useReads_position
 
 attribute float index;
 
 /** States from `gl-gpgpu`, merged or separate. */
-#ifdef gpgpu_mergedStates
+#ifdef gpgpu_splits
+  /** States from `gl-gpgpu` in separate `texture`/s. */
+  uniform sampler2D gpgpu_states[gpgpu_splits];
+#else
   /** States from `gl-gpgpu` in one merged `texture`. */
   uniform sampler2D gpgpu_states;
-#else
-  /** States from `gl-gpgpu` in separate `texture`/s. */
-  uniform sampler2D gpgpu_states[gpgpu_stepsPast*gpgpu_textures];
 #endif
 
 /** Current step from `gl-gpgpu`; needed for `tapStates` or `tapStatesBy`. */
@@ -44,6 +34,7 @@ uniform vec2 gpgpu_viewShape;
 uniform mat4 modelView;
 uniform mat4 projection;
 uniform vec2 aspect;
+uniform vec2 widths;
 uniform float wide;
 uniform float dt;
 uniform float loop;
@@ -85,7 +76,7 @@ varying vec3 emissive;
   #endif
 #endif
 
-const vec4 hide = vec4(0);
+const vec4 hide = vec4(0, 0, 0, -1);
 
 float triangleWave(float x) { return (abs(fract(x)-0.5)*4.0)-1.0; }
 
@@ -120,11 +111,23 @@ void main() {
     gpgpu_tapState(st)
   #endif
 
-  // Read values.
-  vec3 position0 = gpgpu_data[readPosition0].positionChannels;
-  vec3 position1 = gpgpu_data[readPosition1].positionChannels;
-  vec3 motion = gpgpu_data[readMotion].motionChannels;
-  vec2 life = gpgpu_data[readLife].lifeChannels;
+  // Read the values.
+
+  vec3 position1 = gpgpu_data[gpgpu_reads_position_position_new_0]
+    .gpgpu_channels_position;
+
+  #if gpgpu_stepsPast > 1
+    vec3 position0 = gpgpu_data[gpgpu_reads_position_position_new_1]
+      .gpgpu_channels_position;
+  #else
+    vec3 position0 = position1;
+  #endif
+
+  vec3 motion = gpgpu_data[gpgpu_reads_position_motion].gpgpu_channels_motion;
+  vec2 life = gpgpu_data[gpgpu_reads_position_life].gpgpu_channels_life;
+
+  // Work with the values.
+
   float alive = gt(life.x, 0.0);
   float ago = stepPast/max(float(gpgpu_stepsPast-1), 1.0);
 
@@ -146,7 +149,9 @@ void main() {
     clamp(pow(life.x/life.y, 0.5), 0.0, 1.0);
 
   float scale = clamp(pow(1.0-(life.x/life.y), 0.4), 0.0, 1.0);
-  float size = gl_PointSize = (wide*fade*scale)/to.w;
+
+  float size = gl_PointSize = alive*0.5*
+    clamp((wide*fade*scale)/to.w, widths.s, widths.t);
 
   /**
    * Convert vertex position to `gl_FragCoord` window-space.

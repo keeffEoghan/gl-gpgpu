@@ -14,14 +14,16 @@
 import range from '@epok.tech/fn-lists/range';
 import map from '@epok.tech/fn-lists/map';
 import reduce from '@epok.tech/fn-lists/reduce';
+import each from '@epok.tech/fn-lists/each';
 
-import { getWidth, getHeight, getScaled } from './size';
+import { toShape } from './size';
 
 import {
-    widthDef, heightDef, stepsDef, valuesDef, channelsMinDef, buffersMaxDef,
+    stepsDef, valuesDef, channelsMinDef, buffersMaxDef,
     typeDef, minDef, magDef, wrapDef, depthDef, stencilDef
   } from './const';
 
+const { max } = Math;
 const { isInteger } = Number;
 
 /**
@@ -216,7 +218,7 @@ const mergeDef = (steps, textures) => ((steps > 2) && (textures > 1));
  * @see {@link macros.macroPass}
  * @see {@link size.getWidth}
  * @see {@link size.getHeight}
- * @see {@link size.getScaled}
+ * @see {@link size.toScaled}
  *
  * @see [`sampler array index must be a literal expression`](https://stackoverflow.com/a/60110986/716898)
  * @see [`sampler2DArray`](https://github.com/WebGLSamples/WebGL2Samples/blob/master/samples/texture_2d_array.html)
@@ -243,7 +245,7 @@ const mergeDef = (steps, textures) => ((steps > 2) && (textures > 1));
  * @param {number} [state.side] Data size of width/height.
  *   See `getWidth` and `getHeight`.
  * @param {number} [state.scale=scaleDef] Data size of width/height as a square
- *   power-of-two size, 2 raised to this power. See `getScaled`.
+ *   power-of-two size, 2 raised to this power. See `toScaled`.
  *
  * @param {number|array} [state.steps=stepsDef] How many steps of state to
  *   track, or the list of states if already set up.
@@ -361,20 +363,19 @@ const mergeDef = (steps, textures) => ((steps > 2) && (textures > 1));
  */
 export function toData({ texture, framebuffer }, state = {}, to = state) {
   const {
-      maps, scale, steps = stepsDef,
+      maps, steps = stepsDef,
       // Resource format settings.
       type = typeDef, min = minDef, mag = magDef, wrap = wrapDef,
       depth = depthDef, stencil = stencilDef
     } = state;
 
-  const scaled = getScaled(scale);
-  const width = Math.floor(getWidth(state) ?? scaled ?? widthDef);
-  const height = Math.floor(getHeight(state) ?? scaled ?? heightDef);
+  const shape = toShape(state);
+  const [width, height] = shape;
 
   const {
-      values = (maps.values = valuesDef),
-      channelsMin = (maps.channelsMin = channelsMinDef),
-      buffersMax = (maps.buffersMax = buffersMaxDef),
+      values = maps.values = valuesDef(),
+      channelsMin = maps.channelsMin = channelsMinDef,
+      buffersMax = maps.buffersMax = buffersMaxDef,
       textures: texturesMap, passes: passesMap
     } = maps;
 
@@ -402,7 +403,7 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
    */
   const passChannels = (pass, min) =>
     reduce((min, t) =>
-        Math.max(min, reduce((sum, v) => sum+values[v], texturesMap[t], 0)),
+        max(min, reduce((sum, v) => sum+values[v], texturesMap[t], 0)),
       pass, min);
 
   /**
@@ -416,11 +417,17 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
     : reduce((min, p) => passChannels(p, min), passesMap, channelsMin));
 
   /** Size of the created resources. */
-  const size = to.size = {
-    type, depth, stencil, channelsMin: mergeChannels ?? channelsMin,
-    steps: stepsL, passes: 0, framebuffers: 0, textures: 0, colors: 0,
-    width, height, shape: [width, height], entries: width*height
-  };
+  const size = to.size ??= {};
+
+  size.shape ??= shape;
+  size.entries ??= (size.width ??= width)*(size.height ??= height);
+  size.type ??= type;
+  size.channelsMin ??= mergeChannels ?? channelsMin;
+  size.steps ??= stepsL;
+  size.passes ??= 0;
+  size.framebuffers ??= 0;
+  size.textures ??= 0;
+  size.colors ??= 0;
 
   /** The `texture`s created for the `step`/`pass` render flow. */
   const textures = to.textures = [];
@@ -490,8 +497,9 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
      * All a `framebuffer`'s attachments need the same number of channels;
      * superseded by any given `color`'s value.
      */
-    const channels = color ?? mergeChannels ??
-      ((pass)? passChannels(pass, channelsMin) : channelsMin);
+    const channels = ((color != null)? 0
+      : mergeChannels ??
+          ((pass)? passChannels(pass, channelsMin) : channelsMin));
 
     // Resources.
 
@@ -500,10 +508,12 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
       depth, stencil, width, height,
       /** Map the pass's `texture` color attachments and their meta info. */
       color: color ??
-        map(addTexture(channels, width, height, step, index), pass,
-          // Reuse any existing color attachments if merging; otherwise make
-          // dedicated color attachments for each pass.
-          ((merge)? (colorPool ??= []) : []))
+        ((pass)?
+          map(addTexture(channels, width, height, step, index), pass,
+            // Reuse any existing color attachments if merging; otherwise make
+            // dedicated color attachments for each pass.
+            ((merge)? colorPool ??= [] : []))
+        : [])
     };
 
     /**
@@ -542,26 +552,62 @@ export function toData({ texture, framebuffer }, state = {}, to = state) {
   to.steps = map((passes, step) => passes || map(addPass(step), passesMap),
     ((isInteger(steps))? range(steps) : steps), 0);
 
+  /** Resize `texture`s, `framebuffer`s, and update `size`. */
+  to.resize = (value = to, state = to) => {
+    const { size, passes, textures, merge } = state;
+    const [w, h] = toShape(value ?? state, size.shape ??= []);
+
+    size.entries = (size.width = w)*(size.height = h);
+
+    each((s) => each((p) => p.framebuffer.resize(p.width = w, p.height = h), s),
+      passes);
+
+    each((p) => each((t) => t.texture.resize(t.width = w, t.height = h), p),
+      textures);
+
+    return merge?.resize?.(value, state) ?? state;
+  };
+
   // Finish here if merge is disabled.
   if(!merge) { return to; }
 
   // Set up the `texture` for states to be merged into.
 
-  const { scale: mScale, all: mAll, next: mNext } = merge;
-  /** Use any size info given in `merge`, as with `state` above. */
-  const mScaled = getScaled(mScale);
+  const m = to.merge = { ...merge };
+  const { all: mAll, next: mNext } = m;
+  const ms = size.merge = m.size ??= {};
+
   /** Use any given size info, or merge along `[texture, step]` axes. */
-  const mw = getWidth(merge) ?? mScaled ?? texturesMap.length*width;
-  const mh = getHeight(merge) ?? mScaled ?? stepsL*height;
+  ms.width ??= texturesMap.length*width;
+  ms.height ??= stepsL*height;
 
-  to.merge = {
-    /** New merge `texture` and info, or use any given merge `texture`. */
-    all: mAll ?? addTexture(mergeChannels, mw, mh)(),
-    /** Empty `framebuffer`, to copy data from each `texture` of each pass. */
-    next: mNext ?? addPass(null, false)()
+  const [mw, mh] = toShape(m, ms.shape ??= []);
+
+  ms.entries ??= (ms.width = mw)*(ms.height = mh);
+  /** New merge `texture` and info, or use any given merge `texture`. */
+  m.all = mAll ?? addTexture(mergeChannels, mw, mh)();
+  /** Empty `framebuffer`, to copy data from each `texture` of each pass. */
+  m.next = mNext ?? addPass(null, colorPool[0])();
+
+  /** Resize `texture`s, `framebuffer`s, and update `size`. */
+  m.resize = (value = to, state = to) => {
+    const { merge, size, maps } = state;
+    const { size: ms = size.merge = {}, all, next } = merge;
+    const { textures: texturesMap } = maps;
+    const shape = toShape(value ?? state, ms.shape ??= []);
+    const [w, h] = shape;
+
+    next.framebuffer.resize(next.width = w, next.height = h);
+    ms.width = texturesMap.length*w;
+    ms.height = size.steps*h;
+
+    const [mw, mh] = toShape(ms, shape);
+
+    ms.entries = (ms.width = mw)*(ms.height = mh);
+    all.texture.resize(all.width = mw, all.height = mh);
+
+    return state;
   };
-
-  size.merge = { width: mw, height: mh, shape: [mw, mh], entries: mw*mh };
 
   return to;
 }

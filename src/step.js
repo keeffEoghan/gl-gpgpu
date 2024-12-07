@@ -16,8 +16,8 @@ import wrap from '@epok.tech/fn-lists/wrap';
 import { macroPass } from './macros';
 
 import {
-    vertDef, preDef, positionsDef, countDef, stepMaxDef,
-    clearPassDef, copyFrameDef, copyImageDef
+    vertDef, preDef, positionsDef, countDef, stepMaxDef, copyImageDef,
+    clearPassDef
   } from './const';
 
 const { call } = Function;
@@ -84,34 +84,39 @@ export const toShader = (shader, context, state) =>
 export function updateMerge(state) {
   const {
       merge, stepNow: s, size,
-      copyFrame: cf = copyFrameDef, copyImage: ci = copyImageDef
+      copyImage: ci = state.copyImage = copyImageDef()
     } = state;
 
-  const { color, map: pass } = getPass(state);
-  const { all: { texture }, next: { framebuffer } } = merge;
-  const to = texture?.subimage;
-  let f = framebuffer;
-
-  // Silent exit if there's not enough info ready now to perform the update.
-  if(!(to && f && color && pass && (s || (s === 0)))) { return texture; }
+  const { color: cs, map: pass } = getPass(state);
+  const { all: { texture: t }, next } = merge;
+  const sub = t?.subimage;
+  const { color } = next;
+  let f = next.framebuffer;
 
   /** Handle `object`s or `regl`-like extended `function`s. */
-  (f.call !== Function.call) && (f = f.call);
+  (f?.call !== Function.call) && (f = f?.call);
+
+  // Silent exit if there's not enough info ready now to perform the update.
+  if(!(sub && f && cs && pass && (s || (s === 0)))) { return t; }
 
   const { steps: sl, width: w, height: h } = size;
   /** Start at the top of the `texture`, move down row-per-step and wrap. */
-  const y = (s%sl)*h;
+  const y = wrap(s, sl)*h;
 
   /**
    * Reusable `framebuffer` binds and copies each of the pass `texture`s along
    * the merged `texture`.
    */
   each((c, i) =>
-      (cf.color = c) &&
-        f.call(f, cf).use.call(f, () => to.call(texture, ci, pass[i]*w, y)),
-    color);
+    (next.color = c) &&
+      f.call(f, next).use.call(f, () => sub.call(t, ci, pass[i]*w, y)),
+    cs);
 
-  return texture;
+  /** Reset any changed properties. */
+  next.color = color;
+  f.call(f, next);
+
+  return t;
 }
 
 /**
@@ -204,7 +209,8 @@ export function toStep(api, state = {}, to = state) {
       // Update any default vertex `shader` to use the given `pre`.
       pre: n = preDef, vert = vertDef.replaceAll(preDef, n || ''),
       // Any vertex `count`, and `positions` to be passed to `buffer`.
-      count = countDef, positions = positionsDef
+      count = countDef, positions = positionsDef(),
+      clearPass = null
     } = state;
 
   // Ensure any properties changed are included.
@@ -212,6 +218,7 @@ export function toStep(api, state = {}, to = state) {
   to.vert = vert;
   to.count = count;
   to.positions = buffer(positions);
+  to.clearPass = clearPass;
 
   // May pre-process and keep the `shader`s for all passes in advance.
   if(verts || frags) {
@@ -262,6 +269,7 @@ export function toStep(api, state = {}, to = state) {
       ...attributes
     },
     depth: { enable: false },
+    blend: { enable: false },
     /** Any `pipeline` properties shallow-override others of the same name. */
     ...pipeline
   });
@@ -269,39 +277,47 @@ export function toStep(api, state = {}, to = state) {
   /** Any merged `texture`'s update, set up if not already given. */
   merge && ((to.merge = merge).update ??= updateMerge);
 
-  /** Executes the next step and all its passes. */
-  to.step = (state = to) => {
-    const {
-        steps, merge, pass, onPass, onStep,
-        stepMax = stepMaxDef, clearPass = clearPassDef
-      } = state;
+  /** Guard for number overflow; set to `0` to ignore or handle in `GLSL`. */
+  to.stepBy = (state = to, by = 1) => {
+    const { stepNow = 0, stepMax = stepMaxDef } = state;
 
-    let { stepNow = 0 } = state;
-
-    /** Guard for number overflow; set to 0 to ignore or handle in `GLSL`. */
-    stepNow = state.stepNow = (stepNow+1)%(stepMax || Infinity);
-
-    const mergeUpdate = merge?.update;
-    const stepProps = onStep?.(state, wrap(stepNow, steps)) ?? state;
-
-    each((p, i) => {
-        stepProps.passNow = i;
-
-        const passProps = onPass?.(stepProps, p) ?? stepProps;
-
-        /** @todo Remove `clear` call if unnecessary? */
-        ((clearPass.framebuffer = getPass(passProps)?.framebuffer) &&
-          clear(clearPass));
-
-        pass(passProps);
-        // Update any merged `texture` upon each pass.
-        mergeUpdate?.(passProps);
-      },
-      stepProps.maps.passes);
-
-    delete clearPass.framebuffer;
+    state.stepNow = wrap(stepNow+by, stepMax || Infinity);
 
     return state;
+  };
+
+  /** Executes the next step and all its passes. */
+  to.step = (state = to) => {
+    const stepState = state.onStep?.(state) ?? state;
+
+    const {
+        steps, merge, pass, onPass, stepBy,
+        clearPass = stepState.clearPass = clearPassDef()
+      } = stepState;
+
+    const mergeUpdate = merge?.update;
+
+    stepBy(stepState);
+
+    each((p, i) => {
+        stepState.passNow = i;
+
+        const passState = onPass?.(stepState, p) ?? stepState;
+
+        /** Only call `clear` if specified, can just use blending otherwise. */
+        clearPass &&
+          (clearPass.framebuffer = getPass(passState)?.framebuffer) &&
+          clear(clearPass);
+
+        pass(passState);
+        // Update any merged `texture` upon each pass.
+        mergeUpdate?.(passState);
+      },
+      stepState.maps.passes);
+
+    delete clearPass?.framebuffer;
+
+    return stepState;
   };
 
   return to;
@@ -320,7 +336,7 @@ export function toStep(api, state = {}, to = state) {
  * - {@link state.framebuffer}
  *
  * **Returns**
- * - A `stepProps` object to use for each of the step's next passes; or
+ * - A `stepState` object to use for each of the step's next passes; or
  *   `null`ish to use the given `props`.
  *
  * @param {object} [props] The `props` passed to `run`.
@@ -342,10 +358,10 @@ export function toStep(api, state = {}, to = state) {
  * - {@link maps.mapGroups}
  *
  * **Returns**
- * - A `passProps` object to use for the render `command` call; or `null`ish to
- *   use the given `stepProps`.
+ * - A `passState` object to use for the render `command` call; or `null`ish to
+ *   use the given `stepState`.
  *
- * @param {object} [stepProps] The `props` passed to `run` via any `onStep`.
+ * @param {object} [stepState] The `props` passed to `run` via any `onStep`.
  * @param {number[]} pass The maps for the next pass. See `mapGroups`.
  *
  * @returns {object}
