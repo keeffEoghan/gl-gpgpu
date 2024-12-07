@@ -70,10 +70,11 @@ function setQuery(entries, q = getQuery()) {
 }
 
 const query = getQuery();
-const scrollOK = (query.get('scroll') !== 'false');
 
 // Scroll to the top.
-const scroll = () => canvas.scrollIntoView(true);
+const scroll = ((query.get('scroll') === 'false')? () => {}
+  : () => canvas.scrollIntoView(true));
+
 const scrollDefer = () => setTimeout(scroll, 0);
 
 function toggleError(e) {
