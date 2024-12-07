@@ -58,19 +58,6 @@ self.indexForms = indexForms;
 
 const canvas = document.querySelector('canvas');
 
-// Scroll to the top.
-const scroll = () => canvas.scrollIntoView(true);
-const scrollDefer = () => setTimeout(scroll, 0);
-
-function toggleError(e) {
-  canvas.classList[(e)? 'add' : 'remove']('hide');
-  document.querySelector('.error').classList[(e)? 'remove' : 'add']('hide');
-  document.querySelector('aside').classList[(e)? 'add' : 'remove']('show');
-}
-
-toggleError();
-scrollDefer();
-
 // Handle query parameters.
 
 const getQuery = (search = location.search) => new URLSearchParams(search);
@@ -83,6 +70,20 @@ function setQuery(entries, q = getQuery()) {
 }
 
 const query = getQuery();
+const scrollOK = (query.get('scroll') !== 'false');
+
+// Scroll to the top.
+const scroll = () => canvas.scrollIntoView(true);
+const scrollDefer = () => setTimeout(scroll, 0);
+
+function toggleError(e) {
+  canvas.classList[(e)? 'add' : 'remove']('hide');
+  document.querySelector('.error').classList[(e)? 'remove' : 'add']('hide');
+  document.querySelector('aside').classList[(e)? 'add' : 'remove']('show');
+}
+
+toggleError();
+scrollDefer();
 
 // Check for any extensions that need to be applied.
 const fragDepth = query.get('depth') === 'frag';
@@ -882,8 +883,13 @@ document.querySelector('#fullscreen')?.addEventListener?.('click',
 document.addEventListener('keyup',
   (e) => (e.key === 'f') && canvas.requestFullscreen());
 
-/** Scroll back up when fallback demo video loads. */
-document.querySelector('#fallback')?.addEventListener?.('load', scrollDefer);
+const $fallback = document.querySelector('#fallback');
+
+if($fallback && (query.get('fallback') !== 'false')) {
+  /** Scroll back up when fallback demo video loads. */
+  $fallback.addEventListener('load', scrollDefer);
+  $fallback.src = $fallback.dataset.src;
+}
 
 /** Resize the canvas and any dependent properties. */
 function resize() {

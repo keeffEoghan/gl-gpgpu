@@ -76,7 +76,7 @@ varying vec3 emissive;
   #endif
 #endif
 
-const vec4 hide = vec4(0);
+const vec4 hide = vec4(0, 0, 0, -1);
 
 float triangleWave(float x) { return (abs(fract(x)-0.5)*4.0)-1.0; }
 
@@ -150,7 +150,7 @@ void main() {
 
   float scale = clamp(pow(1.0-(life.x/life.y), 0.4), 0.0, 1.0);
 
-  float size = gl_PointSize = 0.5*
+  float size = gl_PointSize = alive*0.5*
     clamp((wide*fade*scale)/to.w, widths.s, widths.t);
 
   /**
