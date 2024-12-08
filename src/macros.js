@@ -751,46 +751,45 @@ export function macroSamples(state, on) {
           if(!alias) { return to; }
 
           const valueReadsToValue = passReadsToValue[v];
-          const va = alias[v];
-          const nra = `${n}reads_${va}`;
-          const nrv = `${n}reads_${v}`;
+          const aliasAt = alias[v];
+          const readAlias = `${n}reads_${aliasAt}`;
+          const readIndex = `${n}reads_${v}`;
 
           return to+
             `/**\n`+
             ` * Alias reads, depends on index reads \`${n}useReads_${v}\`.\n`+
             ` * If using both alias and index reads, only use this not both.\n`+
             ` */\n`+
-            `#define ${n}useReads_${va}${lf
+            `#define ${n}useReads_${aliasAt}${lf
             }${n}useReads_${v}${
             reduce((s, read, r) => {
-                const ra = alias[valueReadsToValue[r]];
+                const aliasTo = alias[valueReadsToValue[r]];
                 const n = passSamples[read][0];
                 const o = stepsPast-n-1;
-                const to = `${nrv}_${r}`;
-                const base = `const int ${nra}_${ra}`;
-                const sl = s.length;
-                let def;
+                const aliasBase = `${lf}const int ${readAlias}_${aliasTo}`;
+                const i = `${readIndex}_${r}`;
+                let d;
 
-                (s.indexOf(def = `${base}_new_${n} = ${to};${lf}`) < 0) &&
-                  (s += '/** Alias step past, indexed new-to-old. */'+lf+def);
+                ((s.indexOf(d = `${aliasBase}_old_${o} = `)) < 0) &&
+                  (s += `/** Alias step last index old-to-new. */${d+i};${lf}`);
 
-                (s.indexOf(def = `${base}_old_${o} = ${to};${lf}`) < 0) &&
-                  (s += '/** Alias step last, indexed old-to-new. */'+lf+def);
+                ((s.indexOf(d = `${aliasBase}_new_${n} = `)) < 0) &&
+                  (s += `/** Alias step past index new-to-old. */${d+i};${lf}`);
 
-                !n && (s.indexOf(def = `${base}_new = ${to};${lf}`) < 0) &&
-                  (s += '/** Alias with implied newest step past. */'+lf+def);
+                !o && ((s.indexOf(d = `${aliasBase}_old = `)) < 0) &&
+                  (s += `/** Alias implied oldest step last. */${d+i};${lf}`);
 
-                !n && (s.indexOf(def = `${base} = ${to};${lf}`) < 0) &&
-                  (s += '/** Alias with implied newest. */'+lf+def);
+                !n && ((s.indexOf(d = `${aliasBase}_new = `)) < 0) &&
+                  (s += `/** Alias implied newest step past. */${d+i};${lf}`);
 
-                !o && (s.indexOf(def = `${base}_old = ${to};${lf}`) < 0) &&
-                  (s += '/** Alias with implied oldest step last. */'+lf+def);
+                !n && ((s.indexOf(d = `${aliasBase} = `)) < 0) &&
+                  (s += `/** Alias implied newest. */${d+i};${lf}`);
 
-                return ((sl !== s.length)? lf : '')+s;
+                return s;
               },
               reads, ((reads.length)? lf : ''))}${lf
-            }const int ${nra}_l = ${nrv}_l;${lf
-            }int ${nra}_i(int i) { return ${nrv}_i(i); }\n\n`;
+            }const int ${readAlias}_l = ${readIndex}_l;${lf
+            }int ${readAlias}_i(int i) { return ${readIndex}_i(i); }\n\n`;
         },
         passReads, ''));
 

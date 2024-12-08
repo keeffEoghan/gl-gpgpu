@@ -267,7 +267,7 @@
 							"fileName": "api.js",
 							"line": 17,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L17"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L17"
 						}
 					],
 					"type": {
@@ -283,7 +283,7 @@
 									"fileName": "api.js",
 									"line": 17,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L17"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L17"
 								}
 							],
 							"signatures": [
@@ -426,7 +426,7 @@
 																	"fileName": "api.js",
 																	"line": 36,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L36"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L36"
 																}
 															],
 															"type": {
@@ -447,7 +447,7 @@
 																	"fileName": "api.js",
 																	"line": 37,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L37"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L37"
 																}
 															],
 															"type": {
@@ -468,7 +468,7 @@
 																	"fileName": "api.js",
 																	"line": 38,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L38"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L38"
 																}
 															],
 															"type": {
@@ -489,7 +489,7 @@
 																	"fileName": "api.js",
 																	"line": 39,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L39"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L39"
 																}
 															],
 															"type": {
@@ -510,7 +510,7 @@
 																	"fileName": "api.js",
 																	"line": 40,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L40"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L40"
 																}
 															],
 															"type": {
@@ -541,7 +541,7 @@
 															"fileName": "api.js",
 															"line": 35,
 															"character": 11,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L35"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L35"
 														}
 													]
 												}
@@ -655,7 +655,7 @@
 							"fileName": "api.js",
 							"line": 54,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L54"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L54"
 						}
 					],
 					"type": {
@@ -671,7 +671,7 @@
 									"fileName": "api.js",
 									"line": 54,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L54"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L54"
 								}
 							],
 							"signatures": [
@@ -725,7 +725,7 @@
 															"fileName": "api.js",
 															"line": 66,
 															"character": 11,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L66"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L66"
 														}
 													],
 													"signatures": [
@@ -853,7 +853,7 @@
 									"fileName": "api.js",
 									"line": 78,
 									"character": 26,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L78"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L78"
 								}
 							],
 							"type": {
@@ -898,7 +898,7 @@
 									"fileName": "api.js",
 									"line": 79,
 									"character": 26,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L79"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L79"
 								}
 							],
 							"type": {
@@ -923,7 +923,7 @@
 							"fileName": "api.js",
 							"line": 70,
 							"character": 21,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L70"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L70"
 						}
 					]
 				},
@@ -1042,7 +1042,7 @@
 							"fileName": "api.js",
 							"line": 83,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L83"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L83"
 						}
 					],
 					"type": {
@@ -1058,7 +1058,7 @@
 									"fileName": "api.js",
 									"line": 83,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L83"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L83"
 								}
 							],
 							"signatures": [
@@ -1412,7 +1412,7 @@
 							"fileName": "api.js",
 							"line": 108,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L108"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L108"
 						}
 					],
 					"type": {
@@ -1428,7 +1428,7 @@
 									"fileName": "api.js",
 									"line": 108,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L108"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L108"
 								}
 							],
 							"signatures": [
@@ -1645,7 +1645,7 @@
 									"fileName": "api.js",
 									"line": 143,
 									"character": 22,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L143"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L143"
 								}
 							],
 							"type": {
@@ -1698,7 +1698,7 @@
 									"fileName": "api.js",
 									"line": 144,
 									"character": 20,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L144"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L144"
 								}
 							],
 							"type": {
@@ -1723,7 +1723,7 @@
 							"fileName": "api.js",
 							"line": 135,
 							"character": 21,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L135"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L135"
 						}
 					]
 				},
@@ -1794,7 +1794,7 @@
 							"fileName": "api.js",
 							"line": 149,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L149"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L149"
 						}
 					],
 					"type": {
@@ -1810,7 +1810,7 @@
 									"fileName": "api.js",
 									"line": 149,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L149"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L149"
 								}
 							],
 							"signatures": [
@@ -1874,7 +1874,7 @@
 																	"fileName": "api.js",
 																	"line": 157,
 																	"character": 20,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L157"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L157"
 																}
 															],
 															"indexSignatures": [
@@ -1889,7 +1889,7 @@
 																			"fileName": "api.js",
 																			"line": 157,
 																			"character": 21,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L157"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L157"
 																		}
 																	],
 																	"parameters": [
@@ -2010,7 +2010,7 @@
 							"fileName": "api.js",
 							"line": 164,
 							"character": 21,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L164"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L164"
 						}
 					],
 					"type": {
@@ -2094,7 +2094,7 @@
 							"fileName": "api.js",
 							"line": 170,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L170"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L170"
 						}
 					],
 					"type": {
@@ -2110,7 +2110,7 @@
 									"fileName": "api.js",
 									"line": 170,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L170"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L170"
 								}
 							],
 							"signatures": [
@@ -2213,7 +2213,7 @@
 																	"fileName": "api.js",
 																	"line": 179,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L179"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L179"
 																}
 															],
 															"type": {
@@ -2237,7 +2237,7 @@
 																	"fileName": "api.js",
 																	"line": 180,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L180"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L180"
 																}
 															],
 															"type": {
@@ -2258,7 +2258,7 @@
 																	"fileName": "api.js",
 																	"line": 181,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L181"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L181"
 																}
 															],
 															"type": {
@@ -2279,7 +2279,7 @@
 																	"fileName": "api.js",
 																	"line": 182,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L182"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L182"
 																}
 															],
 															"type": {
@@ -2306,7 +2306,7 @@
 															"fileName": "api.js",
 															"line": 178,
 															"character": 11,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L178"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L178"
 														}
 													]
 												}
@@ -2458,7 +2458,7 @@
 							"fileName": "api.js",
 							"line": 192,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L192"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L192"
 						}
 					],
 					"type": {
@@ -2474,7 +2474,7 @@
 									"fileName": "api.js",
 									"line": 192,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L192"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L192"
 								}
 							],
 							"signatures": [
@@ -2753,7 +2753,7 @@
 																	"fileName": "api.js",
 																	"line": 210,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L210"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L210"
 																}
 															],
 															"type": {
@@ -2769,7 +2769,7 @@
 																			"fileName": "api.js",
 																			"line": 210,
 																			"character": 13,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L210"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L210"
 																		}
 																	],
 																	"signatures": [
@@ -2825,7 +2825,7 @@
 																	"fileName": "api.js",
 																	"line": 211,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L211"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L211"
 																}
 															],
 															"type": {
@@ -2841,7 +2841,7 @@
 																			"fileName": "api.js",
 																			"line": 211,
 																			"character": 13,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L211"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L211"
 																		}
 																	],
 																	"signatures": [
@@ -2897,7 +2897,7 @@
 																	"fileName": "api.js",
 																	"line": 212,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L212"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L212"
 																}
 															],
 															"type": {
@@ -2918,7 +2918,7 @@
 																	"fileName": "api.js",
 																	"line": 213,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L213"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L213"
 																}
 															],
 															"type": {
@@ -2934,7 +2934,7 @@
 																			"fileName": "api.js",
 																			"line": 213,
 																			"character": 19,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L213"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L213"
 																		}
 																	],
 																	"indexSignatures": [
@@ -2949,7 +2949,7 @@
 																					"fileName": "api.js",
 																					"line": 213,
 																					"character": 20,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L213"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L213"
 																				}
 																			],
 																			"parameters": [
@@ -2989,7 +2989,7 @@
 																	"fileName": "api.js",
 																	"line": 214,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L214"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L214"
 																}
 															],
 															"type": {
@@ -3005,7 +3005,7 @@
 																			"fileName": "api.js",
 																			"line": 214,
 																			"character": 17,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L214"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L214"
 																		}
 																	],
 																	"indexSignatures": [
@@ -3020,7 +3020,7 @@
 																					"fileName": "api.js",
 																					"line": 214,
 																					"character": 18,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L214"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L214"
 																				}
 																			],
 																			"parameters": [
@@ -3062,7 +3062,7 @@
 																	"fileName": "api.js",
 																	"line": 215,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L215"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L215"
 																}
 															],
 															"type": {
@@ -3078,7 +3078,7 @@
 																			"fileName": "api.js",
 																			"line": 215,
 																			"character": 14,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L215"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L215"
 																		}
 																	],
 																	"indexSignatures": [
@@ -3093,7 +3093,7 @@
 																					"fileName": "api.js",
 																					"line": 215,
 																					"character": 15,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L215"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L215"
 																				}
 																			],
 																			"parameters": [
@@ -3129,7 +3129,7 @@
 																									"fileName": "api.js",
 																									"line": 215,
 																									"character": 34,
-																									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L215"
+																									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L215"
 																								}
 																							]
 																						}
@@ -3154,7 +3154,7 @@
 																	"fileName": "api.js",
 																	"line": 216,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L216"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L216"
 																}
 															],
 															"type": {
@@ -3170,7 +3170,7 @@
 																			"fileName": "api.js",
 																			"line": 216,
 																			"character": 20,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L216"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L216"
 																		}
 																	],
 																	"signatures": [
@@ -3235,7 +3235,7 @@
 															"fileName": "api.js",
 															"line": 209,
 															"character": 11,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L209"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L209"
 														}
 													]
 												}
@@ -3255,7 +3255,7 @@
 													"fileName": "api.js",
 													"line": 229,
 													"character": 13,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L229"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L229"
 												}
 											],
 											"signatures": [
@@ -3361,7 +3361,7 @@
 							"fileName": "api.js",
 							"line": 240,
 							"character": 8,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L240"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L240"
 						}
 					],
 					"type": {
@@ -3384,7 +3384,7 @@
 											"fileName": "api.js",
 											"line": 234,
 											"character": 7,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L234"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L234"
 										}
 									],
 									"type": {
@@ -3405,7 +3405,7 @@
 											"fileName": "api.js",
 											"line": 235,
 											"character": 7,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L235"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L235"
 										}
 									],
 									"type": {
@@ -3426,7 +3426,7 @@
 											"fileName": "api.js",
 											"line": 236,
 											"character": 7,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L236"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L236"
 										}
 									],
 									"type": {
@@ -3447,7 +3447,7 @@
 											"fileName": "api.js",
 											"line": 237,
 											"character": 7,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L237"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L237"
 										}
 									],
 									"type": {
@@ -3468,7 +3468,7 @@
 											"fileName": "api.js",
 											"line": 238,
 											"character": 7,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L238"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L238"
 										}
 									],
 									"type": {
@@ -3489,7 +3489,7 @@
 											"fileName": "api.js",
 											"line": 239,
 											"character": 7,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L239"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L239"
 										}
 									],
 									"type": {
@@ -3518,7 +3518,7 @@
 									"fileName": "api.js",
 									"line": 233,
 									"character": 13,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L233"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L233"
 								}
 							]
 						}
@@ -3553,7 +3553,7 @@
 					"fileName": "api.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/api.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/api.js#L1"
 				}
 			]
 		},
@@ -3617,7 +3617,7 @@
 							"fileName": "const.js",
 							"line": 12,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L12"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L12"
 						}
 					],
 					"type": {
@@ -3666,7 +3666,7 @@
 							"fileName": "const.js",
 							"line": 19,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L19"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L19"
 						}
 					],
 					"signatures": [
@@ -3681,7 +3681,7 @@
 									"fileName": "const.js",
 									"line": 19,
 									"character": 28,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L19"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L19"
 								}
 							],
 							"type": {
@@ -3736,7 +3736,7 @@
 							"fileName": "const.js",
 							"line": 26,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L26"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L26"
 						}
 					],
 					"type": {
@@ -3780,7 +3780,7 @@
 							"fileName": "const.js",
 							"line": 31,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L31"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L31"
 						}
 					],
 					"signatures": [
@@ -3795,7 +3795,7 @@
 									"fileName": "const.js",
 									"line": 31,
 									"character": 31,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L31"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L31"
 								}
 							],
 							"type": {
@@ -3843,7 +3843,7 @@
 							"fileName": "const.js",
 							"line": 35,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L35"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L35"
 						}
 					],
 					"signatures": [
@@ -3858,7 +3858,7 @@
 									"fileName": "const.js",
 									"line": 35,
 									"character": 35,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L35"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L35"
 								}
 							],
 							"type": {
@@ -3898,7 +3898,7 @@
 							"fileName": "const.js",
 							"line": 39,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L39"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L39"
 						}
 					],
 					"signatures": [
@@ -3913,7 +3913,7 @@
 									"fileName": "const.js",
 									"line": 39,
 									"character": 37,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L39"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L39"
 								}
 							],
 							"type": {
@@ -3953,7 +3953,7 @@
 							"fileName": "const.js",
 							"line": 42,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L42"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L42"
 						}
 					],
 					"signatures": [
@@ -3968,7 +3968,7 @@
 									"fileName": "const.js",
 									"line": 42,
 									"character": 26,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L42"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L42"
 								}
 							],
 							"type": {
@@ -4008,7 +4008,7 @@
 							"fileName": "const.js",
 							"line": 45,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L45"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L45"
 						}
 					],
 					"signatures": [
@@ -4039,7 +4039,7 @@
 									"fileName": "const.js",
 									"line": 45,
 									"character": 13,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L45"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L45"
 								}
 							],
 							"type": {
@@ -4063,7 +4063,7 @@
 							"fileName": "const.js",
 							"line": 47,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L47"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L47"
 						}
 					],
 					"signatures": [
@@ -4094,7 +4094,7 @@
 									"fileName": "const.js",
 									"line": 47,
 									"character": 13,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L47"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L47"
 								}
 							],
 							"type": {
@@ -4140,7 +4140,7 @@
 							"fileName": "const.js",
 							"line": 54,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L54"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L54"
 						}
 					],
 					"type": {
@@ -4234,7 +4234,7 @@
 							"fileName": "const.js",
 							"line": 63,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L63"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L63"
 						}
 					],
 					"type": {
@@ -4328,7 +4328,7 @@
 							"fileName": "const.js",
 							"line": 72,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L72"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L72"
 						}
 					],
 					"type": {
@@ -4399,7 +4399,7 @@
 							"fileName": "const.js",
 							"line": 80,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L80"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L80"
 						}
 					],
 					"type": {
@@ -4429,7 +4429,7 @@
 							"fileName": "const.js",
 							"line": 86,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L86"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L86"
 						}
 					],
 					"type": {
@@ -4475,7 +4475,7 @@
 							"fileName": "const.js",
 							"line": 92,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L92"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L92"
 						}
 					],
 					"type": {
@@ -4554,7 +4554,7 @@
 							"fileName": "const.js",
 							"line": 101,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L101"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L101"
 						}
 					],
 					"type": {
@@ -4633,7 +4633,7 @@
 							"fileName": "const.js",
 							"line": 110,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L110"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L110"
 						}
 					],
 					"type": {
@@ -4663,7 +4663,7 @@
 							"fileName": "const.js",
 							"line": 113,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L113"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L113"
 						}
 					],
 					"type": {
@@ -4699,7 +4699,7 @@
 							"fileName": "const.js",
 							"line": 115,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L115"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L115"
 						}
 					],
 					"signatures": [
@@ -4714,7 +4714,7 @@
 									"fileName": "const.js",
 									"line": 115,
 									"character": 25,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L115"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L115"
 								}
 							],
 							"type": {
@@ -4768,7 +4768,7 @@
 							"fileName": "const.js",
 							"line": 124,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L124"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L124"
 						}
 					],
 					"type": {
@@ -4818,7 +4818,7 @@
 							"fileName": "const.js",
 							"line": 131,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L131"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L131"
 						}
 					],
 					"type": {
@@ -4868,7 +4868,7 @@
 							"fileName": "const.js",
 							"line": 138,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L138"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L138"
 						}
 					],
 					"type": {
@@ -4934,7 +4934,7 @@
 							"fileName": "const.js",
 							"line": 145,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L145"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L145"
 						}
 					],
 					"type": {
@@ -4984,7 +4984,7 @@
 							"fileName": "const.js",
 							"line": 152,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L152"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L152"
 						}
 					],
 					"type": {
@@ -5034,7 +5034,7 @@
 							"fileName": "const.js",
 							"line": 159,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L159"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L159"
 						}
 					],
 					"type": {
@@ -5112,7 +5112,7 @@
 							"fileName": "const.js",
 							"line": 165,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L165"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L165"
 						}
 					],
 					"type": {
@@ -5191,7 +5191,7 @@
 							"fileName": "const.js",
 							"line": 173,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L173"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L173"
 						}
 					],
 					"type": {
@@ -5278,7 +5278,7 @@
 							"fileName": "const.js",
 							"line": 186,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L186"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L186"
 						}
 					],
 					"type": {
@@ -5301,7 +5301,7 @@
 											"fileName": "const.js",
 											"line": 182,
 											"character": 11,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L182"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L182"
 										}
 									],
 									"type": {
@@ -5337,7 +5337,7 @@
 											"fileName": "const.js",
 											"line": 182,
 											"character": 27,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L182"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L182"
 										}
 									],
 									"type": {
@@ -5356,7 +5356,7 @@
 											"fileName": "const.js",
 											"line": 182,
 											"character": 35,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L182"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L182"
 										}
 									],
 									"type": {
@@ -5377,7 +5377,7 @@
 											"fileName": "const.js",
 											"line": 182,
 											"character": 45,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L182"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L182"
 										}
 									],
 									"type": {
@@ -5402,7 +5402,7 @@
 									"fileName": "const.js",
 									"line": 182,
 									"character": 10,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L182"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L182"
 								}
 							]
 						}
@@ -5493,7 +5493,7 @@
 							"fileName": "const.js",
 							"line": 199,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L199"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L199"
 						}
 					],
 					"signatures": [
@@ -5508,7 +5508,7 @@
 									"fileName": "const.js",
 									"line": 199,
 									"character": 28,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L199"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L199"
 								}
 							],
 							"type": {
@@ -5531,7 +5531,7 @@
 													"fileName": "const.js",
 													"line": 199,
 													"character": 37,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L199"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L199"
 												}
 											],
 											"type": {
@@ -5554,7 +5554,7 @@
 											"fileName": "const.js",
 											"line": 199,
 											"character": 35,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L199"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L199"
 										}
 									]
 								}
@@ -5609,7 +5609,7 @@
 					"fileName": "const.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/const.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/const.js#L1"
 				}
 			]
 		},
@@ -5707,7 +5707,7 @@
 							"fileName": "data.js",
 							"line": 364,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L364"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L364"
 						}
 					],
 					"signatures": [
@@ -6726,7 +6726,7 @@
 									"fileName": "data.js",
 									"line": 364,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L364"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L364"
 								}
 							],
 							"parameters": [
@@ -6796,7 +6796,7 @@
 															"fileName": "data.js",
 															"line": 228,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L228"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L228"
 														}
 													],
 													"type": {
@@ -6839,7 +6839,7 @@
 															"fileName": "data.js",
 															"line": 229,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L229"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L229"
 														}
 													],
 													"type": {
@@ -6862,7 +6862,7 @@
 													"fileName": "data.js",
 													"line": 228,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L228"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L228"
 												}
 											]
 										}
@@ -6920,7 +6920,7 @@
 															"fileName": "data.js",
 															"line": 232,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L232"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L232"
 														}
 													],
 													"type": {
@@ -6972,7 +6972,7 @@
 															"fileName": "data.js",
 															"line": 234,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L234"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L234"
 														}
 													],
 													"type": {
@@ -7024,7 +7024,7 @@
 															"fileName": "data.js",
 															"line": 235,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L235"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L235"
 														}
 													],
 													"type": {
@@ -7076,7 +7076,7 @@
 															"fileName": "data.js",
 															"line": 236,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L236"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L236"
 														}
 													],
 													"type": {
@@ -7120,7 +7120,7 @@
 															"fileName": "data.js",
 															"line": 238,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L238"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L238"
 														}
 													],
 													"type": {
@@ -7172,7 +7172,7 @@
 															"fileName": "data.js",
 															"line": 240,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L240"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L240"
 														}
 													],
 													"type": {
@@ -7224,7 +7224,7 @@
 															"fileName": "data.js",
 															"line": 241,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L241"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L241"
 														}
 													],
 													"type": {
@@ -7276,7 +7276,7 @@
 															"fileName": "data.js",
 															"line": 242,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L242"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L242"
 														}
 													],
 													"type": {
@@ -7328,7 +7328,7 @@
 															"fileName": "data.js",
 															"line": 243,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L243"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L243"
 														}
 													],
 													"type": {
@@ -7380,7 +7380,7 @@
 															"fileName": "data.js",
 															"line": 244,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L244"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L244"
 														}
 													],
 													"type": {
@@ -7432,7 +7432,7 @@
 															"fileName": "data.js",
 															"line": 245,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L245"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L245"
 														}
 													],
 													"type": {
@@ -7476,7 +7476,7 @@
 															"fileName": "data.js",
 															"line": 247,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L247"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L247"
 														}
 													],
 													"type": {
@@ -7512,7 +7512,7 @@
 															"fileName": "data.js",
 															"line": 250,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L250"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L250"
 														}
 													],
 													"type": {
@@ -7579,7 +7579,7 @@
 															"fileName": "data.js",
 															"line": 252,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L252"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L252"
 														}
 													],
 													"type": {
@@ -7609,7 +7609,7 @@
 																					"fileName": "data.js",
 																					"line": 254,
 																					"character": 3,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L254"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L254"
 																				}
 																			],
 																			"type": {
@@ -7628,7 +7628,7 @@
 																					"fileName": "data.js",
 																					"line": 257,
 																					"character": 3,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L257"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L257"
 																				}
 																			],
 																			"type": {
@@ -7660,7 +7660,7 @@
 																			"fileName": "data.js",
 																			"line": 254,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L254"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L254"
 																		}
 																	]
 																}
@@ -7695,7 +7695,7 @@
 													"fileName": "data.js",
 													"line": 232,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L232"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L232"
 												}
 											]
 										}
@@ -7751,7 +7751,7 @@
 							"fileName": "data.js",
 							"line": 615,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L615"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L615"
 						}
 					],
 					"target": 127
@@ -7776,7 +7776,7 @@
 					"fileName": "data.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/data.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/data.js#L1"
 				}
 			]
 		},
@@ -7840,7 +7840,7 @@
 							"fileName": "index-forms/index-entries.glsl.js",
 							"line": 15,
 							"character": 14,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index-forms/index-entries.glsl.js#L15"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index-forms/index-entries.glsl.js#L15"
 						}
 					],
 					"type": {
@@ -7860,7 +7860,7 @@
 							"fileName": "index-forms/index-entries.glsl.js",
 							"line": 17,
 							"character": 1,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index-forms/index-entries.glsl.js#L17"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index-forms/index-entries.glsl.js#L17"
 						}
 					],
 					"target": 54
@@ -7899,7 +7899,7 @@
 					"fileName": "index-forms/index-entries.glsl.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index-forms/index-entries.glsl.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index-forms/index-entries.glsl.js#L1"
 				}
 			]
 		},
@@ -7963,7 +7963,7 @@
 							"fileName": "index-forms/index-states.glsl.js",
 							"line": 15,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index-forms/index-states.glsl.js#L15"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index-forms/index-states.glsl.js#L15"
 						}
 					],
 					"type": {
@@ -7983,7 +7983,7 @@
 							"fileName": "index-forms/index-states.glsl.js",
 							"line": 17,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index-forms/index-states.glsl.js#L17"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index-forms/index-states.glsl.js#L17"
 						}
 					],
 					"target": 44
@@ -8022,7 +8022,7 @@
 					"fileName": "index-forms/index-states.glsl.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index-forms/index-states.glsl.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index-forms/index-states.glsl.js#L1"
 				}
 			]
 		},
@@ -8044,7 +8044,7 @@
 							"fileName": "index-forms/index.js",
 							"line": 32,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index-forms/index.js#L32"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index-forms/index.js#L32"
 						}
 					],
 					"signatures": [
@@ -8059,7 +8059,7 @@
 									"fileName": "index-forms/index.js",
 									"line": 32,
 									"character": 26,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index-forms/index.js#L32"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index-forms/index.js#L32"
 								}
 							],
 							"parameters": [
@@ -8124,7 +8124,7 @@
 							"fileName": "index-forms/index.js",
 							"line": 35,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index-forms/index.js#L35"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index-forms/index.js#L35"
 						}
 					],
 					"target": 47
@@ -8149,7 +8149,7 @@
 					"fileName": "index-forms/index.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index-forms/index.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index-forms/index.js#L1"
 				}
 			]
 		},
@@ -8341,7 +8341,7 @@
 							"fileName": "index.js",
 							"line": 48,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.js#L48"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.js#L48"
 						}
 					],
 					"signatures": [
@@ -8394,7 +8394,7 @@
 									"fileName": "index.js",
 									"line": 48,
 									"character": 23,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.js#L48"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.js#L48"
 								}
 							],
 							"parameters": [
@@ -8501,7 +8501,7 @@
 							"fileName": "index.js",
 							"line": 88,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.js#L88"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.js#L88"
 						}
 					],
 					"signatures": [
@@ -8716,7 +8716,7 @@
 									"fileName": "index.js",
 									"line": 88,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.js#L88"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.js#L88"
 								}
 							],
 							"parameters": [
@@ -8794,7 +8794,7 @@
 															"fileName": "index.js",
 															"line": 68,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.js#L68"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.js#L68"
 														}
 													],
 													"type": {
@@ -8824,7 +8824,7 @@
 																					"fileName": "index.js",
 																					"line": 69,
 																					"character": 3,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.js#L69"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.js#L69"
 																				}
 																			],
 																			"type": {
@@ -8855,7 +8855,7 @@
 																			"fileName": "index.js",
 																			"line": 69,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.js#L69"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.js#L69"
 																		}
 																	]
 																}
@@ -8877,7 +8877,7 @@
 													"fileName": "index.js",
 													"line": 68,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.js#L68"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.js#L68"
 												}
 											]
 										}
@@ -8975,7 +8975,7 @@
 															"fileName": "index.js",
 															"line": 73,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.js#L73"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.js#L73"
 														}
 													],
 													"type": {
@@ -9005,7 +9005,7 @@
 																					"fileName": "index.js",
 																					"line": 76,
 																					"character": 3,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.js#L76"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.js#L76"
 																				}
 																			],
 																			"type": {
@@ -9040,7 +9040,7 @@
 																			"fileName": "index.js",
 																			"line": 76,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.js#L76"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.js#L76"
 																		}
 																	]
 																}
@@ -9062,7 +9062,7 @@
 													"fileName": "index.js",
 													"line": 73,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.js#L73"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.js#L73"
 												}
 											]
 										}
@@ -9126,7 +9126,7 @@
 							"fileName": "index.js",
 							"line": 107,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.js#L107"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.js#L107"
 						}
 					],
 					"target": 97
@@ -9152,7 +9152,7 @@
 					"fileName": "index.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.js#L1"
 				}
 			]
 		},
@@ -9216,7 +9216,7 @@
 							"fileName": "index.vert.js",
 							"line": 15,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.vert.js#L15"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.vert.js#L15"
 						}
 					],
 					"type": {
@@ -9236,7 +9236,7 @@
 							"fileName": "index.vert.js",
 							"line": 17,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.vert.js#L17"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.vert.js#L17"
 						}
 					],
 					"target": 124
@@ -9275,7 +9275,7 @@
 					"fileName": "index.vert.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/index.vert.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/index.vert.js#L1"
 				}
 			]
 		},
@@ -9339,7 +9339,7 @@
 							"fileName": "lookup/index-uv.glsl.js",
 							"line": 15,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/lookup/index-uv.glsl.js#L15"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/lookup/index-uv.glsl.js#L15"
 						}
 					],
 					"type": {
@@ -9359,7 +9359,7 @@
 							"fileName": "lookup/index-uv.glsl.js",
 							"line": 17,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/lookup/index-uv.glsl.js#L17"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/lookup/index-uv.glsl.js#L17"
 						}
 					],
 					"target": 118
@@ -9398,7 +9398,7 @@
 					"fileName": "lookup/index-uv.glsl.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/lookup/index-uv.glsl.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/lookup/index-uv.glsl.js#L1"
 				}
 			]
 		},
@@ -9462,7 +9462,7 @@
 							"fileName": "lookup/offset-uv.glsl.js",
 							"line": 15,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/lookup/offset-uv.glsl.js#L15"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/lookup/offset-uv.glsl.js#L15"
 						}
 					],
 					"type": {
@@ -9482,7 +9482,7 @@
 							"fileName": "lookup/offset-uv.glsl.js",
 							"line": 17,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/lookup/offset-uv.glsl.js#L17"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/lookup/offset-uv.glsl.js#L17"
 						}
 					],
 					"target": 121
@@ -9521,7 +9521,7 @@
 					"fileName": "lookup/offset-uv.glsl.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/lookup/offset-uv.glsl.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/lookup/offset-uv.glsl.js#L1"
 				}
 			]
 		},
@@ -9585,7 +9585,7 @@
 							"fileName": "lookup/spread-uv.glsl.js",
 							"line": 15,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/lookup/spread-uv.glsl.js#L15"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/lookup/spread-uv.glsl.js#L15"
 						}
 					],
 					"type": {
@@ -9605,7 +9605,7 @@
 							"fileName": "lookup/spread-uv.glsl.js",
 							"line": 17,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/lookup/spread-uv.glsl.js#L17"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/lookup/spread-uv.glsl.js#L17"
 						}
 					],
 					"target": 115
@@ -9644,7 +9644,7 @@
 					"fileName": "lookup/spread-uv.glsl.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/lookup/spread-uv.glsl.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/lookup/spread-uv.glsl.js#L1"
 				}
 			]
 		},
@@ -9776,7 +9776,7 @@
 							"fileName": "macros.js",
 							"line": 26,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L26"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L26"
 						}
 					],
 					"type": {
@@ -9806,7 +9806,7 @@
 							"fileName": "macros.js",
 							"line": 30,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L30"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L30"
 						}
 					],
 					"type": {
@@ -9836,7 +9836,7 @@
 							"fileName": "macros.js",
 							"line": 32,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L32"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L32"
 						}
 					],
 					"type": {
@@ -9852,7 +9852,7 @@
 									"fileName": "macros.js",
 									"line": 32,
 									"character": 13,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L32"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L32"
 								}
 							]
 						}
@@ -9880,7 +9880,7 @@
 							"fileName": "macros.js",
 							"line": 37,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L37"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L37"
 						}
 					],
 					"type": {
@@ -9911,7 +9911,7 @@
 											"fileName": "macros.js",
 											"line": 39,
 											"character": 2,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L39"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L39"
 										}
 									],
 									"type": {
@@ -9939,7 +9939,7 @@
 											"fileName": "macros.js",
 											"line": 41,
 											"character": 2,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L41"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L41"
 										}
 									],
 									"type": {
@@ -9959,7 +9959,7 @@
 											"fileName": "macros.js",
 											"line": 41,
 											"character": 25,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L41"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L41"
 										}
 									],
 									"type": {
@@ -9979,7 +9979,7 @@
 											"fileName": "macros.js",
 											"line": 42,
 											"character": 2,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L42"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L42"
 										}
 									],
 									"type": {
@@ -9999,7 +9999,7 @@
 											"fileName": "macros.js",
 											"line": 42,
 											"character": 27,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L42"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L42"
 										}
 									],
 									"type": {
@@ -10026,7 +10026,7 @@
 									"fileName": "macros.js",
 									"line": 37,
 									"character": 21,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L37"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L37"
 								}
 							]
 						}
@@ -10044,7 +10044,7 @@
 							"fileName": "macros.js",
 							"line": 102,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L102"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L102"
 						}
 					],
 					"signatures": [
@@ -10108,7 +10108,7 @@
 									"fileName": "macros.js",
 									"line": 102,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L102"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L102"
 								}
 							],
 							"parameters": [
@@ -10402,7 +10402,7 @@
 															"fileName": "macros.js",
 															"line": 87,
 															"character": 25,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L87"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L87"
 														}
 													],
 													"signatures": [
@@ -10417,7 +10417,7 @@
 																	"fileName": "macros.js",
 																	"line": 87,
 																	"character": 25,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L87"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L87"
 																}
 															],
 															"parameters": [
@@ -10558,7 +10558,7 @@
 							"fileName": "macros.js",
 							"line": 141,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L141"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L141"
 						}
 					],
 					"signatures": [
@@ -10595,7 +10595,7 @@
 									"fileName": "macros.js",
 									"line": 141,
 									"character": 31,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L141"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L141"
 								}
 							],
 							"parameters": [
@@ -10827,7 +10827,7 @@
 							"fileName": "macros.js",
 							"line": 175,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L175"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L175"
 						}
 					],
 					"signatures": [
@@ -10864,7 +10864,7 @@
 									"fileName": "macros.js",
 									"line": 175,
 									"character": 32,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L175"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L175"
 								}
 							],
 							"parameters": [
@@ -11087,7 +11087,7 @@
 							"fileName": "macros.js",
 							"line": 215,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L215"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L215"
 						}
 					],
 					"signatures": [
@@ -11124,7 +11124,7 @@
 									"fileName": "macros.js",
 									"line": 215,
 									"character": 33,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L215"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L215"
 								}
 							],
 							"parameters": [
@@ -11347,7 +11347,7 @@
 							"fileName": "macros.js",
 							"line": 246,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L246"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L246"
 						}
 					],
 					"signatures": [
@@ -11384,7 +11384,7 @@
 									"fileName": "macros.js",
 									"line": 246,
 									"character": 28,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L246"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L246"
 								}
 							],
 							"parameters": [
@@ -11701,7 +11701,7 @@
 							"fileName": "macros.js",
 							"line": 303,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L303"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L303"
 						}
 					],
 					"signatures": [
@@ -11738,7 +11738,7 @@
 									"fileName": "macros.js",
 									"line": 303,
 									"character": 27,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L303"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L303"
 								}
 							],
 							"parameters": [
@@ -11955,7 +11955,7 @@
 							"fileName": "macros.js",
 							"line": 406,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L406"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L406"
 						}
 					],
 					"signatures": [
@@ -12089,7 +12089,7 @@
 									"fileName": "macros.js",
 									"line": 406,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L406"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L406"
 								}
 							],
 							"parameters": [
@@ -12184,7 +12184,7 @@
 							"fileName": "macros.js",
 							"line": 549,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L549"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L549"
 						}
 					],
 					"signatures": [
@@ -12306,7 +12306,7 @@
 									"fileName": "macros.js",
 									"line": 549,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L549"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L549"
 								}
 							],
 							"parameters": [
@@ -12401,7 +12401,7 @@
 							"fileName": "macros.js",
 							"line": 721,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L721"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L721"
 						}
 					],
 					"signatures": [
@@ -12585,7 +12585,7 @@
 									"fileName": "macros.js",
 									"line": 721,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L721"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L721"
 								}
 							],
 							"parameters": [
@@ -12678,9 +12678,9 @@
 					"sources": [
 						{
 							"fileName": "macros.js",
-							"line": 885,
+							"line": 884,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L885"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L884"
 						}
 					],
 					"signatures": [
@@ -12987,9 +12987,9 @@
 							"sources": [
 								{
 									"fileName": "macros.js",
-									"line": 885,
+									"line": 884,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L885"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L884"
 								}
 							],
 							"parameters": [
@@ -13237,9 +13237,9 @@
 					"sources": [
 						{
 							"fileName": "macros.js",
-							"line": 1160,
+							"line": 1159,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L1160"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L1159"
 						}
 					],
 					"signatures": [
@@ -13306,9 +13306,9 @@
 							"sources": [
 								{
 									"fileName": "macros.js",
-									"line": 1160,
+									"line": 1159,
 									"character": 25,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L1160"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L1159"
 								}
 							],
 							"parameters": [
@@ -13409,9 +13409,9 @@
 					"sources": [
 						{
 							"fileName": "macros.js",
-							"line": 1165,
+							"line": 1164,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L1165"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L1164"
 						}
 					],
 					"target": 508
@@ -13455,7 +13455,7 @@
 					"fileName": "macros.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/macros.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/macros.js#L1"
 				}
 			]
 		},
@@ -13552,7 +13552,7 @@
 							"fileName": "maps.js",
 							"line": 40,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L40"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L40"
 						}
 					],
 					"signatures": [
@@ -13589,7 +13589,7 @@
 									"fileName": "maps.js",
 									"line": 40,
 									"character": 26,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L40"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L40"
 								}
 							],
 							"parameters": [
@@ -13677,7 +13677,7 @@
 							"fileName": "maps.js",
 							"line": 56,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L56"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L56"
 						}
 					],
 					"signatures": [
@@ -13706,7 +13706,7 @@
 									"fileName": "maps.js",
 									"line": 56,
 									"character": 26,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L56"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L56"
 								}
 							],
 							"parameters": [
@@ -13765,7 +13765,7 @@
 							"fileName": "maps.js",
 							"line": 91,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L91"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L91"
 						}
 					],
 					"signatures": [
@@ -13868,7 +13868,7 @@
 									"fileName": "maps.js",
 									"line": 91,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L91"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L91"
 								}
 							],
 							"parameters": [
@@ -14009,7 +14009,7 @@
 							"fileName": "maps.js",
 							"line": 248,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L248"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L248"
 						}
 					],
 					"signatures": [
@@ -14334,7 +14334,7 @@
 									"fileName": "maps.js",
 									"line": 248,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L248"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L248"
 								}
 							],
 							"parameters": [
@@ -14422,7 +14422,7 @@
 															"fileName": "maps.js",
 															"line": 203,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L203"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L203"
 														}
 													],
 													"type": {
@@ -14457,7 +14457,7 @@
 															"fileName": "maps.js",
 															"line": 215,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L215"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L215"
 														}
 													],
 													"type": {
@@ -14541,7 +14541,7 @@
 															"fileName": "maps.js",
 															"line": 217,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L217"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L217"
 														}
 													],
 													"type": {
@@ -14629,7 +14629,7 @@
 															"fileName": "maps.js",
 															"line": 222,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L222"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L222"
 														}
 													],
 													"type": {
@@ -14654,7 +14654,7 @@
 													"fileName": "maps.js",
 													"line": 203,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L203"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L203"
 												}
 											]
 										}
@@ -14718,7 +14718,7 @@
 							"fileName": "maps.js",
 							"line": 382,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L382"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L382"
 						}
 					],
 					"signatures": [
@@ -14876,7 +14876,7 @@
 									"fileName": "maps.js",
 									"line": 382,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L382"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L382"
 								}
 							],
 							"parameters": [
@@ -14978,7 +14978,7 @@
 															"fileName": "maps.js",
 															"line": 358,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L358"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L358"
 														}
 													],
 													"type": {
@@ -15013,7 +15013,7 @@
 															"fileName": "maps.js",
 															"line": 362,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L362"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L362"
 														}
 													],
 													"type": {
@@ -15068,7 +15068,7 @@
 															"fileName": "maps.js",
 															"line": 364,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L364"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L364"
 														}
 													],
 													"type": {
@@ -15115,7 +15115,7 @@
 															"fileName": "maps.js",
 															"line": 366,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L366"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L366"
 														}
 													],
 													"type": {
@@ -15150,7 +15150,7 @@
 													"fileName": "maps.js",
 													"line": 358,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L358"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L358"
 												}
 											]
 										}
@@ -15259,7 +15259,7 @@
 							"fileName": "maps.js",
 							"line": 464,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L464"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L464"
 						}
 					],
 					"signatures": [
@@ -15324,7 +15324,7 @@
 									"fileName": "maps.js",
 									"line": 464,
 									"character": 23,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L464"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L464"
 								}
 							],
 							"parameters": [
@@ -15406,7 +15406,7 @@
 							"fileName": "maps.js",
 							"line": 520,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L520"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L520"
 						}
 					],
 					"target": 87
@@ -15707,7 +15707,7 @@
 							"fileName": "maps.js",
 							"line": 489,
 							"character": 59,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L489"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L489"
 						}
 					],
 					"type": {
@@ -15741,7 +15741,7 @@
 													"fileName": "maps.js",
 													"line": 489,
 													"character": 26,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L489"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L489"
 												}
 											],
 											"type": {
@@ -15771,7 +15771,7 @@
 													"fileName": "maps.js",
 													"line": 489,
 													"character": 44,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L489"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L489"
 												}
 											],
 											"type": {
@@ -15794,7 +15794,7 @@
 											"fileName": "maps.js",
 											"line": 489,
 											"character": 25,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L489"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L489"
 										}
 									]
 								}
@@ -15833,7 +15833,7 @@
 					"fileName": "maps.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/maps.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/maps.js#L1"
 				}
 			]
 		},
@@ -15855,7 +15855,7 @@
 							"fileName": "size.js",
 							"line": 33,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L33"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L33"
 						}
 					],
 					"signatures": [
@@ -15916,7 +15916,7 @@
 									"fileName": "size.js",
 									"line": 33,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L33"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L33"
 								}
 							],
 							"parameters": [
@@ -15994,7 +15994,7 @@
 															"fileName": "size.js",
 															"line": 20,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L20"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L20"
 														}
 													],
 													"type": {
@@ -16021,7 +16021,7 @@
 															"fileName": "size.js",
 															"line": 22,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L22"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L22"
 														}
 													],
 													"type": {
@@ -16065,7 +16065,7 @@
 															"fileName": "size.js",
 															"line": 23,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L23"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L23"
 														}
 													],
 													"type": {
@@ -16109,7 +16109,7 @@
 															"fileName": "size.js",
 															"line": 24,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L24"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L24"
 														}
 													],
 													"type": {
@@ -16161,7 +16161,7 @@
 															"fileName": "size.js",
 															"line": 25,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L25"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L25"
 														}
 													],
 													"type": {
@@ -16188,7 +16188,7 @@
 															"fileName": "size.js",
 															"line": 27,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L27"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L27"
 														}
 													],
 													"type": {
@@ -16216,7 +16216,7 @@
 															"fileName": "size.js",
 															"line": 28,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L28"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L28"
 														}
 													],
 													"type": {
@@ -16253,7 +16253,7 @@
 													"fileName": "size.js",
 													"line": 20,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L20"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L20"
 												}
 											]
 										}
@@ -16278,7 +16278,7 @@
 							"fileName": "size.js",
 							"line": 60,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L60"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L60"
 						}
 					],
 					"signatures": [
@@ -16339,7 +16339,7 @@
 									"fileName": "size.js",
 									"line": 60,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L60"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L60"
 								}
 							],
 							"parameters": [
@@ -16417,7 +16417,7 @@
 															"fileName": "size.js",
 															"line": 47,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L47"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L47"
 														}
 													],
 													"type": {
@@ -16444,7 +16444,7 @@
 															"fileName": "size.js",
 															"line": 49,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L49"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L49"
 														}
 													],
 													"type": {
@@ -16488,7 +16488,7 @@
 															"fileName": "size.js",
 															"line": 50,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L50"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L50"
 														}
 													],
 													"type": {
@@ -16532,7 +16532,7 @@
 															"fileName": "size.js",
 															"line": 51,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L51"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L51"
 														}
 													],
 													"type": {
@@ -16584,7 +16584,7 @@
 															"fileName": "size.js",
 															"line": 52,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L52"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L52"
 														}
 													],
 													"type": {
@@ -16611,7 +16611,7 @@
 															"fileName": "size.js",
 															"line": 54,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L54"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L54"
 														}
 													],
 													"type": {
@@ -16639,7 +16639,7 @@
 															"fileName": "size.js",
 															"line": 55,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L55"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L55"
 														}
 													],
 													"type": {
@@ -16676,7 +16676,7 @@
 													"fileName": "size.js",
 													"line": 47,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L47"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L47"
 												}
 											]
 										}
@@ -16776,7 +16776,7 @@
 							"fileName": "size.js",
 							"line": 86,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L86"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L86"
 						}
 					],
 					"signatures": [
@@ -16813,7 +16813,7 @@
 									"fileName": "size.js",
 									"line": 86,
 									"character": 32,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L86"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L86"
 								}
 							],
 							"parameters": [
@@ -16909,7 +16909,7 @@
 															"fileName": "size.js",
 															"line": 79,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L79"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L79"
 														}
 													],
 													"type": {
@@ -16940,7 +16940,7 @@
 													"fileName": "size.js",
 													"line": 79,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L79"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L79"
 												}
 											]
 										}
@@ -17020,7 +17020,7 @@
 							"fileName": "size.js",
 							"line": 98,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L98"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L98"
 						}
 					],
 					"signatures": [
@@ -17081,7 +17081,7 @@
 									"fileName": "size.js",
 									"line": 98,
 									"character": 30,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L98"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L98"
 								}
 							],
 							"parameters": [
@@ -17173,7 +17173,7 @@
 							"fileName": "size.js",
 							"line": 108,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L108"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L108"
 						}
 					],
 					"signatures": [
@@ -17210,7 +17210,7 @@
 									"fileName": "size.js",
 									"line": 108,
 									"character": 24,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L108"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L108"
 								}
 							],
 							"parameters": [
@@ -17263,7 +17263,7 @@
 							"fileName": "size.js",
 							"line": 110,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L110"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L110"
 						}
 					],
 					"signatures": [
@@ -17278,7 +17278,7 @@
 									"fileName": "size.js",
 									"line": 110,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L110"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L110"
 								}
 							],
 							"parameters": [
@@ -17338,7 +17338,7 @@
 					"fileName": "size.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/size.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/size.js#L1"
 				}
 			]
 		},
@@ -17491,7 +17491,7 @@
 							"fileName": "step.js",
 							"line": 38,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L38"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L38"
 						}
 					],
 					"signatures": [
@@ -17528,7 +17528,7 @@
 									"fileName": "step.js",
 									"line": 38,
 									"character": 23,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L38"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L38"
 								}
 							],
 							"parameters": [
@@ -17590,7 +17590,7 @@
 															"fileName": "step.js",
 															"line": 32,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L32"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L32"
 														}
 													],
 													"type": {
@@ -17631,7 +17631,7 @@
 															"fileName": "step.js",
 															"line": 33,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L33"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L33"
 														}
 													],
 													"type": {
@@ -17675,7 +17675,7 @@
 															"fileName": "step.js",
 															"line": 34,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L34"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L34"
 														}
 													],
 													"type": {
@@ -17708,7 +17708,7 @@
 													"fileName": "step.js",
 													"line": 32,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L32"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L32"
 												}
 											]
 										}
@@ -17757,7 +17757,7 @@
 							"fileName": "step.js",
 							"line": 52,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L52"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L52"
 						}
 					],
 					"signatures": [
@@ -17834,7 +17834,7 @@
 									"fileName": "step.js",
 									"line": 52,
 									"character": 24,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L52"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L52"
 								}
 							],
 							"parameters": [
@@ -17998,7 +17998,7 @@
 							"fileName": "step.js",
 							"line": 84,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L84"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L84"
 						}
 					],
 					"signatures": [
@@ -18197,7 +18197,7 @@
 									"fileName": "step.js",
 									"line": 84,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L84"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L84"
 								}
 							],
 							"parameters": [
@@ -18339,7 +18339,7 @@
 															"fileName": "step.js",
 															"line": 73,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L73"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L73"
 														}
 													],
 													"type": {
@@ -18366,7 +18366,7 @@
 																					"fileName": "step.js",
 																					"line": 73,
 																					"character": 12,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L73"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L73"
 																				}
 																			],
 																			"type": {
@@ -18392,7 +18392,7 @@
 																					"fileName": "step.js",
 																					"line": 73,
 																					"character": 28,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L73"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L73"
 																				}
 																			],
 																			"type": {
@@ -18418,7 +18418,7 @@
 																			"fileName": "step.js",
 																			"line": 73,
 																			"character": 11,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L73"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L73"
 																		}
 																	]
 																}
@@ -18453,7 +18453,7 @@
 															"fileName": "step.js",
 															"line": 78,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L78"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L78"
 														}
 													],
 													"type": {
@@ -18480,7 +18480,7 @@
 															"fileName": "step.js",
 															"line": 79,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L79"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L79"
 														}
 													],
 													"type": {
@@ -18513,7 +18513,7 @@
 													"fileName": "step.js",
 													"line": 73,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L73"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L73"
 												}
 											]
 										}
@@ -18542,7 +18542,7 @@
 							"fileName": "step.js",
 							"line": 203,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L203"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L203"
 						}
 					],
 					"signatures": [
@@ -19077,7 +19077,7 @@
 									"fileName": "step.js",
 									"line": 203,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L203"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L203"
 								}
 							],
 							"parameters": [
@@ -19139,7 +19139,7 @@
 															"fileName": "step.js",
 															"line": 140,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L140"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L140"
 														}
 													],
 													"type": {
@@ -19182,7 +19182,7 @@
 															"fileName": "step.js",
 															"line": 141,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L141"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L141"
 														}
 													],
 													"type": {
@@ -19225,7 +19225,7 @@
 															"fileName": "step.js",
 															"line": 142,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L142"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L142"
 														}
 													],
 													"type": {
@@ -19249,7 +19249,7 @@
 													"fileName": "step.js",
 													"line": 140,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L140"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L140"
 												}
 											]
 										}
@@ -19337,7 +19337,7 @@
 															"fileName": "step.js",
 															"line": 145,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L145"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L145"
 														}
 													],
 													"type": {
@@ -19360,7 +19360,7 @@
 																			"fileName": "step.js",
 																			"line": 147,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L147"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L147"
 																		}
 																	],
 																	"type": {
@@ -19388,7 +19388,7 @@
 																	"fileName": "step.js",
 																	"line": 147,
 																	"character": 3,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L147"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L147"
 																}
 															]
 														}
@@ -19421,7 +19421,7 @@
 															"fileName": "step.js",
 															"line": 149,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L149"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L149"
 														}
 													],
 													"type": {
@@ -19451,7 +19451,7 @@
 																					"fileName": "step.js",
 																					"line": 151,
 																					"character": 3,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L151"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L151"
 																				}
 																			],
 																			"type": {
@@ -19481,7 +19481,7 @@
 																											"fileName": "step.js",
 																											"line": 152,
 																											"character": 3,
-																											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L152"
+																											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L152"
 																										}
 																									],
 																									"type": {
@@ -19503,7 +19503,7 @@
 																									"fileName": "step.js",
 																									"line": 152,
 																									"character": 3,
-																									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L152"
+																									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L152"
 																								}
 																							]
 																						}
@@ -19522,7 +19522,7 @@
 																					"fileName": "step.js",
 																					"line": 154,
 																					"character": 3,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L154"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L154"
 																				}
 																			],
 																			"type": {
@@ -19559,7 +19559,7 @@
 																			"fileName": "step.js",
 																			"line": 151,
 																			"character": 3,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L151"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L151"
 																		}
 																	]
 																}
@@ -19594,7 +19594,7 @@
 															"fileName": "step.js",
 															"line": 163,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L163"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L163"
 														}
 													],
 													"type": {
@@ -19638,13 +19638,13 @@
 															"fileName": "step.js",
 															"line": 164,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L164"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L164"
 														},
 														{
 															"fileName": "step.js",
 															"line": 175,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L175"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L175"
 														}
 													],
 													"type": {
@@ -19688,13 +19688,13 @@
 															"fileName": "step.js",
 															"line": 166,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L166"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L166"
 														},
 														{
 															"fileName": "step.js",
 															"line": 178,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L178"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L178"
 														}
 													],
 													"type": {
@@ -19729,7 +19729,7 @@
 															"fileName": "step.js",
 															"line": 167,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L167"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L167"
 														}
 													],
 													"type": {
@@ -19764,7 +19764,7 @@
 															"fileName": "step.js",
 															"line": 169,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L169"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L169"
 														}
 													],
 													"type": {
@@ -19807,7 +19807,7 @@
 															"fileName": "step.js",
 															"line": 171,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L171"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L171"
 														}
 													],
 													"type": {
@@ -19859,7 +19859,7 @@
 															"fileName": "step.js",
 															"line": 173,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L173"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L173"
 														}
 													],
 													"type": {
@@ -19894,7 +19894,7 @@
 															"fileName": "step.js",
 															"line": 176,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L176"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L176"
 														}
 													],
 													"type": {
@@ -19941,7 +19941,7 @@
 															"fileName": "step.js",
 															"line": 179,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L179"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L179"
 														}
 													],
 													"type": {
@@ -19985,7 +19985,7 @@
 													"fileName": "step.js",
 													"line": 145,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L145"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L145"
 												}
 											]
 										}
@@ -20119,7 +20119,7 @@
 							"fileName": "step.js",
 							"line": 330,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L330"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L330"
 						}
 					],
 					"type": {
@@ -20135,7 +20135,7 @@
 									"fileName": "step.js",
 									"line": 330,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L330"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L330"
 								}
 							],
 							"signatures": [
@@ -20323,7 +20323,7 @@
 							"fileName": "step.js",
 							"line": 353,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L353"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L353"
 						}
 					],
 					"type": {
@@ -20339,7 +20339,7 @@
 									"fileName": "step.js",
 									"line": 353,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L353"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L353"
 								}
 							],
 							"signatures": [
@@ -20446,7 +20446,7 @@
 							"fileName": "step.js",
 							"line": 408,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L408"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L408"
 						}
 					],
 					"target": 211
@@ -20481,7 +20481,7 @@
 					"fileName": "step.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/step.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/step.js#L1"
 				}
 			]
 		},
@@ -20535,7 +20535,7 @@
 							"fileName": "uniforms.js",
 							"line": 148,
 							"character": 16,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L148"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L148"
 						}
 					],
 					"signatures": [
@@ -20780,7 +20780,7 @@
 									"fileName": "uniforms.js",
 									"line": 148,
 									"character": 16,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L148"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L148"
 								}
 							],
 							"parameters": [
@@ -20866,7 +20866,7 @@
 															"fileName": "uniforms.js",
 															"line": 81,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L81"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L81"
 														}
 													],
 													"type": {
@@ -20921,7 +20921,7 @@
 															"fileName": "uniforms.js",
 															"line": 83,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L83"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L83"
 														}
 													],
 													"type": {
@@ -20946,7 +20946,7 @@
 																			"fileName": "uniforms.js",
 																			"line": 83,
 																			"character": 12,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L83"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L83"
 																		}
 																	],
 																	"type": {
@@ -20974,7 +20974,7 @@
 																	"fileName": "uniforms.js",
 																	"line": 83,
 																	"character": 11,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L83"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L83"
 																}
 															]
 														}
@@ -21007,7 +21007,7 @@
 															"fileName": "uniforms.js",
 															"line": 85,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L85"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L85"
 														}
 													],
 													"type": {
@@ -21067,7 +21067,7 @@
 															"fileName": "uniforms.js",
 															"line": 86,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L86"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L86"
 														}
 													],
 													"type": {
@@ -21099,7 +21099,7 @@
 																					"fileName": "uniforms.js",
 																					"line": 86,
 																					"character": 12,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L86"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L86"
 																				}
 																			],
 																			"type": {
@@ -21124,7 +21124,7 @@
 																									"fileName": "uniforms.js",
 																									"line": 86,
 																									"character": 18,
-																									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L86"
+																									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L86"
 																								}
 																							],
 																							"type": {
@@ -21146,7 +21146,7 @@
 																							"fileName": "uniforms.js",
 																							"line": 86,
 																							"character": 17,
-																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L86"
+																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L86"
 																						}
 																					]
 																				}
@@ -21166,7 +21166,7 @@
 																			"fileName": "uniforms.js",
 																			"line": 86,
 																			"character": 11,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L86"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L86"
 																		}
 																	]
 																}
@@ -21265,7 +21265,7 @@
 															"fileName": "uniforms.js",
 															"line": 89,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L89"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L89"
 														}
 													],
 													"type": {
@@ -21297,7 +21297,7 @@
 																					"fileName": "uniforms.js",
 																					"line": 89,
 																					"character": 12,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L89"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L89"
 																				}
 																			],
 																			"type": {
@@ -21321,7 +21321,7 @@
 																					"fileName": "uniforms.js",
 																					"line": 89,
 																					"character": 28,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L89"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L89"
 																				}
 																			],
 																			"type": {
@@ -21346,7 +21346,7 @@
 																									"fileName": "uniforms.js",
 																									"line": 89,
 																									"character": 36,
-																									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L89"
+																									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L89"
 																								}
 																							],
 																							"type": {
@@ -21371,7 +21371,7 @@
 																							"fileName": "uniforms.js",
 																							"line": 89,
 																							"character": 35,
-																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L89"
+																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L89"
 																						}
 																					]
 																				}
@@ -21392,7 +21392,7 @@
 																			"fileName": "uniforms.js",
 																			"line": 89,
 																			"character": 11,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L89"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L89"
 																		}
 																	]
 																}
@@ -21427,7 +21427,7 @@
 															"fileName": "uniforms.js",
 															"line": 96,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L96"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L96"
 														}
 													],
 													"type": {
@@ -21487,7 +21487,7 @@
 															"fileName": "uniforms.js",
 															"line": 98,
 															"character": 3,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L98"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L98"
 														}
 													],
 													"type": {
@@ -21515,7 +21515,7 @@
 													"fileName": "uniforms.js",
 													"line": 81,
 													"character": 3,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L81"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L81"
 												}
 											]
 										}
@@ -21613,7 +21613,7 @@
 													"fileName": "uniforms.js",
 													"line": 105,
 													"character": 7,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L105"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L105"
 												}
 											],
 											"type": {
@@ -21629,7 +21629,7 @@
 															"fileName": "uniforms.js",
 															"line": 105,
 															"character": 15,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L105"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L105"
 														}
 													],
 													"signatures": [
@@ -21644,7 +21644,7 @@
 																	"fileName": "uniforms.js",
 																	"line": 105,
 																	"character": 15,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L105"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L105"
 																}
 															],
 															"parameters": [
@@ -21685,7 +21685,7 @@
 																							"fileName": "uniforms.js",
 																							"line": 105,
 																							"character": 25,
-																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L105"
+																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L105"
 																						}
 																					],
 																					"type": {
@@ -21707,7 +21707,7 @@
 																					"fileName": "uniforms.js",
 																					"line": 105,
 																					"character": 24,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L105"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L105"
 																				}
 																			]
 																		}
@@ -21734,7 +21734,7 @@
 													"fileName": "uniforms.js",
 													"line": 106,
 													"character": 7,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L106"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L106"
 												}
 											],
 											"type": {
@@ -21750,7 +21750,7 @@
 															"fileName": "uniforms.js",
 															"line": 106,
 															"character": 18,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L106"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L106"
 														}
 													],
 													"signatures": [
@@ -21765,7 +21765,7 @@
 																	"fileName": "uniforms.js",
 																	"line": 106,
 																	"character": 18,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L106"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L106"
 																}
 															],
 															"parameters": [
@@ -21806,7 +21806,7 @@
 																							"fileName": "uniforms.js",
 																							"line": 106,
 																							"character": 28,
-																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L106"
+																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L106"
 																						}
 																					],
 																					"type": {
@@ -21829,7 +21829,7 @@
 																											"fileName": "uniforms.js",
 																											"line": 106,
 																											"character": 34,
-																											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L106"
+																											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L106"
 																										}
 																									],
 																									"type": {
@@ -21851,7 +21851,7 @@
 																									"fileName": "uniforms.js",
 																									"line": 106,
 																									"character": 33,
-																									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L106"
+																									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L106"
 																								}
 																							]
 																						}
@@ -21871,7 +21871,7 @@
 																					"fileName": "uniforms.js",
 																					"line": 106,
 																					"character": 27,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L106"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L106"
 																				}
 																			]
 																		}
@@ -21915,7 +21915,7 @@
 													"fileName": "uniforms.js",
 													"line": 107,
 													"character": 7,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L107"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L107"
 												}
 											],
 											"type": {
@@ -21931,7 +21931,7 @@
 															"fileName": "uniforms.js",
 															"line": 107,
 															"character": 17,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L107"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L107"
 														}
 													],
 													"signatures": [
@@ -21946,7 +21946,7 @@
 																	"fileName": "uniforms.js",
 																	"line": 107,
 																	"character": 17,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L107"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L107"
 																}
 															],
 															"parameters": [
@@ -21976,7 +21976,7 @@
 																							"fileName": "uniforms.js",
 																							"line": 108,
 																							"character": 18,
-																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L108"
+																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L108"
 																						}
 																					],
 																					"type": {
@@ -21995,7 +21995,7 @@
 																							"fileName": "uniforms.js",
 																							"line": 108,
 																							"character": 44,
-																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L108"
+																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L108"
 																						}
 																					],
 																					"type": {
@@ -22018,7 +22018,7 @@
 																					"fileName": "uniforms.js",
 																					"line": 108,
 																					"character": 17,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L108"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L108"
 																				}
 																			]
 																		}
@@ -22067,7 +22067,7 @@
 													"fileName": "uniforms.js",
 													"line": 110,
 													"character": 7,
-													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L110"
+													"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L110"
 												}
 											],
 											"type": {
@@ -22083,7 +22083,7 @@
 															"fileName": "uniforms.js",
 															"line": 110,
 															"character": 14,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L110"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L110"
 														}
 													],
 													"signatures": [
@@ -22098,7 +22098,7 @@
 																	"fileName": "uniforms.js",
 																	"line": 110,
 																	"character": 14,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L110"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L110"
 																}
 															],
 															"type": {
@@ -22126,7 +22126,7 @@
 											"fileName": "uniforms.js",
 											"line": 104,
 											"character": 13,
-											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L104"
+											"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L104"
 										}
 									]
 								}
@@ -22224,7 +22224,7 @@
 							"fileName": "uniforms.js",
 							"line": 199,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L199"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L199"
 						}
 					],
 					"type": {
@@ -22240,7 +22240,7 @@
 									"fileName": "uniforms.js",
 									"line": 199,
 									"character": 3,
-									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L199"
+									"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L199"
 								}
 							],
 							"signatures": [
@@ -22317,7 +22317,7 @@
 																	"fileName": "uniforms.js",
 																	"line": 211,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L211"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L211"
 																}
 															],
 															"type": {
@@ -22336,7 +22336,7 @@
 																	"fileName": "uniforms.js",
 																	"line": 212,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L212"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L212"
 																}
 															],
 															"type": {
@@ -22359,7 +22359,7 @@
 															"fileName": "uniforms.js",
 															"line": 210,
 															"character": 11,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L210"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L210"
 														}
 													]
 												}
@@ -22513,7 +22513,7 @@
 																	"fileName": "uniforms.js",
 																	"line": 218,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L218"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L218"
 																}
 															],
 															"type": {
@@ -22534,7 +22534,7 @@
 																	"fileName": "uniforms.js",
 																	"line": 219,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L219"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L219"
 																}
 															],
 															"type": {
@@ -22555,7 +22555,7 @@
 																	"fileName": "uniforms.js",
 																	"line": 220,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L220"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L220"
 																}
 															],
 															"type": {
@@ -22578,7 +22578,7 @@
 																					"fileName": "uniforms.js",
 																					"line": 220,
 																					"character": 15,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L220"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L220"
 																				}
 																			],
 																			"type": {
@@ -22600,7 +22600,7 @@
 																			"fileName": "uniforms.js",
 																			"line": 220,
 																			"character": 14,
-																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L220"
+																			"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L220"
 																		}
 																	]
 																}
@@ -22617,7 +22617,7 @@
 																	"fileName": "uniforms.js",
 																	"line": 221,
 																	"character": 7,
-																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L221"
+																	"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L221"
 																}
 															],
 															"type": {
@@ -22644,7 +22644,7 @@
 																							"fileName": "uniforms.js",
 																							"line": 221,
 																							"character": 17,
-																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L221"
+																							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L221"
 																						}
 																					],
 																					"type": {
@@ -22666,7 +22666,7 @@
 																					"fileName": "uniforms.js",
 																					"line": 221,
 																					"character": 16,
-																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L221"
+																					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L221"
 																				}
 																			]
 																		}
@@ -22691,7 +22691,7 @@
 															"fileName": "uniforms.js",
 															"line": 217,
 															"character": 11,
-															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L217"
+															"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L217"
 														}
 													]
 												}
@@ -22751,7 +22751,7 @@
 					"fileName": "uniforms.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/uniforms.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/uniforms.js#L1"
 				}
 			]
 		},
@@ -22815,7 +22815,7 @@
 							"fileName": "util/remain-div.glsl.js",
 							"line": 15,
 							"character": 13,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/util/remain-div.glsl.js#L15"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/util/remain-div.glsl.js#L15"
 						}
 					],
 					"type": {
@@ -22835,7 +22835,7 @@
 							"fileName": "util/remain-div.glsl.js",
 							"line": 17,
 							"character": 0,
-							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/util/remain-div.glsl.js#L17"
+							"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/util/remain-div.glsl.js#L17"
 						}
 					],
 					"target": 41
@@ -22874,7 +22874,7 @@
 					"fileName": "util/remain-div.glsl.js",
 					"line": 1,
 					"character": 0,
-					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/7a9796af08bedd110f8ff6c9c244843d49425c0a/src/util/remain-div.glsl.js#L1"
+					"url": "https://github.com/keeffEoghan/gl-gpgpu/blob/cdb6dbeafe5bf1d7518aa00f9995335d5b2d3e2d/src/util/remain-div.glsl.js#L1"
 				}
 			]
 		}
@@ -22949,7 +22949,7 @@
 		}
 	],
 	"packageName": "@epok.tech/gl-gpgpu",
-	"packageVersion": "0.10.0",
+	"packageVersion": "0.11.0",
 	"readme": [
 		{
 			"kind": "text",
