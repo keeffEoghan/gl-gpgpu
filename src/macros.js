@@ -767,24 +767,26 @@ export function macroSamples(state, on) {
                 const n = passSamples[read][0];
                 const o = stepsPast-n-1;
                 const to = `${nrv}_${r}`;
-                let d;
+                const base = `const int ${nra}_${ra}`;
+                const sl = s.length;
+                let def;
 
-                return s+lf+
-                  ((s.indexOf(d = `const int ${nra}_${ra}_new_${n}`) >= 0)? ''
-                  : `/** Alias and step past, count from new to old. */${lf+
-                    d} = ${to};${lf}`)+
-                  ((s.indexOf(d = `const int ${nra}_${ra}_old_${o}`) >= 0)? ''
-                  : `/** Alias and step last, count from old to new. */${lf+
-                    d} = ${to};${lf}`)+
-                  ((n || (s.indexOf(d = `const int ${nra}_${ra}_new`) >= 0))? ''
-                  : `/** Alias with implied newest step past. */${lf+
-                    d} = ${to};${lf}`)+
-                  ((n || (s.indexOf(d = `const int ${nra}_${ra}`) >= 0))? ''
-                  : `/** Alias with implied newest. */${lf+
-                    d} = ${to};${lf}`)+
-                  ((o || (s.indexOf(d = `const int ${nra}_${ra}_old`) >= 0))? ''
-                  : `/** Alias with implied oldest step last. */${lf+
-                    d} = ${to};${lf}`);
+                (s.indexOf(def = `${base}_new_${n} = ${to};${lf}`) < 0) &&
+                  (s += '/** Alias step past, indexed new-to-old. */'+lf+def);
+
+                (s.indexOf(def = `${base}_old_${o} = ${to};${lf}`) < 0) &&
+                  (s += '/** Alias step last, indexed old-to-new. */'+lf+def);
+
+                !n && (s.indexOf(def = `${base}_new = ${to};${lf}`) < 0) &&
+                  (s += '/** Alias with implied newest step past. */'+lf+def);
+
+                !n && (s.indexOf(def = `${base} = ${to};${lf}`) < 0) &&
+                  (s += '/** Alias with implied newest. */'+lf+def);
+
+                !o && (s.indexOf(def = `${base}_old = ${to};${lf}`) < 0) &&
+                  (s += '/** Alias with implied oldest step last. */'+lf+def);
+
+                return ((sl !== s.length)? lf : '')+s;
               },
               reads, ((reads.length)? lf : ''))}${lf
             }const int ${nra}_l = ${nrv}_l;${lf
