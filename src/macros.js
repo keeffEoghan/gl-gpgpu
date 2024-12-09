@@ -764,28 +764,38 @@ export function macroSamples(state, on) {
             }${n}useReads_${v}${
             reduce((s, read, r) => {
                 const aliasTo = alias[valueReadsToValue[r]];
-                const n = passSamples[read][0];
-                const o = stepsPast-n-1;
-                const aliasBase = `${lf}const int ${readAlias}_${aliasTo}`;
-                const i = `${readIndex}_${r}`;
-                let d;
+                /** How many steps into the past is the sample being read. */
+                const past = passSamples[read][0];
+                /** How many steps from the last is the sample being read. */
+                const last = stepsPast-past-1;
 
-                ((s.indexOf(d = `${aliasBase}_old_${o} = `)) < 0) &&
-                  (s += `/** Alias step last index old-to-new. */${d+i};${lf}`);
+                const note =
+                  `Alias for \`${aliasAt}\` reads \`${aliasTo}\` at `;
 
-                ((s.indexOf(d = `${aliasBase}_new_${n} = `)) < 0) &&
-                  (s += `/** Alias step past index new-to-old. */${d+i};${lf}`);
+                const noteNew =
+                  `${note+past} step${(past === 1)? '' : 's'} into the past; `;
 
-                !o && ((s.indexOf(d = `${aliasBase}_old = `)) < 0) &&
-                  (s += `/** Alias implied oldest step last. */${d+i};${lf}`);
+                const noteOld =
+                  `${note+last} step${(last === 1)? '' : 's'} from the last; `;
 
-                !n && ((s.indexOf(d = `${aliasBase}_new = `)) < 0) &&
-                  (s += `/** Alias implied newest step past. */${d+i};${lf}`);
+                /** Base of assignment. */
+                const base = `${lf}const int ${readAlias}_${aliasTo}`;
+                /** Right side of assignment. */
+                const right = `${readIndex}_${r};${lf}`;
+                /** Left side of assignment. */
+                let left;
 
-                !n && ((s.indexOf(d = `${aliasBase} = `)) < 0) &&
-                  (s += `/** Alias implied newest. */${d+i};${lf}`);
-
-                return s;
+                return s+lf+
+                  ((past || (s.indexOf(left = `${base} = `) >= 0))? ''
+                  : `/** ${noteNew}implied newest, bare. */${left+right}`)+
+                  ((past || (s.indexOf(left = `${base}_new = `) >= 0))? ''
+                  : `/** ${noteNew}implied newest. */${left+right}`)+
+                  ((last || (s.indexOf(left = `${base}_old = `) >= 0))? ''
+                  : `/** ${noteOld}implied oldest. */${left+right}`)+
+                  ((s.indexOf(left = `${base}_new_${past} = `) >= 0)? ''
+                  : `/** ${noteNew}counted newest-to-oldest. */${left+right}`)+
+                  ((s.indexOf(left = `${base}_old_${last} = `) >= 0)? ''
+                  : `/** ${noteOld}counted oldest-to-newest. */${left+right}`);
               },
               reads, ((reads.length)? lf : ''))}${lf
             }const int ${readAlias}_l = ${readIndex}_l;${lf
