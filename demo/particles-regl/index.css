@@ -74,6 +74,11 @@ canvas {
   touch-action: none;
   tap-highlight-color: transparent;
   -webkit-tap-highlight-color: transparent;
+
+  &:fullscreen {
+    & ~ aside,
+    & ~ #fallback { visibility: hidden; }
+  }
 }
 
 .idle canvas { cursor: none; }
