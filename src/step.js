@@ -90,7 +90,7 @@ export function updateMerge(state) {
   const { color: cs, map: pass } = getPass(state);
   const { all: { texture: t }, next } = merge;
   const sub = t?.subimage;
-  const { color } = next;
+  const { color: nc } = next;
   let f = next.framebuffer;
 
   /** Handle `object`s or `regl`-like extended `function`s. */
@@ -113,7 +113,29 @@ export function updateMerge(state) {
     cs);
 
   /** Reset any changed properties. */
-  next.color = color;
+  next.color = nc;
+  f.call(f, next);
+
+  return t;
+}
+
+export function clearMerge(state) {
+  const { merge, clearPass: c = state.clearPass = clearPassDef() } = state;
+  const { all: { texture: t }, next } = merge;
+  const { color: nc } = next;
+  let f = next.framebuffer;
+
+  /** Handle `object`s or `regl`-like extended `function`s. */
+  (f?.call !== Function.call) && (f = f?.call);
+
+  if(!c || !f) { return t; }
+
+  const cf = c.framebuffer;
+
+  (next.color = t) && (c.framebuffer = f.call(f, next)) && clear(c);
+  /** Reset any changed properties. */
+  c.framebuffer = cf;
+  next.color = nc;
   f.call(f, next);
 
   return t;
@@ -210,15 +232,16 @@ export function toStep(api, state = {}, to = state) {
       pre: n = preDef, vert = vertDef.replaceAll(preDef, n || ''),
       // Any vertex `count`, and `positions` to be passed to `buffer`.
       count = countDef, positions = positionsDef(),
-      clearPass = null
     } = state;
+
+  let { clearPass = null } = state;
 
   // Ensure any properties changed are included.
   to.pre = n;
   to.vert = vert;
   to.count = count;
   to.positions = buffer(positions);
-  to.clearPass = clearPass;
+  to.clearPass = ((clearPass === true)? (clearPass = undefined) : clearPass);
 
   // May pre-process and keep the `shader`s for all passes in advance.
   if(verts || frags) {
@@ -274,8 +297,12 @@ export function toStep(api, state = {}, to = state) {
     ...pipeline
   });
 
-  /** Any merged `texture`'s update, set up if not already given. */
-  merge && ((to.merge = merge).update ??= updateMerge);
+  if(merge && (to.merge = merge)) {
+    /** Any merged `texture`'s update, set up if not already given. */
+    merge.update ??= updateMerge;
+    /** Any merged `texture`'s clear, set up if not already given. */
+    merge.clear ??= clearMerge;
+  }
 
   /** Guard for number overflow; set to `0` to ignore or handle in `GLSL`. */
   to.stepBy = (state = to, by = 1) => {
@@ -291,10 +318,11 @@ export function toStep(api, state = {}, to = state) {
     const stepState = state.onStep?.(state) ?? state;
 
     const {
-        steps, merge, pass, onPass, stepBy,
+        maps, merge, pass, onPass, stepBy,
         clearPass = stepState.clearPass = clearPassDef()
       } = stepState;
 
+    const clearFramebuffer = clearPass && (clearPass.framebuffer);
     const mergeUpdate = merge?.update;
 
     stepBy(stepState);
@@ -313,11 +341,35 @@ export function toStep(api, state = {}, to = state) {
         // Update any merged `texture` upon each pass.
         mergeUpdate?.(passState);
       },
-      stepState.maps.passes);
+      maps.passes);
 
-    delete clearPass?.framebuffer;
+    /** Reset any changed properties. */
+    clearPass && (clearPass.framebuffer = clearFramebuffer);
 
     return stepState;
+  };
+
+  /** Clears all passes and merged data. */
+  to.clear = (state = to) => {
+    const s = state.onClear?.(state) ?? state;
+    const { maps, merge, clearPass: c = s.clearPass = clearPassDef() } = s;
+
+    if(!c) { return s; }
+
+    const cf = c.framebuffer;
+
+    each((p, i) => {
+        s.passNow = i;
+        (c.framebuffer = getPass(s)?.framebuffer) && clear(c);
+      },
+      maps.passes);
+
+    /** Reset any changed properties. */
+    c.framebuffer = cf;
+
+    merge?.clear?.(s);
+
+    return s;
   };
 
   return to;

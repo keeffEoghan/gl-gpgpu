@@ -13,11 +13,16 @@
  *   `[0-pad, size+pad]`.
  */
 
-vec2 spreadUV(vec2 uv, float size, float pad) { return (uv*(size+1.0))-pad; }
-vec2 spreadUV(vec2 uv, vec2 size, float pad) { return (uv*(size+1.0))-pad; }
-vec2 spreadUV(vec2 uv, vec2 size, vec2 pad) { return (uv*(size+1.0))-pad; }
+vec2 spreadUV(vec2 uv, float size, float pad) { return (uv*size)-pad; }
+vec2 spreadUV(vec2 uv, float size, vec2 pad) { return (uv*size)-pad; }
+vec2 spreadUV(vec2 uv, vec2 size, float pad) { return (uv*size)-pad; }
+vec2 spreadUV(vec2 uv, vec2 size, vec2 pad) { return (uv*size)-pad; }
 
 vec2 spreadUV(vec2 uv, int size, float pad) {
+  return spreadUV(uv, float(size), pad);
+}
+
+vec2 spreadUV(vec2 uv, int size, vec2 pad) {
   return spreadUV(uv, float(size), pad);
 }
 
