@@ -6,6 +6,8 @@
  */
 import { positions, count } from '@epok.tech/gl-screen-triangle';
 
+import { preGLSLRx } from './util/glsl-regex';
+
 import vertGLSL from './index.vert.glsl';
 
 /** Default vertex shader `GLSL` code. */
@@ -52,6 +54,9 @@ export const extensionsOptional = optionalExtensions;
  * @see {@link index.vert.glsl}
  */
 export const preDef = 'gpgpu_';
+
+/** Regex matching the default namespace. */
+export const preRxDef = new RegExp(preGLSLRx(preDef), 'g');
 
 /**
  * Default minimum allowable channels for `framebuffer` attachments.

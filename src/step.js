@@ -16,8 +16,8 @@ import wrap from '@epok.tech/fn-lists/wrap';
 import { macroPass } from './macros';
 
 import {
-    vertDef, preDef, positionsDef, countDef, stepMaxDef, copyImageDef,
-    clearPassDef
+    vertDef, preDef, preRxDef, positionsDef, countDef, stepMaxDef,
+    copyImageDef, clearPassDef
   } from './const';
 
 const { call } = Function;
@@ -229,7 +229,8 @@ export function toStep(api, state = {}, to = state) {
   const {
       merge, pipeline, verts, frag, frags, uniforms, attributes, maps,
       // Update any default vertex `shader` to use the given `pre`.
-      pre: n = preDef, vert = vertDef.replaceAll(preDef, n || ''),
+      pre: n = preDef,
+      vert = vertDef.replaceAll(preRxDef, n || ''),
       // Any vertex `count`, and `positions` to be passed to `buffer`.
       count = countDef, positions = positionsDef(),
     } = state;
