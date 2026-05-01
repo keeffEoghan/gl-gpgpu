@@ -758,12 +758,13 @@ export function macroSamples(state, on) {
           return to+
             `/**\n`+
             ` * Alias reads, depends on index reads \`${n}useReads_${v}\`.\n`+
-            ` * If using both alias and index reads, only use this not both.\n`+
+            ` * If using both alias and index reads, using this uses both.\n`+
             ` */\n`+
             `#define ${n}useReads_${aliasAt}${lf
             }${n}useReads_${v}${
             reduce((s, read, r) => {
-                const aliasTo = alias[valueReadsToValue[r]];
+                const indexTo = valueReadsToValue[r];
+                const aliasTo = alias[indexTo];
                 /** How many steps into the past is the sample being read. */
                 const past = passSamples[read][0];
                 /** How many steps from the last is the sample being read. */
@@ -778,28 +779,58 @@ export function macroSamples(state, on) {
                 const noteOld =
                   `${note+last} step${(last === 1)? '' : 's'} from the last; `;
 
-                /** Base of assignment. */
-                const base = `${lf}const int ${readAlias}_${aliasTo}`;
+                /** Alias-alias target of assignment. */
+                const aliasAlias = `${lf}const int ${readAlias}_${aliasTo}`;
+                /** Index-alias target of assignment. */
+                const indexAlias = `${lf}const int ${readIndex}_${aliasTo}`;
+                /** Alias-index target of assignment. */
+                const aliasIndex = `${lf}const int ${readAlias}_${indexTo}`;
                 /** Right side of assignment. */
                 const right = `${readIndex}_${r};${lf}`;
                 /** Left side of assignment. */
                 let left;
 
                 return s+lf+
-                  ((past || (s.indexOf(left = `${base} = `) >= 0))? ''
+                  // Combos for implied newest, bare.
+                  ((past || (s.indexOf(left = `${aliasAlias} = `) >= 0))? ''
                   : `/** ${noteNew}implied newest, bare. */${left+right}`)+
-                  ((past || (s.indexOf(left = `${base}_new = `) >= 0))? ''
+                  ((past || (s.indexOf(left = `${indexAlias} = `) >= 0))? ''
+                  : `/** ${noteNew}implied newest, bare. */${left+right}`)+
+                  ((past || (s.indexOf(left = `${aliasIndex} = `) >= 0))? ''
+                  : `/** ${noteNew}implied newest, bare. */${left+right}`)+
+                  // Combos for implied newest.
+                  ((past || (s.indexOf(left = `${aliasAlias}_new = `) >= 0))? ''
                   : `/** ${noteNew}implied newest. */${left+right}`)+
-                  ((last || (s.indexOf(left = `${base}_old = `) >= 0))? ''
+                  ((past || (s.indexOf(left = `${indexAlias}_new = `) >= 0))? ''
+                  : `/** ${noteNew}implied newest. */${left+right}`)+
+                  ((past || (s.indexOf(left = `${aliasIndex}_new = `) >= 0))? ''
+                  : `/** ${noteNew}implied newest. */${left+right}`)+
+                  // Combos for implied oldest.
+                  ((last || (s.indexOf(left = `${aliasAlias}_old = `) >= 0))? ''
                   : `/** ${noteOld}implied oldest. */${left+right}`)+
-                  ((s.indexOf(left = `${base}_new_${past} = `) >= 0)? ''
+                  ((last || (s.indexOf(left = `${indexAlias}_old = `) >= 0))? ''
+                  : `/** ${noteOld}implied oldest. */${left+right}`)+
+                  ((last || (s.indexOf(left = `${aliasIndex}_old = `) >= 0))? ''
+                  : `/** ${noteOld}implied oldest. */${left+right}`)+
+                  // Combos for counted newest-to-oldest.
+                  ((s.indexOf(left = `${aliasAlias}_new_${past} = `) >= 0)? ''
                   : `/** ${noteNew}counted newest-to-oldest. */${left+right}`)+
-                  ((s.indexOf(left = `${base}_old_${last} = `) >= 0)? ''
+                  ((s.indexOf(left = `${indexAlias}_new_${past} = `) >= 0)? ''
+                  : `/** ${noteNew}counted newest-to-oldest. */${left+right}`)+
+                  ((s.indexOf(left = `${aliasIndex}_new_${past} = `) >= 0)? ''
+                  : `/** ${noteNew}counted newest-to-oldest. */${left+right}`)+
+                  // Combos for counted oldest-to-newest.
+                  ((s.indexOf(left = `${aliasAlias}_old_${last} = `) >= 0)? ''
+                  : `/** ${noteOld}counted oldest-to-newest. */${left+right}`)+
+                  ((s.indexOf(left = `${indexAlias}_old_${last} = `) >= 0)? ''
+                  : `/** ${noteOld}counted oldest-to-newest. */${left+right}`)+
+                  ((s.indexOf(left = `${aliasIndex}_old_${last} = `) >= 0)? ''
                   : `/** ${noteOld}counted oldest-to-newest. */${left+right}`);
               },
               reads, ((reads.length)? lf : ''))}${lf
             }const int ${readAlias}_l = ${readIndex}_l;${lf
-            }int ${readAlias}_i(int i) { return ${readIndex}_i(i); }\n\n`;
+            }int ${readAlias}_i(int i) { return ${readIndex}_i(i); }\n`+
+            `#define ${n}useReads_${v}_alias ${n}useReads_${aliasAt}\n\n`;
         },
         passReads, ''));
 
