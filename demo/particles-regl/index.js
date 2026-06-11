@@ -138,9 +138,9 @@ const valuesMap = (new Map())
 
 const values = [];
 const valuesIndex = {};
-const alias = [];
+const aka = [];
 
-valuesMap.forEach((v, k) => alias[valuesIndex[k] = values.push(v)-1] = k);
+valuesMap.forEach((v, k) => aka[valuesIndex[k] = values.push(v)-1] = k);
 console.log(values, '`values`');
 
 /** Limits of this device and these `values`. */
@@ -382,7 +382,7 @@ const state = gpgpu(regl, {
     // Map how next output `values` derive from any past input `values`.
     derives,
     // Give the values names for more convenient macros and order-independence.
-    alias
+    aka
   },
   // How many steps of state to track.
   steps,

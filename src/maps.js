@@ -380,7 +380,7 @@ export function mapGroups(maps = {}, to = maps) {
  *   given.
  */
 export function mapSamples(maps = {}, to = maps) {
-  const { derives, passes, textures, valueToTexture } = maps;
+  const { derives, passes, textures, valueToTexture, aka } = maps;
 
   if(!derives && (derives !== 0)) { return to; }
 
@@ -404,10 +404,14 @@ export function mapSamples(maps = {}, to = maps) {
     // Derive from all samples at the given or most recent step if given `true`.
     if(dp === true) { return reduce(add, allStepSamples(step), set); }
 
+    // Look up any possible alias.
+    /** @todo Support alias in the key as well. */
+    aka && !isInteger(dp) && (dp = aka.indexOf(dp));
+
     // Derive from the given sample.
     const texture = valueToTexture[dp];
 
-    if(!(isInteger(step) && isInteger(texture))) {
+    if(!isInteger(step) || !isInteger(texture)) {
       return console.error('`mapSamples`: invalid map for sample',
         derives, maps, pass, valueNext, derive, d, step, texture, dp);
     }

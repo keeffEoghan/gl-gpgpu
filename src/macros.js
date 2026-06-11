@@ -133,16 +133,16 @@ export function hasMacros(state, key, on = '', macros = state?.macros) {
  * @param {string} type The `GLSL` list data-type.
  * @param {string} name The name of the `GLSL` list variable.
  * @param {array.<number,number[]>} a The list of `GLSL` values.
- * @param {string} [qualify=''] A `GLSL` qualifier, if needed.
- * @param {string} [init=type] A data-type initialiser, `type` by default.
+ * @param {string} [pre=''] A `GLSL` prefix or qualifier, if needed.
+ * @param {string} [make=type] A data-type initialiser, `type` by default.
  *
  * @returns {string} The `GLSL1` array-like declaration string.
  */
-export const getGLSLListBase = (type, name, a, qualify = '', init = type) =>
+export const getGLSLListBase = (type = '', name, a, pre, make = type) =>
   `const int ${name}_l = ${a.length};`+
   reduce((s, v, i) =>
-      s+lf+(qualify && qualify+' ')+type+
-        ` ${name}_${i} = ${init}(${v.join?.(', ') ?? v});`,
+      s+lf+(pre && pre+' ')+type+
+        ` ${name}_${i} = ${make}(${v.join?.(', ') ?? v});`,
     a, '');
 
 /**
@@ -167,13 +167,13 @@ export const getGLSLListBase = (type, name, a, qualify = '', init = type) =>
  * @param {string} type The `GLSL` list data-type.
  * @param {string} name The name of the `GLSL` list variable.
  * @param {array.<number,array.<number>>} a The list of `GLSL` values.
- * @param {string} [qualify=''] A `GLSL` qualifier, if needed.
+ * @param {string} [pre=''] A `GLSL` prefix or qualifier, if needed.
  * @param {string} [init=type] A data-type initialiser, `type` by default.
  *
  * @returns {string} The `GLSL1` array-like declaration string.
  */
-export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
-  getGLSLListBase(type, name, a, qualify, init)+'\n\n'+
+export const getGLSL1ListLike = (type, name, a, pre, make = type) =>
+  getGLSLListBase(type, name, a, pre, make)+'\n\n'+
   // @todo Would ideally use the concatenation macro, but can't in GLSL 1.
   // `#define ${name}_i(i) ${name}_##i`;
   `/**\n`+
@@ -207,16 +207,16 @@ export const getGLSL1ListLike = (type, name, a, qualify = '', init = type) =>
  * @param {string} type The `GLSL` list data-type.
  * @param {string} name The name of the `GLSL` list variable.
  * @param {array.<number,array.<number>>} a The list of `GLSL` values.
- * @param {string} [qualify=''] A `GLSL` qualifier, if needed.
- * @param {string} [init=type] A data-type initialiser, `type` by default.
+ * @param {string} [pre=''] A `GLSL` prefix or qualifier, if needed.
+ * @param {string} [make=type] A data-type initialiser, `type` by default.
  *
  * @returns {string} The `GLSL1` array declaration string.
  */
-export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
-  getGLSLListBase(type, name, a, qualify, init)+lf+
-  (qualify && qualify+' ')+type+` ${name}[${name}_l];`+
-  reduce((s, _, i) => s+lf+name+`[${i}] = ${name}_${i};`, a, '')+'\n'+
-  `#define ${name}_i(i) ${name}[i]\n`;
+export const getGLSL1ListArray = (type = '', name, a, pre, make = type) =>
+    getGLSLListBase(type, name, a, pre, make)+lf+
+    (pre && pre+' ')+type+` ${name}[${name}_l];`+
+    reduce((s, _, i) => s+lf+name+`[${i}] = ${name}_${i};`, a, '')+'\n'+
+    `#define ${name}_i(i) ${name}[i]\n`;
 
 /**
  * Generates an array declaration, as a `GLSL3` syntax string.
@@ -238,14 +238,14 @@ export const getGLSL1ListArray = (type, name, a, qualify = '', init = type) =>
  * @param {string} type The `GLSL` list data-type.
  * @param {string} name The name of the `GLSL` list variable.
  * @param {array.<number,array.<number>>} a The list of `GLSL` values.
- * @param {string} [qualify=''] A `GLSL` qualifier, if needed.
- * @param {string} [init=type] A data-type initialiser, `type` by default.
+ * @param {string} [pre=''] A `GLSL` prefix or qualifier, if needed.
+ * @param {string} [make=type] A data-type initialiser, `type` by default.
  *
  * @returns {string} The `GLSL3` array declaration string.
  */
-export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
-  getGLSLListBase(type, name, a, qualify, init)+lf+
-  (qualify && qualify+' ')+type+` ${name}[${name}_l] = ${init}[${name}_l](${
+export const getGLSL3List = (type = '', name, a, pre, make = type) =>
+  getGLSLListBase(type, name, a, pre, make)+lf+
+  (pre && pre+' ')+type+` ${name}[${name}_l] = ${make}[${name}_l](${
     reduce((s, _, i) => (s && s+', ')+name+'_'+i, a, '')});\n`+
   `#define ${name}_i(i) ${name}[i]\n`;
 
@@ -257,7 +257,7 @@ export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
  * escaped new-lines so it may be used in a single-line (e.g: for preprocessor
  * macros).
  *
- * For a `qualify` of `const` on any `GLSL` < 3, falls back to using non-array
+ * For a `pre` of `const` on any `GLSL` < 3, falls back to using non-array
  * variables with the index appended to `name`, since `const` arrays aren't
  * supported before `GLSL3`.
  *
@@ -294,16 +294,16 @@ export const getGLSL3List = (type, name, a, qualify = '', init = type) =>
  * @param {string} type The `GLSL` list data-type.
  * @param {string} name The name of the `GLSL` list variable.
  * @param {array.<number,array.<number>>} a The list of `GLSL` values.
- * @param {string} [qualify=''] A `GLSL` qualifier, if needed (e.g: `const`).
+ * @param {string} [pre=''] A `GLSL` prefix or qualifier, if needed (e.g: `const`).
  * @param {number} [glsl=1] The `GLSL` version to target, if specified.
  * @param {string} [init] A data-type initialiser.
  *
  * @returns {string} The `GLSL` (1 or 3) array or array-like declaration string.
  */
-export const getGLSLList = (type, name, a, qualify = '', glsl = 1, init) =>
+export const getGLSLList = (type, name, a, pre = '', glsl = 1, init) =>
   ((glsl >= 3)? getGLSL3List
-  : ((qualify.trim() === 'const')? getGLSL1ListLike : getGLSL1ListArray))
-    (type, name, a, qualify, init);
+  : ((pre.trim() === 'const')? getGLSL1ListLike : getGLSL1ListArray))
+    (type, name, a, pre, init);
 
 /**
  * Defines the values within textures per-step, as `GLSL` preprocessor macros.
@@ -414,14 +414,14 @@ export function macroValues(state, on) {
       cache = cacheDef
     } = state;
 
-  const { values, textures, passes: { length: passesL }, alias } = maps;
+  const { values, textures, passes: { length: passesL }, aka } = maps;
   const stepsL = steps.length ?? steps;
   const entries = size?.entries;
   const split = !merge;
 
   const c = cache &&
     `macro@${key}@${n}|${bound}|${id(values)}|${id(textures)}|${stepsL}|${
-      passesL}|${entries}|${split}|${id(alias)}`;
+      passesL}|${entries}|${split}|${id(aka)}`;
 
   if((to = cache?.[c]) != null) { return to; }
 
@@ -433,9 +433,9 @@ export function macroValues(state, on) {
             `#define ${n}texture_${v} ${t}\n`+
             `#define ${n}channels_${v} ${rgba.slice(i, i += values[v])}\n\n`;
 
-          if(!alias) { return to; }
+          if(!aka) { return to; }
 
-          const a = alias[v];
+          const a = aka[v];
 
           return to+
             `#define ${n}texture_${a} ${n}texture_${v}\n`+
@@ -553,12 +553,12 @@ export function macroOutput(state, on) {
   if(to != null) { return to; }
 
   const { passNow: p, maps, pre: n = preDef, cache = cacheDef } = state;
-  const { values, textures, passes, alias } = maps;
+  const { values, textures, passes, aka } = maps;
   const pass = passes[p];
 
   const c = cache &&
     `macro@${key}@${n}|${p}|${id(values)}|${id(textures)}|${id(passes)}|${
-      id(alias)}`;
+      id(aka)}`;
 
   to = cache?.[c] ??
     `#define ${n}passNow ${p}\n${
@@ -569,9 +569,9 @@ export function macroOutput(state, on) {
             `#define ${n}output_${v} gl_FragData[${n}attach_${v}].${
               rgba.slice(i, i += values[v])}\n`;
 
-          if(!alias) { return to; }
+          if(!aka) { return to; }
 
-          const a = alias[v];
+          const a = aka[v];
 
           return to+'\n'+
             `#define ${n}bound_${a} ${n}bound_${v}\n`+
@@ -729,49 +729,47 @@ export function macroSamples(state, on) {
       glsl, pre: n = preDef, cache = cacheDef
     } = state;
 
-  const { samples, reads, readsToValue, alias } = maps;
+  const { samples, reads, readsToValue, aka } = maps;
   const passSamples = samples?.[p];
   const passReads = reads?.[p];
   const passReadsToValue = readsToValue?.[p];
-  const stepsPast = ((alias)? (steps.length ?? steps)-bound : null);
+  const stepsPast = ((aka)? (steps.length ?? steps)-bound : null);
 
   const c = cache &&
     `macro@${key}@${n}|${p}|${id(passSamples)}|${id(passReads)}|${
-      id(passReadsToValue)}|${id(alias)}|${stepsPast}|${glsl}`;
+      id(passReadsToValue)}|${id(aka)}|${stepsPast}|${glsl}`;
 
   to = cache?.[c] ??
-    ((!passSamples)? ''
+    ((!passSamples?.length)? ''
     : `#define ${n}useSamples${lf+
         getGLSLList('ivec2', n+'samples', passSamples, 'const', glsl)}\n`)+
-    ((!passReads)? ''
+    ((!passReads?.length)? ''
     : reduce((s, reads, v) => {
-          const to = `${s}#define ${n}useReads_${v}${lf+
+          const to = s+`#define ${n}useReads_${v+lf+
             getGLSLList('int', n+'reads_'+v, reads, 'const', glsl)}\n`;
 
-          if(!alias) { return to; }
+          if(!aka) { return to; }
 
           const valueReadsToValue = passReadsToValue[v];
-          const aliasAt = alias[v];
-          const readAlias = `${n}reads_${aliasAt}`;
-          const readIndex = `${n}reads_${v}`;
+          const akaAt = aka[v];
+          const akaRead = `${n}reads_${akaAt}`;
+          const idRead = `${n}reads_${v}`;
 
           return to+
             `/**\n`+
             ` * Alias reads, depends on index reads \`${n}useReads_${v}\`.\n`+
             ` * If using both alias and index reads, using this uses both.\n`+
             ` */\n`+
-            `#define ${n}useReads_${aliasAt}${lf
-            }${n}useReads_${v}${
+            `#define ${n}useReads_${akaAt+lf
+            }${n}useReads_${v+
             reduce((s, read, r) => {
-                const indexTo = valueReadsToValue[r];
-                const aliasTo = alias[indexTo];
+                const idTo = valueReadsToValue[r];
+                const akaTo = aka[idTo];
                 /** How many steps into the past is the sample being read. */
                 const past = passSamples[read][0];
                 /** How many steps from the last is the sample being read. */
                 const last = stepsPast-past-1;
-
-                const note =
-                  `Alias for \`${aliasAt}\` reads \`${aliasTo}\` at `;
+                const note = `Alias for \`${akaAt}\` reads \`${akaTo}\` at `;
 
                 const noteNew =
                   `${note+past} step${(past === 1)? '' : 's'} into the past; `;
@@ -779,60 +777,64 @@ export function macroSamples(state, on) {
                 const noteOld =
                   `${note+last} step${(last === 1)? '' : 's'} from the last; `;
 
-                /** Alias-alias target of assignment. */
-                const aliasAlias = `${lf}const int ${readAlias}_${aliasTo}`;
-                /** Index-alias target of assignment. */
-                const indexAlias = `${lf}const int ${readIndex}_${aliasTo}`;
-                /** Alias-index target of assignment. */
-                const aliasIndex = `${lf}const int ${readAlias}_${indexTo}`;
+                /** Alias-to-alias target of assignment. */
+                const akaAKA = `${lf}const int ${akaRead}_${akaTo}`;
+                /** Index-to-alias target of assignment. */
+                const idAKA = `${lf}const int ${idRead}_${akaTo}`;
+                /** Alias-to-index target of assignment. */
+                const akaID = `${lf}const int ${akaRead}_${idTo}`;
                 /** Right side of assignment. */
-                const right = `${readIndex}_${r};${lf}`;
+                const right = `${idRead}_${r};${lf}`;
                 /** Left side of assignment. */
                 let left;
 
                 return s+lf+
                   // Combos for implied newest, bare.
-                  ((past || (s.indexOf(left = `${aliasAlias} = `) >= 0))? ''
+                  ((past || (s.indexOf(left = `${akaAKA} = `) >= 0))? ''
                   : `/** ${noteNew}implied newest, bare. */${left+right}`)+
-                  ((past || (s.indexOf(left = `${indexAlias} = `) >= 0))? ''
+                  ((past || (s.indexOf(left = `${idAKA} = `) >= 0))? ''
                   : `/** ${noteNew}implied newest, bare. */${left+right}`)+
-                  ((past || (s.indexOf(left = `${aliasIndex} = `) >= 0))? ''
+                  ((past || (s.indexOf(left = `${akaID} = `) >= 0))? ''
                   : `/** ${noteNew}implied newest, bare. */${left+right}`)+
                   // Combos for implied newest.
-                  ((past || (s.indexOf(left = `${aliasAlias}_new = `) >= 0))? ''
+                  ((past || (s.indexOf(left = `${akaAKA}_new = `) >= 0))? ''
                   : `/** ${noteNew}implied newest. */${left+right}`)+
-                  ((past || (s.indexOf(left = `${indexAlias}_new = `) >= 0))? ''
+                  ((past || (s.indexOf(left = `${idAKA}_new = `) >= 0))? ''
                   : `/** ${noteNew}implied newest. */${left+right}`)+
-                  ((past || (s.indexOf(left = `${aliasIndex}_new = `) >= 0))? ''
+                  ((past || (s.indexOf(left = `${akaID}_new = `) >= 0))? ''
                   : `/** ${noteNew}implied newest. */${left+right}`)+
                   // Combos for implied oldest.
-                  ((last || (s.indexOf(left = `${aliasAlias}_old = `) >= 0))? ''
+                  ((last || (s.indexOf(left = `${akaAKA}_old = `) >= 0))? ''
                   : `/** ${noteOld}implied oldest. */${left+right}`)+
-                  ((last || (s.indexOf(left = `${indexAlias}_old = `) >= 0))? ''
+                  ((last || (s.indexOf(left = `${idAKA}_old = `) >= 0))? ''
                   : `/** ${noteOld}implied oldest. */${left+right}`)+
-                  ((last || (s.indexOf(left = `${aliasIndex}_old = `) >= 0))? ''
+                  ((last || (s.indexOf(left = `${akaID}_old = `) >= 0))? ''
                   : `/** ${noteOld}implied oldest. */${left+right}`)+
                   // Combos for counted newest-to-oldest.
-                  ((s.indexOf(left = `${aliasAlias}_new_${past} = `) >= 0)? ''
+                  ((s.indexOf(left = `${akaAKA}_new_${past} = `) >= 0)? ''
                   : `/** ${noteNew}counted newest-to-oldest. */${left+right}`)+
-                  ((s.indexOf(left = `${indexAlias}_new_${past} = `) >= 0)? ''
+                  ((s.indexOf(left = `${idAKA}_new_${past} = `) >= 0)? ''
                   : `/** ${noteNew}counted newest-to-oldest. */${left+right}`)+
-                  ((s.indexOf(left = `${aliasIndex}_new_${past} = `) >= 0)? ''
+                  ((s.indexOf(left = `${akaID}_new_${past} = `) >= 0)? ''
                   : `/** ${noteNew}counted newest-to-oldest. */${left+right}`)+
                   // Combos for counted oldest-to-newest.
-                  ((s.indexOf(left = `${aliasAlias}_old_${last} = `) >= 0)? ''
+                  ((s.indexOf(left = `${akaAKA}_old_${last} = `) >= 0)? ''
                   : `/** ${noteOld}counted oldest-to-newest. */${left+right}`)+
-                  ((s.indexOf(left = `${indexAlias}_old_${last} = `) >= 0)? ''
+                  ((s.indexOf(left = `${idAKA}_old_${last} = `) >= 0)? ''
                   : `/** ${noteOld}counted oldest-to-newest. */${left+right}`)+
-                  ((s.indexOf(left = `${aliasIndex}_old_${last} = `) >= 0)? ''
+                  ((s.indexOf(left = `${akaID}_old_${last} = `) >= 0)? ''
                   : `/** ${noteOld}counted oldest-to-newest. */${left+right}`);
               },
-              reads, ((reads.length)? lf : ''))}${lf
-            }const int ${readAlias}_l = ${readIndex}_l;${lf
-            }int ${readAlias}_i(int i) { return ${readIndex}_i(i); }\n`+
-            `#define ${n}useReads_${v}_alias ${n}useReads_${aliasAt}\n\n`;
+              reads, ((reads.length)? lf : ''))+lf
+            }const int ${akaRead}_l = ${idRead}_l;\n\n`+
+            `#define ${akaRead}_i(i) ${idRead}_i(i)\n`+
+            `#define ${n}useReads_${v}_aka ${n}useReads_${akaAt}\n`;
         },
-        passReads, ''));
+        passReads, '')+'\n'+
+      `#define ${n}useReads${
+        reduce((s, _, v) => `${s+lf+n}useReads_${v}`, passReads, '')}\n\n`+
+      `#define ${n}useReads_aka${
+        reduce((s, _, v) => `${s+lf+n}useReads_${v}_aka`, passReads, '')}\n\n`);
 
   return ((cache)? cache[c] = to : to);
 }
@@ -991,8 +993,9 @@ export function macroTaps(state, on) {
       `/** Sample the states as given without shifting by any offsets. */\n`+
       def+`s(uv, states, textures)`+lf+
       f+`sBy(uv, states, textures, 0, 0)\n\n`+
-      `/** Preferred aliases: index suits states array constant access. */\n`+
-      aka+`s(uv, ${n}states, ${n}textures)\n`+
+      `/** Convenience: index states by known constant access. */\n`+
+      aka+`s(uv, ${n}states, ${n}textures)\n\n`+
+      `/** Convenience: index states by known constant access and offset. */\n`+
       akaBy+`sBy(uv, ${n}states, ${n}textures, ${by})\n`
     : /** Merged 2D `texture`. */
       `/**\n`+
