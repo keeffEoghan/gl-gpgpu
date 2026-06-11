@@ -33,8 +33,9 @@ export const toLink = (state, at, to = state) => (to.update = () => {
  */
 export function statePast(state, to = state) {
   assign(to, state);
-  to.stepNow = to.passNow = 0;
-  to.bound = 1;
+  to.bound ??= 1;
+  to.stepNow ??= 0;
+  to.passNow ??= 0;
 
   return to;
 }
@@ -42,9 +43,14 @@ export function statePast(state, to = state) {
 /** Update a state to link all data in one pass. */
 export function stateFull(state, to = state) {
   assign(to, state);
-  to.stepNow = to.passNow = 0;
-  to.bound = 0;
-  (to.maps ??= {}).buffersMax = 0;
+  /**
+   * Draw all states with none bound as outputs.
+   * @todo Errors without `merge`; why, if the framebuffer isn't bound?
+   */
+  to.bound ??= +(!to.merge);
+  to.stepNow ??= 0;
+  to.passNow ??= 0;
+  (to.maps ??= {}).buffersMax ??= 0;
 
   return to;
 }
